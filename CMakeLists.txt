@@ -1,0 +1,65 @@
+cmake_minimum_required(VERSION 3.10.2)
+project(m17-fme)
+
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
+
+#Set curses to ncurses, and wide true for ascii
+set(CURSES_NEED_NCURSES TRUE)
+set(CURSES_NEED_WIDE TRUE)
+
+#use cmake option -DCOLORS=ON to enable color output
+option(COLORS
+    "Build with Colors Enabled" OFF)
+if (COLORS)
+    add_definitions(-DPRETTY_COLORS) 
+endif ()
+
+include(git_revision)
+git_describe(GIT_TAG)
+
+find_package(LibSndFile REQUIRED) #required packaged need the REQUIRED argument
+find_package(PulseAudio REQUIRED) #required packaged need the REQUIRED argument
+find_package(Curses)
+find_package(CODEC2)
+
+include_directories(SYSTEM ${LIBSNDFILE_INCLUDE_DIR} ${PULSEAUDIO_INCLUDE_DIRS})
+set(LIBS ${LIBSNDFILE_LIBRARY} ${PULSEAUDIO_SIMPLE_LIBRARY} )
+
+# append optional libraries and directories and set definitions for optional function calls
+if(CODEC2_FOUND)
+    include_directories(SYSTEM ${CODEC2_INCLUDE_DIRS})
+    list(APPEND LIBS ${CODEC2_LIBRARIES})
+    add_definitions(-DUSE_CODEC2)
+endif(CODEC2_FOUND)
+
+if(CURSES_FOUND)
+    include_directories(SYSTEM ${CURSES_INCLUDE_DIRS})
+    list(APPEND LIBS ${CURSES_LIBRARIES})
+    add_definitions(-DUSE_CURSES)
+endif(CURSES_FOUND)
+
+FILE(GLOB SRCS src/*.c src/*.cpp)
+FILE(GLOB HEADERS include/*.h include/*.hpp)
+
+configure_file("src/git_ver.c.in" "${CMAKE_CURRENT_BINARY_DIR}/git_ver.c" @ONLY)
+list(APPEND SRCS "${CMAKE_CURRENT_BINARY_DIR}/git_ver.c")
+
+include_directories("${PROJECT_SOURCE_DIR}/include")
+
+ADD_EXECUTABLE(m17-fme ${SRCS} ${HEADERS})
+TARGET_LINK_LIBRARIES(m17-fme ${LIBS})
+
+target_compile_options(m17-fme PRIVATE -Wunused-but-set-variable -Wunused-variable -Wunused-parameter
+                       -Wempty-body -Wunused-label -Wall $<$<COMPILE_LANGUAGE:C>:-Wpointer-sign>) #remove -Wall if its too annoying
+
+include(GNUInstallDirs)
+install(TARGETS m17-fme DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# uninstall target
+configure_file(
+    "cmake/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
