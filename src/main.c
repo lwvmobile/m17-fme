@@ -9,6 +9,7 @@
 #define _MAIN
 
 #include "main.h"
+#include "git_ver.h"
 #include <signal.h>
 
 //signal handling
@@ -91,6 +92,9 @@ int main (int argc, char **argv)
   //print banner
   for (i = 1; i < 9; i++)
     fprintf (stderr,"%s\n", FM_banner[i]);
+
+  //print git tag and version number
+  fprintf (stderr, "Build Version: %s \n", GIT_TAG);
 
   //process user CLI optargs (options that require arguments have a colon after them)
   while ((c = getopt (argc, argv, "ha:b:")) != -1)
