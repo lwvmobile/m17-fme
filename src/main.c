@@ -34,15 +34,6 @@ char * FM_banner[9] = {
   "Project M17 - Florida Man Edition                          "
 };
 
-//example of initializing struct items
-void init_opts (config_opts * opts)
-{
-  opts->a = 0;
-  sprintf (opts->b, "%s", "initialize");
-  opts->c[0] = 0;
-  memset (opts->d, 0, sizeof(opts->d));
-}
-
 void usage ()
 {
   printf ("\n");
@@ -51,14 +42,23 @@ void usage ()
   printf ("\n");
 }
 
-void cleanupAndExit (config_opts * opts)
+void cleanupAndExit (config_opts * opts, pa_state * pa)
 {
   // Signal that everything should shutdown.
   exitflag = 1;
 
-  //do things before exiting, like closing open files, etc
+  //do things before exiting, like closing open devices, etc
   opts->a = 0;
   sprintf (opts->b, "%s", "shutdown");
+
+  if (pa->pa_input_is_open)
+    close_pulse_audio_input(pa);
+
+  if (pa->pa_output_rf_is_open)
+    close_pulse_audio_output_rf(pa);
+
+  if (pa->pa_output_vx_is_open)
+    close_pulse_audio_output_vx(pa);
 
   fprintf (stderr, "\n");
   fprintf (stderr,"Exiting.\n");
@@ -82,9 +82,14 @@ int main (int argc, char **argv)
   extern char *optarg;
   extern int optind, opterr, optopt;
 
-  //declare structure and initialize its elements
+  //declare structures and initialize their elements
   config_opts opts;
-  init_opts (&opts);
+  init_config_opts (&opts);
+
+  pa_state pa;
+  init_pa_state (&pa);
+
+  m17_state m17;
 
   //set the exitflag to 0
   exitflag = 0;
@@ -96,8 +101,8 @@ int main (int argc, char **argv)
   //print git tag and version number
   fprintf (stderr, "Build Version: %s \n", GIT_TAG);
 
-  //process user CLI optargs (options that require arguments have a colon after them)
-  while ((c = getopt (argc, argv, "ha:b:")) != -1)
+  //process user CLI optargs (try to keep them alphabatized for my personal sanity)
+  while ((c = getopt (argc, argv, "a:b:dhnv:")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -116,6 +121,23 @@ int main (int argc, char **argv)
         opts.b[1023] = '\0';
         fprintf (stderr,"B: %s\n", opts.b);
         break;
+
+      case 'd':
+        opts.use_m17_pkt_decoder = 1;
+        opts.use_m17_str_decoder = 1;
+        fprintf (stderr, "Project M17 RF Audio Stream and Packet Decoder Mode. \n");
+        break;
+
+      case 'n':
+        opts.use_ncurses_terminal = 1;
+        fprintf (stderr, "Ncurses Terminal Mode. \n");
+        break;
+
+      case 'v':
+        opts.payload_verbosity = atoi(optarg);
+        fprintf (stderr, "Payload Verbosity: %d \n", opts.payload_verbosity);
+        break;
+
     }
   }
 
@@ -123,12 +145,16 @@ int main (int argc, char **argv)
   signal (SIGINT, handler);
   signal (SIGTERM, handler);
 
+  open_pulse_audio_input (&pa);
+  open_pulse_audio_output_rf (&pa);
+  open_pulse_audio_output_vx (&pa);
+
   //call a function to run if contextual
   if (opts.a == 1)
-    framesync (&opts);
+    framesync (&opts, &pa, &m17);
 
   //exit gracefully
-  cleanupAndExit (&opts);
+  cleanupAndExit (&opts, &pa);
 
   return (0);
 }
