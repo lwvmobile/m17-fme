@@ -229,6 +229,8 @@ void framesync (config_opts * opts, pa_state * pa, m17_decoder_state * m17d, dem
 //misc utility functions
 void open_stdout_pipe(config_opts * opts);
 void write_stdout_pipe(config_opts * opts, short * out, size_t nsam);
+void open_stdin_pipe(wav_state * wav);
+short read_stdin_pipe(wav_state * wav);
 uint64_t ConvertBitIntoBytes(uint8_t * BufferIn, uint32_t BitLength);
 
 //M17
