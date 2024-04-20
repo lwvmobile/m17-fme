@@ -79,10 +79,20 @@ void init_m17d_state (m17_decoder_state * m17d)
 {
   m17d->src = 0;
   m17d->dst = 0;
+
+  #ifdef USE_CODEC2
+  m17d->codec2_3200 = codec2_create(CODEC2_MODE_3200);
+  m17d->codec2_1600 = codec2_create(CODEC2_MODE_1600);
+  #endif
 }
 
 void init_m17e_state (m17_encoder_state * m17e)
 {
   m17e->src = 0;
   m17e->dst = 0;
+
+  #ifdef USE_CODEC2
+  m17e->codec2_3200 = codec2_create(CODEC2_MODE_3200);
+  m17e->codec2_1600 = codec2_create(CODEC2_MODE_1600);
+  #endif
 }

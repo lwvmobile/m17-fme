@@ -120,12 +120,22 @@ typedef struct
   unsigned long long int src;
   unsigned long long int dst;
 
+  #ifdef USE_CODEC2
+  struct CODEC2 *codec2_3200;
+  struct CODEC2 *codec2_1600;
+  #endif
+
 } m17_decoder_state;
 
 typedef struct
 {
   unsigned long long int src;
   unsigned long long int dst;
+
+  #ifdef USE_CODEC2
+  struct CODEC2 *codec2_3200;
+  struct CODEC2 *codec2_1600;
+  #endif
 
 } m17_encoder_state;
 
