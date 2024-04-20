@@ -23,7 +23,7 @@ find_package(Curses)
 find_package(CODEC2)
 
 include_directories(SYSTEM ${LIBSNDFILE_INCLUDE_DIR} ${PULSEAUDIO_INCLUDE_DIRS})
-set(LIBS ${LIBSNDFILE_LIBRARY} ${PULSEAUDIO_SIMPLE_LIBRARY} )
+set(LIBS ${LIBSNDFILE_LIBRARY} ${PULSEAUDIO_SIMPLE_LIBRARY} ${PULSEAUDIO_LIBRARY})
 
 # append optional libraries and directories and set definitions for optional function calls
 if(CODEC2_FOUND)

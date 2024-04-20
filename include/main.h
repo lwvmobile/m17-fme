@@ -44,6 +44,7 @@
 //Pulse Audio Support
 #include <pulse/simple.h>
 #include <pulse/error.h>
+#include <pulse/introspect.h>
 
 //Useful Warning Shoosh
 #define UNUSED(x)                       ((void)x)
