@@ -198,6 +198,9 @@ uint16_t crc16(const uint8_t *in, const uint16_t len);
 //demodulation and sync functions
 void framesync (config_opts * opts, pa_state * pa, m17_decoder_state * m17d, demod_state * demod);
 
+//misc utility functions
+uint64_t ConvertBitIntoBytes(uint8_t * BufferIn, uint32_t BitLength);
+
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus
 extern "C" {
