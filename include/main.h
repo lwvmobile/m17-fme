@@ -182,6 +182,9 @@ void Golay_24_12_encode(unsigned char *origBits, unsigned char *encodedBits);
 bool Golay_24_12_decode(unsigned char *rxBits);
 void Golay_24_12_init();
 
+//CRC16
+uint16_t crc16(const uint8_t *in, const uint16_t len);
+
 //demodulation and sync functions
 void framesync (config_opts * opts, pa_state * pa, m17_decoder_state * m17d, demod_state * demod);
 
