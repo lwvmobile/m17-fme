@@ -99,6 +99,8 @@ typedef struct
 
   uint8_t disable_rrc_filter;
 
+  int stdout_pipe;
+
 } config_opts;
 
 //Demodulation States
@@ -225,6 +227,8 @@ uint16_t crc16(const uint8_t *in, const uint16_t len);
 void framesync (config_opts * opts, pa_state * pa, m17_decoder_state * m17d, demod_state * demod);
 
 //misc utility functions
+void open_stdout_pipe(config_opts * opts);
+void write_stdout_pipe(config_opts * opts, short * out, size_t nsam);
 uint64_t ConvertBitIntoBytes(uint8_t * BufferIn, uint32_t BitLength);
 
 //M17

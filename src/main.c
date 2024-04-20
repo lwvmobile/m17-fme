@@ -175,6 +175,7 @@ int main (int argc, char **argv)
   open_pulse_audio_output_vx (&pa);
 
   open_wav_out_rf(&wav);
+  // open_stdout_pipe(&opts); //works
 
   //call a function to run if contextual
   if (opts.use_m17_str_decoder == 1)

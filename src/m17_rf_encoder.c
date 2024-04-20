@@ -215,26 +215,15 @@ void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * 
   //   fclose(pFile);
   // }
 
-  //playing back signal audio into device/udp
-  //NOTE: Open the analog output device, use -8
-  if (1 == 1)
-  {
-    //Pulse Audio
-    if (pa->pa_output_rf_is_open == 1)
-      // pa_simple_write(opts->pulse_raw_dev_out, baseband, 1920*2, NULL);
-      pulse_audio_output_rf(pa, baseband, 1920);
-    
-    // // UDP
-    // if (opts->audio_out_type == 8)
-    //   udp_socket_blasterA (opts, state, 1920*2, baseband);
-
-    // //STDOUT or OSS 48k/1
-    // if (opts->audio_out_type == 1 || opts->audio_out_type == 5)
-    //   write (opts->audio_out_fd, baseband, 1920*2);
-
-  }
+  //Pulse Audio
+  if (pa->pa_output_rf_is_open == 1)
+    pulse_audio_output_rf(pa, baseband, 1920);
   
-  //write to any open rf wav file
+  //STDOUT or OSS 48k/1
+  if (opts->stdout_pipe)
+    write_stdout_pipe(opts, baseband, 1920);
+
+  //write to rf wav file
   if (wav->wav_out_rf != NULL)
   {
     write_wav_out_rf(wav, baseband, 1920);
