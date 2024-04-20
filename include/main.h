@@ -176,6 +176,11 @@ void convolution_chainback(unsigned char* out, unsigned int nBits);
 void convolution_start();
 void convolution_init();
 
+//Golay 24_12 encoder and decoder
+void Golay_24_12_encode(unsigned char *origBits, unsigned char *encodedBits);
+bool Golay_24_12_decode(unsigned char *rxBits);
+void Golay_24_12_init();
+
 //demodulation and sync functions
 void framesync (config_opts * opts, pa_state * pa, m17_decoder_state * m17d, demod_state * demod);
 
