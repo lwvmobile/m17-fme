@@ -42,7 +42,7 @@ void usage ()
   printf ("\n");
 }
 
-void cleanupAndExit (config_opts * opts, pa_state * pa)
+void cleanupAndExit (config_opts * opts, pa_state * pa, wav_state * wav)
 {
   // Signal that everything should shutdown.
   exitflag = 1;
@@ -59,6 +59,12 @@ void cleanupAndExit (config_opts * opts, pa_state * pa)
 
   if (pa->pa_output_vx_is_open)
     close_pulse_audio_output_vx(pa);
+
+  if (wav->wav_out_rf)
+    close_wav_out_rf(wav);
+
+  if (wav->wav_out_vx)
+    close_wav_out_vx(wav);
 
   fprintf (stderr, "\n");
   fprintf (stderr,"Exiting.\n");
@@ -97,6 +103,9 @@ int main (int argc, char **argv)
 
   demod_state demod;
   init_demod_state (&demod);
+
+  wav_state wav;
+  init_wav_state (&wav);
 
   //initialize convolutional decoder and golay
   convolution_init();
@@ -165,15 +174,17 @@ int main (int argc, char **argv)
   open_pulse_audio_output_rf (&pa);
   open_pulse_audio_output_vx (&pa);
 
+  open_wav_out_rf(&wav);
+
   //call a function to run if contextual
   if (opts.use_m17_str_decoder == 1)
     framesync (&opts, &pa, &m17d, &demod);
 
   if (opts.use_m17_pkt_encoder == 1)
-    encodeM17PKT(&opts, &pa);
+    encodeM17PKT(&opts, &pa, &wav);
 
   //exit gracefully
-  cleanupAndExit (&opts, &pa);
+  cleanupAndExit (&opts, &pa, &wav);
 
   return (0);
 }

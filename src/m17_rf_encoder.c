@@ -10,7 +10,7 @@
 // #include "m17.h"
 
 //convert bit array into symbols and RF/Audio
-void encodeM17RF (config_opts * opts, pa_state * pa, uint8_t * input, float * mem, int type)
+void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * input, float * mem, int type)
 {
 
   //dibits-symbols map
@@ -234,15 +234,12 @@ void encodeM17RF (config_opts * opts, pa_state * pa, uint8_t * input, float * me
 
   }
   
-  //if we have a raw signal wav file, write to it now
-  // if (opts->wav_out_raw != NULL)
-  // {
-  //   sf_write_short(opts->wav_out_raw, baseband, 1920);
-  //   sf_write_sync (opts->wav_out_raw);
-  // }
-
-  //NOTE: Internal voice decoding is disabled when tx audio over a hardware device, wav/bin still enabled
-  // UNUSED(opts);
+  //write to any open rf wav file
+  if (wav->wav_out_rf != NULL)
+  {
+    write_wav_out_rf(wav, baseband, 1920);
+    sf_write_sync (wav->wav_out_rf);
+  }
 
 }
 

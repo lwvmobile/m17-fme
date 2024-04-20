@@ -159,6 +159,21 @@ typedef struct
 
 } pa_state;
 
+//WAV files with sndfile
+typedef struct
+{
+
+  SNDFILE *audio_in_file;
+  SF_INFO *audio_in_file_info;
+
+  SNDFILE *wav_out_vx;
+  SNDFILE *wav_out_rf;
+
+  char wav_out_file_rf[1024];
+  char wav_out_file_vx[1024];
+
+} wav_state;
+
 //c function prototypes
 
 //structure element initialization
@@ -167,6 +182,7 @@ void init_pa_state (pa_state * pa);
 void init_demod_state (demod_state * demod);
 void init_m17d_state (m17_decoder_state * m17d);
 void init_m17e_state (m17_encoder_state * m17e);
+void init_wav_state (wav_state * wav);
 
 //Pulse Audio Handling
 void open_pulse_audio_input (pa_state * pa);
@@ -178,6 +194,14 @@ void close_pulse_audio_output_vx (pa_state * pa);
 short pa_input_read (pa_state * pa);
 void pulse_audio_output_rf(pa_state * pa, short * out, size_t nsam);
 void pulse_audio_output_vx(pa_state * pa, short * out, size_t nsam);
+
+//libsndfile Wav File Handling
+void open_wav_out_rf (wav_state * wav);
+void open_wav_out_vx (wav_state * wav);
+void close_wav_out_rf (wav_state * wav);
+void close_wav_out_vx (wav_state * wav);
+void write_wav_out_rf (wav_state * wav, short * out, size_t nsam);
+void write_wav_out_vx (wav_state * wav, short * out, size_t nsam);
 
 //Audio Manipulation and Filters
 void upsample_6x(short input, short * output);
@@ -204,8 +228,8 @@ void framesync (config_opts * opts, pa_state * pa, m17_decoder_state * m17d, dem
 uint64_t ConvertBitIntoBytes(uint8_t * BufferIn, uint32_t BitLength);
 
 //M17
-void encodeM17RF (config_opts * opts, pa_state * pa, uint8_t * input, float * mem, int type);
-void encodeM17PKT(config_opts * opts, pa_state * pa);
+void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * input, float * mem, int type);
+void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav);
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus

@@ -10,7 +10,7 @@
 // #include "m17.h"
 
 //TODO: Finish up other required functions called within, and also figure out what we want to pass here
-void encodeM17PKT(config_opts * opts, pa_state * pa)
+void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav)
 {
 
   //NOTE: Easiest way to avoid the multiple instances of issue is just to copy and paste all this
@@ -112,10 +112,10 @@ void encodeM17PKT(config_opts * opts, pa_state * pa)
 
   //send dead air with type 99
   for (i = 0; i < 25; i++)
-    encodeM17RF (opts, pa, nil, mem, 99);
+    encodeM17RF (opts, pa, wav, nil, mem, 99);
 
   //send preamble_a for the LSF frame
-  encodeM17RF (opts, pa, nil, mem, 33);
+  encodeM17RF (opts, pa, wav, nil, mem, 33);
 
   //NOTE: PKT mode does not seem to have an IP format specified by M17 standard,
   //so I will assume that you do not send PKT data over IP to a reflector
@@ -486,8 +486,8 @@ void encodeM17PKT(config_opts * opts, pa_state * pa)
 
       //convert bit array into symbols and RF/Audio
       memset (nil, 0, sizeof(nil));
-      encodeM17RF (opts, pa, nil, mem, 11); //Preamble
-      encodeM17RF (opts, pa, m17_lsfs, mem, 1); //LSF
+      encodeM17RF (opts, pa, wav, nil, mem, 11); //Preamble
+      encodeM17RF (opts, pa, wav, m17_lsfs, mem, 1); //LSF
 
       //flag off after sending
       new_lsf = 0;
@@ -566,17 +566,17 @@ void encodeM17PKT(config_opts * opts, pa_state * pa)
     // fprintf (stderr, " PBC: %d;", pbc);
 
     //convert bit array into symbols and RF/Audio
-    encodeM17RF (opts, pa, m17_p4s, mem, 4);
+    encodeM17RF (opts, pa, wav, m17_p4s, mem, 4);
 
     //send the EOT Marker and some dead air
     if (eot)
     {
       memset (nil, 0, sizeof(nil));
-      encodeM17RF (opts, pa, nil, mem, 55); //EOT Marker
+      encodeM17RF (opts, pa, wav, nil, mem, 55); //EOT Marker
 
       //send dead air with type 99
       for (i = 0; i < 25; i++)
-        encodeM17RF (opts, pa, nil, mem, 99);
+        encodeM17RF (opts, pa, wav, nil, mem, 99);
 
       //shut it down
       exitflag = 1;

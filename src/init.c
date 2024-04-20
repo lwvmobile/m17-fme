@@ -98,3 +98,9 @@ void init_m17e_state (m17_encoder_state * m17e)
   m17e->codec2_1600 = codec2_create(CODEC2_MODE_1600);
   #endif
 }
+
+void init_wav_state (wav_state * wav)
+{
+  sprintf (wav->wav_out_file_rf, "%s", "m17_rf_wav.wav");
+  sprintf (wav->wav_out_file_vx, "%s", "m17_vx_wav.wav");
+}
