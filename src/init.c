@@ -35,6 +35,8 @@ void init_config_opts (config_opts * opts)
 
   opts->use_m17_ipf_encoder = 0;
   opts->use_m17_ipf_decoder = 0;
+
+  opts->disable_rrc_filter = 1; //Disable this later on
 }
 
 void init_pa_state (pa_state * pa)

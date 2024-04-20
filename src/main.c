@@ -113,7 +113,7 @@ int main (int argc, char **argv)
   fprintf (stderr, "Build Version: %s \n", GIT_TAG);
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
-  while ((c = getopt (argc, argv, "a:b:dhnv:")) != -1)
+  while ((c = getopt (argc, argv, "a:b:dhnv:P")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -149,6 +149,11 @@ int main (int argc, char **argv)
         fprintf (stderr, "Payload Verbosity: %d \n", opts.payload_verbosity);
         break;
 
+      case 'P':
+        opts.use_m17_pkt_encoder = 1;
+        fprintf (stderr, "Project M17 Packet Encoder. \n");
+        break;
+
     }
   }
 
@@ -163,6 +168,9 @@ int main (int argc, char **argv)
   //call a function to run if contextual
   if (opts.use_m17_str_decoder == 1)
     framesync (&opts, &pa, &m17d, &demod);
+
+  if (opts.use_m17_pkt_encoder == 1)
+    encodeM17PKT(&opts, &pa);
 
   //exit gracefully
   cleanupAndExit (&opts, &pa);

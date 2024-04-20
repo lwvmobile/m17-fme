@@ -7,11 +7,49 @@
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"
-#include "m17.h"
+// #include "m17.h"
 
 //TODO: Finish up other required functions called within, and also figure out what we want to pass here
-void encodeM17PKT()
+void encodeM17PKT(config_opts * opts, pa_state * pa)
 {
+
+  //NOTE: Easiest way to avoid the multiple instances of issue is just to copy and paste all this
+  //TODO: Find a more elegant solution later on
+
+  float mem[81];
+  char b40[] = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.";
+  uint8_t p1[62] = {
+  1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1,
+  1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1,
+  1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1,
+  1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1
+  };
+  uint8_t p3[62] = {1, 1, 1, 1, 1, 1, 1, 0};
+  uint8_t m17_scramble[369] = { 
+  1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1,
+  1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+  1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0,
+  1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0,
+  1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0,
+  1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0,
+  1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1,
+  0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0,
+  0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,
+  1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1,
+  1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0,
+  0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1,
+  0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0,
+  0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0,
+  1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0,
+  0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1,
+  1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+  1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1,
+  1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1,
+  0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0,
+  0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1,
+  0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1 
+  };
 
   //initialize RRC memory buffer
   memset (mem, 0, 81*sizeof(float));
@@ -27,8 +65,8 @@ void encodeM17PKT()
   unsigned long long int dst = 0;
   unsigned long long int src = 0;
   //DST and SRC Callsign Data (pick up to 9 characters from the b40 char array)
-  char d40[50] = "DSD-FME  "; //DST
-  char s40[50] = "DSD-FME  "; //SRC
+  char d40[50] = "M17-FME  "; //DST
+  char s40[50] = "M17-FME  "; //SRC
 
   //Default
   // char text[800] = "This is a simple SMS text message sent over M17 Packet Data.";
@@ -73,11 +111,11 @@ void encodeM17PKT()
   //end CLI Configuration
 
   //send dead air with type 99
-  // for (i = 0; i < 25; i++)
-  //   encodeM17RF (opts, state, nil, 99);
+  for (i = 0; i < 25; i++)
+    encodeM17RF (opts, pa, nil, mem, 99);
 
   //send preamble_a for the LSF frame
-  // encodeM17RF (opts, state, nil, 33);
+  encodeM17RF (opts, pa, nil, mem, 33);
 
   //NOTE: PKT mode does not seem to have an IP format specified by M17 standard,
   //so I will assume that you do not send PKT data over IP to a reflector
@@ -448,8 +486,8 @@ void encodeM17PKT()
 
       //convert bit array into symbols and RF/Audio
       memset (nil, 0, sizeof(nil));
-      // encodeM17RF (opts, state, nil, 11); //Preamble
-      // encodeM17RF (opts, state, m17_lsfs, 1); //LSF
+      encodeM17RF (opts, pa, nil, mem, 11); //Preamble
+      encodeM17RF (opts, pa, m17_lsfs, mem, 1); //LSF
 
       //flag off after sending
       new_lsf = 0;
@@ -528,17 +566,17 @@ void encodeM17PKT()
     // fprintf (stderr, " PBC: %d;", pbc);
 
     //convert bit array into symbols and RF/Audio
-    // encodeM17RF (opts, state, m17_p4s, 4);
+    encodeM17RF (opts, pa, m17_p4s, mem, 4);
 
     //send the EOT Marker and some dead air
     if (eot)
     {
       memset (nil, 0, sizeof(nil));
-      // encodeM17RF (opts, state, nil, 55); //EOT Marker
+      encodeM17RF (opts, pa, nil, mem, 55); //EOT Marker
 
       //send dead air with type 99
-      // for (i = 0; i < 25; i++)
-      //   encodeM17RF (opts, state, nil, 99);
+      for (i = 0; i < 25; i++)
+        encodeM17RF (opts, pa, nil, mem, 99);
 
       //shut it down
       exitflag = 1;

@@ -97,6 +97,8 @@ typedef struct
   uint8_t use_m17_ipf_encoder;
   uint8_t use_m17_ipf_decoder;
 
+  uint8_t disable_rrc_filter;
+
 } config_opts;
 
 //Demodulation States
@@ -200,6 +202,10 @@ void framesync (config_opts * opts, pa_state * pa, m17_decoder_state * m17d, dem
 
 //misc utility functions
 uint64_t ConvertBitIntoBytes(uint8_t * BufferIn, uint32_t BitLength);
+
+//M17
+void encodeM17RF (config_opts * opts, pa_state * pa, uint8_t * input, float * mem, int type);
+void encodeM17PKT(config_opts * opts, pa_state * pa);
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus
