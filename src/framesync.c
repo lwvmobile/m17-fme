@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------------
- * fsync.c
+ * framesync.c
  * Project M17 - Frame Sync and Symbol / Dibit Extraction
  *
  * LWVMOBILE
