@@ -169,10 +169,14 @@ void pulse_audio_output_vx(pa_state * pa, short * out, size_t nsam);
 //Audio Manipulation and Filters
 void upsample_6x(short input, short * output);
 
-//convolutional encoder and viterbi decoder
+//convolutional encoder and viterbi decoder(s)
 void simple_conv_encoder (uint8_t * input, uint8_t * output, int len);
+void convolution_decode(uint8_t s0, uint8_t s1);
+void convolution_chainback(unsigned char* out, unsigned int nBits);
+void convolution_start();
+void convolution_init();
 
-//decoder and demodulation functions
+//demodulation and sync functions
 void framesync (config_opts * opts, pa_state * pa, m17_decoder_state * m17d, demod_state * demod);
 
 //if using cpp code, then put function prototypes in below

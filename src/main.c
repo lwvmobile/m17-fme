@@ -98,6 +98,9 @@ int main (int argc, char **argv)
   demod_state demod;
   init_demod_state (&demod);
 
+  //initialize convolutional decoder
+  convolution_init();
+
   //set the exitflag to 0
   exitflag = 0;
 
