@@ -8,6 +8,14 @@
 
 #include "main.h"
 
+//simple 6x 8K to 48K upsample
+void upsample_6x(short input, short * output)
+{
+  int i;
+  for (i = 0; i < 6; i++)
+    output[i] = input;
+}
+
 uint64_t ConvertBitIntoBytes(uint8_t * BufferIn, uint32_t BitLength)
 {
   uint64_t Output = 0;

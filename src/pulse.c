@@ -94,11 +94,3 @@ void pulse_audio_output_vx(pa_state * pa, short * out, size_t nsam)
   }
 }
 
-//simple 6x 8K to 48K upsample
-void upsample_6x(short input, short * output)
-{
-  int i;
-  for (i = 0; i < 6; i++)
-    output[i] = input;
-}
-
