@@ -98,14 +98,35 @@ typedef struct
 
 } config_opts;
 
+//Demodulation States
+typedef struct
+{
+  float   float_sample_buffer[65535];
+  short   sample_buffer[65535];
+  int32_t sample_buffer_ptr;
+
+  int16_t symbol_buffer[65535];
+  int32_t symbol_buffer_ptr;
+
+  uint8_t dibit_buffer[65535];
+  int32_t dibit_buffer_ptr;
+
+} demod_state;
+
 //M17 Encoder and Decoder States
 typedef struct
 {
-  uint8_t a;
-  char b[1024];
-  char c[1024];
-  uint8_t d[100];
-} m17_state;
+  unsigned long long int src;
+  unsigned long long int dst;
+
+} m17_decoder_state;
+
+typedef struct
+{
+  unsigned long long int src;
+  unsigned long long int dst;
+
+} m17_encoder_state;
 
 //Pulse Audio Options and States
 typedef struct
@@ -130,6 +151,9 @@ typedef struct
 //structure element initialization
 void init_config_opts (config_opts * opts);
 void init_pa_state (pa_state * pa);
+void init_demod_state (demod_state * demod);
+void init_m17d_state (m17_decoder_state * m17d);
+void init_m17e_state (m17_encoder_state * m17e);
 
 //Pulse Audio Handling
 void open_pulse_audio_input (pa_state * pa);
@@ -146,7 +170,7 @@ void pulse_audio_output_vx(pa_state * pa, short * out, size_t nsam);
 void upsample_6x(short input, short * output);
 
 
-void framesync (config_opts * opts, pa_state * pa, m17_state * m17);
+void framesync (config_opts * opts, pa_state * pa, m17_decoder_state * m17d, demod_state * demod);
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus

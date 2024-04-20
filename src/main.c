@@ -89,7 +89,14 @@ int main (int argc, char **argv)
   pa_state pa;
   init_pa_state (&pa);
 
-  m17_state m17;
+  m17_decoder_state m17d;
+  init_m17d_state(&m17d);
+
+  m17_decoder_state m17e;
+  init_m17d_state(&m17e);
+
+  demod_state demod;
+  init_demod_state (&demod);
 
   //set the exitflag to 0
   exitflag = 0;
@@ -150,8 +157,8 @@ int main (int argc, char **argv)
   open_pulse_audio_output_vx (&pa);
 
   //call a function to run if contextual
-  if (opts.a == 1)
-    framesync (&opts, &pa, &m17);
+  if (opts.use_m17_str_decoder == 1)
+    framesync (&opts, &pa, &m17d, &demod);
 
   //exit gracefully
   cleanupAndExit (&opts, &pa);

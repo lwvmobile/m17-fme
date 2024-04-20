@@ -61,3 +61,28 @@ void init_pa_state (pa_state * pa)
   pa->pa_output_vx_is_open = 0;
   
 }
+
+void init_demod_state (demod_state * demod)
+{
+  memset (demod->float_sample_buffer, 0, 65535*sizeof(short));
+  memset (demod->sample_buffer, 0, 65535*sizeof(short));
+  demod->sample_buffer_ptr = 0;
+
+  memset (demod->symbol_buffer, 0, 65535*sizeof(int16_t));
+  demod->symbol_buffer_ptr = 0;
+
+  memset (demod->dibit_buffer, 0, 65535*sizeof(uint8_t));
+  demod->dibit_buffer_ptr = 0;
+}
+
+void init_m17d_state (m17_decoder_state * m17d)
+{
+  m17d->src = 0;
+  m17d->dst = 0;
+}
+
+void init_m17e_state (m17_encoder_state * m17e)
+{
+  m17e->src = 0;
+  m17e->dst = 0;
+}
