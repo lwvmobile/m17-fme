@@ -19,19 +19,13 @@ void framesync (config_opts * opts, pa_state * pa, m17_decoder_state * m17d, dem
   while (!exitflag)
   {
     if (pa->pa_input_is_open)
-      demod->sample_buffer[demod->sample_buffer_ptr] = pa_input_read(pa);
+      demod->sample_buffer[(demod->sample_buffer_ptr%65535)] = pa_input_read(pa);
 
     //TODO: Actually find a frame sync, pretty sure libm17 likes float samples for its euclidean voodoo
-    demod->float_sample_buffer[demod->sample_buffer_ptr] = (float)demod->sample_buffer[demod->sample_buffer_ptr];
+    demod->float_sample_buffer[(demod->sample_buffer_ptr%65535)] = (float)demod->sample_buffer[(demod->sample_buffer_ptr%65535)];
 
     //increment the sample buffer pointer
     demod->sample_buffer_ptr++;
-
-    //reset the sample buffer pointer before it can overflow
-    if (demod->sample_buffer_ptr > 65400)
-    {
-      demod->sample_buffer_ptr = 0;
-    }
 
   }
 }
