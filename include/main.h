@@ -180,6 +180,7 @@ typedef struct
   #ifdef USE_PULSEAUDIO
   pa_sample_spec input;
   pa_buffer_attr inputlt;
+  pa_buffer_attr outputlt;
   pa_sample_spec output_rf;
   pa_sample_spec output_vx;
 

@@ -24,7 +24,7 @@ void open_pulse_audio_input (pa_state * pa)
 
 void open_pulse_audio_output_rf (pa_state * pa)
 {
-  pa->pa_output_device_rf = pa_simple_new(NULL, "M17-FME3", PA_STREAM_PLAYBACK, NULL, "RF Audio Output", &pa->output_rf, NULL, NULL, &err);
+  pa->pa_output_device_rf = pa_simple_new(NULL, "M17-FME3", PA_STREAM_PLAYBACK, NULL, "RF Audio Output", &pa->output_rf, NULL, &pa->outputlt, &err);
   pa->pa_output_rf_is_open = 1;
   if (err < 0)
   {
@@ -35,7 +35,7 @@ void open_pulse_audio_output_rf (pa_state * pa)
 
 void open_pulse_audio_output_vx (pa_state * pa)
 {
-  pa->pa_output_device_vx = pa_simple_new(NULL, "M17-FME2", PA_STREAM_PLAYBACK, NULL, "Voice Output", &pa->output_vx, NULL, NULL, &err);
+  pa->pa_output_device_vx = pa_simple_new(NULL, "M17-FME2", PA_STREAM_PLAYBACK, NULL, "Voice Output", &pa->output_vx, NULL, &pa->outputlt, &err);
   pa->pa_output_vx_is_open = 1;
   if (err < 0)
   {

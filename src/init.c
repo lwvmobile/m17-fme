@@ -69,6 +69,12 @@ void init_pa_state (pa_state * pa)
   pa->inputlt.maxlength = -1;
   pa->inputlt.prebuf = -1;
   pa->inputlt.tlength = -1;
+
+  pa->outputlt.fragsize = 960*5;
+  pa->outputlt.maxlength = -1;
+  pa->outputlt.prebuf = -1;
+  pa->outputlt.tlength = -1;
+
   #endif
 
   pa->pa_input_is_open = 0;
