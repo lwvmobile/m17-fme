@@ -9,7 +9,7 @@ set(CURSES_NEED_WIDE TRUE)
 
 #use cmake option -DCOLORS=ON to enable color output
 option(COLORS
-    "Build with Colors Enabled" OFF)
+    "Build with Colors Enabled" ON)
 if (COLORS)
     add_definitions(-DPRETTY_COLORS) 
 endif ()

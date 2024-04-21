@@ -21,10 +21,10 @@ void handler(int sgnl)
   exitflag = 1;
 }
 
-//Banner
+//Basic Banner
 char * FM_banner[9] = {
-  "                            ",
-  "                            ",
+  "                                                           ",
+  "                                                           ",
   " ███╗   ███╗   ███╗  ███████╗   ███████╗███╗   ███╗███████╗",
   " ████╗ ████║  ████║  ╚════██║   ██╔════╝████╗ ████║██╔════╝",
   " ██╔████╔██║ ██╔██║      ██╔╝   █████╗  ██╔████╔██║█████╗  ",
@@ -32,6 +32,43 @@ char * FM_banner[9] = {
   " ██║ ╚═╝ ██║ ███████╗  ██╔╝     ██║     ██║ ╚═╝ ██║███████╗",
   " ╚═╝     ╚═╝ ╚══════╝  ╚═╝      ╚═╝     ╚═╝     ╚═╝╚══════╝",
   "Project M17 - Florida Man Edition                          "
+};
+
+//Color Segmented Banner
+char * M_banner[9] = {
+  "             ",
+  "             ",
+  " ███╗   ███╗ ",
+  " ████╗ ████║ ",
+  " ██╔████╔██║ ",
+  " ██║╚██╔╝██║ ",
+  " ██║ ╚═╝ ██║ ",
+  " ╚═╝     ╚═╝ ",
+  "             "
+};
+
+char * S_banner[9] = {
+  "                    ",
+  "                    ",
+  "    ███╗  ███████╗  ",
+  "   ████║  ╚════██║  ",
+  "  ██╔██║      ██╔╝  ",
+  "  ╚═╝██║     ██╔╝   ",
+  "  ███████╗  ██╔╝    ",
+  "  ╚══════╝  ╚═╝     ",
+  "                    "
+};
+
+char * FME_banner[9] = {
+  "                             ",
+  "                             ",
+  " ███████╗███╗   ███╗███████╗ ",
+  " ██╔════╝████╗ ████║██╔════╝ ",
+  " █████╗  ██╔████╔██║█████╗   ",
+  " ██╔══╝  ██║╚██╔╝██║██╔══╝   ",
+  " ██║     ██║ ╚═╝ ██║███████╗ ",
+  " ╚═╝     ╚═╝     ╚═╝╚══════╝ ",
+  "                             "
 };
 
 void usage ()
@@ -118,9 +155,31 @@ int main (int argc, char **argv)
   //set the exitflag to 0
   exitflag = 0;
 
-  //print banner
+  #ifdef PRETTY_COLORS
+  //print pretty color banner
+  for (i = 1; i < 8; i++)
+  {
+    fprintf (stderr, "%s", BWHT); //white background
+    fprintf (stderr, "%s", KBLK); //black text
+    fprintf (stderr, "%s", M_banner[i]);
+    
+    fprintf (stderr, "%s", KRED); //red text
+    fprintf (stderr, "%s", S_banner[i]);
+
+    fprintf (stderr, "%s", KBLU); //cyan? text
+    fprintf (stderr, "%s", FME_banner[i]);
+
+    fprintf (stderr, "%s", BNRM); //normal background for this terminal
+    fprintf (stderr, "%s", KNRM); //normal font for this terminal
+    fprintf (stderr, "\n"); //line break
+  }
+  fprintf (stderr, "%s\n", FM_banner[8]);
+  fprintf (stderr, "%s", KNRM); //normal font for this terminal
+  #else
+  //print basic banner
   for (i = 1; i < 9; i++)
     fprintf (stderr,"%s\n", FM_banner[i]);
+  #endif
 
   //print git tag and version number
   fprintf (stderr, "Build Version: %s \n", GIT_TAG);
