@@ -120,6 +120,10 @@ void init_m17e_state (m17_encoder_state * m17e)
   sprintf (m17e->sms, "%s", "");
   sprintf (m17e->dat, "%s", "");
   sprintf (m17e->arb, "%s", "1234567 ABCDEFG 7654321 GFEDCBA 0000000 ZZZZZZZ");
+
+  //Stream Voice Mode
+  m17e->str_encoder_tx = 1;
+  m17e->str_encoder_eot = 0;
 }
 
 void init_wav_state (wav_state * wav)

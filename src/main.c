@@ -186,7 +186,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER
-  while ((c = getopt (argc, argv, "a:b:dhnv:A:D:F:IPM:S:U:")) != -1)
+  while ((c = getopt (argc, argv, "a:b:dhnv:A:D:F:IPM:S:U:V")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -246,7 +246,7 @@ int main (int argc, char **argv)
       //Enable IP Frame Output
       case 'I':
         opts.m17_use_ip = 1;
-        fprintf (stderr, "Project M17 Packet Encoder IP Frame Enabled. \n");
+        fprintf (stderr, "Project M17 Encoder IP Frame Enabled. \n");
         break;
 
       //Enable the PKT Encoder
@@ -271,6 +271,12 @@ int main (int argc, char **argv)
       case 'U':
         strncpy(opts.m17_udp_input, optarg, 1024);
         opts.m17_udp_input[1024] = '\0';
+        break;
+
+      //Enable the Stream Voice Encoder
+      case 'V':
+        opts.use_m17_str_encoder = 1;
+        fprintf (stderr, "Project M17 Stream Voice Encoder. \n");
         break;
 
     }
@@ -342,6 +348,9 @@ int main (int argc, char **argv)
 
   if (opts.use_m17_pkt_encoder == 1)
     encodeM17PKT(&opts, &pa, &wav, &m17e);
+
+  if (opts.use_m17_str_encoder == 1)
+    encodeM17STR(&opts, &pa, &wav, &m17e);
 
   //exit gracefully
   cleanup_and_exit (&opts, &pa, &wav, &m17d, &m17e);

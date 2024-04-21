@@ -167,6 +167,11 @@ typedef struct
   char dat[800]; //user supplied other data type for pkt encoder
   char arb[800]; //user supplied arbitrary data on 1600
 
+  //Stream Voice Mode
+  uint8_t str_encoder_tx; //flag if transmit on or off
+  uint8_t str_encoder_eot; //flag if transmit off and send EOT
+
+
 } m17_encoder_state;
 
 //Pulse Audio Options and States
@@ -272,6 +277,7 @@ uint64_t ConvertBitIntoBytes(uint8_t * BufferIn, uint32_t BitLength);
 //M17
 void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * input, float * mem, int type);
 void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e);
+void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e);
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus
