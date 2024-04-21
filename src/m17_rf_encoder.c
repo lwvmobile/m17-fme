@@ -202,18 +202,18 @@ void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * 
   // }
 
   //save symbol stream format (M17_Implementations), output to float values that m17-packet-decode can read
-  // if (opts->use_dsp_output) //use -Q output.bin to use this format, will be placed in the DSP folder (reusing DSP)
-  // {
-  //   FILE * pFile; //file pointer
-  //   pFile = fopen (opts->dsp_out_file, "a"); //append, not write
-  //   float val = 0;
-  //   for (i = 0; i < 192; i++)
-  //   {
-  //     val = (float)output_symbols[i];
-  //     fwrite(&val, 4, 1, pFile);
-  //   }
-  //   fclose(pFile);
-  // }
+  if (opts->float_symbol_output)
+  {
+    FILE * pFile; //file pointer
+    pFile = fopen (opts->float_symbol_output_file, "a"); //append, not write
+    float val = 0;
+    for (i = 0; i < 192; i++)
+    {
+      val = (float)output_symbols[i];
+      fwrite(&val, 4, 1, pFile);
+    }
+    fclose(pFile);
+  }
 
   //Pulse Audio
   #ifdef USE_PULSEAUDIO
@@ -221,7 +221,7 @@ void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * 
     pulse_audio_output_rf(pa, baseband, 1920);
   #endif
   
-  //STDOUT or OSS 48k/1
+  //STDOUT or OSS 48k/1 (OSS not implemented)
   if (opts->stdout_pipe)
     write_stdout_pipe(opts, baseband, 1920);
 

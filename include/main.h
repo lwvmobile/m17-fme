@@ -107,6 +107,8 @@ typedef struct
   uint8_t m17_str_encoder_dt;
   uint8_t disable_rrc_filter;
   int stdout_pipe;
+  int float_symbol_output;
+  char float_symbol_output_file[1024];
 
   //UDP for IP frame output
   int m17_use_ip;   //if enabled, open UDP and broadcast IP frame

@@ -186,7 +186,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER
-  while ((c = getopt (argc, argv, "a:b:dhnv:A:D:IPM:S:U:")) != -1)
+  while ((c = getopt (argc, argv, "a:b:dhnv:A:D:F:IPM:S:U:")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -233,6 +233,14 @@ int main (int argc, char **argv)
       case 'D':
         strncpy(m17e.dat, optarg, 772);
         m17e.dat[772] = '\0';
+        break;
+
+      //Specify M17 RF Float Symbol Output (For M17_Implementations PKT Decoder)
+      case 'F':
+        strncpy(opts.float_symbol_output_file, optarg, 1023);
+        opts.float_symbol_output_file[1023] = '\0';
+        opts.float_symbol_output = 1;
+        fprintf (stderr, "Float Symbol Output File: %s \n", opts.float_symbol_output_file);
         break;
 
       //Enable IP Frame Output
