@@ -79,7 +79,7 @@ void usage ()
   printf ("\n");
 }
 
-void cleanupAndExit (config_opts * opts, pa_state * pa, wav_state * wav)
+void cleanup_and_exit (config_opts * opts, pa_state * pa, wav_state * wav, m17_decoder_state * m17d, m17_encoder_state * m17e)
 {
   // Signal that everything should shutdown.
   exitflag = 1;
@@ -107,20 +107,20 @@ void cleanupAndExit (config_opts * opts, pa_state * pa, wav_state * wav)
   if (wav->wav_out_vx)
     close_wav_out_vx(wav);
 
+  #ifdef USE_CODEC2
+  codec2_destroy(m17d->codec2_1600);
+  codec2_destroy(m17d->codec2_3200);
+  codec2_destroy(m17e->codec2_1600);
+  codec2_destroy(m17e->codec2_3200);
+  #endif
+
+  if (opts->m17_udp_sock)
+    close (opts->m17_udp_sock);
+
   fprintf (stderr, "\n");
   fprintf (stderr,"Exiting.\n");
 
   exit(0);
-}
-
-void function_a (config_opts * opts)
-{
-  sprintf (opts->b, "%s", "running");
-  while (!exitflag)
-  {
-    //function loop
-    
-  }
 }
 
 int main (int argc, char **argv)
@@ -336,7 +336,7 @@ int main (int argc, char **argv)
     encodeM17PKT(&opts, &pa, &wav, &m17e);
 
   //exit gracefully
-  cleanupAndExit (&opts, &pa, &wav);
+  cleanup_and_exit (&opts, &pa, &wav, &m17d, &m17e);
 
   return (0);
 }
