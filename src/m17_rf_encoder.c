@@ -201,18 +201,15 @@ void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * 
   //     fputc (output_dibits[i], opts->symbol_out_f);
   // }
 
-  //save symbol stream format (M17_Implementations), output to float values that m17-packet-decode can read
-  if (opts->float_symbol_output)
+  //save symbol stream format (M17_Implementations), if opened
+  if (opts->float_symbol_out)
   {
-    FILE * pFile; //file pointer
-    pFile = fopen (opts->float_symbol_output_file, "a"); //append, not write
     float val = 0;
     for (i = 0; i < 192; i++)
     {
       val = (float)output_symbols[i];
-      fwrite(&val, 4, 1, pFile);
+      fwrite(&val, 4, 1, opts->float_symbol_out);
     }
-    fclose(pFile);
   }
 
   //Pulse Audio

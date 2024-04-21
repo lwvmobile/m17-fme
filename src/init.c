@@ -38,8 +38,9 @@ void init_config_opts (config_opts * opts)
   opts->m17_str_encoder_dt = 2; //2 is fullrate (3200), 3 is halfrate (1600) w/ arb data
   opts->disable_rrc_filter = 1; //Disable this later on
   opts->stdout_pipe = 0;
-  opts->float_symbol_output = 0;
+  opts->use_float_symbol_output = 0;
   sprintf (opts->float_symbol_output_file, "m17_float_symbol_out.sym");
+  opts->float_symbol_out = NULL;
 
   //UDP for IP frame input or output
   opts->m17_use_ip = 0;

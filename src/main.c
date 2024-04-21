@@ -117,6 +117,9 @@ void cleanup_and_exit (config_opts * opts, pa_state * pa, wav_state * wav, m17_d
   if (opts->m17_udp_sock)
     close (opts->m17_udp_sock);
 
+  if (opts->float_symbol_out)
+    fclose (opts->float_symbol_out);
+
   fprintf (stderr, "\n");
   fprintf (stderr,"Exiting.\n");
 
@@ -239,7 +242,7 @@ int main (int argc, char **argv)
       case 'F':
         strncpy(opts.float_symbol_output_file, optarg, 1023);
         opts.float_symbol_output_file[1023] = '\0';
-        opts.float_symbol_output = 1;
+        opts.use_float_symbol_output = 1;
         fprintf (stderr, "Float Symbol Output File: %s \n", opts.float_symbol_output_file);
         break;
 
@@ -291,6 +294,10 @@ int main (int argc, char **argv)
   open_pulse_audio_output_rf (&pa);
   open_pulse_audio_output_vx (&pa);
   #endif
+
+  //open float symbol output file, if needed.
+  if (opts.use_float_symbol_output)
+    opts.float_symbol_out = fopen (opts.float_symbol_output_file, "w");
 
   open_wav_out_rf(&wav);
   // open_stdout_pipe(&opts); //works
