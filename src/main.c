@@ -166,7 +166,7 @@ int main (int argc, char **argv)
     fprintf (stderr, "%s", KRED); //red text
     fprintf (stderr, "%s", S_banner[i]);
 
-    fprintf (stderr, "%s", KBLU); //cyan? text
+    fprintf (stderr, "%s", KBLU); //blue text
     fprintf (stderr, "%s", FME_banner[i]);
 
     fprintf (stderr, "%s", BNRM); //normal background for this terminal
