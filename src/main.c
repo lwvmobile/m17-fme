@@ -126,7 +126,7 @@ int main (int argc, char **argv)
   fprintf (stderr, "Build Version: %s \n", GIT_TAG);
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
-  while ((c = getopt (argc, argv, "a:b:dhnv:P")) != -1)
+  while ((c = getopt (argc, argv, "a:b:dhnv:PU")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -165,6 +165,11 @@ int main (int argc, char **argv)
       case 'P':
         opts.use_m17_pkt_encoder = 1;
         fprintf (stderr, "Project M17 Packet Encoder. \n");
+        break;
+
+      case 'U':
+        opts.m17_use_ip = 1;
+        fprintf (stderr, "Project M17 Packet Encoder IP Frame Enabled. \n");
         break;
 
     }

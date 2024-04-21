@@ -353,19 +353,19 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav)
   uint8_t reflector_module = 0x41; //'A', single letter reflector module A-Z, 0x41 is A
 
   //Open UDP port to default or user defined values, if enabled
-  // int sock_err;
-  // if (opts->m17_use_ip == 1)
-  // {
-  //   //
-  //   sock_err = udp_socket_connectM17(opts, state);
-  //   if (sock_err < 0)
-  //   {
-  //     fprintf (stderr, "Error Configuring UDP Socket for M17 IP Frame :( \n");
-  //     use_ip = 0;
-  //     opts->m17_use_ip = 0;
-  //   }
-  //   else use_ip = 1;
-  // }
+  int sock_err;
+  if (opts->m17_use_ip == 1)
+  {
+    //
+    sock_err = udp_socket_connectM17(opts);
+    if (sock_err < 0)
+    {
+      fprintf (stderr, "Error Configuring UDP Socket for M17 IP Frame :( \n");
+      use_ip = 0;
+      opts->m17_use_ip = 0;
+    }
+    else use_ip = 1;
+  }
 
   //NOTE: IP Framing is not standard on M17 for PKT mode, but
   //I don't see any reason why we can't send them anyways, just
@@ -404,8 +404,8 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav)
   }
 
   //SEND CONN to reflector
-  // if (use_ip == 1)
-  //   udp_return = m17_socket_blaster (opts, state, 11, conn);
+  if (use_ip == 1)
+    udp_return = m17_socket_blaster (opts, 11, conn);
 
   //add MPKT header
   k = 0;
@@ -456,20 +456,20 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav)
   //manually inserted 1000 into recvfrom instead, max MPKT size should be 809.
 
   //Send MPKT to reflector
-  // if (use_ip == 1)
-  //   udp_return = m17_socket_blaster (opts, state, x+34+3, m17_ip_packed);
+  if (use_ip == 1)
+    udp_return = m17_socket_blaster (opts, x+34+3, m17_ip_packed);
 
   //debug
   if (use_ip == 1)
     fprintf (stderr, " UDP IP Frame CRC: %04X; UDP RETURN: %d: X: %d; SENT: %d;", ip_crc, udp_return, x, x+34+3);
 
   //SEND EOTX to reflector
-  // if (use_ip == 1)
-  //   udp_return = m17_socket_blaster (opts, state, 10, eotx);
+  if (use_ip == 1)
+    udp_return = m17_socket_blaster (opts, 10, eotx);
 
   //SEND DISC to reflector
-  // if (use_ip == 1)
-  //   udp_return = m17_socket_blaster (opts, state, 10, disc);
+  if (use_ip == 1)
+    udp_return = m17_socket_blaster (opts, 10, disc);
 
   //flag to determine if we send a new LSF frame for new encode
   //only send once at the appropriate time when encoder is toggled on

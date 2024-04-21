@@ -29,16 +29,21 @@ void init_config_opts (config_opts * opts)
   opts->use_m17_str_encoder = 0;
   opts->use_m17_pkt_encoder = 0;
   opts->use_m17_brt_encoder = 0;
-
   opts->use_m17_str_decoder = 0;
   opts->use_m17_pkt_decoder = 0;
-
   opts->use_m17_ipf_encoder = 0;
   opts->use_m17_ipf_decoder = 0;
 
   opts->disable_rrc_filter = 1; //Disable this later on
 
   opts->stdout_pipe = 0;
+
+  //UDP for IP frame input or output
+  opts->m17_use_ip = 0;
+  opts->m17_portno = 17000;
+  opts->m17_udp_sock = 0;
+  sprintf (opts->m17_hostname, "%s", "127.0.0.1");
+
 }
 
 void init_pa_state (pa_state * pa)
@@ -61,7 +66,7 @@ void init_pa_state (pa_state * pa)
   pa->inputlt.prebuf = -1;
   pa->inputlt.tlength = -1;
   #endif
-  
+
   pa->pa_input_is_open = 0;
   pa->pa_output_rf_is_open = 0;
   pa->pa_output_vx_is_open = 0;

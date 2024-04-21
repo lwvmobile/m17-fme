@@ -90,16 +90,20 @@ typedef struct
   uint8_t use_m17_str_encoder;
   uint8_t use_m17_pkt_encoder;
   uint8_t use_m17_brt_encoder;
-
   uint8_t use_m17_str_decoder;
   uint8_t use_m17_pkt_decoder;
-
   uint8_t use_m17_ipf_encoder;
   uint8_t use_m17_ipf_decoder;
 
   uint8_t disable_rrc_filter;
 
   int stdout_pipe;
+
+  //UDP for IP frame output
+  int m17_use_ip;     //if enabled, open UDP and broadcast IP frame
+  int m17_portno;    //default is 17000
+  int m17_udp_sock; //actual UDP socket for M17 to send to
+  char m17_hostname[1024];
 
 } config_opts;
 
@@ -208,6 +212,12 @@ void close_wav_out_rf (wav_state * wav);
 void close_wav_out_vx (wav_state * wav);
 void write_wav_out_rf (wav_state * wav, short * out, size_t nsam);
 void write_wav_out_vx (wav_state * wav, short * out, size_t nsam);
+
+//UDP IP Related Functions
+int UDPBind (char *hostname, int portno);
+int m17_socket_blaster(config_opts * opts, size_t nsam, void * data);
+int udp_socket_connectM17(config_opts * opts);
+int m17_socket_receiver(config_opts * opts, void * data);
 
 //Audio Manipulation and Filters
 void upsample_6x(short input, short * output);
