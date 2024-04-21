@@ -146,6 +146,7 @@ typedef struct
 //Pulse Audio Options and States
 typedef struct
 {
+  #ifdef USE_PULSEAUDIO
   pa_sample_spec input;
   pa_buffer_attr inputlt;
   pa_sample_spec output_rf;
@@ -154,6 +155,7 @@ typedef struct
   pa_simple * pa_input_device;
   pa_simple * pa_output_device_rf;
   pa_simple * pa_output_device_vx;
+  #endif
 
   uint8_t pa_input_is_open;
   uint8_t pa_output_rf_is_open;
@@ -187,6 +189,7 @@ void init_m17e_state (m17_encoder_state * m17e);
 void init_wav_state (wav_state * wav);
 
 //Pulse Audio Handling
+#ifdef USE_PULSEAUDIO
 void open_pulse_audio_input (pa_state * pa);
 void open_pulse_audio_output_rf (pa_state * pa);
 void open_pulse_audio_output_vx (pa_state * pa);
@@ -196,6 +199,7 @@ void close_pulse_audio_output_vx (pa_state * pa);
 short pa_input_read (pa_state * pa);
 void pulse_audio_output_rf(pa_state * pa, short * out, size_t nsam);
 void pulse_audio_output_vx(pa_state * pa, short * out, size_t nsam);
+#endif
 
 //libsndfile Wav File Handling
 void open_wav_out_rf (wav_state * wav);

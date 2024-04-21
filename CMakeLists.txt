@@ -18,14 +18,20 @@ include(git_revision)
 git_describe(GIT_TAG)
 
 find_package(LibSndFile REQUIRED) #required packaged need the REQUIRED argument
-find_package(PulseAudio REQUIRED) #required packaged need the REQUIRED argument
+find_package(PulseAudio)
 find_package(Curses)
 find_package(CODEC2)
 
-include_directories(SYSTEM ${LIBSNDFILE_INCLUDE_DIR} ${PULSEAUDIO_INCLUDE_DIRS})
-set(LIBS ${LIBSNDFILE_LIBRARY} ${PULSEAUDIO_SIMPLE_LIBRARY} ${PULSEAUDIO_LIBRARY})
+include_directories(SYSTEM ${LIBSNDFILE_INCLUDE_DIR})
+set(LIBS ${LIBSNDFILE_LIBRARY})
 
 # append optional libraries and directories and set definitions for optional function calls
+if(PULSEAUDIO_FOUND)
+    include_directories(SYSTEM ${PULSEAUDIO_INCLUDE_DIRS})
+    list(APPEND LIBS ${PULSEAUDIO_SIMPLE_LIBRARY} ${PULSEAUDIO_LIBRARY})
+    add_definitions(-DUSE_PULSEAUDIO)
+endif(PULSEAUDIO_FOUND)
+
 if(CODEC2_FOUND)
     include_directories(SYSTEM ${CODEC2_INCLUDE_DIRS})
     list(APPEND LIBS ${CODEC2_LIBRARIES})

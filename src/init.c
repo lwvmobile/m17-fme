@@ -43,6 +43,7 @@ void init_config_opts (config_opts * opts)
 
 void init_pa_state (pa_state * pa)
 {
+  #ifdef USE_PULSEAUDIO
   pa->input.format = PA_SAMPLE_S16NE;
   pa->input.channels = 1;
   pa->input.rate = 48000;
@@ -59,7 +60,8 @@ void init_pa_state (pa_state * pa)
   pa->inputlt.maxlength = -1;
   pa->inputlt.prebuf = -1;
   pa->inputlt.tlength = -1;
-
+  #endif
+  
   pa->pa_input_is_open = 0;
   pa->pa_output_rf_is_open = 0;
   pa->pa_output_vx_is_open = 0;

@@ -7,8 +7,10 @@
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"
-int err;
 
+#ifdef USE_PULSEAUDIO
+
+int err;
 void open_pulse_audio_input (pa_state * pa)
 {
   pa->pa_input_device = pa_simple_new(NULL, "M17-FME1", PA_STREAM_RECORD, NULL, "Voice Input", &pa->input, NULL, &pa->inputlt, &err);
@@ -94,3 +96,4 @@ void pulse_audio_output_vx(pa_state * pa, short * out, size_t nsam)
   }
 }
 
+#endif

@@ -216,8 +216,10 @@ void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * 
   // }
 
   //Pulse Audio
+  #ifdef USE_PULSEAUDIO
   if (pa->pa_output_rf_is_open == 1)
     pulse_audio_output_rf(pa, baseband, 1920);
+  #endif
   
   //STDOUT or OSS 48k/1
   if (opts->stdout_pipe)

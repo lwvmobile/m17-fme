@@ -51,6 +51,7 @@ void cleanupAndExit (config_opts * opts, pa_state * pa, wav_state * wav)
   opts->a = 0;
   sprintf (opts->b, "%s", "shutdown");
 
+  #ifdef USE_PULSEAUDIO
   if (pa->pa_input_is_open)
     close_pulse_audio_input(pa);
 
@@ -59,6 +60,9 @@ void cleanupAndExit (config_opts * opts, pa_state * pa, wav_state * wav)
 
   if (pa->pa_output_vx_is_open)
     close_pulse_audio_output_vx(pa);
+  #else
+  UNUSED(pa);
+  #endif
 
   if (wav->wav_out_rf)
     close_wav_out_rf(wav);
@@ -170,9 +174,11 @@ int main (int argc, char **argv)
   signal (SIGINT, handler);
   signal (SIGTERM, handler);
 
+  #ifdef USE_PULSEAUDIO
   open_pulse_audio_input (&pa);
   open_pulse_audio_output_rf (&pa);
   open_pulse_audio_output_vx (&pa);
+  #endif
 
   open_wav_out_rf(&wav);
   // open_stdout_pipe(&opts); //works
