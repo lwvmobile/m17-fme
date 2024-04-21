@@ -15,8 +15,8 @@ struct sockaddr_in addressM17;
 
 void error(char *msg)
 {
-    perror(msg);
-    exit(0);
+  perror(msg);
+  exit(0);
 }
 
 int UDPBind (char *hostname, int portno)
@@ -87,13 +87,19 @@ int udp_socket_connectM17(config_opts * opts)
   addressM17.sin_family = AF_INET;
   err = addressM17.sin_addr.s_addr = inet_addr(opts->m17_hostname);
   if (err < 0)
+  {
     fprintf (stderr, " UDP inet_addr Error %ld\n", err);
+    return (err);
+  }
 
   addressM17.sin_port = htons(opts->m17_portno);
   if (err < 0)
+  {
     fprintf (stderr, " UDP htons Error %ld\n", err);
+    return (err);
+  }
 
-  return (err);
+  return (0); //no error
 }
 
 int m17_socket_receiver(config_opts * opts, void * data)

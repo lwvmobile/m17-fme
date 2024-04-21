@@ -95,15 +95,17 @@ typedef struct
   uint8_t use_m17_ipf_encoder;
   uint8_t use_m17_ipf_decoder;
 
+  //Misc Options to organize later
+  uint8_t m17_str_encoder_dt;
   uint8_t disable_rrc_filter;
-
   int stdout_pipe;
 
   //UDP for IP frame output
-  int m17_use_ip;     //if enabled, open UDP and broadcast IP frame
-  int m17_portno;    //default is 17000
+  int m17_use_ip;   //if enabled, open UDP and broadcast IP frame
+  int m17_portno;   //default is 17000
   int m17_udp_sock; //actual UDP socket for M17 to send to
-  char m17_hostname[1024];
+  char m17_hostname[1024]; //hostname as a string value
+  char m17_udp_input[1024]; //string value of combined input field for udp i.e., localhost:17000
 
 } config_opts;
 
@@ -127,6 +129,7 @@ typedef struct
 {
   unsigned long long int src;
   unsigned long long int dst;
+  int16_t can;
 
   #ifdef USE_CODEC2
   struct CODEC2 *codec2_3200;
@@ -139,11 +142,20 @@ typedef struct
 {
   unsigned long long int src;
   unsigned long long int dst;
+  int16_t can;
 
   #ifdef USE_CODEC2
   struct CODEC2 *codec2_3200;
   struct CODEC2 *codec2_1600;
   #endif
+
+  //User Supplied Input Strings
+  char user[50]; //user supplied m17 src and dst call sign data
+  char srcs[50]; //user supplied m17 src string
+  char dsts[50]; //user supplied m17 dst string
+  char sms[800]; //user supplied sms text string for pkt encoder
+  char dat[800]; //user supplied other data type for pkt encoder
+  char arb[800]; //user supplied arbitrary data on 1600
 
 } m17_encoder_state;
 
@@ -249,7 +261,7 @@ uint64_t ConvertBitIntoBytes(uint8_t * BufferIn, uint32_t BitLength);
 
 //M17
 void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * input, float * mem, int type);
-void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav);
+void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e);
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus

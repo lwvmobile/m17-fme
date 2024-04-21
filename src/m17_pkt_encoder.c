@@ -10,7 +10,7 @@
 // #include "m17.h"
 
 //TODO: Finish up other required functions called within, and also figure out what we want to pass here
-void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav)
+void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e)
 {
 
   //NOTE: Easiest way to avoid the multiple instances of issue is just to copy and paste all this
@@ -90,17 +90,27 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav)
   //end User Defined Variables
 
   //configure User Defined Variables, if defined at CLI
-  // if (state->m17_can_en != -1) //has a set value
-  //   can = state->m17_can_en;
+  if (m17e->can != -1) //has a set value
+    can = m17e->can;
 
-  // if (state->str50c[0] != 0)
-  //   sprintf (s40, "%s", state->str50c);
+  if (m17e->srcs[0] != 0)
+    sprintf (s40, "%s", m17e->srcs);
 
-  // if (state->str50b[0] != 0)
-  //   sprintf (d40, "%s", state->str50b);
+  if (m17e->dsts[0] != 0)
+    sprintf (d40, "%s", m17e->dsts);
 
-  // if (state->m17sms[0] != 0)
-  //   sprintf (text, "%s", state->m17sms);
+  //SMS Message OR Other/Raw Encoded Data Format
+  uint8_t protocol  = 5;
+  if (m17e->sms[0] != 0)
+  {
+    protocol = 5; //SMS Protocol
+    sprintf (text, "%s", m17e->sms);
+  }
+  else if (m17e->dat[0] != 0) //WIP
+  {
+    protocol = m17e->dat[0]-0x30; //test this for accuracy
+    sprintf (text, "%s", m17e->dat+1); //make sure this works for sprintf
+  }
 
   //if special values, then assign them
   if (strcmp (d40, "BROADCAST") == 0)
@@ -131,7 +141,6 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav)
   uint16_t lsf_es   = 0; //encryption sub-type
   uint16_t lsf_cn = can; //can value
   uint16_t lsf_rs   = 0; //reserved bits
-  uint8_t protocol  = 5; //SMS Protocol
 
   //compose the 16-bit frame information from the above sub elements
   uint16_t lsf_fi = 0;
@@ -267,28 +276,49 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav)
   //debug tlen value
   // fprintf (stderr, " STRLEN: %d; ", tlen);
 
-  //Convert a string text message into UTF-8 octets and load into full if using SMS (we are)
-  fprintf (stderr, "\n SMS:\n      ");
-  for (i = 0; i < tlen; i++)
+  //Convert a string text message into UTF-8 octets and load into full if using SMS protocol
+  if (protocol == 5)
   {
-    cbyte = (uint8_t)text[ptr];
-    fprintf (stderr, "%c", cbyte);
+    fprintf (stderr, "\n SMS:\n      ");
+    for (i = 0; i < tlen; i++)
+    {
+      cbyte = (uint8_t)text[ptr];
+      fprintf (stderr, "%c", cbyte);
 
-    for (j = 0; j < 8; j++)
-      m17_p1_full[k++] = (cbyte >> (7-j)) & 1;
+      for (j = 0; j < 8; j++)
+        m17_p1_full[k++] = (cbyte >> (7-j)) & 1;
 
-    if (cbyte == 0) break; //if terminator reached
+      if (cbyte == 0) break; //if terminator reached
 
-    ptr++; //increment pointer
-    
+      ptr++; //increment pointer
+      
 
-    //add line break to keep it under 80 columns
-    if ( (i%71) == 0 && i != 0)
-      fprintf (stderr, "\n      ");
+      //add line break to keep it under 80 columns
+      if ( (i%71) == 0 && i != 0)
+        fprintf (stderr, "\n      ");
+    }
+    fprintf (stderr, "\n");
   }
-  fprintf (stderr, "\n");
-
   //end UTF-8 Encoding
+  else //if not SMS, then straight assignment
+  { //TODO: Fix this properly so that it actually works
+    fprintf (stderr, "\n D%02X:\n      ", protocol);
+    for (i = 0; i < tlen; i++)
+    {
+      cbyte = atoi(&text[ptr])&0xFF;
+      fprintf (stderr, "%02X", cbyte);
+
+      for (j = 0; j < 8; j++)
+        m17_p1_full[k++] = (cbyte >> (7-j)) & 1;
+
+      ptr++;
+
+      //add line break to keep it under 80 columns
+      if ( (i%71) == 0 && i != 0)
+        fprintf (stderr, "\n      ");
+    }
+    fprintf (stderr, "\n");
+  }
 
 
   //calculate blocks, pad, and last values for pbc
@@ -353,7 +383,7 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav)
   uint8_t reflector_module = 0x41; //'A', single letter reflector module A-Z, 0x41 is A
 
   //Open UDP port to default or user defined values, if enabled
-  int sock_err;
+  int sock_err = 0;
   if (opts->m17_use_ip == 1)
   {
     //

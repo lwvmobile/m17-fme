@@ -34,8 +34,9 @@ void init_config_opts (config_opts * opts)
   opts->use_m17_ipf_encoder = 0;
   opts->use_m17_ipf_decoder = 0;
 
+  //Misc Options to organize later
+  opts->m17_str_encoder_dt = 2; //2 is fullrate (3200), 3 is halfrate (1600) w/ arb data
   opts->disable_rrc_filter = 1; //Disable this later on
-
   opts->stdout_pipe = 0;
 
   //UDP for IP frame input or output
@@ -43,6 +44,7 @@ void init_config_opts (config_opts * opts)
   opts->m17_portno = 17000;
   opts->m17_udp_sock = 0;
   sprintf (opts->m17_hostname, "%s", "127.0.0.1");
+  sprintf (opts->m17_udp_input, "%s", "");
 
 }
 
@@ -90,6 +92,7 @@ void init_m17d_state (m17_decoder_state * m17d)
 {
   m17d->src = 0;
   m17d->dst = 0;
+  m17d->can = -1;
 
   #ifdef USE_CODEC2
   m17d->codec2_3200 = codec2_create(CODEC2_MODE_3200);
@@ -101,11 +104,20 @@ void init_m17e_state (m17_encoder_state * m17e)
 {
   m17e->src = 0;
   m17e->dst = 0;
+  m17e->can = 7;
 
   #ifdef USE_CODEC2
   m17e->codec2_3200 = codec2_create(CODEC2_MODE_3200);
   m17e->codec2_1600 = codec2_create(CODEC2_MODE_1600);
   #endif
+
+  //User Supplied Input Strings
+  sprintf (m17e->user, "%s", "");
+  sprintf (m17e->srcs, "%s", "N0CALL");
+  sprintf (m17e->dsts, "%s", "ALL");
+  sprintf (m17e->sms, "%s", "");
+  sprintf (m17e->dat, "%s", "");
+  sprintf (m17e->arb, "%s", "1234567 ABCDEFG 7654321 GFEDCBA 0000000 ZZZZZZZ");
 }
 
 void init_wav_state (wav_state * wav)
