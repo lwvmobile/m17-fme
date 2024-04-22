@@ -283,12 +283,15 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
 void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e, m17_decoder_state * m17d);
 
 //M17 Content Element Decoders
+int  decode_lich_contents(m17_decoder_state * m17d, uint8_t * lich_bits);
 void decode_lsf_contents(m17_decoder_state * m17d);
 void decode_pkt_contents(uint8_t * input, int len);
 void decode_callsign_data(m17_decoder_state * m17d, unsigned long long int dst, unsigned long long int src);
 
 //M17 Frame Demodulators
 void demod_lsf(m17_decoder_state * m17d, uint8_t * input, int debug);
+void demod_str(m17_decoder_state * m17d, uint8_t * input, int debug);
+void prepare_str(m17_decoder_state * m17d, uint8_t * input);
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus

@@ -698,7 +698,7 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
 
       fprintf (stderr, "\n M17 Stream (ENCODER): ");
       // if (opts->monitor_input_audio == 0)
-        // processM17STR_debug(opts, state, m17_t4s);
+        demod_str(m17d, m17_t4s, 1);
       // else fprintf (stderr, " To Audio Out Device Type: %d; ", opts->audio_out_type);
 
       //show UDP if active

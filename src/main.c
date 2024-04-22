@@ -153,7 +153,7 @@ int main (int argc, char **argv)
 
   HPFilter hpf_d;
   HPFilter hpf_a;
-  //do I have these backwards in DSD-FME, just oing to set them up as it is there for now
+  //do I have these backwards in DSD-FME, just going to set them up as it is there for now
   // HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
   // HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
   HPFilter_Init (&hpf_a, 960, (float)1/(float)48000);
