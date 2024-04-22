@@ -86,6 +86,7 @@ typedef struct
   //Misc Options to organize later
   uint8_t m17_str_encoder_dt;
   uint8_t disable_rrc_filter;
+  uint8_t use_hpfilter_dig;
   int stdout_pipe;
   int use_float_symbol_output;
   char float_symbol_output_file[1024];
@@ -250,7 +251,7 @@ long int raw_rms(int16_t *samples, int len, int step);
 void upsample_6x(short input, short * output);
 void HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS);
 float HPFilter_Update(HPFilter *filter, float v_in);
-void hpf(HPFilter * hpf, short * input, int len);
+void hpfilter(HPFilter * hpf, short * input, int len);
 
 //convolutional encoder and viterbi decoder(s)
 void simple_conv_encoder (uint8_t * input, uint8_t * output, int len);
@@ -280,18 +281,19 @@ uint64_t ConvertBitIntoBytes(uint8_t * BufferIn, uint32_t BitLength);
 //M17 Frame Encoders
 void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * input, float * mem, int type);
 void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e, m17_decoder_state * m17d);
-void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e, m17_decoder_state * m17d);
+void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter * hpf, m17_encoder_state * m17e, m17_decoder_state * m17d);
 
 //M17 Content Element Decoders
 int  decode_lich_contents(m17_decoder_state * m17d, uint8_t * lich_bits);
 void decode_lsf_contents(m17_decoder_state * m17d);
 void decode_pkt_contents(uint8_t * input, int len);
 void decode_callsign_data(m17_decoder_state * m17d, unsigned long long int dst, unsigned long long int src);
+void decode_str_payload(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa,  HPFilter * hpf, uint8_t * payload, uint8_t type);
 
 //M17 Frame Demodulators
 void demod_lsf(m17_decoder_state * m17d, uint8_t * input, int debug);
-void demod_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, uint8_t * input, int debug);
-void prepare_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, uint8_t * input);
+void demod_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, HPFilter * hpf, uint8_t * input, int debug);
+void prepare_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, HPFilter * hpf, uint8_t * input);
 
 
 //if using cpp code, then put function prototypes in below

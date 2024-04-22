@@ -156,8 +156,8 @@ int main (int argc, char **argv)
   //do I have these backwards in DSD-FME, just going to set them up as it is there for now
   // HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
   // HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
-  HPFilter_Init (&hpf_a, 960, (float)1/(float)48000);
   HPFilter_Init (&hpf_d, 960, (float)1/(float)48000);
+  HPFilter_Init (&hpf_a, 960, (float)1/(float)48000);
 
   //initialize convolutional decoder and golay
   convolution_init();
@@ -196,8 +196,8 @@ int main (int argc, char **argv)
   fprintf (stderr, "Build Version: %s \n", GIT_TAG);
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
-  //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER
-  while ((c = getopt (argc, argv, "a:b:dhnv:A:D:F:IPM:S:U:V")) != -1)
+  //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
+  while ((c = getopt (argc, argv, "1a:b:dhnv:A:D:F:IPM:S:U:V")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -205,6 +205,11 @@ int main (int argc, char **argv)
       case 'h':
         usage ();
         exit (0);
+        break;
+
+      //disable high pass filter on digital
+      case '1':
+        opts.use_hpfilter_dig = 0;
         break;
         
       case 'a':
@@ -308,6 +313,7 @@ int main (int argc, char **argv)
     opts.float_symbol_out = fopen (opts.float_symbol_output_file, "w");
 
   open_wav_out_rf(&wav);
+  open_wav_out_vx(&wav);
   // open_stdout_pipe(&opts); //works
 
   //Parse any User Input Strings that need to be broken into smaller components UDP and USER CSD
@@ -365,7 +371,7 @@ int main (int argc, char **argv)
     encodeM17PKT(&opts, &pa, &wav, &m17e, &m17d);
 
   if (opts.use_m17_str_encoder == 1)
-    encodeM17STR(&opts, &pa, &wav, &m17e, &m17d);
+    encodeM17STR(&opts, &pa, &wav, &hpf_d, &m17e, &m17d);
 
   //exit gracefully
   cleanup_and_exit (&opts, &pa, &wav, &m17d, &m17e);

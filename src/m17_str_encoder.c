@@ -10,7 +10,7 @@
 #include "m17.h"
 
 //encode and create audio of a Project M17 Stream signal
-void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e, m17_decoder_state * m17d)
+void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter * hpf, m17_encoder_state * m17e, m17_decoder_state * m17d)
 {
   float mem[81];
   //quell defined but not used warnings from m17.h
@@ -698,7 +698,7 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
 
       fprintf (stderr, "\n M17 Stream (ENCODER): ");
       // if (opts->monitor_input_audio == 0)
-        demod_str(opts, m17d, wav, pa, m17_t4s, 1);
+        demod_str(opts, m17d, wav, pa, hpf, m17_t4s, 1);
       // else fprintf (stderr, " To Audio Out Device Type: %d; ", opts->audio_out_type);
 
       //show UDP if active

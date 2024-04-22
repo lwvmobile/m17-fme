@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
- * m17_c2_decoder.c
- * Project M17 - Codec2 Decoding and and Arbitrary Data Handling
+ * m17_pyl_decoder.c
+ * Project M17 - Payload Codec2 and Arbitrary Data Handling
  *
  * LWVMOBILE
  * 2024-04 Project M17 - Florida Man Edition
@@ -8,11 +8,11 @@
 
 #include "main.h"
 
-void decode_str_payload(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, uint8_t * payload, uint8_t type)
+void decode_str_payload(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, HPFilter * hpf, uint8_t * payload, uint8_t type)
 {
  
-  UNUSED(opts); UNUSED(m17d); UNUSED(wav); UNUSED(pa);
-  int i, j; UNUSED(j);
+  UNUSED(opts);
+  int i;
   unsigned char voice1[8];
   unsigned char voice2[8];
 
@@ -22,23 +22,18 @@ void decode_str_payload(config_opts * opts, m17_decoder_state * m17d, wav_state 
     voice2[i] = (unsigned char)ConvertBitIntoBytes(&payload[i*8+64], 8);
   }
 
-  //TODO: Add some decryption methods
-  // if (state->m17_enc != 0)
-  // {
-  //   //process scrambler or AES-CTR decryption 
-  //   //(no AES-CTR right now, Scrambler should be easy enough)
-  // }
+  //TODO: Add some decryption methods?
 
-  // if (opts->payload == 1)
+  if (opts->payload_verbosity == 1)
   {
     fprintf (stderr, "\n CODEC2: ");
     for (i = 0; i < 8; i++)
       fprintf (stderr, "%02X", voice1[i]);
     fprintf (stderr, " (1600)");
 
-    if (type == 3)
-      fprintf (stderr, "\n A_DATA: "); //arbitrary data
-    else fprintf (stderr, "\n CODEC2: ");
+    if (type == 2)
+      fprintf (stderr, "\n CODEC2: ");
+    else fprintf (stderr, "\n A_DATA: ");
     for (i = 0; i < 8; i++)
       fprintf (stderr, "%02X", voice2[i]);
   }
@@ -48,51 +43,61 @@ void decode_str_payload(config_opts * opts, m17_decoder_state * m17d, wav_state 
   if (type == 3) nsam = 320;
   else nsam = 160;
 
-  //converted to using allocated memory pointers to prevent the overflow issues
+  //allocated memory for codec2 audio handling
   short * samp1 = malloc (sizeof(short) * nsam);
   short * samp2 = malloc (sizeof(short) * nsam);
-
   short * upsamp1 = malloc (sizeof(short) * nsam * 6);
   short * upsamp2 = malloc (sizeof(short) * nsam * 6);
-  short * out = malloc (sizeof(short) * 6);
 
-  if (type == 3)
-    codec2_decode(m17d->codec2_1600, samp1, voice1);
-  else
+  if (type == 2)
   {
     codec2_decode(m17d->codec2_3200, samp1, voice1);
     codec2_decode(m17d->codec2_3200, samp2, voice2);
   }
+  else
+    codec2_decode(m17d->codec2_1600, samp1, voice1);
 
   //TODO LIST:
 
   //Run HPF on decoded voice prior to upsample
-  // if (opts->use_hpf_d == 1)
-  //   hpf_dL(state, samp1, nsam);
+  if (opts->use_hpfilter_dig == 1)
+    hpfilter(hpf, samp1, nsam);
 
-  //Upsample
+  //Upsample 8k to 48k
+  for (i = 0; i < nsam; i++)
+  {
+    upsample_6x(samp1[i], upsamp1+(i*6));
+    if (type == 2)
+      upsample_6x(samp2[i], upsamp2+(i*6));
+  }
 
-  //PA Playback
+  //Pulse Audio Playback
+  if (pa->pa_output_vx_is_open == 1)
+  {
+    pulse_audio_output_vx(pa, upsamp1, nsam*6);
+    if (type == 2)
+      pulse_audio_output_vx(pa, upsamp2, nsam*6);
+  }
 
-  //Wav File Playback
+  //Wav File Saving
+  if (wav->wav_out_vx != NULL)
+  {
+    write_wav_out_vx(wav, upsamp1, nsam*6);
+    if (type == 2)
+      write_wav_out_vx(wav, upsamp2, nsam*6);
+    sf_write_sync (wav->wav_out_vx);
+  }
 
   //C2 File Save
-
-  //TODO: Codec2 Raw file saving
-  // if(mbe_out_dir)
-  // {
-
-  // }
 
   free (samp1);
   free (samp2);
   free (upsamp1);
   free (upsamp2);
-  free (out);
 
   #endif
 
-  //handle arbitrary data, if 1600
+  //decode arbitrary data, if 1600
   if (type == 3)
   {
     uint8_t adata[9]; adata[0] = 99; //set so pkt decoder will rip these out as just utf-8 chars

@@ -71,8 +71,8 @@ float HPFilter_Update(HPFilter *filter, float v_in)
 
 }
 
-//hpf
-void hpf(HPFilter * hpf, short * input, int len)
+//high pass filter
+void hpfilter(HPFilter * hpf, short * input, int len)
 {
   int i;
   for (i = 0; i < len; i++)
