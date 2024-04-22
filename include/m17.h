@@ -10,6 +10,12 @@
 //NOTE: I swear, if this comes back to bite me in the ass with some compilers or something, just undo
 //this entire commit and rebase or something.
 
+//Project M17 Frame Sync Patterns
+#define LSF_SYNC_BURST 0x55F7
+#define BRT_SYNC_BURST 0xDF55
+#define STR_SYNC_BURST 0xFF5D
+#define PKT_SYNC_BURST 0x75FF
+
 static char b40[] = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.";
 
 //scramble / randomization bit array

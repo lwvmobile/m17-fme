@@ -7,12 +7,14 @@
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"
-#include "fsync.h"
+#include "m17.h"
 
 void framesync (config_opts * opts, pa_state * pa, m17_decoder_state * m17d, demod_state * demod)
 {
   //look for frame synchronization
-
+  
+  //quell defined but not used warnings from m17.h
+  UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
   UNUSED(opts);
   UNUSED(m17d);
 
