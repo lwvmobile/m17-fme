@@ -211,6 +211,15 @@ typedef struct
 
 } wav_state;
 
+//High Pass Filter
+typedef struct
+{
+    float coef;
+    float v_out[2];
+    float v_in[2];
+
+} HPFilter;
+
 //c function prototypes
 
 //structure element initialization
@@ -249,7 +258,11 @@ int udp_socket_connectM17(config_opts * opts);
 int m17_socket_receiver(config_opts * opts, void * data);
 
 //Audio Manipulation and Filters
+long int raw_rms(int16_t *samples, int len, int step);
 void upsample_6x(short input, short * output);
+void HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS);
+float HPFilter_Update(HPFilter *filter, float v_in);
+void hpf(HPFilter * hpf, short * input, int len);
 
 //convolutional encoder and viterbi decoder(s)
 void simple_conv_encoder (uint8_t * input, uint8_t * output, int len);
@@ -286,7 +299,9 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
 extern "C" {
 #endif
 
-void sample_cpp_func(uint8_t * input);
+//this function has the sqrt function in it, and CMAKE will compile 
+//with math library linked if called this way
+int sample_cpp_func(int input);
 
 #ifdef __cplusplus
 }

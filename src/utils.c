@@ -8,14 +8,6 @@
 
 #include "main.h"
 
-//simple 6x 8K to 48K upsample
-void upsample_6x(short input, short * output)
-{
-  int i;
-  for (i = 0; i < 6; i++)
-    output[i] = input;
-}
-
 void open_stdout_pipe(config_opts * opts)
 {
   opts->stdout_pipe = fileno(stdout);
