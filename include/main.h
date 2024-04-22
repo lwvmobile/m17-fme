@@ -114,6 +114,14 @@ typedef struct
   unsigned long long int dst;
   int16_t can;
 
+  uint8_t lsf[240]; //bitwise lsf
+  uint8_t meta[16]; //packed meta
+  uint8_t dt;
+  uint8_t enc_et; //encryption type
+  uint8_t enc_st; //encryption sub-type
+  char dst_csd_str[50];
+  char src_csd_str[50];
+
   #ifdef USE_CODEC2
   struct CODEC2 *codec2_3200;
   struct CODEC2 *codec2_1600;
@@ -261,10 +269,18 @@ void open_stdin_pipe(wav_state * wav);
 short read_stdin_pipe(wav_state * wav);
 uint64_t ConvertBitIntoBytes(uint8_t * BufferIn, uint32_t BitLength);
 
-//M17
+//M17 Frame Encoders
 void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * input, float * mem, int type);
-void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e);
-void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e);
+void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e, m17_decoder_state * m17d);
+void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e, m17_decoder_state * m17d);
+
+//M17 Content Element Decoders
+void decode_lsf_contents(m17_decoder_state * m17d);
+void decode_pkt_contents(uint8_t * input, int len);
+void decode_callsign_data(m17_decoder_state * m17d, unsigned long long int dst, unsigned long long int src);
+
+//M17 Frame Demodulators
+void demod_lsf(m17_decoder_state * m17d, uint8_t * input, int debug);
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus

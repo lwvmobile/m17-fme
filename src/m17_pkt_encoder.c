@@ -10,7 +10,7 @@
 // #include "m17.h"
 
 //TODO: Finish up other required functions called within, and also figure out what we want to pass here
-void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e)
+void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e, m17_decoder_state * m17d)
 {
 
   //NOTE: Easiest way to avoid the multiple instances of issue is just to copy and paste all this
@@ -512,7 +512,7 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
     {
 
       fprintf (stderr, "\n M17 LSF    (ENCODER): ");
-      // processM17LSF_debug(opts, state, m17_lsfs);
+      demod_lsf(m17d, m17_lsfs, 1);
 
       //convert bit array into symbols and RF/Audio
       memset (nil, 0, sizeof(nil));

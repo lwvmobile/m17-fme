@@ -103,6 +103,14 @@ void init_m17d_state (m17_decoder_state * m17d)
   m17d->dst = 0;
   m17d->can = -1;
 
+  memset(m17d->lsf, 0, sizeof(m17d->lsf));
+  memset(m17d->meta, 0, sizeof(m17d->meta));
+  m17d->dt = 0;
+  m17d->enc_et = 0;
+  m17d->enc_st = 0;
+  sprintf (m17d->dst_csd_str, "%s", "");
+  sprintf (m17d->src_csd_str, "%s", "");
+
   #ifdef USE_CODEC2
   m17d->codec2_3200 = codec2_create(CODEC2_MODE_3200);
   m17d->codec2_1600 = codec2_create(CODEC2_MODE_1600);

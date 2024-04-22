@@ -10,7 +10,7 @@
 // #include "m17.h"
 
 //encode and create audio of a Project M17 Stream signal
-void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e)
+void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e, m17_decoder_state * m17d)
 {
   float mem[81];
   char b40[] = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.";
@@ -711,7 +711,7 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
 
         fprintf (stderr, "\n M17 LSF    (ENCODER): ");
         // if (opts->monitor_input_audio == 0)
-        //   processM17LSF_debug(opts, state, m17_lsfs);
+          demod_lsf(m17d, m17_lsfs, 1);
         // else fprintf (stderr, " To Audio Out Device Type: %d; ", opts->audio_out_type);
 
         //convert bit array into symbols and RF/Audio
@@ -728,7 +728,7 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
 
       fprintf (stderr, "\n M17 Stream (ENCODER): ");
       // if (opts->monitor_input_audio == 0)
-      //   processM17STR_debug(opts, state, m17_t4s);
+        // processM17STR_debug(opts, state, m17_t4s);
       // else fprintf (stderr, " To Audio Out Device Type: %d; ", opts->audio_out_type);
 
       //show UDP if active

@@ -362,10 +362,10 @@ int main (int argc, char **argv)
     framesync (&opts, &pa, &m17d, &demod);
 
   if (opts.use_m17_pkt_encoder == 1)
-    encodeM17PKT(&opts, &pa, &wav, &m17e);
+    encodeM17PKT(&opts, &pa, &wav, &m17e, &m17d);
 
   if (opts.use_m17_str_encoder == 1)
-    encodeM17STR(&opts, &pa, &wav, &m17e);
+    encodeM17STR(&opts, &pa, &wav, &m17e, &m17d);
 
   //exit gracefully
   cleanup_and_exit (&opts, &pa, &wav, &m17d, &m17e);
