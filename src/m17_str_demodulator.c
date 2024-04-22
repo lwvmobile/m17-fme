@@ -9,7 +9,7 @@
 #include "main.h"
 #include "m17.h"
 
-void demod_str(m17_decoder_state * m17d, uint8_t * input, int debug)
+void demod_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, uint8_t * input, int debug)
 {
   //quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
@@ -65,14 +65,15 @@ void demod_str(m17_decoder_state * m17d, uint8_t * input, int debug)
   lich_err = decode_lich_contents(m17d, lich_bits);
 
   if (lich_err == 0)
-    prepare_str(m17d, m17_bits);
+    prepare_str(opts, m17d, wav, pa, m17_bits);
 
   //ending linebreak
   fprintf (stderr, "\n");
 
 }
+  // void decode_str_payload(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, uint8_t * payload, uint8_t type)
 
-void prepare_str(m17_decoder_state * m17d, uint8_t * input)
+void prepare_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, uint8_t * input)
 {
   int i, k, x; 
   uint8_t m17_punc[275]; //25 * 11 = 275
@@ -159,10 +160,8 @@ void prepare_str(m17_decoder_state * m17d, uint8_t * input)
   for (i = 0; i < 128; i++)
     payload[i] = trellis_buf[i+16];
 
-  if (m17d->dt == 2) {}
-  //   M17processCodec2_3200(opts, state, payload);
-  else if (m17d->dt == 3) {}
-  //   M17processCodec2_1600(opts, state, payload);
+  if (m17d->dt == 2 || m17d->dt == 3)
+    decode_str_payload(opts, m17d, wav, pa, payload, m17d->dt);
   else if (m17d->dt == 1) fprintf (stderr, " DATA;");
   else if (m17d->dt == 0) fprintf (stderr, "  RES;");
   // else                             fprintf (stderr, "  UNK;");

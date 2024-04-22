@@ -290,8 +290,9 @@ void decode_callsign_data(m17_decoder_state * m17d, unsigned long long int dst, 
 
 //M17 Frame Demodulators
 void demod_lsf(m17_decoder_state * m17d, uint8_t * input, int debug);
-void demod_str(m17_decoder_state * m17d, uint8_t * input, int debug);
-void prepare_str(m17_decoder_state * m17d, uint8_t * input);
+void demod_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, uint8_t * input, int debug);
+void prepare_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, uint8_t * input);
+
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus
