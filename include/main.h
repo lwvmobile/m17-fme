@@ -203,11 +203,24 @@ typedef struct
 //High Pass Filter
 typedef struct
 {
-    float coef;
-    float v_out[2];
-    float v_in[2];
+  float coef;
+  float v_out[2];
+  float v_in[2];
 
 } HPFilter;
+
+//Super Struct comprised of all the other ones so I don't have to pass upteen structs around to everywhere
+typedef struct
+{
+  config_opts opts;
+  pa_state pa;
+  m17_decoder_state m17d;
+  m17_encoder_state m17e;
+  demod_state demod;
+  wav_state wav;
+  HPFilter hpf_d;
+  HPFilter hpf_a;
+} Super;
 
 //c function prototypes
 
@@ -218,6 +231,7 @@ void init_demod_state (demod_state * demod);
 void init_m17d_state (m17_decoder_state * m17d);
 void init_m17e_state (m17_encoder_state * m17e);
 void init_wav_state (wav_state * wav);
+void init_super (Super * super);
 
 //Pulse Audio Handling
 #ifdef USE_PULSEAUDIO

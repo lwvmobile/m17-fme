@@ -153,11 +153,14 @@ int main (int argc, char **argv)
 
   HPFilter hpf_d;
   HPFilter hpf_a;
-  //do I have these backwards in DSD-FME, just going to set them up as it is there for now
-  // HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
-  // HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
+
   HPFilter_Init (&hpf_d, 960, (float)1/(float)48000);
   HPFilter_Init (&hpf_a, 960, (float)1/(float)48000);
+
+  //The Super Struct will eventually replace all this superflous struct passing
+  //and will ultimately be much easier to manage than constantly backtracking to send more and more
+  Super super;
+  init_super(&super);
 
   //initialize convolutional decoder and golay
   convolution_init();
