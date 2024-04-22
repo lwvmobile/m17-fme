@@ -1,6 +1,19 @@
-char b40[] = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.";
+/*-------------------------------------------------------------------------------
+ * m17.h
+ * Project M17 - Common Static Arrays for M17 functions
+ *
+ *
+ * LWVMOBILE
+ * 2024-04 Project M17 - Florida Man Edition
+ *-----------------------------------------------------------------------------*/
 
-uint8_t m17_scramble[369] = { 
+//NOTE: I swear, if this comes back to bite me in the ass with some compilers or something, just undo
+//this entire commit and rebase or something.
+
+static char b40[] = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.";
+
+//scramble / randomization bit array
+static uint8_t m17_scramble[369] = { 
 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1,
 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0,
 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -26,19 +39,22 @@ uint8_t m17_scramble[369] = {
 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1 
 };
 
-uint8_t p1[62] = {
+//p1 puncture
+static uint8_t p1[62] = {
 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1,
 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1,
 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1,
 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1
 };
 
-uint8_t p3[62] = {1, 1, 1, 1, 1, 1, 1, 0};
+//p3 puncture
+static uint8_t p3[62] = {1, 1, 1, 1, 1, 1, 1, 0};
 
 //dibits-symbols map
-const int8_t symbol_map[4] = {+1, +3, -1, -3};
+static int8_t symbol_map[4] = {+1, +3, -1, -3};
 
-float m17_rrc[81] =
+//raised root cosine filtering
+static float m17_rrc[81] =
 {
 	-0.003195702904062073f, -0.002930279157647190f, -0.001940667871554463f,
 	-0.000356087678023658f,  0.001547011339077758f,  0.003389554791179751f,
@@ -68,5 +84,3 @@ float m17_rrc[81] =
 	 0.003389554791179751f,  0.001547011339077758f, -0.000356087678023658f,
 	-0.001940667871554463f, -0.002930279157647190f, -0.003195702904062073f
 };
-
-static float mem[81];

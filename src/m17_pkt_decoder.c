@@ -6,14 +6,16 @@
  * 2024-04 Project M17 - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
- #include "main.h"
-// #include "m17.h"
+#include "main.h"
+#include "m17.h"
 
 void decode_pkt_contents(uint8_t * input, int len)
 {
+  //quell defined but not used warnings from m17.h
+  UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
+
   //Decode the completed packet
   int i;
-  char b40[] = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.";
 
   uint8_t protocol = input[0];
   fprintf (stderr, " Protocol:");

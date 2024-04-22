@@ -6,8 +6,7 @@
  * 2024-04 Project M17 - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
- #include "main.h"
-// #include "m17.h"
+#include "main.h"
 
 void decode_lsf_contents(m17_decoder_state * m17d)
 {

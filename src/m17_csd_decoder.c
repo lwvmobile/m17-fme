@@ -6,17 +6,18 @@
  * 2024-04 Project M17 - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
- #include "main.h"
-// #include "m17.h"
+#include "main.h"
+#include "m17.h"
 
 void decode_callsign_data(m17_decoder_state * m17d, unsigned long long int dst, unsigned long long int src)
 {
-  
+  //quell defined but not used warnings from m17.h
+  UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
+
   int i;
   char c;
   char dst_csd[9]; memset (dst_csd, 0, 9*sizeof(char));
   char src_csd[9]; memset (src_csd, 0, 9*sizeof(char));
-  char b40[] = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.";
 
   if (dst == 0xFFFFFFFFFFFF) 
     fprintf (stderr, " DST: BROADCAST");
