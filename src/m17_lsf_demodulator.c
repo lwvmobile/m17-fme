@@ -145,10 +145,10 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
 
   if (crc_err == 0)
     decode_lsf_contents(super);
-  // else if (opts->skip_crc_fail == 0)
-  //   M17decodeLSF(state);
+  else if (super->opts.allow_crc_failure == 1)
+    decode_lsf_contents(super);
 
-  // if (opts->payload == 1)
+  if (super->opts.payload_verbosity >= 1)
   {
     fprintf (stderr, "\n LSF: ");
     for (i = 0; i < 30; i++)

@@ -24,16 +24,19 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type)
 
   //TODO: Add some decryption methods?
 
-  if (super->opts.payload_verbosity == 1)
+  if (super->opts.payload_verbosity >= 1)
   {
-    fprintf (stderr, "\n CODEC2: ");
+    if (type == 2)
+      fprintf (stderr, "\n CODEC2 (3200): ");
+    else
+      fprintf (stderr, "\n CODEC2 (1600): ");
     for (i = 0; i < 8; i++)
       fprintf (stderr, "%02X", voice1[i]);
-    fprintf (stderr, " (1600)");
 
     if (type == 2)
-      fprintf (stderr, "\n CODEC2: ");
-    else fprintf (stderr, "\n A_DATA: ");
+      fprintf (stderr, "\n CODEC2 (3200): ");
+    else
+      fprintf (stderr, "\n        A_DATA: ");
     for (i = 0; i < 8; i++)
       fprintf (stderr, "%02X", voice2[i]);
   }

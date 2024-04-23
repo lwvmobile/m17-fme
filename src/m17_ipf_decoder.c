@@ -128,7 +128,7 @@ void decode_ipf (Super * super)
       else if (super->m17d.dt == 3)
         decode_str_payload(super, payload, 3);
 
-      if (super->opts.payload_verbosity == 1)
+      if (super->opts.payload_verbosity >= 1)
       {
         fprintf (stderr, "\n IP:");
         for (i = 0; i < 54; i++)
@@ -186,7 +186,7 @@ void decode_ipf (Super * super)
       //reflector module user is connecting to
       fprintf (stderr, "Module: %c; ", ip_frame[10]);
 
-      if (super->opts.payload_verbosity == 1)
+      if (super->opts.payload_verbosity >= 1)
       {
         for (i = 0; i < 11; i++)
           fprintf (stderr, "%02X ", ip_frame[i]);
@@ -216,7 +216,7 @@ void decode_ipf (Super * super)
         }
       }
 
-      if (super->opts.payload_verbosity == 1)
+      if (super->opts.payload_verbosity >= 1)
       {
         for (i = 0; i < 10; i++)
           fprintf (stderr, "%02X ", ip_frame[i]);
@@ -249,7 +249,7 @@ void decode_ipf (Super * super)
         }
       }
 
-      if (super->opts.payload_verbosity == 1)
+      if (super->opts.payload_verbosity >= 1)
       {
         for (i = 0; i < 10; i++)
           fprintf (stderr, "%02X ", ip_frame[i]);
@@ -283,7 +283,7 @@ void decode_ipf (Super * super)
         }
       }
 
-      if (super->opts.payload_verbosity == 1)
+      if (super->opts.payload_verbosity >= 1)
       {
         for (i = 0; i < 10; i++)
           fprintf (stderr, "%02X ", ip_frame[i]);
@@ -311,7 +311,7 @@ void decode_ipf (Super * super)
         }
       }
 
-      if (super->opts.payload_verbosity == 1)
+      if (super->opts.payload_verbosity >= 1)
       {
         for (i = 0; i < 10; i++)
           fprintf (stderr, "%02X ", ip_frame[i]);
@@ -347,7 +347,7 @@ void decode_ipf (Super * super)
       if (crc_ext == crc_cmp)
         decode_lsf_contents(super);
 
-      if (super->opts.payload_verbosity == 1)
+      if (super->opts.payload_verbosity >= 1)
       {
         for (i = 0; i < err; i++)
         {

@@ -68,7 +68,7 @@ void demod_str(Super * super, uint8_t * input, int debug)
     prepare_str(super, m17_bits);
 
   //ending linebreak
-  fprintf (stderr, "\n");
+  // fprintf (stderr, "\n");
 
 }
 
@@ -150,7 +150,7 @@ void prepare_str(Super * super, uint8_t * input)
   super->m17d.meta[14] = (uint8_t)ConvertBitIntoBytes(&trellis_buf[1], 7);
   super->m17d.meta[15] = (uint8_t)ConvertBitIntoBytes(&trellis_buf[8], 8);
 
-  if (super->opts.payload_verbosity == 1)
+  if (super->opts.payload_verbosity >= 1)
     fprintf (stderr, " FSN: %05d", fn);
 
   if (end == 1)
@@ -165,7 +165,7 @@ void prepare_str(Super * super, uint8_t * input)
   else if (super->m17d.dt == 0) fprintf (stderr, "  RES;");
   // else                             fprintf (stderr, "  UNK;");
 
-  if (super->opts.payload_verbosity == 1 && super->m17d.dt < 2)
+  if (super->opts.payload_verbosity >= 1 && super->m17d.dt < 2)
   {
     fprintf (stderr, "\n STREAM: ");
     for (i = 0; i < 18; i++) 

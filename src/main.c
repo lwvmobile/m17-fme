@@ -176,7 +176,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1dhinv:A:D:F:IPM:S:U:V")) != -1)
+  while ((c = getopt (argc, argv, "1dhimnv:A:D:F:IPM:S:U:V")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -189,6 +189,10 @@ int main (int argc, char **argv)
       //disable high pass filter on digital
       case '1':
         super.opts.use_hpfilter_dig = 0;
+        break;
+
+      case '2':
+        super.m17e.str_encoder_vox = 1;
         break;
         
       // case 'a':
@@ -211,6 +215,11 @@ int main (int argc, char **argv)
         super.opts.use_m17_pkt_decoder = 1;
         super.opts.use_m17_str_decoder = 1;
         fprintf (stderr, "Project M17 RF Audio Stream and Packet Decoder Mode. \n");
+        break;
+
+      case 'm':
+        super.opts.monitor_encode_internally = 1;
+        fprintf (stderr, "Internal Encoder Loopback to Decoder. \n");
         break;
 
       case 'n':

@@ -319,7 +319,7 @@ void encodeM17STR(Super * super)
   {
 
     //if not decoding internally, assign values for ncurses display
-    // if (super->opts.monitor_input_audio == 1)
+    // if (super->opts.monitor_encode_internally == 1)
     // {
     //   sprintf (state->m17_src_str, "%s", s40);
     //   sprintf (state->m17_dst_str, "%s", d40);
@@ -465,8 +465,8 @@ void encodeM17STR(Super * super)
     // }
 
     //read in RMS value for vox function; NOTE: will not work correctly SOCAT STDIO TCP due to blocking when no samples to read
-    // if (super->opts.audio_in_type != 3)
-    //   super->opts.rtl_rms = raw_rms(voice1, nsam, 1) / 2; //dividing by two so mic isn't so sensitive on vox
+    if (super->opts.use_pa_input != 3)
+      super->demod.input_rms = raw_rms(voice1, nsam, 1) / 2; //dividing by two so mic isn't so sensitive on vox
 
     // //low pass filter
     // if (super->opts.use_lpf == 1)
@@ -573,23 +573,23 @@ void encodeM17STR(Super * super)
     }
 
     //tally consecutive squelch hits based on RMS value, or reset
-    // if (super->opts.rtl_rms > super->opts.rtl_squelch_level) sql_hit = 0;
-    // else sql_hit++; //may eventually roll over to 0 again 
+    if (super->demod.input_rms > super->demod.input_sql) sql_hit = 0;
+    else sql_hit++; //may eventually roll over to 0 again 
 
     //if vox enabled, toggle tx/eot with sql_hit comparison
-    // if (state->m17_vox == 1)
-    // {
-    //   if (sql_hit > 10 && lich_cnt == 0) //licn_cnt 0 to prevent new LSF popping out
-    //   {
-    //     state->m17encoder_tx = 0;
-    //     eot = 1;
-    //   }
-    //   else
-    //   {
-    //     state->m17encoder_tx = 1;
-    //     eot = 0;
-    //   }
-    // }
+    if (super->m17e.str_encoder_vox == 1)
+    {
+      if (sql_hit > 10 && lich_cnt == 0) //licn_cnt 0 to prevent new LSF popping out
+      {
+        super->m17e.str_encoder_tx = 0;
+        eot = 1;
+      }
+      else
+      {
+        super->m17e.str_encoder_tx = 1;
+        eot = 0;
+      }
+    }
 
     //set end of tx bit on the exitflag (sig, results not gauranteed) or toggle eot flag (always triggers)
     if (exitflag) eot = 1;
@@ -681,14 +681,14 @@ void encodeM17STR(Super * super)
       {
 
         fprintf (stderr, "\n M17 LSF    (ENCODER): ");
-        // if (super->opts.monitor_input_audio == 0)
+        if (super->opts.monitor_encode_internally == 1)
           demod_lsf(super, m17_lsfs, 1);
-        // else fprintf (stderr, " To Audio Out Device Type: %d; ", super->opts.audio_out_type);
+        else fprintf (stderr, " To Audio Out;");
 
         //convert bit array into symbols and RF/Audio
         memset (nil, 0, sizeof(nil));
-        // encodeM17RF (opts, pa, wav,      nil, mem, 11); //Preamble
-        // encodeM17RF (opts, pa, wav, m17_lsfs, mem, 1); //LSF
+        encodeM17RF (super,      nil, mem, 11); //Preamble
+        encodeM17RF (super, m17_lsfs, mem, 1); //LSF
 
         //flag off after sending
         new_lsf = 0;
@@ -698,20 +698,20 @@ void encodeM17STR(Super * super)
       }
 
       fprintf (stderr, "\n M17 Stream (ENCODER): ");
-      // if (super->opts.monitor_input_audio == 0)
+      if (super->opts.monitor_encode_internally == 1)
         demod_str(super, m17_t4s, 1);
-      // else fprintf (stderr, " To Audio Out Device Type: %d; ", super->opts.audio_out_type);
+      else fprintf (stderr, " To Audio Out;");
 
       //show UDP if active
       if (use_ip == 1 && lich_cnt != 5)
         fprintf (stderr, " UDP: %s:%d", super->opts.m17_hostname, udpport);
 
       //debug RMS Value
-      // if (state->m17_vox == 1)
-      // {
-      //   fprintf (stderr, " RMS: %04ld", super->opts.rtl_rms);
-      //   fprintf (stderr, " SQL HIT: %d;", sql_hit);
-      // }
+      if (super->m17e.str_encoder_vox == 1)
+      {
+        fprintf (stderr, " RMS: %04ld", super->demod.input_rms);
+        fprintf (stderr, " SQL HIT: %d;", sql_hit);
+      }
 
       //debug show pulse input latency
       // if (super->opts.audio_in_type == 0)
@@ -721,7 +721,7 @@ void encodeM17STR(Super * super)
       // }
 
       //convert bit array into symbols and RF/Audio
-      // encodeM17RF (opts, pa, wav, m17_t4s, mem, 2);
+      encodeM17RF (super, m17_t4s, mem, 2);
       
       //Contruct an IP frame using previously created arrays
       memset (m17_ip_frame, 0, sizeof(m17_ip_frame));
@@ -788,8 +788,6 @@ void encodeM17STR(Super * super)
       {
         fsn = 0;
         nonce[13]++;
-        //warning: comparison is always false due to limited range of data type
-        // if (nonce[13] > 0xFF)
         if (nonce[13] == 0) //if 0xFF rolls back over to zero, then
         {
           nonce[13] = 0; //roll over to zero of exceeds 0xFF
@@ -948,29 +946,29 @@ void encodeM17STR(Super * super)
       if (eot && !eot_out)
       {
         fprintf (stderr, "\n M17 Stream (ENCODER): ");
-        // if (super->opts.monitor_input_audio == 0)
-        //   processM17STR_debug(opts, state, m17_t4s);
-        // else fprintf (stderr, " To Audio Out Device Type: %d; ", super->opts.audio_out_type);
+        if (super->opts.monitor_encode_internally == 1)
+          demod_str(super, m17_t4s, 1);
+        else fprintf (stderr, " To Audio Out;");
 
         //show UDP if active
         if (use_ip == 1 && lich_cnt != 5)
           fprintf (stderr, " UDP: %s:%d", super->opts.m17_hostname, udpport);
 
         //debug RMS Value
-        // if (state->m17_vox == 1)
-        // {
-        //   fprintf (stderr, " RMS: %04ld", super->opts.rtl_rms);
-        //   fprintf (stderr, " SQL HIT: %d;", sql_hit);
-        // }
+        if (super->m17e.str_encoder_vox == 1)
+        {
+          fprintf (stderr, " RMS: %04ld", super->demod.input_rms);
+          fprintf (stderr, " SQL HIT: %d;", sql_hit);
+        }
 
         //convert bit array into symbols and RF/Audio
-        // encodeM17RF (opts, pa, wav, m17_t4s, mem, 2); //Last Stream Frame
+        encodeM17RF (super, m17_t4s, mem, 2); //Last Stream Frame
         memset (nil, 0, sizeof(nil));
-        // encodeM17RF (opts, pa, wav, nil, mem, 55);    //EOT Marker
+        encodeM17RF (super, nil, mem, 55);    //EOT Marker
 
         //send dead air with type 99
-        // for (i = 0; i < 25; i++)
-        //   encodeM17RF (opts, pa, wav, nil, mem, 99);
+        for (i = 0; i < 25; i++)
+          encodeM17RF (super, nil, mem, 99);
 
         //send IP Frame with EOT bit
         if (use_ip == 1)
@@ -990,10 +988,10 @@ void encodeM17STR(Super * super)
       new_lsf = 1;
 
       //flush decoder side meta last, primarily the last two octets with the lich_cnt in them
-      // memset(state->m17_meta, 0, sizeof(state->m17_meta));
+      memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
 
       //flush decoder side lsf, may be redundant, but using to make sure no stale values loaded during debug
-      // memset(state->m17_lsf, 0, sizeof(state->m17_lsf));
+      memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
 
     }
 

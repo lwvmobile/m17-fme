@@ -38,6 +38,8 @@ void init_super (Super * super)
   //Misc Options to organize later
   super->opts.m17_str_encoder_dt = 2; //2 is fullrate (3200), 3 is halfrate (1600) w/ arb data
   super->opts.disable_rrc_filter = 1; //Disable this later on
+  super->opts.monitor_encode_internally = 0;
+  super->opts.allow_crc_failure = 0; //allow decode attempts, even if CRC16 fails checksum
   super->opts.use_hpfilter_dig = 1;
   super->opts.stdout_pipe = 0;
   super->opts.use_float_symbol_output = 0;
@@ -84,15 +86,17 @@ void init_super (Super * super)
   //end init_pa_state
 
   //init_demod_state -- haven't even started yet, so skipping for now
-  // memset (demod->float_sample_buffer, 0, 65535*sizeof(short));
-  // memset (demod->sample_buffer, 0, 65535*sizeof(short));
-  // demod->sample_buffer_ptr = 0;
+  memset (super->demod.float_sample_buffer, 0, 65535*sizeof(short));
+  memset (super->demod.sample_buffer, 0, 65535*sizeof(short));
+  super->demod.sample_buffer_ptr = 0;
 
-  // memset (demod->symbol_buffer, 0, 65535*sizeof(int16_t));
-  // demod->symbol_buffer_ptr = 0;
+  memset (super->demod.symbol_buffer, 0, 65535*sizeof(int16_t));
+  super->demod.symbol_buffer_ptr = 0;
 
-  // memset (demod->dibit_buffer, 0, 65535*sizeof(uint8_t));
-  // demod->dibit_buffer_ptr = 0;
+  memset (super->demod.dibit_buffer, 0, 65535*sizeof(uint8_t));
+  super->demod.dibit_buffer_ptr = 0;
+  super->demod.input_sql = 100;
+  super->demod.input_rms = 0;
   //end init_demod_state
 
   //init_m17d_state (Decoder)
@@ -135,6 +139,7 @@ void init_super (Super * super)
   //Stream Voice Mode
   super->m17e.str_encoder_tx = 1;
   super->m17e.str_encoder_eot = 0;
+  super->m17e.str_encoder_vox = 1;
   //end init_m17e_state (Encoder)
 
   //init_wav_state

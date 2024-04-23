@@ -69,7 +69,7 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
   for (i = 0; i < 40; i++)
     super->m17d.lsf[lich_counter*40+i] = lich_decoded[i];
 
-  // if (opts->payload == 1)
+  if (super->opts.payload_verbosity >= 1)
   {
     fprintf (stderr, " LICH: ");
     for (i = 0; i < 6; i++)
@@ -93,10 +93,10 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
 
     if (crc_err == 0)
       decode_lsf_contents(super);
-    // else if (opts->aggressive_framesync == 0)
-    //   decode_lsf_contents(m17d);
+    else if (super->opts.allow_crc_failure == 0)
+      decode_lsf_contents(super);
 
-    // if (opts->payload == 1)
+    if (super->opts.payload_verbosity >= 1)
     {
       fprintf (stderr, "\n LSF: ");
       for (i = 0; i < 30; i++)

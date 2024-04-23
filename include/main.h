@@ -67,7 +67,7 @@ typedef struct
 
   //Generic Options For Display and Logging
   uint8_t use_ncurses_terminal;
-  uint8_t payload_verbosity;
+  int payload_verbosity;
 
   //Pulse Audio User Options
   uint8_t use_pa_input;
@@ -86,6 +86,8 @@ typedef struct
   //Misc Options to organize later
   uint8_t m17_str_encoder_dt;
   uint8_t disable_rrc_filter;
+  uint8_t monitor_encode_internally;
+  uint8_t allow_crc_failure;
   uint8_t use_hpfilter_dig;
   int stdout_pipe;
   int use_float_symbol_output;
@@ -113,6 +115,9 @@ typedef struct
 
   uint8_t dibit_buffer[65535];
   int32_t dibit_buffer_ptr;
+
+  long int input_sql;
+  long int input_rms;
 
 } demod_state;
 
@@ -158,9 +163,9 @@ typedef struct
   char arb[800]; //user supplied arbitrary data on 1600
 
   //Stream Voice Mode
-  uint8_t str_encoder_tx; //flag if transmit on or off
+  uint8_t str_encoder_tx;  //flag if transmit on or off
   uint8_t str_encoder_eot; //flag if transmit off and send EOT
-
+  uint8_t str_encoder_vox; //flag if use vox mode
 
 } m17_encoder_state;
 
