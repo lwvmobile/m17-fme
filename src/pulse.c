@@ -24,7 +24,8 @@ void open_pulse_audio_input (Super * super)
 
 void open_pulse_audio_output_rf (Super * super)
 {
-  super->pa.pa_output_device_rf = pa_simple_new(NULL, "M17-FME3", PA_STREAM_PLAYBACK, NULL, "RF Audio Output", &super->pa.output_rf, NULL, &super->pa.outputlt, &err);
+  // super->pa.pa_output_device_rf = pa_simple_new(NULL, "M17-FME3", PA_STREAM_PLAYBACK, NULL, "RF Audio Output", &super->pa.output_rf, NULL, &super->pa.outputlt, &err);
+  super->pa.pa_output_device_rf = pa_simple_new(NULL, "M17-FME3", PA_STREAM_PLAYBACK, NULL, "RF Audio Output", &super->pa.output_rf, NULL, NULL, &err);
   super->pa.pa_output_rf_is_open = 1;
   if (err < 0)
   {
@@ -35,7 +36,8 @@ void open_pulse_audio_output_rf (Super * super)
 
 void open_pulse_audio_output_vx (Super * super)
 {
-  super->pa.pa_output_device_vx = pa_simple_new(NULL, "M17-FME2", PA_STREAM_PLAYBACK, NULL, "Voice Output", &super->pa.output_vx, NULL, &super->pa.outputlt, &err);
+  // super->pa.pa_output_device_vx = pa_simple_new(NULL, "M17-FME2", PA_STREAM_PLAYBACK, NULL, "Voice Output", &super->pa.output_vx, NULL, &super->pa.outputlt, &err);
+  super->pa.pa_output_device_vx = pa_simple_new(NULL, "M17-FME2", PA_STREAM_PLAYBACK, NULL, "Voice Output", &super->pa.output_vx, NULL, NULL, &err);
   super->pa.pa_output_vx_is_open = 1;
   if (err < 0)
   {
