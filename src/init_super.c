@@ -139,7 +139,7 @@ void init_super (Super * super)
   //Stream Voice Mode
   super->m17e.str_encoder_tx = 1;
   super->m17e.str_encoder_eot = 0;
-  super->m17e.str_encoder_vox = 1;
+  super->m17e.str_encoder_vox = 0;
   //end init_m17e_state (Encoder)
 
   //init_wav_state

@@ -176,7 +176,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1dhimns:v:A:D:F:IPM:S:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "12dhimns:v:A:D:F:IPM:S:U:VX")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -189,6 +189,13 @@ int main (int argc, char **argv)
       //disable high pass filter on digital
       case '1':
         super.opts.use_hpfilter_dig = 0;
+        fprintf (stderr, " Disable HPFilter on Digital Voice Decoding. \n");
+        break;
+      
+      //disable RRC Filter
+      case '2':
+        super.opts.disable_rrc_filter = 1;
+        fprintf (stderr, " Disable RRC Filter on RF Audio Encoding / Decoding. \n");
         break;
         
       // case 'a':

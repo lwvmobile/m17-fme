@@ -81,8 +81,8 @@ void encodeM17STR(Super * super)
   UNUSED(sql_hit);
 
   //send dead air with type 99
-  // for (i = 0; i < 25; i++)
-  //   encodeM17RF (opts, pa, wav, nil, mem, 99);
+  for (i = 0; i < 25; i++)
+    encodeM17RF (super, nil, mem, 99);
 
   //Open UDP port to default or user defined values, if enabled
   int sock_err;
@@ -715,11 +715,11 @@ void encodeM17STR(Super * super)
       }
 
       //debug show pulse input latency
-      // if (super->opts.audio_in_type == 0)
-      // {
-      //   unsigned long long int latency = pa_simple_get_latency (super->opts.pulse_digi_dev_in, NULL);
-      //   fprintf (stderr, " Latency: %05lld;", latency);
-      // }
+      if (super->opts.use_pa_input == 1 && super->opts.payload_verbosity >= 3)
+      {
+        unsigned long long int latency = pa_simple_get_latency (super->pa.pa_input_device, NULL);
+        fprintf (stderr, " Latency: %05lld;", latency);
+      }
 
       //convert bit array into symbols and RF/Audio
       encodeM17RF (super, m17_t4s, mem, 2);
@@ -969,6 +969,7 @@ void encodeM17STR(Super * super)
         encodeM17RF (super, nil, mem, 55);    //EOT Marker
 
         //send dead air with type 99
+        memset (nil, 0, sizeof(nil));
         for (i = 0; i < 25; i++)
           encodeM17RF (super, nil, mem, 99);
 
