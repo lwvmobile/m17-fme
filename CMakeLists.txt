@@ -55,8 +55,7 @@ include_directories("${PROJECT_SOURCE_DIR}/include")
 ADD_EXECUTABLE(m17-fme ${SRCS} ${HEADERS})
 TARGET_LINK_LIBRARIES(m17-fme ${LIBS})
 
-target_compile_options(m17-fme PRIVATE -Wunused-but-set-variable -Wunused-variable -Wunused-parameter
-                       -Wempty-body -Wunused-label -Wall $<$<COMPILE_LANGUAGE:C>:-Wpointer-sign>) #remove -Wall if its too annoying
+target_compile_options(m17-fme PRIVATE -Wunused-but-set-variable -Wall -Wextra -Wpedantic $<$<COMPILE_LANGUAGE:C>:-Wpointer-sign>)
 
 include(GNUInstallDirs)
 install(TARGETS m17-fme DESTINATION ${CMAKE_INSTALL_BINDIR})

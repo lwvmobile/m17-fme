@@ -35,7 +35,7 @@
 #include <pulse/introspect.h>
 
 //Useful Warning Shoosh
-#define UNUSED(x)                       ((void)x)
+#define UNUSED(x) ((void)x)
 
 //only include things if found by cmake
 #ifdef USE_CODEC2
@@ -260,7 +260,6 @@ long int raw_rms (int16_t *samples, int len, int step);
 void upsample_6x (short input, short * output);
 void HPFilter_Init (HPFilter *filter, float cutoffFreqHz, float sampleTimeS);
 float HPFilter_Update (HPFilter *filter, float v_in);
-// void hpfilter(HPFilter * hpf, short * input, int len); //disable / delete this later on
 void hpfilter_d (Super * super, short * input, int len);
 
 //convolutional encoder and viterbi decoder(s)
@@ -279,7 +278,6 @@ void Golay_24_12_init ();
 uint16_t crc16 (const uint8_t *in, const uint16_t len);
 
 //demodulation and sync functions
-// void framesync (config_opts * opts, pa_state * pa, m17_decoder_state * m17d, demod_state * demod);
 void framesync (Super * super);
 
 //misc utility functions
@@ -290,30 +288,21 @@ short read_stdin_pipe (Super * super);
 uint64_t ConvertBitIntoBytes (uint8_t * BufferIn, uint32_t BitLength);
 
 //M17 Frame Encoders
-// void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * input, float * mem, int type);
 void encodeM17RF (Super * super, uint8_t * input, float * mem, int type);
-// void encodeM17PKT(Super * super, config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e, m17_decoder_state * m17d);
 void encodeM17PKT (Super * super);
 void encodeM17STR (Super * super);
 //M17 Content Element Decoders
-// int  decode_lich_contents(m17_decoder_state * m17d, uint8_t * lich_bits);
-int decode_lich_contents (Super * super, uint8_t * lich_bits);
-// void decode_lsf_contents(m17_decoder_state * m17d);
+int  decode_lich_contents (Super * super, uint8_t * lich_bits);
 void decode_lsf_contents (Super * super);
-// void decode_pkt_contents(uint8_t * input, int len);
 void decode_pkt_contents (Super * super, uint8_t * input, int len);
-// void decode_callsign_data(m17_decoder_state * m17d, unsigned long long int dst, unsigned long long int src);
 void decode_callsign_data (Super * super, unsigned long long int dst, unsigned long long int src);
-// void decode_str_payload(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa,  HPFilter * hpf, uint8_t * payload, uint8_t type);
 void decode_str_payload (Super * super, uint8_t * payload, uint8_t type);
 
 //M17 Frame Demodulators
-// void demod_lsf(m17_decoder_state * m17d, uint8_t * input, int debug);
 void demod_lsf (Super * super, uint8_t * input, int debug);
 void demod_str (Super * super, uint8_t * input, int debug);
 void prepare_str (Super * super, uint8_t * input);
 void decode_ipf (Super * super);
-
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus

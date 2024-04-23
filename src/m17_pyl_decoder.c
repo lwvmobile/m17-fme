@@ -64,7 +64,7 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type)
     hpfilter_d(super, samp1, nsam);
 
   //Upsample 8k to 48k
-  for (i = 0; i < nsam; i++)
+  for (i = 0; i < (int)nsam; i++)
   {
     upsample_6x(samp1[i], upsamp1+(i*6));
     if (type == 2)

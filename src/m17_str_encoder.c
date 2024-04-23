@@ -349,7 +349,7 @@ void encodeM17STR(Super * super)
     //read some audio samples from source and load them into an audio buffer
     // if (super->opts.audio_in_type == 0) //pulse audio
     {
-      for (i = 0; i < nsam; i++)
+      for (i = 0; i < (int)nsam; i++)
       {
         for (j = 0; j < dec; j++)
           // pa_simple_read(pa->pa_input_device, &sample, 2, NULL );
@@ -359,7 +359,7 @@ void encodeM17STR(Super * super)
 
       if (st == 2)
       {
-        for (i = 0; i < nsam; i++)
+        for (i = 0; i < (int)nsam; i++)
         {
           for (j = 0; j < dec; j++)
             // pa_simple_read(pa->pa_input_device, &sample, 2, NULL );
@@ -788,7 +788,9 @@ void encodeM17STR(Super * super)
       {
         fsn = 0;
         nonce[13]++;
-        if (nonce[13] > 0xFF)
+        //warning: comparison is always false due to limited range of data type
+        // if (nonce[13] > 0xFF)
+        if (nonce[13] == 0) //if 0xFF rolls back over to zero, then
         {
           nonce[13] = 0; //roll over to zero of exceeds 0xFF
           nonce[12]++;

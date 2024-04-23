@@ -52,11 +52,17 @@ void decode_lsf_contents(Super * super)
   super->m17d.enc_et = lsf_et;
   super->m17d.enc_st = lsf_es;
 
+  //warning: taking the absolute value of unsigned type ‘uint32_t’ {aka ‘unsigned int’} has no effect
   //compare incoming META/IV value on AES, if timestamp 32-bits are not within a time 5 minute window, then throw a warning
-  uint32_t tsn = (time(NULL) & 0xFFFFFFFF); //current LSB 32-bit value
-  uint32_t tsi = (uint32_t)ConvertBitIntoBytes(&super->m17d.lsf[112], 32); //OTA LSB 32-bit value
-  uint32_t dif = abs(tsn-tsi);
-  if (lsf_et == 2 && dif > 3600) fprintf (stderr, " \n Warning! Time Difference > %d secs; Potential NONCE/IV Replay!\n", dif);
+  // uint32_t tsn = (time(NULL) & 0xFFFFFFFF); //current LSB 32-bit value
+  // uint32_t tsi = (uint32_t)ConvertBitIntoBytes(&super->m17d.lsf[112], 32); //OTA LSB 32-bit value
+  // uint32_t dif = abs(tsn-tsi);
+
+  //use lli and llabs instead
+  long long int tsn = (time(NULL) & 0xFFFFFFFF); //current LSB 32-bit value
+  long long int tsi = (uint32_t)ConvertBitIntoBytes(&super->m17d.lsf[112], 32); //OTA LSB 32-bit value
+  long long int dif = llabs(tsn-tsi);
+  if (lsf_et == 2 && dif > 3600) fprintf (stderr, " \n Warning! Time Difference > %lld secs; Potential NONCE/IV Replay!\n", dif);
 
   //debug
   // fprintf (stderr, "TSN: %ld; TSI: %ld; DIF: %ld;", tsn, tsi, dif);
