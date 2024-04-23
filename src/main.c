@@ -176,7 +176,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "12dhimns:v:A:D:F:IPM:S:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "12dhimns:v:A:D:F:IM:PS:U:VX")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -267,16 +267,16 @@ int main (int argc, char **argv)
         fprintf (stderr, "Project M17 Encoder IP Frame Enabled. \n");
         break;
 
-      //Enable the PKT Encoder
-      case 'P':
-        super.opts.use_m17_pkt_encoder = 1;
-        fprintf (stderr, "Project M17 Packet Encoder. \n");
-        break;
-
       //Specify Encoder CAN, SRC, and DST Callsign Data
       case 'M':
         strncpy(super.m17e.user, optarg, 49);
         super.m17e.user[49] = '\0';
+        break;
+
+      //Enable the PKT Encoder
+      case 'P':
+        super.opts.use_m17_pkt_encoder = 1;
+        fprintf (stderr, "Project M17 Packet Encoder. \n");
         break;
 
       //Specify M17 PKT Encoder SMS Message (truncates at 772)
