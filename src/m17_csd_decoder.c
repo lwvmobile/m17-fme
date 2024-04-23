@@ -9,7 +9,8 @@
 #include "main.h"
 #include "m17.h"
 
-void decode_callsign_data(m17_decoder_state * m17d, unsigned long long int dst, unsigned long long int src)
+// void decode_callsign_data(m17_decoder_state * m17d, unsigned long long int dst, unsigned long long int src)
+void decode_callsign_data(Super * super, unsigned long long int dst, unsigned long long int src)
 {
   //quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
@@ -37,12 +38,12 @@ void decode_callsign_data(m17_decoder_state * m17d, unsigned long long int dst, 
     }
 
     //assign completed CSD to a more useful string instead
-    sprintf (m17d->dst_csd_str, "%c%c%c%c%c%c%c%c%c", 
+    sprintf (super->m17d.dst_csd_str, "%c%c%c%c%c%c%c%c%c", 
     dst_csd[0], dst_csd[1], dst_csd[2], dst_csd[3], 
     dst_csd[4], dst_csd[5], dst_csd[6], dst_csd[7], dst_csd[8]);
 
     //debug
-    // fprintf (stderr, "DT: %s", m17d->dst_csd_str);
+    // fprintf (stderr, "DT: %s", super->m17d.dst_csd_str);
   }
 
   if (src == 0xFFFFFFFFFFFF) 
@@ -63,15 +64,15 @@ void decode_callsign_data(m17_decoder_state * m17d, unsigned long long int dst, 
     }
 
     //assign completed CSD to a more useful string instead
-    sprintf (m17d->src_csd_str, "%c%c%c%c%c%c%c%c%c", 
+    sprintf (super->m17d.src_csd_str, "%c%c%c%c%c%c%c%c%c", 
     src_csd[0], src_csd[1], src_csd[2], src_csd[3], 
     src_csd[4], src_csd[5], src_csd[6], src_csd[7], src_csd[8]);
 
     //debug
-    // fprintf (stderr, "ST: %s", m17d->src_csd_str);
+    // fprintf (stderr, "ST: %s", super->m17d.src_csd_str);
   }
 
   //debug
-  // fprintf (stderr, " DST: %012llX SRC: %012llX", m17d->dst_csd_str, m17d->src_csd_str);
+  // fprintf (stderr, " DST: %012llX SRC: %012llX", super->m17d.dst_csd_str, super->m17d.src_csd_str);
 
 }

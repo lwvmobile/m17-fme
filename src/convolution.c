@@ -36,6 +36,30 @@ void simple_conv_encoder (uint8_t * input, uint8_t * output, int len)
   }
 }
 
+/*   Convolution Decoder Original Header Credits / License
+ *   Copyright (C) 2009-2016,2018 by Jonathan Naylor G4KLX
+ *
+ *   Copyright (C) 2018 by Edouard Griffiths F4EXB:
+ *   - Cosmetic changes to integrate with DSDcc
+ *
+ *   Copyright (C) 2018 by Louis HERVE F4HUZ:
+ *   - Transform C++ lib into C lib to integrate with DSD
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, write to the Free Software
+ *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 static const uint8_t CONVOLUTION_BIT_MASK_TABLE[8] = {0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04U, 0x02U, 0x01U};
 
 #define WRITE_BIT1(p,i,b) p[(i)>>3] = (b) ? (p[(i)>>3] | CONVOLUTION_BIT_MASK_TABLE[(i)&7]) : (p[(i)>>3] & ~CONVOLUTION_BIT_MASK_TABLE[(i)&7])
@@ -126,27 +150,3 @@ void convolution_init()
   memset(m_metrics2, 0x0, 16*sizeof(uint16_t));
   memset(m_decisions,0x0, 8*300*sizeof(uint64_t));
 }
-
-/*   Convolution Decoder Original Header Credits / License
- *   Copyright (C) 2009-2016,2018 by Jonathan Naylor G4KLX
- *
- *   Copyright (C) 2018 by Edouard Griffiths F4EXB:
- *   - Cosmetic changes to integrate with DSDcc
- *
- *   Copyright (C) 2018 by Louis HERVE F4HUZ:
- *   - Transform C++ lib into C lib to integrate with DSD
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 2 of the License, or
- *   (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program; if not, write to the Free Software
- *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */

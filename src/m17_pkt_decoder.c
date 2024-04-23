@@ -9,8 +9,12 @@
 #include "main.h"
 #include "m17.h"
 
-void decode_pkt_contents(uint8_t * input, int len)
+void decode_pkt_contents(Super * super, uint8_t * input, int len)
 {
+
+  //super strct is currently unsused here, but we may want it here in the future.
+  UNUSED(super);
+
   //quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
 

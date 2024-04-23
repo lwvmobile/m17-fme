@@ -10,8 +10,11 @@
 #include "m17.h"
 
 //TODO: Finish up other required functions called within, and also figure out what we want to pass here
-void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e, m17_decoder_state * m17d)
+// void encodeM17PKT(Super * super, config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e, m17_decoder_state * m17d)
+void encodeM17PKT(Super * super)
 {
+
+  // UNUSED(m17e);
 
   //quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
@@ -57,26 +60,26 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
   //end User Defined Variables
 
   //configure User Defined Variables, if defined at CLI
-  if (m17e->can != -1) //has a set value
-    can = m17e->can;
+  if (super->m17e.can != -1) //has a set value
+    can = super->m17e.can;
 
-  if (m17e->srcs[0] != 0)
-    sprintf (s40, "%s", m17e->srcs);
+  if (super->m17e.srcs[0] != 0)
+    sprintf (s40, "%s", super->m17e.srcs);
 
-  if (m17e->dsts[0] != 0)
-    sprintf (d40, "%s", m17e->dsts);
+  if (super->m17e.dsts[0] != 0)
+    sprintf (d40, "%s", super->m17e.dsts);
 
   //SMS Message OR Other/Raw Encoded Data Format
   uint8_t protocol  = 5;
-  if (m17e->sms[0] != 0)
+  if (super->m17e.sms[0] != 0)
   {
     protocol = 5; //SMS Protocol
-    sprintf (text, "%s", m17e->sms);
+    sprintf (text, "%s", super->m17e.sms);
   }
-  else if (m17e->dat[0] != 0) //WIP
+  else if (super->m17e.dat[0] != 0) //WIP
   {
-    protocol = m17e->dat[0]-0x30; //test this for accuracy
-    sprintf (text, "%s", m17e->dat+1); //make sure this works for sprintf
+    protocol = super->m17e.dat[0]-0x30; //test this for accuracy
+    sprintf (text, "%s", super->m17e.dat+1); //make sure this works for sprintf
   }
 
   //if special values, then assign them
@@ -89,10 +92,10 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
 
   //send dead air with type 99
   for (i = 0; i < 25; i++)
-    encodeM17RF (opts, pa, wav, nil, mem, 99);
+    encodeM17RF (super, nil, mem, 99);
 
   //send preamble_a for the LSF frame
-  encodeM17RF (opts, pa, wav, nil, mem, 33);
+  encodeM17RF (super, nil, mem, 33);
 
   //NOTE: PKT mode does not seem to have an IP format specified by M17 standard,
   //so I will assume that you do not send PKT data over IP to a reflector
@@ -351,15 +354,15 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
 
   //Open UDP port to default or user defined values, if enabled
   int sock_err = 0;
-  if (opts->m17_use_ip == 1)
+  if (super->opts.m17_use_ip == 1)
   {
     //
-    sock_err = udp_socket_connectM17(opts);
+    sock_err = udp_socket_connectM17(super);
     if (sock_err < 0)
     {
       fprintf (stderr, "Error Configuring UDP Socket for M17 IP Frame :( \n");
       use_ip = 0;
-      opts->m17_use_ip = 0;
+      super->opts.m17_use_ip = 0;
     }
     else use_ip = 1;
   }
@@ -402,7 +405,7 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
 
   //SEND CONN to reflector
   if (use_ip == 1)
-    udp_return = m17_socket_blaster (opts, 11, conn);
+    udp_return = m17_socket_blaster (super, 11, conn);
 
   //add MPKT header
   k = 0;
@@ -454,7 +457,7 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
 
   //Send MPKT to reflector
   if (use_ip == 1)
-    udp_return = m17_socket_blaster (opts, x+34+3, m17_ip_packed);
+    udp_return = m17_socket_blaster (super, x+34+3, m17_ip_packed);
 
   //debug
   if (use_ip == 1)
@@ -462,11 +465,11 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
 
   //SEND EOTX to reflector
   if (use_ip == 1)
-    udp_return = m17_socket_blaster (opts, 10, eotx);
+    udp_return = m17_socket_blaster (super, 10, eotx);
 
   //SEND DISC to reflector
   if (use_ip == 1)
-    udp_return = m17_socket_blaster (opts, 10, disc);
+    udp_return = m17_socket_blaster (super, 10, disc);
 
   //flag to determine if we send a new LSF frame for new encode
   //only send once at the appropriate time when encoder is toggled on
@@ -479,12 +482,12 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
     {
 
       fprintf (stderr, "\n M17 LSF    (ENCODER): ");
-      demod_lsf(m17d, m17_lsfs, 1);
+      demod_lsf(super, m17_lsfs, 1);
 
       //convert bit array into symbols and RF/Audio
       memset (nil, 0, sizeof(nil));
-      encodeM17RF (opts, pa, wav, nil, mem, 11); //Preamble
-      encodeM17RF (opts, pa, wav, m17_lsfs, mem, 1); //LSF
+      encodeM17RF (super, nil, mem, 11); //Preamble
+      encodeM17RF (super, m17_lsfs, mem, 1); //LSF
 
       //flag off after sending
       new_lsf = 0;
@@ -563,17 +566,17 @@ void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encode
     // fprintf (stderr, " PBC: %d;", pbc);
 
     //convert bit array into symbols and RF/Audio
-    encodeM17RF (opts, pa, wav, m17_p4s, mem, 4);
+    encodeM17RF (super, m17_p4s, mem, 4);
 
     //send the EOT Marker and some dead air
     if (eot)
     {
       memset (nil, 0, sizeof(nil));
-      encodeM17RF (opts, pa, wav, nil, mem, 55); //EOT Marker
+      encodeM17RF (super, nil, mem, 55); //EOT Marker
 
       //send dead air with type 99
       for (i = 0; i < 25; i++)
-        encodeM17RF (opts, pa, wav, nil, mem, 99);
+        encodeM17RF (super, nil, mem, 99);
 
       //shut it down
       exitflag = 1;

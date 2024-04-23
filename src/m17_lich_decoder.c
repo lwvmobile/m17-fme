@@ -8,7 +8,8 @@
 
 #include "main.h"
 
-int decode_lich_contents(m17_decoder_state * m17d, uint8_t * lich_bits)
+// int decode_lich_contents(m17_decoder_state * m17d, uint8_t * lich_bits)
+int decode_lich_contents(Super * super, uint8_t * lich_bits)
 {
   int i, j, err;
   err = 0;
@@ -66,7 +67,7 @@ int decode_lich_contents(m17_decoder_state * m17d, uint8_t * lich_bits)
 
   //transfer to storage
   for (i = 0; i < 40; i++)
-    m17d->lsf[lich_counter*40+i] = lich_decoded[i];
+    super->m17d.lsf[lich_counter*40+i] = lich_decoded[i];
 
   // if (opts->payload == 1)
   {
@@ -83,15 +84,15 @@ int decode_lich_contents(m17_decoder_state * m17d, uint8_t * lich_bits)
 
     //need to pack bytes for the sw5wwp variant of the crc (might as well, may be useful in the future)
     for (i = 0; i < 30; i++)
-      lsf_packed[i] = (uint8_t)ConvertBitIntoBytes(&m17d->lsf[i*8], 8);
+      lsf_packed[i] = (uint8_t)ConvertBitIntoBytes(&super->m17d.lsf[i*8], 8);
 
     crc_cmp = crc16(lsf_packed, 28);
-    crc_ext = (uint16_t)ConvertBitIntoBytes(&m17d->lsf[224], 16);
+    crc_ext = (uint16_t)ConvertBitIntoBytes(&super->m17d.lsf[224], 16);
 
     if (crc_cmp != crc_ext) crc_err = 1;
 
     if (crc_err == 0)
-      decode_lsf_contents(m17d);
+      decode_lsf_contents(super);
     // else if (opts->aggressive_framesync == 0)
     //   decode_lsf_contents(m17d);
 
@@ -106,7 +107,7 @@ int decode_lich_contents(m17_decoder_state * m17d, uint8_t * lich_bits)
       fprintf (stderr, " (CRC CHK) E: %04X; C: %04X;", crc_ext, crc_cmp);
     }
 
-    memset (m17d->lsf, 0, sizeof(m17d->lsf));
+    memset (super->m17d.lsf, 0, sizeof(super->m17d.lsf));
 
     if (crc_err == 1) fprintf (stderr, " EMB LSF CRC ERR");
   }

@@ -10,7 +10,8 @@
 #include "m17.h"
 
 //convert bit array into symbols and RF/Audio
-void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * input, float * mem, int type)
+// void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * input, float * mem, int type)
+void encodeM17RF (Super * super, uint8_t * input, float * mem, int type)
 {
 
   //quell defined but not used warnings from m17.h
@@ -118,14 +119,14 @@ void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * 
   short baseband[1920]; memset (baseband, 0, 1920*sizeof(short));
 
   //simple, no filtering
-  if (opts->disable_rrc_filter == 1)
+  if (super->opts.disable_rrc_filter == 1)
   {
     for (i = 0; i < 1920; i++)
       baseband[i] = output_up[i] * 7168.0f;
   }
   
   //version w/ filtering lifted from M17_Implementations / libM17
-  else if (opts->disable_rrc_filter == 0)
+  else if (super->opts.disable_rrc_filter == 0)
   {
     
     float mac = 0.0f;
@@ -164,38 +165,38 @@ void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * 
   }
 
   //save symbols (dibits, actually) to symbol capture bin file format
-  // if (opts->symbol_out_f) //use -c output.bin to use this format (default type for DSD-FME)
+  // if (super->opts.symbol_out_f) //use -c output.bin to use this format (default type for DSD-FME)
   // {
   //   for (i = 0; i < 192; i++)
-  //     fputc (output_dibits[i], opts->symbol_out_f);
+  //     fputc (output_dibits[i], super->opts.symbol_out_f);
   // }
 
   //save symbol stream format (M17_Implementations), if opened
-  if (opts->float_symbol_out)
+  if (super->opts.float_symbol_out)
   {
     float val = 0;
     for (i = 0; i < 192; i++)
     {
       val = (float)output_symbols[i];
-      fwrite(&val, 4, 1, opts->float_symbol_out);
+      fwrite(&val, 4, 1, super->opts.float_symbol_out);
     }
   }
 
   //Pulse Audio
   #ifdef USE_PULSEAUDIO
-  if (pa->pa_output_rf_is_open == 1)
-    pulse_audio_output_rf(pa, baseband, 1920);
+  if (super->pa.pa_output_rf_is_open == 1)
+    pulse_audio_output_rf(super, baseband, 1920);
   #endif
   
   //STDOUT or OSS 48k/1 (OSS not implemented)
-  if (opts->stdout_pipe)
-    write_stdout_pipe(opts, baseband, 1920);
+  if (super->opts.stdout_pipe)
+    write_stdout_pipe(super, baseband, 1920);
 
   //write to rf wav file
-  if (wav->wav_out_rf != NULL)
+  if (super->wav.wav_out_rf != NULL)
   {
-    write_wav_out_rf(wav, baseband, 1920);
-    sf_write_sync (wav->wav_out_rf);
+    write_wav_out_rf(super, baseband, 1920);
+    sf_write_sync (super->wav.wav_out_rf);
   }
 
 }

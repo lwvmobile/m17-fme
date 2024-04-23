@@ -82,3 +82,15 @@ void hpfilter(HPFilter * hpf, short * input, int len)
 		// fprintf (stderr, "\n out: %05d", input[i]);
 	}
 }
+
+//double check this one, make sure its doing what its suppoed to now
+void hpfilter_d(Super * super, short * input, int len)
+{
+  int i;
+  for (i = 0; i < len; i++)
+	{
+		// fprintf (stderr, "\n in: %05d", input[i]);
+		input[i] = HPFilter_Update(&super->hpf_d, input[i]);
+		// fprintf (stderr, "\n out: %05d", input[i]);
+	}
+}

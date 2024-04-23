@@ -10,9 +10,10 @@
 #include "m17.h"
 
 //encode and create audio of a Project M17 Stream signal
-void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter * hpf, m17_encoder_state * m17e, m17_decoder_state * m17d)
+void encodeM17STR(Super * super)
 {
   float mem[81];
+
   //quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
 
@@ -21,7 +22,7 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
 
   //set stream type value here so we can change 3200 or 1600 accordingly
   uint8_t st = 2; //stream type: 0 = res; 1 = data; 2 = voice(3200); 3 = voice(1600) + data;
-  if (opts->m17_str_encoder_dt == 3) st = 3; //this is set to 3 IF -S user text string is called at CLI
+  if (super->opts.m17_str_encoder_dt == 3) st = 3; //this is set to 3 IF -S user text string is called at CLI
   else st = 2; //otherwise, just use 32066 voice
 
   //IP Frame Things and User Variables for Reflectors, etc
@@ -29,18 +30,18 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
   memset (nil, 0, sizeof(nil));
 
   //Enable frame, TX and Ncurses Printer
-  m17e->str_encoder_tx = 1;
+  super->m17e.str_encoder_tx = 1;
   
-  // if (opts->use_ncurses_terminal == 1)
+  // if (super->opts.use_ncurses_terminal == 1)
   //   ncursesOpen(opts, state);
 
   //if using the ncurses terminal, disable TX on startup until user toggles it with the '\' key, if not vox enabled
-  // if (opts->use_ncurses_terminal == 1 && state->m17encoder_tx == 1 && state->m17_vox == 0)
+  // if (super->opts.use_ncurses_terminal == 1 && state->m17encoder_tx == 1 && state->m17_vox == 0)
   //   state->m17encoder_tx = 0;
 
   //User Defined Variables
   int use_ip = 0; //1 to enable IP Frame Broadcast over UDP
-  int udpport = opts->m17_portno; //port number for M17 IP Frame (default is 17000)
+  int udpport = super->opts.m17_portno; //port number for M17 IP Frame (default is 17000)
   //set at startup now via CLI, or use default if no user value specified
   uint8_t reflector_module = 0x41; //'A', single letter reflector module A-Z, 0x41 is A
   uint8_t can = 7; //channel access number
@@ -53,14 +54,14 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
   //end User Defined Variables
 
   //configure User Defined Variables, if defined at CLI
-  if (m17e->can != -1) //has a set value
-    can = m17e->can;
+  if (super->m17e.can != -1) //has a set value
+    can = super->m17e.can;
 
-  if (m17e->srcs[0] != 0)
-    sprintf (s40, "%s", m17e->srcs);
+  if (super->m17e.srcs[0] != 0)
+    sprintf (s40, "%s", super->m17e.srcs);
 
-  if (m17e->dsts[0] != 0)
-    sprintf (d40, "%s", m17e->dsts);
+  if (super->m17e.dsts[0] != 0)
+    sprintf (d40, "%s", super->m17e.dsts);
 
   //if special values, then assign them
   if (strcmp (d40, "BROADCAST") == 0)
@@ -80,20 +81,20 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
   UNUSED(sql_hit);
 
   //send dead air with type 99
-  for (i = 0; i < 25; i++)
-    encodeM17RF (opts, pa, wav, nil, mem, 99);
+  // for (i = 0; i < 25; i++)
+  //   encodeM17RF (opts, pa, wav, nil, mem, 99);
 
   //Open UDP port to default or user defined values, if enabled
   int sock_err;
-  if (opts->m17_use_ip == 1)
+  if (super->opts.m17_use_ip == 1)
   {
     //
-    sock_err = udp_socket_connectM17(opts);
+    sock_err = udp_socket_connectM17(super);
     if (sock_err < 0)
     {
       fprintf (stderr, "Error Configuring UDP Socket for M17 IP Frame :( \n");
       use_ip = 0;
-      opts->m17_use_ip = 0;
+      super->opts.m17_use_ip = 0;
     }
     else use_ip = 1;
   }
@@ -145,9 +146,9 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
 
   #ifdef USE_CODEC2
   if      (st == 2)
-    nsam = codec2_samples_per_frame(m17e->codec2_3200);
+    nsam = codec2_samples_per_frame(super->m17e.codec2_3200);
   else if (st == 3)
-    nsam = codec2_samples_per_frame(m17e->codec2_1600);
+    nsam = codec2_samples_per_frame(super->m17e.codec2_1600);
   else nsam = 160; //default to 160 if RES or DATA, even if we don't handle those
   #endif
 
@@ -234,7 +235,7 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
 
   //SEND CONN to reflector
   if (use_ip == 1)
-    udp_return = m17_socket_blaster (opts, 11, conn);
+    udp_return = m17_socket_blaster (super, 11, conn);
 
   //TODO: Read UDP ACKN/NACK value, disable use_ip if NULL or nack return
   
@@ -318,7 +319,7 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
   {
 
     //if not decoding internally, assign values for ncurses display
-    // if (opts->monitor_input_audio == 1)
+    // if (super->opts.monitor_input_audio == 1)
     // {
     //   sprintf (state->m17_src_str, "%s", s40);
     //   sprintf (state->m17_dst_str, "%s", d40);
@@ -346,13 +347,13 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
 
     #ifdef USE_PULSEAUDIO
     //read some audio samples from source and load them into an audio buffer
-    // if (opts->audio_in_type == 0) //pulse audio
+    // if (super->opts.audio_in_type == 0) //pulse audio
     {
       for (i = 0; i < nsam; i++)
       {
         for (j = 0; j < dec; j++)
           // pa_simple_read(pa->pa_input_device, &sample, 2, NULL );
-          sample = pa_input_read(pa);
+          sample = pa_input_read(super);
         voice1[i] = sample; //only store the 6th sample
       }
 
@@ -362,24 +363,24 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
         {
           for (j = 0; j < dec; j++)
             // pa_simple_read(pa->pa_input_device, &sample, 2, NULL );
-            sample = pa_input_read(pa);
+            sample = pa_input_read(super);
           voice2[i] = sample; //only store the 6th sample
         }
       }
     }
     #endif
 
-    // if (opts->audio_in_type == 1) //stdin
+    // if (super->opts.audio_in_type == 1) //stdin
     // {
     //   int result = 0;
     //   for (i = 0; i < nsam; i++)
     //   {
     //     for (j = 0; j < dec; j++)
-    //       result = sf_read_short(opts->audio_in_file, &sample, 1);
+    //       result = sf_read_short(super->opts.audio_in_file, &sample, 1);
     //     voice1[i] = sample;
     //     if (result == 0)
     //     {
-    //       sf_close(opts->audio_in_file);
+    //       sf_close(super->opts.audio_in_file);
     //       fprintf (stderr, "Connection to STDIN Disconnected.\n");
     //       fprintf (stderr, "Closing DSD-FME.\n");
     //       exitflag = 1;
@@ -392,11 +393,11 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
     //     for (i = 0; i < nsam; i++)
     //     {
     //       for (j = 0; j < dec; j++)
-    //         result = sf_read_short(opts->audio_in_file, &sample, 1);
+    //         result = sf_read_short(super->opts.audio_in_file, &sample, 1);
     //       voice2[i] = sample;
     //       if (result == 0)
     //       {
-    //         sf_close(opts->audio_in_file);
+    //         sf_close(super->opts.audio_in_file);
     //         fprintf (stderr, "Connection to STDIN Disconnected.\n");
     //         fprintf (stderr, "Closing DSD-FME.\n");
     //         exitflag = 1;
@@ -406,12 +407,12 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
     //   }
     // }
 
-    // if (opts->audio_in_type == 5) //OSS
+    // if (super->opts.audio_in_type == 5) //OSS
     // {
     //   for (i = 0; i < nsam; i++)
     //   {
     //     for (j = 0; j < dec; j++)
-    //       read (opts->audio_in_fd, &sample, 2);
+    //       read (super->opts.audio_in_fd, &sample, 2);
     //     voice1[i] = sample;
     //   }
 
@@ -420,23 +421,23 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
     //     for (i = 0; i < nsam; i++)
     //     {
     //       for (j = 0; j < dec; j++)
-    //         read (opts->audio_in_fd, &sample, 2);
+    //         read (super->opts.audio_in_fd, &sample, 2);
     //       voice2[i] = sample;
     //     }
     //   }
     // }
 
-    // if (opts->audio_in_type == 8) //TCP
+    // if (super->opts.audio_in_type == 8) //TCP
     // {
     //   int result = 0;
     //   for (i = 0; i < nsam; i++)
     //   {
     //     for (j = 0; j < dec; j++)
-    //       result = sf_read_short(opts->tcp_file_in, &sample, 1);
+    //       result = sf_read_short(super->opts.tcp_file_in, &sample, 1);
     //     voice1[i] = sample;
     //     if (result == 0)
     //     {
-    //       sf_close(opts->tcp_file_in);
+    //       sf_close(super->opts.tcp_file_in);
     //       fprintf (stderr, "Connection to TCP Server Disconnected.\n");
     //       fprintf (stderr, "Closing DSD-FME.\n");
     //       exitflag = 1;
@@ -449,11 +450,11 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
     //     for (i = 0; i < nsam; i++)
     //     {
     //       for (j = 0; j < dec; j++)
-    //         result = sf_read_short(opts->tcp_file_in, &sample, 1);
+    //         result = sf_read_short(super->opts.tcp_file_in, &sample, 1);
     //       voice2[i] = sample;
     //       if (result == 0)
     //       {
-    //         sf_close(opts->tcp_file_in);
+    //         sf_close(super->opts.tcp_file_in);
     //         fprintf (stderr, "Connection to TCP Server Disconnected.\n");
     //         fprintf (stderr, "Closing DSD-FME.\n");
     //         exitflag = 1;
@@ -464,11 +465,11 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
     // }
 
     //read in RMS value for vox function; NOTE: will not work correctly SOCAT STDIO TCP due to blocking when no samples to read
-    // if (opts->audio_in_type != 3)
-    //   opts->rtl_rms = raw_rms(voice1, nsam, 1) / 2; //dividing by two so mic isn't so sensitive on vox
+    // if (super->opts.audio_in_type != 3)
+    //   super->opts.rtl_rms = raw_rms(voice1, nsam, 1) / 2; //dividing by two so mic isn't so sensitive on vox
 
     // //low pass filter
-    // if (opts->use_lpf == 1)
+    // if (super->opts.use_lpf == 1)
     // {
     //   lpf (state, voice1, 160);
     //   if (st == 2)
@@ -476,7 +477,7 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
     // }
 
     // //high pass filter
-    // if (opts->use_hpf == 1)
+    // if (super->opts.use_hpf == 1)
     // {
     //   hpf (state, voice1, 160);
     //   if (st == 2)
@@ -484,7 +485,7 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
     // }
     
     // //passband filter
-    // if (opts->use_pbf == 1)
+    // if (super->opts.use_pbf == 1)
     // {
     //   pbf (state, voice1, 160);
     //   if (st == 2)
@@ -492,7 +493,7 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
     // }
 
     //manual gain control
-    // if (opts->audio_gainA > 0.0f)
+    // if (super->opts.audio_gainA > 0.0f)
     // {
     //   analog_gain (opts, state, voice1, 160);
     //   if (st == 2)
@@ -514,16 +515,16 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
     #ifdef USE_CODEC2
     if (st == 2)
     {
-      codec2_encode(m17e->codec2_3200, vc1_bytes, voice1);
-      codec2_encode(m17e->codec2_3200, vc2_bytes, voice2);
+      codec2_encode(super->m17e.codec2_3200, vc1_bytes, voice1);
+      codec2_encode(super->m17e.codec2_3200, vc2_bytes, voice2);
     }
     if (st == 3)
-      codec2_encode(m17e->codec2_1600, vc1_bytes, voice1);
+      codec2_encode(super->m17e.codec2_1600, vc1_bytes, voice1);
     #endif
 
     //Fill vc2_bytes with arbitrary data, UTF-8 chars (up to 48)
     if (st == 3)
-      memcpy (vc2_bytes, m17e->arb+(lich_cnt*8), 8);
+      memcpy (vc2_bytes, super->m17e.arb+(lich_cnt*8), 8);
     
     //initialize and start assembling the completed frame
 
@@ -572,7 +573,7 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
     }
 
     //tally consecutive squelch hits based on RMS value, or reset
-    // if (opts->rtl_rms > opts->rtl_squelch_level) sql_hit = 0;
+    // if (super->opts.rtl_rms > super->opts.rtl_squelch_level) sql_hit = 0;
     // else sql_hit++; //may eventually roll over to 0 again 
 
     //if vox enabled, toggle tx/eot with sql_hit comparison
@@ -592,7 +593,7 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
 
     //set end of tx bit on the exitflag (sig, results not gauranteed) or toggle eot flag (always triggers)
     if (exitflag) eot = 1;
-    if (m17e->str_encoder_eot) eot = 1;
+    if (super->m17e.str_encoder_eot) eot = 1;
     m17_v1[0] = (uint8_t)eot; //set as first bit of the stream
 
     //set current frame number as bits 1-15 of the v1 stream
@@ -669,7 +670,7 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
     //-----------------------------------------
 
     //decode stream with the M17STR_debug
-    if (m17e->str_encoder_tx == 1) //when toggled on
+    if (super->m17e.str_encoder_tx == 1) //when toggled on
     {
       //Enable Carrier, synctype, etc
       // state->carrier = 1;
@@ -680,14 +681,14 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
       {
 
         fprintf (stderr, "\n M17 LSF    (ENCODER): ");
-        // if (opts->monitor_input_audio == 0)
-          demod_lsf(m17d, m17_lsfs, 1);
-        // else fprintf (stderr, " To Audio Out Device Type: %d; ", opts->audio_out_type);
+        // if (super->opts.monitor_input_audio == 0)
+          demod_lsf(super, m17_lsfs, 1);
+        // else fprintf (stderr, " To Audio Out Device Type: %d; ", super->opts.audio_out_type);
 
         //convert bit array into symbols and RF/Audio
         memset (nil, 0, sizeof(nil));
-        encodeM17RF (opts, pa, wav,      nil, mem, 11); //Preamble
-        encodeM17RF (opts, pa, wav, m17_lsfs, mem, 1); //LSF
+        // encodeM17RF (opts, pa, wav,      nil, mem, 11); //Preamble
+        // encodeM17RF (opts, pa, wav, m17_lsfs, mem, 1); //LSF
 
         //flag off after sending
         new_lsf = 0;
@@ -697,30 +698,30 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
       }
 
       fprintf (stderr, "\n M17 Stream (ENCODER): ");
-      // if (opts->monitor_input_audio == 0)
-        demod_str(opts, m17d, wav, pa, hpf, m17_t4s, 1);
-      // else fprintf (stderr, " To Audio Out Device Type: %d; ", opts->audio_out_type);
+      // if (super->opts.monitor_input_audio == 0)
+        demod_str(super, m17_t4s, 1);
+      // else fprintf (stderr, " To Audio Out Device Type: %d; ", super->opts.audio_out_type);
 
       //show UDP if active
       if (use_ip == 1 && lich_cnt != 5)
-        fprintf (stderr, " UDP: %s:%d", opts->m17_hostname, udpport);
+        fprintf (stderr, " UDP: %s:%d", super->opts.m17_hostname, udpport);
 
       //debug RMS Value
       // if (state->m17_vox == 1)
       // {
-      //   fprintf (stderr, " RMS: %04ld", opts->rtl_rms);
+      //   fprintf (stderr, " RMS: %04ld", super->opts.rtl_rms);
       //   fprintf (stderr, " SQL HIT: %d;", sql_hit);
       // }
 
       //debug show pulse input latency
-      // if (opts->audio_in_type == 0)
+      // if (super->opts.audio_in_type == 0)
       // {
-      //   unsigned long long int latency = pa_simple_get_latency (opts->pulse_digi_dev_in, NULL);
+      //   unsigned long long int latency = pa_simple_get_latency (super->opts.pulse_digi_dev_in, NULL);
       //   fprintf (stderr, " Latency: %05lld;", latency);
       // }
 
       //convert bit array into symbols and RF/Audio
-      encodeM17RF (opts, pa, wav, m17_t4s, mem, 2);
+      // encodeM17RF (opts, pa, wav, m17_t4s, mem, 2);
       
       //Contruct an IP frame using previously created arrays
       memset (m17_ip_frame, 0, sizeof(m17_ip_frame));
@@ -775,7 +776,7 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
 
       //Send packed IP frame to UDP port if enabled
       if (use_ip == 1)
-        udp_return = m17_socket_blaster (opts, 54, m17_ip_packed);
+        udp_return = m17_socket_blaster (super, 54, m17_ip_packed);
 
       //increment lich_cnt, reset on 6
       lich_cnt++;
@@ -945,42 +946,42 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
       if (eot && !eot_out)
       {
         fprintf (stderr, "\n M17 Stream (ENCODER): ");
-        // if (opts->monitor_input_audio == 0)
+        // if (super->opts.monitor_input_audio == 0)
         //   processM17STR_debug(opts, state, m17_t4s);
-        // else fprintf (stderr, " To Audio Out Device Type: %d; ", opts->audio_out_type);
+        // else fprintf (stderr, " To Audio Out Device Type: %d; ", super->opts.audio_out_type);
 
         //show UDP if active
         if (use_ip == 1 && lich_cnt != 5)
-          fprintf (stderr, " UDP: %s:%d", opts->m17_hostname, udpport);
+          fprintf (stderr, " UDP: %s:%d", super->opts.m17_hostname, udpport);
 
         //debug RMS Value
         // if (state->m17_vox == 1)
         // {
-        //   fprintf (stderr, " RMS: %04ld", opts->rtl_rms);
+        //   fprintf (stderr, " RMS: %04ld", super->opts.rtl_rms);
         //   fprintf (stderr, " SQL HIT: %d;", sql_hit);
         // }
 
         //convert bit array into symbols and RF/Audio
-        encodeM17RF (opts, pa, wav, m17_t4s, mem, 2); //Last Stream Frame
+        // encodeM17RF (opts, pa, wav, m17_t4s, mem, 2); //Last Stream Frame
         memset (nil, 0, sizeof(nil));
-        encodeM17RF (opts, pa, wav, nil, mem, 55);    //EOT Marker
+        // encodeM17RF (opts, pa, wav, nil, mem, 55);    //EOT Marker
 
         //send dead air with type 99
-        for (i = 0; i < 25; i++)
-          encodeM17RF (opts, pa, wav, nil, mem, 99);
+        // for (i = 0; i < 25; i++)
+        //   encodeM17RF (opts, pa, wav, nil, mem, 99);
 
         //send IP Frame with EOT bit
         if (use_ip == 1)
-          udp_return = m17_socket_blaster (opts, 54, m17_ip_packed);
+          udp_return = m17_socket_blaster (super, 54, m17_ip_packed);
 
         //SEND EOTX to reflector
         if (use_ip == 1)
-          udp_return = m17_socket_blaster (opts, 10, eotx);
+          udp_return = m17_socket_blaster (super, 10, eotx);
 
         //reset indicators
         eot = 0;
         eot_out = 1;
-        m17e->str_encoder_eot = 0;
+        super->m17e.str_encoder_eot = 0;
       }
 
       //flag on when restarting the encoder
@@ -995,18 +996,18 @@ void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter *
     }
 
     //refresh ncurses printer, if enabled
-    // if (opts->use_ncurses_terminal == 1)
+    // if (super->opts.use_ncurses_terminal == 1)
     //   ncursesPrinter(opts, state);
     
   }
 
   //SEND EOTX to reflector
   // if (use_ip == 1)
-  //   udp_return = m17_socket_blaster (opts, state, 10, eotx);
+  //   udp_return = m17_socket_blaster (super, 10, eotx);
 
   //SEND DISC to reflector
   if (use_ip == 1)
-    udp_return = m17_socket_blaster (opts, 10, disc);
+    udp_return = m17_socket_blaster (super, 10, disc);
   
   //free allocated memory
   free(samp1);

@@ -8,10 +8,10 @@
 
 #include "main.h"
 
-void decode_str_payload(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, HPFilter * hpf, uint8_t * payload, uint8_t type)
+void decode_str_payload(Super * super, uint8_t * payload, uint8_t type)
 {
  
-  UNUSED(opts);
+  // UNUSED(opts);
   int i;
   unsigned char voice1[8];
   unsigned char voice2[8];
@@ -24,7 +24,7 @@ void decode_str_payload(config_opts * opts, m17_decoder_state * m17d, wav_state 
 
   //TODO: Add some decryption methods?
 
-  if (opts->payload_verbosity == 1)
+  if (super->opts.payload_verbosity == 1)
   {
     fprintf (stderr, "\n CODEC2: ");
     for (i = 0; i < 8; i++)
@@ -51,17 +51,17 @@ void decode_str_payload(config_opts * opts, m17_decoder_state * m17d, wav_state 
 
   if (type == 2)
   {
-    codec2_decode(m17d->codec2_3200, samp1, voice1);
-    codec2_decode(m17d->codec2_3200, samp2, voice2);
+    codec2_decode(super->m17d.codec2_3200, samp1, voice1);
+    codec2_decode(super->m17d.codec2_3200, samp2, voice2);
   }
   else
-    codec2_decode(m17d->codec2_1600, samp1, voice1);
+    codec2_decode(super->m17d.codec2_1600, samp1, voice1);
 
   //TODO LIST:
 
   //Run HPF on decoded voice prior to upsample
-  if (opts->use_hpfilter_dig == 1)
-    hpfilter(hpf, samp1, nsam);
+  if (super->opts.use_hpfilter_dig == 1)
+    hpfilter_d(super, samp1, nsam);
 
   //Upsample 8k to 48k
   for (i = 0; i < nsam; i++)
@@ -72,20 +72,20 @@ void decode_str_payload(config_opts * opts, m17_decoder_state * m17d, wav_state 
   }
 
   //Pulse Audio Playback
-  if (pa->pa_output_vx_is_open == 1)
+  if (super->pa.pa_output_vx_is_open == 1)
   {
-    pulse_audio_output_vx(pa, upsamp1, nsam*6);
+    pulse_audio_output_vx(super, upsamp1, nsam*6);
     if (type == 2)
-      pulse_audio_output_vx(pa, upsamp2, nsam*6);
+      pulse_audio_output_vx(super, upsamp2, nsam*6);
   }
 
   //Wav File Saving
-  if (wav->wav_out_vx != NULL)
+  if (super->wav.wav_out_vx != NULL)
   {
-    write_wav_out_vx(wav, upsamp1, nsam*6);
+    write_wav_out_vx(super, upsamp1, nsam*6);
     if (type == 2)
-      write_wav_out_vx(wav, upsamp2, nsam*6);
-    sf_write_sync (wav->wav_out_vx);
+      write_wav_out_vx(super, upsamp2, nsam*6);
+    sf_write_sync (super->wav.wav_out_vx);
   }
 
   //C2 File Save
@@ -108,7 +108,7 @@ void decode_str_payload(config_opts * opts, m17_decoder_state * m17d, wav_state 
     if (adata[1] != 0 || adata[2] != 0 || adata[3] != 0 || adata[4] != 0 || adata[5] != 0 || adata[6] != 0 || adata[7] != 0 || adata[8] != 0)
     {
       fprintf (stderr, "\n"); //linebreak
-      decode_pkt_contents (adata, 9); //decode Arbitrary Data as UTF-8
+      decode_pkt_contents (super, adata, 9); //decode Arbitrary Data as UTF-8
     }
   }
   

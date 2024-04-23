@@ -79,46 +79,46 @@ void usage ()
   printf ("\n");
 }
 
-void cleanup_and_exit (config_opts * opts, pa_state * pa, wav_state * wav, m17_decoder_state * m17d, m17_encoder_state * m17e)
+void cleanup_and_exit (Super * super)
 {
   // Signal that everything should shutdown.
   exitflag = 1;
 
   //do things before exiting, like closing open devices, etc
-  opts->a = 0;
-  sprintf (opts->b, "%s", "shutdown");
+  // super->opts.a = 0;
+  // sprintf (super->opts.b, "%s", "shutdown");
 
   #ifdef USE_PULSEAUDIO
-  if (pa->pa_input_is_open)
-    close_pulse_audio_input(pa);
+  if (super->pa.pa_input_is_open)
+    close_pulse_audio_input(super);
 
-  if (pa->pa_output_rf_is_open)
-    close_pulse_audio_output_rf(pa);
+  if (super->pa.pa_output_rf_is_open)
+    close_pulse_audio_output_rf(super);
 
-  if (pa->pa_output_vx_is_open)
-    close_pulse_audio_output_vx(pa);
+  if (super->pa.pa_output_vx_is_open)
+    close_pulse_audio_output_vx(super);
   #else
-  UNUSED(pa);
+  // UNUSED(pa);
   #endif
 
-  if (wav->wav_out_rf)
-    close_wav_out_rf(wav);
+  if (super->wav.wav_out_rf)
+    close_wav_out_rf(super);
 
-  if (wav->wav_out_vx)
-    close_wav_out_vx(wav);
+  if (super->wav.wav_out_vx)
+    close_wav_out_vx(super);
 
   #ifdef USE_CODEC2
-  codec2_destroy(m17d->codec2_1600);
-  codec2_destroy(m17d->codec2_3200);
-  codec2_destroy(m17e->codec2_1600);
-  codec2_destroy(m17e->codec2_3200);
+  codec2_destroy(super->m17d.codec2_1600);
+  codec2_destroy(super->m17d.codec2_3200);
+  codec2_destroy(super->m17e.codec2_1600);
+  codec2_destroy(super->m17e.codec2_3200);
   #endif
 
-  if (opts->m17_udp_sock)
-    close (opts->m17_udp_sock);
+  if (super->opts.m17_udp_sock)
+    close (super->opts.m17_udp_sock);
 
-  if (opts->float_symbol_out)
-    fclose (opts->float_symbol_out);
+  if (super->opts.float_symbol_out)
+    fclose (super->opts.float_symbol_out);
 
   fprintf (stderr, "\n");
   fprintf (stderr,"Exiting.\n");
@@ -132,33 +132,9 @@ int main (int argc, char **argv)
   extern char *optarg;
   extern int optind, opterr, optopt;
 
-  //declare structures and initialize their elements
-  config_opts opts;
-  init_config_opts(&opts);
-
-  pa_state pa;
-  init_pa_state(&pa);
-
-  m17_decoder_state m17d;
-  init_m17d_state(&m17d);
-
-  m17_encoder_state m17e;
-  init_m17e_state(&m17e);
-
-  demod_state demod;
-  init_demod_state(&demod);
-
-  wav_state wav;
-  init_wav_state(&wav);
-
-  HPFilter hpf_d;
-  HPFilter hpf_a;
-
-  HPFilter_Init (&hpf_d, 960, (float)1/(float)48000);
-  HPFilter_Init (&hpf_a, 960, (float)1/(float)48000);
-
-  //The Super Struct will eventually replace all this superflous struct passing
-  //and will ultimately be much easier to manage than constantly backtracking to send more and more
+  //The Super Struct with nested structs has replaced passing them around
+  //and referencing them directly, much easier when I don't have to backtrack
+  //and contantly pass more things around
   Super super;
   init_super(&super);
 
@@ -200,7 +176,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1a:b:dhnv:A:D:F:IPM:S:U:V")) != -1)
+  while ((c = getopt (argc, argv, "1dhnv:A:D:F:IPM:S:U:V")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -212,89 +188,89 @@ int main (int argc, char **argv)
 
       //disable high pass filter on digital
       case '1':
-        opts.use_hpfilter_dig = 0;
+        super.opts.use_hpfilter_dig = 0;
         break;
         
-      case 'a':
-        opts.a = 1;
-        break;
+      // case 'a':
+      //   super.opts.a = 1;
+      //   break;
 
-      case 'b':
-        strncpy(opts.b, optarg, 1023);
-        opts.b[1023] = '\0';
-        fprintf (stderr,"B: %s\n", opts.b);
-        break;
+      // case 'b':
+      //   strncpy(super.opts.b, optarg, 1023);
+      //   super.opts.b[1023] = '\0';
+      //   fprintf (stderr,"B: %s\n", super.opts.b);
+      //   break;
 
       case 'd':
-        opts.use_m17_pkt_decoder = 1;
-        opts.use_m17_str_decoder = 1;
+        super.opts.use_m17_pkt_decoder = 1;
+        super.opts.use_m17_str_decoder = 1;
         fprintf (stderr, "Project M17 RF Audio Stream and Packet Decoder Mode. \n");
         break;
 
       case 'n':
-        opts.use_ncurses_terminal = 1;
+        super.opts.use_ncurses_terminal = 1;
         fprintf (stderr, "Ncurses Terminal Mode. \n");
         break;
 
       case 'v':
-        opts.payload_verbosity = atoi(optarg);
-        fprintf (stderr, "Payload Verbosity: %d \n", opts.payload_verbosity);
+        super.opts.payload_verbosity = atoi(optarg);
+        fprintf (stderr, "Payload Verbosity: %d \n", super.opts.payload_verbosity);
         break;
 
       //Specify M17 STR Encoder Arbitrary Data For 1600
       case 'A':
-        strncpy(m17e.arb, optarg, 772);
-        m17e.arb[772] = '\0';
-        opts.m17_str_encoder_dt = 3;
+        strncpy(super.m17e.arb, optarg, 772);
+        super.m17e.arb[772] = '\0';
+        super.opts.m17_str_encoder_dt = 3;
         break;
 
       //Specify M17 PKT Encoder Raw Encoded Data Packet (truncates at 772)
       case 'D':
-        strncpy(m17e.dat, optarg, 772);
-        m17e.dat[772] = '\0';
+        strncpy(super.m17e.dat, optarg, 772);
+        super.m17e.dat[772] = '\0';
         break;
 
       //Specify M17 RF Float Symbol Output (For M17_Implementations PKT Decoder)
       case 'F':
-        strncpy(opts.float_symbol_output_file, optarg, 1023);
-        opts.float_symbol_output_file[1023] = '\0';
-        opts.use_float_symbol_output = 1;
-        fprintf (stderr, "Float Symbol Output File: %s \n", opts.float_symbol_output_file);
+        strncpy(super.opts.float_symbol_output_file, optarg, 1023);
+        super.opts.float_symbol_output_file[1023] = '\0';
+        super.opts.use_float_symbol_output = 1;
+        fprintf (stderr, "Float Symbol Output File: %s \n", super.opts.float_symbol_output_file);
         break;
 
       //Enable IP Frame Output
       case 'I':
-        opts.m17_use_ip = 1;
+        super.opts.m17_use_ip = 1;
         fprintf (stderr, "Project M17 Encoder IP Frame Enabled. \n");
         break;
 
       //Enable the PKT Encoder
       case 'P':
-        opts.use_m17_pkt_encoder = 1;
+        super.opts.use_m17_pkt_encoder = 1;
         fprintf (stderr, "Project M17 Packet Encoder. \n");
         break;
 
       //Specify Encoder CAN, SRC, and DST Callsign Data
       case 'M':
-        strncpy(m17e.user, optarg, 49);
-        m17e.user[49] = '\0';
+        strncpy(super.m17e.user, optarg, 49);
+        super.m17e.user[49] = '\0';
         break;
 
       //Specify M17 PKT Encoder SMS Message (truncates at 772)
       case 'S':
-        strncpy(m17e.sms, optarg, 772);
-        m17e.sms[772] = '\0';
+        strncpy(super.m17e.sms, optarg, 772);
+        super.m17e.sms[772] = '\0';
         break;
 
       //Specify M17 UDP Frame String Format, i.e., 'localhost:17000' or 'mycustomhost.xyz:17001'
       case 'U':
-        strncpy(opts.m17_udp_input, optarg, 1024);
-        opts.m17_udp_input[1024] = '\0';
+        strncpy(super.opts.m17_udp_input, optarg, 1024);
+        super.opts.m17_udp_input[1024] = '\0';
         break;
 
       //Enable the Stream Voice Encoder
       case 'V':
-        opts.use_m17_str_encoder = 1;
+        super.opts.use_m17_str_encoder = 1;
         fprintf (stderr, "Project M17 Stream Voice Encoder. \n");
         break;
 
@@ -306,78 +282,78 @@ int main (int argc, char **argv)
   signal (SIGTERM, handler);
 
   #ifdef USE_PULSEAUDIO
-  open_pulse_audio_input (&pa);
-  open_pulse_audio_output_rf (&pa);
-  open_pulse_audio_output_vx (&pa);
+  open_pulse_audio_input (&super);
+  open_pulse_audio_output_rf (&super);
+  open_pulse_audio_output_vx (&super);
   #endif
 
   //open float symbol output file, if needed.
-  if (opts.use_float_symbol_output)
-    opts.float_symbol_out = fopen (opts.float_symbol_output_file, "w");
+  if (super.opts.use_float_symbol_output)
+    super.opts.float_symbol_out = fopen (super.opts.float_symbol_output_file, "w");
 
-  open_wav_out_rf(&wav);
-  open_wav_out_vx(&wav);
-  // open_stdout_pipe(&opts); //works
+  open_wav_out_rf(&super);
+  open_wav_out_vx(&super);
+  // open_stdout_pipe(&super); //works
 
   //Parse any User Input Strings that need to be broken into smaller components UDP and USER CSD
   char * curr;
-  if (opts.m17_udp_input[0] != 0 && opts.m17_use_ip == 1)
+  if (super.opts.m17_udp_input[0] != 0 && super.opts.m17_use_ip == 1)
   {
-    curr = strtok(opts.m17_udp_input, ":");
+    curr = strtok(super.opts.m17_udp_input, ":");
     if (curr != NULL)
-      strncpy (opts.m17_hostname, curr, 1023);
+      strncpy (super.opts.m17_hostname, curr, 1023);
     curr = strtok(NULL, ":"); //host port
-      if (curr != NULL) opts.m17_portno = atoi (curr);
+      if (curr != NULL) super.opts.m17_portno = atoi (curr);
 
-    fprintf (stderr, "UDP Host: %s; ", opts.m17_hostname);
-    fprintf (stderr, "Port: %d \n", opts.m17_portno);
+    fprintf (stderr, "UDP Host: %s; ", super.opts.m17_hostname);
+    fprintf (stderr, "Port: %d \n", super.opts.m17_portno);
   }
 
-  if (m17e.user[0] != 0)
+  if (super.m17e.user[0] != 0)
   {
     //check and capatalize any letters in the CSD
-    for (int i = 0; m17e.user[i]!='\0'; i++)
+    for (int i = 0; super.m17e.user[i]!='\0'; i++)
     {
-      if(m17e.user[i] >= 'a' && m17e.user[i] <= 'z')
-        m17e.user[i] = m17e.user[i] -32;
+      if(super.m17e.user[i] >= 'a' && super.m17e.user[i] <= 'z')
+        super.m17e.user[i] = super.m17e.user[i] -32;
     }
 
-    curr = strtok(m17e.user, ":"); //CAN
+    curr = strtok(super.m17e.user, ":"); //CAN
     if (curr != NULL)
-      m17e.can = atoi(curr);
+      super.m17e.can = atoi(curr);
 
     curr = strtok(NULL, ":"); //m17 src callsign
     if (curr != NULL)
     {
-      strncpy (m17e.srcs, curr, 9); //only read first 9
-      m17e.srcs[9] = '\0';
+      strncpy (super.m17e.srcs, curr, 9); //only read first 9
+      super.m17e.srcs[9] = '\0';
     }
 
     curr = strtok(NULL, ":"); //m17 dst callsign
     if (curr != NULL)
     {
-      strncpy (m17e.dsts, curr, 9); //only read first 9
-      m17e.dsts[9] = '\0';
+      strncpy (super.m17e.dsts, curr, 9); //only read first 9
+      super.m17e.dsts[9] = '\0';
     }
 
     fprintf (stderr, "M17 User Data: ");
-    fprintf (stderr, "CAN: %d; ", m17e.can);
-    fprintf (stderr, "SRC: %s; ", m17e.srcs);
-    fprintf (stderr, "DST: %s; ", m17e.dsts);
+    fprintf (stderr, "CAN: %d; ", super.m17e.can);
+    fprintf (stderr, "SRC: %s; ", super.m17e.srcs);
+    fprintf (stderr, "DST: %s; ", super.m17e.dsts);
   }
 
   //call a function to run if contextual
-  if (opts.use_m17_str_decoder == 1)
-    framesync (&opts, &pa, &m17d, &demod);
+  if (super.opts.use_m17_str_decoder == 1)
+    framesync (&super);
 
-  if (opts.use_m17_pkt_encoder == 1)
-    encodeM17PKT(&opts, &pa, &wav, &m17e, &m17d);
+  if (super.opts.use_m17_pkt_encoder == 1)
+    encodeM17PKT(&super);
 
-  if (opts.use_m17_str_encoder == 1)
-    encodeM17STR(&opts, &pa, &wav, &hpf_d, &m17e, &m17d);
+  if (super.opts.use_m17_str_encoder == 1)
+    encodeM17STR(&super);
 
   //exit gracefully
-  cleanup_and_exit (&opts, &pa, &wav, &m17d, &m17e);
+  cleanup_and_exit (&super);
 
   return (0);
 }

@@ -57,17 +57,17 @@ int UDPBind (char *hostname, int portno)
   return sockfd;
 }
 
-int m17_socket_blaster(config_opts * opts, size_t nsam, void * data)
+int m17_socket_blaster(Super * super, size_t nsam, void * data)
 {
   int err = 0;
-  err = sendto(opts->m17_udp_sock, data, nsam, 0, (const struct sockaddr * ) & addressM17, sizeof(struct sockaddr_in));
+  err = sendto(super->opts.m17_udp_sock, data, nsam, 0, (const struct sockaddr * ) & addressM17, sizeof(struct sockaddr_in));
   return (err);
 }
 
-int udp_socket_connectM17(config_opts * opts)
+int udp_socket_connectM17(Super * super)
 {
   long int err = 0;
-  err = opts->m17_udp_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  err = super->opts.m17_udp_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   if (err < 0)
   {
     fprintf (stderr, " UDP Socket Error %ld\n", err);
@@ -76,7 +76,7 @@ int udp_socket_connectM17(config_opts * opts)
 
   // Don't think this is needed, but doesn't seem to hurt to keep it here either
   int broadcastEnable = 1;
-  err = setsockopt(opts->m17_udp_sock, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable));
+  err = setsockopt(super->opts.m17_udp_sock, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable));
   if (err < 0)
   {
     fprintf (stderr, " UDP Broadcast Set Error %ld\n", err);
@@ -85,14 +85,14 @@ int udp_socket_connectM17(config_opts * opts)
 
   memset((char * ) & addressM17, 0, sizeof(addressM17));
   addressM17.sin_family = AF_INET;
-  err = addressM17.sin_addr.s_addr = inet_addr(opts->m17_hostname);
+  err = addressM17.sin_addr.s_addr = inet_addr(super->opts.m17_hostname);
   if (err < 0)
   {
     fprintf (stderr, " UDP inet_addr Error %ld\n", err);
     return (err);
   }
 
-  addressM17.sin_port = htons(opts->m17_portno);
+  addressM17.sin_port = htons(super->opts.m17_portno);
   if (err < 0)
   {
     fprintf (stderr, " UDP htons Error %ld\n", err);
@@ -102,14 +102,14 @@ int udp_socket_connectM17(config_opts * opts)
   return (0); //no error
 }
 
-int m17_socket_receiver(config_opts * opts, void * data)
+int m17_socket_receiver(Super * super, void * data)
 {
   size_t err = 0;
   struct sockaddr_in cliaddr; 
   socklen_t len = sizeof(cliaddr); 
 
   //receive data from socket
-  err = recvfrom(opts->m17_udp_sock, data, 1000, 0, (struct sockaddr * ) & addressM17, &len);
+  err = recvfrom(super->opts.m17_udp_sock, data, 1000, 0, (struct sockaddr * ) & addressM17, &len);
 
   return err;
 }

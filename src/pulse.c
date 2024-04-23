@@ -11,10 +11,10 @@
 #ifdef USE_PULSEAUDIO
 
 int err;
-void open_pulse_audio_input (pa_state * pa)
+void open_pulse_audio_input (Super * super)
 {
-  pa->pa_input_device = pa_simple_new(NULL, "M17-FME1", PA_STREAM_RECORD, NULL, "Voice Input", &pa->input, NULL, &pa->inputlt, &err);
-  pa->pa_input_is_open = 1;
+  super->pa.pa_input_device = pa_simple_new(NULL, "M17-FME1", PA_STREAM_RECORD, NULL, "Voice Input", &super->pa.input, NULL, &super->pa.inputlt, &err);
+  super->pa.pa_input_is_open = 1;
   if (err < 0)
   {
     fprintf (stderr, "%s", pa_strerror(err));
@@ -22,10 +22,10 @@ void open_pulse_audio_input (pa_state * pa)
   }
 }
 
-void open_pulse_audio_output_rf (pa_state * pa)
+void open_pulse_audio_output_rf (Super * super)
 {
-  pa->pa_output_device_rf = pa_simple_new(NULL, "M17-FME3", PA_STREAM_PLAYBACK, NULL, "RF Audio Output", &pa->output_rf, NULL, &pa->outputlt, &err);
-  pa->pa_output_rf_is_open = 1;
+  super->pa.pa_output_device_rf = pa_simple_new(NULL, "M17-FME3", PA_STREAM_PLAYBACK, NULL, "RF Audio Output", &super->pa.output_rf, NULL, &super->pa.outputlt, &err);
+  super->pa.pa_output_rf_is_open = 1;
   if (err < 0)
   {
     fprintf (stderr, "%s", pa_strerror(err));
@@ -33,10 +33,10 @@ void open_pulse_audio_output_rf (pa_state * pa)
   }
 }
 
-void open_pulse_audio_output_vx (pa_state * pa)
+void open_pulse_audio_output_vx (Super * super)
 {
-  pa->pa_output_device_vx = pa_simple_new(NULL, "M17-FME2", PA_STREAM_PLAYBACK, NULL, "Voice Output", &pa->output_vx, NULL, &pa->outputlt, &err);
-  pa->pa_output_vx_is_open = 1;
+  super->pa.pa_output_device_vx = pa_simple_new(NULL, "M17-FME2", PA_STREAM_PLAYBACK, NULL, "Voice Output", &super->pa.output_vx, NULL, &super->pa.outputlt, &err);
+  super->pa.pa_output_vx_is_open = 1;
   if (err < 0)
   {
     fprintf (stderr, "%s", pa_strerror(err));
@@ -44,29 +44,29 @@ void open_pulse_audio_output_vx (pa_state * pa)
   }
 }
 
-void close_pulse_audio_input (pa_state * pa)
+void close_pulse_audio_input (Super * super)
 {
-  pa_simple_free (pa->pa_input_device);
-  pa->pa_input_is_open = 0;
+  pa_simple_free (super->pa.pa_input_device);
+  super->pa.pa_input_is_open = 0;
 }
 
-void close_pulse_audio_output_rf (pa_state * pa)
+void close_pulse_audio_output_rf (Super * super)
 {
-  pa_simple_free (pa->pa_output_device_rf);
-  pa->pa_output_rf_is_open = 0;
+  pa_simple_free (super->pa.pa_output_device_rf);
+  super->pa.pa_output_rf_is_open = 0;
 }
 
-void close_pulse_audio_output_vx (pa_state * pa)
+void close_pulse_audio_output_vx (Super * super)
 {
-  pa_simple_free (pa->pa_output_device_vx);
-  pa->pa_output_vx_is_open = 0;
+  pa_simple_free (super->pa.pa_output_device_vx);
+  super->pa.pa_output_vx_is_open = 0;
 }
 
 //return a single short sample from pulse audio input
-short pa_input_read (pa_state * pa)
+short pa_input_read (Super * super)
 {
   short sample = 0;
-  pa_simple_read(pa->pa_input_device, &sample, 2, &err);
+  pa_simple_read(super->pa.pa_input_device, &sample, 2, &err);
   if (err < 0)
   {
     fprintf (stderr, "%s", pa_strerror(err));
@@ -76,9 +76,9 @@ short pa_input_read (pa_state * pa)
   return sample;
 }
 
-void pulse_audio_output_rf(pa_state * pa, short * out, size_t nsam)
+void pulse_audio_output_rf(Super * super, short * out, size_t nsam)
 {
-  pa_simple_write(pa->pa_output_device_rf, out, nsam*2, &err);
+  pa_simple_write(super->pa.pa_output_device_rf, out, nsam*2, &err);
   if (err < 0)
   {
     fprintf (stderr, "%s", pa_strerror(err));
@@ -86,9 +86,9 @@ void pulse_audio_output_rf(pa_state * pa, short * out, size_t nsam)
   }
 }
 
-void pulse_audio_output_vx(pa_state * pa, short * out, size_t nsam)
+void pulse_audio_output_vx(Super * super, short * out, size_t nsam)
 {
-  pa_simple_write(pa->pa_output_device_vx, out, nsam*2, &err);
+  pa_simple_write(super->pa.pa_output_device_vx, out, nsam*2, &err);
   if (err < 0)
   {
     fprintf (stderr, "%s", pa_strerror(err));

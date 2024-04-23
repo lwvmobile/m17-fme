@@ -8,14 +8,14 @@
 
 #include "main.h"
 
-void open_stdout_pipe(config_opts * opts)
+void open_stdout_pipe(Super * super)
 {
-  opts->stdout_pipe = fileno(stdout);
+  super->opts.stdout_pipe = fileno(stdout);
 }
 
-void write_stdout_pipe(config_opts * opts, short * out, size_t nsam)
+void write_stdout_pipe(Super * super, short * out, size_t nsam)
 {
-  write (opts->stdout_pipe, out, nsam*2);
+  write (super->opts.stdout_pipe, out, nsam*2);
 }
 
 uint64_t ConvertBitIntoBytes(uint8_t * BufferIn, uint32_t BitLength)

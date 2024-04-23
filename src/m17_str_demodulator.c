@@ -9,7 +9,7 @@
 #include "main.h"
 #include "m17.h"
 
-void demod_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, HPFilter * hpf, uint8_t * input, int debug)
+void demod_str(Super * super, uint8_t * input, int debug)
 {
   //quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
@@ -62,17 +62,17 @@ void demod_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa
     lich_bits[i] = m17_bits[i];
 
   //check lich first, and handle LSF chunk and completed LSF
-  lich_err = decode_lich_contents(m17d, lich_bits);
+  lich_err = decode_lich_contents(super, lich_bits);
 
   if (lich_err == 0)
-    prepare_str(opts, m17d, wav, pa, hpf, m17_bits);
+    prepare_str(super, m17_bits);
 
   //ending linebreak
   fprintf (stderr, "\n");
 
 }
 
-void prepare_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, HPFilter * hpf, uint8_t * input)
+void prepare_str(Super * super, uint8_t * input)
 {
   int i, k, x; 
   uint8_t m17_punc[275]; //25 * 11 = 275
@@ -147,10 +147,10 @@ void prepare_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, 
   fn = (uint16_t)ConvertBitIntoBytes(&trellis_buf[1], 15);
 
   //insert fn bits into meta 14 and meta 15 for Initialization Vector
-  m17d->meta[14] = (uint8_t)ConvertBitIntoBytes(&trellis_buf[1], 7);
-  m17d->meta[15] = (uint8_t)ConvertBitIntoBytes(&trellis_buf[8], 8);
+  super->m17d.meta[14] = (uint8_t)ConvertBitIntoBytes(&trellis_buf[1], 7);
+  super->m17d.meta[15] = (uint8_t)ConvertBitIntoBytes(&trellis_buf[8], 8);
 
-  // if (opts->payload == 1)
+  if (super->opts.payload_verbosity == 1)
     fprintf (stderr, " FSN: %05d", fn);
 
   if (end == 1)
@@ -159,13 +159,13 @@ void prepare_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, 
   for (i = 0; i < 128; i++)
     payload[i] = trellis_buf[i+16];
 
-  if (m17d->dt == 2 || m17d->dt == 3)
-    decode_str_payload(opts, m17d, wav, pa, hpf, payload, m17d->dt);
-  else if (m17d->dt == 1) fprintf (stderr, " DATA;");
-  else if (m17d->dt == 0) fprintf (stderr, "  RES;");
+  if (super->m17d.dt == 2 || super->m17d.dt == 3)
+    decode_str_payload(super, payload, super->m17d.dt);
+  else if (super->m17d.dt == 1) fprintf (stderr, " DATA;");
+  else if (super->m17d.dt == 0) fprintf (stderr, "  RES;");
   // else                             fprintf (stderr, "  UNK;");
 
-  // if (opts->payload == 1 && state->m17_str_dt < 2)
+  if (super->opts.payload_verbosity == 1 && super->m17d.dt < 2)
   {
     fprintf (stderr, "\n STREAM: ");
     for (i = 0; i < 18; i++) 

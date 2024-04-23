@@ -209,7 +209,8 @@ typedef struct
 
 } HPFilter;
 
-//Super Struct comprised of all the other ones so I don't have to pass upteen structs around to everywhere
+//Nested Super Struct comprised of all the other ones so I don't 
+//have to pass upteen structs around to everywhere
 typedef struct
 {
   config_opts opts;
@@ -225,89 +226,92 @@ typedef struct
 //c function prototypes
 
 //structure element initialization
-void init_config_opts (config_opts * opts);
-void init_pa_state (pa_state * pa);
-void init_demod_state (demod_state * demod);
-void init_m17d_state (m17_decoder_state * m17d);
-void init_m17e_state (m17_encoder_state * m17e);
-void init_wav_state (wav_state * wav);
 void init_super (Super * super);
 
 //Pulse Audio Handling
 #ifdef USE_PULSEAUDIO
-void open_pulse_audio_input (pa_state * pa);
-void open_pulse_audio_output_rf (pa_state * pa);
-void open_pulse_audio_output_vx (pa_state * pa);
-void close_pulse_audio_input (pa_state * pa);
-void close_pulse_audio_output_rf (pa_state * pa);
-void close_pulse_audio_output_vx (pa_state * pa);
-short pa_input_read (pa_state * pa);
-void pulse_audio_output_rf(pa_state * pa, short * out, size_t nsam);
-void pulse_audio_output_vx(pa_state * pa, short * out, size_t nsam);
+void open_pulse_audio_input (Super * super);
+void open_pulse_audio_output_rf (Super * super);
+void open_pulse_audio_output_vx (Super * super);
+void close_pulse_audio_input (Super * super);
+void close_pulse_audio_output_rf (Super * super);
+void close_pulse_audio_output_vx (Super * super);
+short pa_input_read (Super * super);
+void pulse_audio_output_rf (Super * super, short * out, size_t nsam);
+void pulse_audio_output_vx (Super * super, short * out, size_t nsam);
 #endif
 
 //libsndfile Wav File Handling
-void open_wav_out_rf (wav_state * wav);
-void open_wav_out_vx (wav_state * wav);
-void close_wav_out_rf (wav_state * wav);
-void close_wav_out_vx (wav_state * wav);
-void write_wav_out_rf (wav_state * wav, short * out, size_t nsam);
-void write_wav_out_vx (wav_state * wav, short * out, size_t nsam);
+void open_wav_out_rf (Super * super);
+void open_wav_out_vx (Super * super);
+void close_wav_out_rf (Super * super);
+void close_wav_out_vx (Super * super);
+void write_wav_out_rf (Super * super, short * out, size_t nsam);
+void write_wav_out_vx (Super * super, short * out, size_t nsam);
 
 //UDP IP Related Functions
 int UDPBind (char *hostname, int portno);
-int m17_socket_blaster(config_opts * opts, size_t nsam, void * data);
-int udp_socket_connectM17(config_opts * opts);
-int m17_socket_receiver(config_opts * opts, void * data);
+int m17_socket_blaster (Super * super, size_t nsam, void * data);
+int udp_socket_connectM17 (Super * super);
+int m17_socket_receiver (Super * super, void * data);
 
 //Audio Manipulation and Filters
-long int raw_rms(int16_t *samples, int len, int step);
-void upsample_6x(short input, short * output);
-void HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS);
-float HPFilter_Update(HPFilter *filter, float v_in);
-void hpfilter(HPFilter * hpf, short * input, int len);
+long int raw_rms (int16_t *samples, int len, int step);
+void upsample_6x (short input, short * output);
+void HPFilter_Init (HPFilter *filter, float cutoffFreqHz, float sampleTimeS);
+float HPFilter_Update (HPFilter *filter, float v_in);
+// void hpfilter(HPFilter * hpf, short * input, int len); //disable / delete this later on
+void hpfilter_d (Super * super, short * input, int len);
 
 //convolutional encoder and viterbi decoder(s)
 void simple_conv_encoder (uint8_t * input, uint8_t * output, int len);
-void convolution_decode(uint8_t s0, uint8_t s1);
-void convolution_chainback(unsigned char* out, unsigned int nBits);
-void convolution_start();
-void convolution_init();
+void convolution_decode (uint8_t s0, uint8_t s1);
+void convolution_chainback (unsigned char* out, unsigned int nBits);
+void convolution_start ();
+void convolution_init ();
 
 //Golay 24_12 encoder and decoder
-void Golay_24_12_encode(unsigned char *origBits, unsigned char *encodedBits);
-bool Golay_24_12_decode(unsigned char *rxBits);
-void Golay_24_12_init();
+void Golay_24_12_encode (unsigned char *origBits, unsigned char *encodedBits);
+bool Golay_24_12_decode (unsigned char *rxBits);
+void Golay_24_12_init ();
 
 //CRC16
-uint16_t crc16(const uint8_t *in, const uint16_t len);
+uint16_t crc16 (const uint8_t *in, const uint16_t len);
 
 //demodulation and sync functions
-void framesync (config_opts * opts, pa_state * pa, m17_decoder_state * m17d, demod_state * demod);
+// void framesync (config_opts * opts, pa_state * pa, m17_decoder_state * m17d, demod_state * demod);
+void framesync (Super * super);
 
 //misc utility functions
-void open_stdout_pipe(config_opts * opts);
-void write_stdout_pipe(config_opts * opts, short * out, size_t nsam);
-void open_stdin_pipe(wav_state * wav);
-short read_stdin_pipe(wav_state * wav);
-uint64_t ConvertBitIntoBytes(uint8_t * BufferIn, uint32_t BitLength);
+void open_stdout_pipe (Super * super);
+void write_stdout_pipe (Super * super, short * out, size_t nsam);
+void open_stdin_pipe (Super * super);
+short read_stdin_pipe (Super * super);
+uint64_t ConvertBitIntoBytes (uint8_t * BufferIn, uint32_t BitLength);
 
 //M17 Frame Encoders
-void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * input, float * mem, int type);
-void encodeM17PKT(config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e, m17_decoder_state * m17d);
-void encodeM17STR(config_opts * opts, pa_state * pa, wav_state * wav, HPFilter * hpf, m17_encoder_state * m17e, m17_decoder_state * m17d);
-
+// void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * input, float * mem, int type);
+void encodeM17RF (Super * super, uint8_t * input, float * mem, int type);
+// void encodeM17PKT(Super * super, config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e, m17_decoder_state * m17d);
+void encodeM17PKT (Super * super);
+void encodeM17STR (Super * super);
 //M17 Content Element Decoders
-int  decode_lich_contents(m17_decoder_state * m17d, uint8_t * lich_bits);
-void decode_lsf_contents(m17_decoder_state * m17d);
-void decode_pkt_contents(uint8_t * input, int len);
-void decode_callsign_data(m17_decoder_state * m17d, unsigned long long int dst, unsigned long long int src);
-void decode_str_payload(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa,  HPFilter * hpf, uint8_t * payload, uint8_t type);
+// int  decode_lich_contents(m17_decoder_state * m17d, uint8_t * lich_bits);
+int decode_lich_contents (Super * super, uint8_t * lich_bits);
+// void decode_lsf_contents(m17_decoder_state * m17d);
+void decode_lsf_contents (Super * super);
+// void decode_pkt_contents(uint8_t * input, int len);
+void decode_pkt_contents (Super * super, uint8_t * input, int len);
+// void decode_callsign_data(m17_decoder_state * m17d, unsigned long long int dst, unsigned long long int src);
+void decode_callsign_data (Super * super, unsigned long long int dst, unsigned long long int src);
+// void decode_str_payload(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa,  HPFilter * hpf, uint8_t * payload, uint8_t type);
+void decode_str_payload (Super * super, uint8_t * payload, uint8_t type);
 
 //M17 Frame Demodulators
-void demod_lsf(m17_decoder_state * m17d, uint8_t * input, int debug);
-void demod_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, HPFilter * hpf, uint8_t * input, int debug);
-void prepare_str(config_opts * opts, m17_decoder_state * m17d, wav_state * wav, pa_state * pa, HPFilter * hpf, uint8_t * input);
+// void demod_lsf(m17_decoder_state * m17d, uint8_t * input, int debug);
+void demod_lsf (Super * super, uint8_t * input, int debug);
+void demod_str (Super * super, uint8_t * input, int debug);
+void prepare_str (Super * super, uint8_t * input);
 
 
 //if using cpp code, then put function prototypes in below
@@ -317,7 +321,7 @@ extern "C" {
 
 //this function has the sqrt function in it, and CMAKE will compile 
 //with math library linked if called this way
-int sample_cpp_func(int input);
+int sample_cpp_func (int input);
 
 #ifdef __cplusplus
 }

@@ -9,7 +9,8 @@
 #include "main.h"
 #include "m17.h"
 
-void demod_lsf(m17_decoder_state * m17d, uint8_t * input, int debug)
+// void demod_lsf(m17_decoder_state * m17d, uint8_t * input, int debug)
+void demod_lsf(Super * super, uint8_t * input, int debug)
 {
   //quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
@@ -126,24 +127,24 @@ void demod_lsf(m17_decoder_state * m17d, uint8_t * input, int debug)
     trellis_buf[(i*8)+7] = (m_data[i] >> 0) & 1;
   }
 
-  memset (m17d->lsf, 0, sizeof(m17d->lsf));
-  memcpy (m17d->lsf, trellis_buf, 240);
+  memset (super->m17d.lsf, 0, sizeof(super->m17d.lsf));
+  memcpy (super->m17d.lsf, trellis_buf, 240);
 
   uint8_t lsf_packed[30];
   memset (lsf_packed, 0, sizeof(lsf_packed));
 
   //need to pack bytes for the sw5wwp variant of the crc (might as well, may be useful in the future)
   for (i = 0; i < 30; i++)
-    lsf_packed[i] = (uint8_t)ConvertBitIntoBytes(&m17d->lsf[i*8], 8);
+    lsf_packed[i] = (uint8_t)ConvertBitIntoBytes(&super->m17d.lsf[i*8], 8);
 
   uint16_t crc_cmp = crc16(lsf_packed, 28);
-  uint16_t crc_ext = (uint16_t)ConvertBitIntoBytes(&m17d->lsf[224], 16);
+  uint16_t crc_ext = (uint16_t)ConvertBitIntoBytes(&super->m17d.lsf[224], 16);
   int crc_err = 0;
 
   if (crc_cmp != crc_ext) crc_err = 1;
 
   if (crc_err == 0)
-    decode_lsf_contents(m17d);
+    decode_lsf_contents(super);
   // else if (opts->skip_crc_fail == 0)
   //   M17decodeLSF(state);
 

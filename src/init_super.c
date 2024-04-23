@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
  * init_super.c
- * Project M17 - Super Structure Element Initialization
+ * Project M17 - Super (Nested) Structure Element Initialization
  *
  * LWVMOBILE
  * 2024-04 Project M17 - Florida Man Edition
