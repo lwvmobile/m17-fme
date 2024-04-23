@@ -176,7 +176,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1dhimnv:A:D:F:IPM:S:U:V")) != -1)
+  while ((c = getopt (argc, argv, "1dhimns:v:A:D:F:IPM:S:U:VX")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -189,10 +189,6 @@ int main (int argc, char **argv)
       //disable high pass filter on digital
       case '1':
         super.opts.use_hpfilter_dig = 0;
-        break;
-
-      case '2':
-        super.m17e.str_encoder_vox = 1;
         break;
         
       // case 'a':
@@ -227,9 +223,14 @@ int main (int argc, char **argv)
         fprintf (stderr, "Ncurses Terminal Mode. \n");
         break;
 
+      case 's':
+        super.demod.input_sql = atoi(optarg);
+        fprintf (stderr, "Input Squelch: %ld; \n", super.demod.input_sql);
+        break;
+
       case 'v':
         super.opts.payload_verbosity = atoi(optarg);
-        fprintf (stderr, "Payload Verbosity: %d \n", super.opts.payload_verbosity);
+        fprintf (stderr, "Payload Verbosity: %d; \n", super.opts.payload_verbosity);
         break;
 
       //Specify M17 STR Encoder Arbitrary Data For 1600
@@ -287,6 +288,11 @@ int main (int argc, char **argv)
       case 'V':
         super.opts.use_m17_str_encoder = 1;
         fprintf (stderr, "Project M17 Stream Voice Encoder. \n");
+        break;
+
+      case 'X':
+        super.m17e.str_encoder_vox = 1;
+        fprintf (stderr, "Project M17 Stream Voice Encoder TX on Vox. \n");
         break;
 
     }

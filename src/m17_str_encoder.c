@@ -710,6 +710,7 @@ void encodeM17STR(Super * super)
       if (super->m17e.str_encoder_vox == 1)
       {
         fprintf (stderr, " RMS: %04ld", super->demod.input_rms);
+        fprintf (stderr, " SQL: %04ld", super->demod.input_sql);
         fprintf (stderr, " SQL HIT: %d;", sql_hit);
       }
 
@@ -958,6 +959,7 @@ void encodeM17STR(Super * super)
         if (super->m17e.str_encoder_vox == 1)
         {
           fprintf (stderr, " RMS: %04ld", super->demod.input_rms);
+          fprintf (stderr, " SQL: %04ld", super->demod.input_sql);
           fprintf (stderr, " SQL HIT: %d;", sql_hit);
         }
 
