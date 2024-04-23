@@ -36,8 +36,8 @@ void encodeM17STR(Super * super)
   //   ncursesOpen(opts, state);
 
   //if using the ncurses terminal, disable TX on startup until user toggles it with the '\' key, if not vox enabled
-  // if (super->opts.use_ncurses_terminal == 1 && state->m17encoder_tx == 1 && state->m17_vox == 0)
-  //   state->m17encoder_tx = 0;
+  if (super->opts.use_ncurses_terminal == 1 && super->opts.use_m17_str_encoder == 1 && super->m17e.str_encoder_vox == 0)
+    super->m17e.str_encoder_tx = 0;
 
   //User Defined Variables
   int use_ip = 0; //1 to enable IP Frame Broadcast over UDP
@@ -73,12 +73,10 @@ void encodeM17STR(Super * super)
   int i, j, k, x;    //basic utility counters
   short sample = 0;  //individual audio sample from source
   size_t nsam = 160; //number of samples to be read in (default is 160 samples for codec2 3200 bps)
-  // int dec = state->m17_rate / 8000; //number of samples to run before selecting a sample from source input
+  // int dec = super->m17d.rate / 8000; //number of samples to run before selecting a sample from source input
   int dec = 6; //run 6 samples, we are using 48000 input rate
   int sql_hit = 11; //squelch hits, hit enough, and deactivate vox
   int eot_out =  1; //if we have already sent the eot out once
-
-  UNUSED(sql_hit);
 
   //send dead air with type 99
   for (i = 0; i < 25; i++)
@@ -318,36 +316,36 @@ void encodeM17STR(Super * super)
   while (!exitflag) //while the software is running
   {
 
-    //if not decoding internally, assign values for ncurses display
-    // if (super->opts.monitor_encode_internally == 1)
-    // {
-    //   sprintf (state->m17_src_str, "%s", s40);
-    //   sprintf (state->m17_dst_str, "%s", d40);
-    //   state->m17_src = src;
-    //   state->m17_dst = dst;
-    //   state->m17_can = can;
-    //   state->m17_str_dt = lsf_dt;
-    //   state->m17_enc = lsf_et;
-    //   state->m17_enc_st = lsf_es;
-    //   for (i = 0; i < 16; i++)
-    //     state->m17_meta[i] = 0;
-    //   if (lsf_et == 2)
-    //   {
-    //     for (i = 0; i < 14; i++)
-    //       state->m17_meta[i] = nonce[i];
-    //     for (i = 0; i < 8; i++)
-    //     {
-    //       state->m17_meta[14] <<= 1;
-    //       state->m17_meta[15] <<= 1;
-    //       state->m17_meta[14] += ((fsn >> 7) >> 7-i) & 1;
-    //       state->m17_meta[15] += ((fsn >> 0) >> 7-i) & 1;
-    //     }
-    //   }
-    // }
+    // if not decoding internally, assign values for ncurses display
+    if (super->opts.monitor_encode_internally == 0)
+    {
+      sprintf (super->m17d.src_csd_str, "%s", s40);
+      sprintf (super->m17d.dst_csd_str, "%s", d40);
+      super->m17d.src = src;
+      super->m17d.dst = dst;
+      super->m17d.can = can;
+      super->m17d.dt = lsf_dt;
+      super->m17d.enc_et = lsf_et;
+      super->m17d.enc_st = lsf_es;
+      for (i = 0; i < 16; i++)
+        super->m17d.meta[i] = 0;
+      if (lsf_et == 2)
+      {
+        for (i = 0; i < 14; i++)
+          super->m17d.meta[i] = nonce[i];
+        for (i = 0; i < 8; i++)
+        {
+          super->m17d.meta[14] <<= 1;
+          super->m17d.meta[15] <<= 1;
+          super->m17d.meta[14] += ((fsn >> 7) >> (7-i)) & 1;
+          super->m17d.meta[15] += ((fsn >> 0) >> (7-i)) & 1;
+        }
+      }
+    }
 
     #ifdef USE_PULSEAUDIO
     //read some audio samples from source and load them into an audio buffer
-    // if (super->opts.audio_in_type == 0) //pulse audio
+    if (super->opts.use_pa_input == 0) //pulse audio
     {
       for (i = 0; i < (int)nsam; i++)
       {
@@ -370,42 +368,26 @@ void encodeM17STR(Super * super)
     }
     #endif
 
-    // if (super->opts.audio_in_type == 1) //stdin
-    // {
-    //   int result = 0;
-    //   for (i = 0; i < nsam; i++)
-    //   {
-    //     for (j = 0; j < dec; j++)
-    //       result = sf_read_short(super->opts.audio_in_file, &sample, 1);
-    //     voice1[i] = sample;
-    //     if (result == 0)
-    //     {
-    //       sf_close(super->opts.audio_in_file);
-    //       fprintf (stderr, "Connection to STDIN Disconnected.\n");
-    //       fprintf (stderr, "Closing DSD-FME.\n");
-    //       exitflag = 1;
-    //       break;
-    //     }
-    //   }
+    if (super->opts.use_stdin_input == 1) //stdin
+    {
 
-    //   if (st == 2)
-    //   {
-    //     for (i = 0; i < nsam; i++)
-    //     {
-    //       for (j = 0; j < dec; j++)
-    //         result = sf_read_short(super->opts.audio_in_file, &sample, 1);
-    //       voice2[i] = sample;
-    //       if (result == 0)
-    //       {
-    //         sf_close(super->opts.audio_in_file);
-    //         fprintf (stderr, "Connection to STDIN Disconnected.\n");
-    //         fprintf (stderr, "Closing DSD-FME.\n");
-    //         exitflag = 1;
-    //         break;
-    //       }
-    //     }
-    //   }
-    // }
+      for (i = 0; i < (int)nsam; i++)
+      {
+        for (j = 0; j < dec; j++)
+          sample = read_stdin_pipe(super);
+        voice1[i] = sample;
+      }
+
+      if (st == 2)
+      {
+        for (i = 0; i < (int)nsam; i++)
+        {
+          for (j = 0; j < dec; j++)
+            sample = read_stdin_pipe(super);
+          voice2[i] = sample;
+        }
+      }
+    }
 
     // if (super->opts.audio_in_type == 5) //OSS
     // {
@@ -673,8 +655,8 @@ void encodeM17STR(Super * super)
     if (super->m17e.str_encoder_tx == 1) //when toggled on
     {
       //Enable Carrier, synctype, etc
-      // state->carrier = 1;
-      // state->synctype = 8;
+      super->demod.carrier = 1;
+      super->demod.in_sync = 1;
 
       //send LSF frame once, if new encode session
       if (new_lsf == 1)
@@ -797,7 +779,7 @@ void encodeM17STR(Super * super)
         }
       }
 
-    } //end if (state->m17encoder_tx)
+    } //end if (super->m17d.strencoder_tx)
 
     else //if not tx, reset values, drop carrier and sync
     {
@@ -856,8 +838,8 @@ void encodeM17STR(Super * super)
       //reset 
       lich_cnt = 0;
       fsn = 0;
-      // state->carrier = 0;
-      // state->synctype = -1;
+      super->demod.carrier = 0;
+      super->demod.in_sync = 0;
 
       //update timestamp
       ts = time(NULL);

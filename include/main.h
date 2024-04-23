@@ -74,6 +74,9 @@ typedef struct
   uint8_t use_pa_output_rf;
   uint8_t use_pa_output_vx;
 
+  //STDIN
+  uint8_t use_stdin_input;
+
   //M17 Encoder and Decoder Options
   uint8_t use_m17_str_encoder;
   uint8_t use_m17_pkt_encoder;
@@ -115,6 +118,9 @@ typedef struct
 
   uint8_t dibit_buffer[65535];
   int32_t dibit_buffer_ptr;
+
+  uint8_t carrier;
+  uint8_t in_sync;
 
   long int input_sql;
   long int input_rms;

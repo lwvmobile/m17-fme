@@ -26,6 +26,9 @@ void init_super (Super * super)
   super->opts.use_pa_output_rf = 0;
   super->opts.use_pa_output_vx = 0;
 
+  //STDIN
+  super->opts.use_stdin_input = 0;
+
   //M17 Encoder and Decoder Options
   super->opts.use_m17_str_encoder = 0;
   super->opts.use_m17_pkt_encoder = 0;
@@ -95,6 +98,10 @@ void init_super (Super * super)
 
   memset (super->demod.dibit_buffer, 0, 65535*sizeof(uint8_t));
   super->demod.dibit_buffer_ptr = 0;
+
+  super->demod.carrier = 0;
+  super->demod.in_sync = 0;
+
   super->demod.input_sql = 100;
   super->demod.input_rms = 0;
   //end init_demod_state
