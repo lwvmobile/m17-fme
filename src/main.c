@@ -176,7 +176,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1dhnv:A:D:F:IPM:S:U:V")) != -1)
+  while ((c = getopt (argc, argv, "1dhinv:A:D:F:IPM:S:U:V")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -200,6 +200,12 @@ int main (int argc, char **argv)
       //   super.opts.b[1023] = '\0';
       //   fprintf (stderr,"B: %s\n", super.opts.b);
       //   break;
+
+      //Enable IP Frame Input (testing using default values)
+      case 'i':
+        super.opts.use_m17_ipf_decoder = 1;
+        fprintf (stderr, "Project M17 Encoder IP Frame Receiver Enabled. \n");
+        break;
 
       case 'd':
         super.opts.use_m17_pkt_decoder = 1;
@@ -351,6 +357,9 @@ int main (int argc, char **argv)
 
   if (super.opts.use_m17_str_encoder == 1)
     encodeM17STR(&super);
+
+  if (super.opts.use_m17_ipf_decoder == 1)
+    decode_ipf(&super);
 
   //exit gracefully
   cleanup_and_exit (&super);

@@ -312,6 +312,7 @@ void decode_str_payload (Super * super, uint8_t * payload, uint8_t type);
 void demod_lsf (Super * super, uint8_t * input, int debug);
 void demod_str (Super * super, uint8_t * input, int debug);
 void prepare_str (Super * super, uint8_t * input);
+void decode_ipf (Super * super);
 
 
 //if using cpp code, then put function prototypes in below
