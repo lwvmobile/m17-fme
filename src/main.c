@@ -10,6 +10,7 @@
 
 #include "main.h"
 #include "git_ver.h"
+#include "banner.h"
 #include <signal.h>
 
 //signal handling
@@ -20,56 +21,6 @@ void handler(int sgnl)
   UNUSED(sgnl);
   exitflag = 1;
 }
-
-//Basic Banner
-char * FM_banner[9] = {
-  "                                                           ",
-  "                                                           ",
-  " ███╗   ███╗   ███╗  ███████╗   ███████╗███╗   ███╗███████╗",
-  " ████╗ ████║  ████║  ╚════██║   ██╔════╝████╗ ████║██╔════╝",
-  " ██╔████╔██║ ██╔██║      ██╔╝   █████╗  ██╔████╔██║█████╗  ",
-  " ██║╚██╔╝██║ ╚═╝██║     ██╔╝    ██╔══╝  ██║╚██╔╝██║██╔══╝  ",
-  " ██║ ╚═╝ ██║ ███████╗  ██╔╝     ██║     ██║ ╚═╝ ██║███████╗",
-  " ╚═╝     ╚═╝ ╚══════╝  ╚═╝      ╚═╝     ╚═╝     ╚═╝╚══════╝",
-  "Project M17 - Florida Man Edition                          "
-};
-
-//Color Segmented Banner
-char * M_banner[9] = {
-  "             ",
-  "             ",
-  " ███╗   ███╗ ",
-  " ████╗ ████║ ",
-  " ██╔████╔██║ ",
-  " ██║╚██╔╝██║ ",
-  " ██║ ╚═╝ ██║ ",
-  " ╚═╝     ╚═╝ ",
-  "             "
-};
-
-char * S_banner[9] = {
-  "                    ",
-  "                    ",
-  "    ███╗  ███████╗  ",
-  "   ████║  ╚════██║  ",
-  "  ██╔██║      ██╔╝  ",
-  "  ╚═╝██║     ██╔╝   ",
-  "  ███████╗  ██╔╝    ",
-  "  ╚══════╝  ╚═╝     ",
-  "                    "
-};
-
-char * FME_banner[9] = {
-  "                             ",
-  "                             ",
-  " ███████╗███╗   ███╗███████╗ ",
-  " ██╔════╝████╗ ████║██╔════╝ ",
-  " █████╗  ██╔████╔██║█████╗   ",
-  " ██╔══╝  ██║╚██╔╝██║██╔══╝   ",
-  " ██║     ██║ ╚═╝ ██║███████╗ ",
-  " ╚═╝     ╚═╝     ╚═╝╚══════╝ ",
-  "                             "
-};
 
 void usage ()
 {
@@ -123,6 +74,14 @@ void cleanup_and_exit (Super * super)
   fprintf (stderr, "\n");
   fprintf (stderr,"Exiting.\n");
 
+  #ifdef USE_CURSES
+  if (super->opts.use_ncurses_terminal == 1)
+  {
+    close_ncurses_terminal();
+    super->opts.ncurses_is_open = 0;
+  }
+  #endif
+
   exit(0);
 }
 
@@ -163,12 +122,12 @@ int main (int argc, char **argv)
     fprintf (stderr, "%s", KNRM); //normal font for this terminal
     fprintf (stderr, "\n"); //line break
   }
-  fprintf (stderr, "%s\n", FM_banner[8]);
+  fprintf (stderr, "%s\n", M17FME_banner[8]);
   fprintf (stderr, "%s", KNRM); //normal font for this terminal
   #else
   //print basic banner
   for (i = 1; i < 9; i++)
-    fprintf (stderr,"%s\n", FM_banner[i]);
+    fprintf (stderr,"%s\n", M17FME_banner[i]);
   #endif
 
   //print git tag and version number
@@ -176,7 +135,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "12dhimns:v:A:D:F:IM:PS:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "12dhimns:v:A:D:F:INM:PS:U:VX")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -225,9 +184,14 @@ int main (int argc, char **argv)
         fprintf (stderr, "Internal Encoder Loopback to Decoder. \n");
         break;
 
+      case 'N':
       case 'n':
+        #ifdef USE_CURSES
         super.opts.use_ncurses_terminal = 1;
         fprintf (stderr, "Ncurses Terminal Mode. \n");
+        #else
+        fprintf (stderr, "Ncurses Support Not Compiled. \n");
+        #endif
         break;
 
       case 's':
@@ -308,6 +272,14 @@ int main (int argc, char **argv)
   //call signal handler so things like ctrl+c will allow us to gracefully close
   signal (SIGINT, handler);
   signal (SIGTERM, handler);
+
+  #ifdef USE_CURSES
+  if (super.opts.use_ncurses_terminal == 1)
+  {
+    open_ncurses_terminal();
+    super.opts.ncurses_is_open = 0;
+  }
+  #endif
 
   #ifdef USE_PULSEAUDIO
   open_pulse_audio_input (&super);

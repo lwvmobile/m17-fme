@@ -67,6 +67,10 @@ typedef struct
 
   //Generic Options For Display and Logging
   uint8_t use_ncurses_terminal;
+  uint8_t ncurses_is_open;
+  uint8_t ncurses_no_banner;
+  uint8_t ncurses_no_history;
+
   int payload_verbosity;
 
   //Pulse Audio User Options
@@ -238,6 +242,18 @@ typedef struct
 
 //structure element initialization
 void init_super (Super * super);
+
+//NCurses Terminal
+#ifdef USE_CURSES
+void open_ncurses_terminal ();
+void close_ncurses_terminal ();
+void print_ncurses_terminal (Super * super);
+void print_ncurses_banner (Super * super);
+void print_ncurses_config (Super * super);
+void print_ncurses_callinfo (Super * super);
+void print_ncurses_callhistory (Super * super);
+void input_ncurses_terminal (Super * super, int c);
+#endif
 
 //Pulse Audio Handling
 #ifdef USE_PULSEAUDIO

@@ -19,7 +19,10 @@ void init_super (Super * super)
 
   //Generic Options For Display and Logging
   super->opts.use_ncurses_terminal = 0;
-  super->opts.payload_verbosity = 0;
+  super->opts.ncurses_is_open = 0;
+  super->opts.ncurses_no_banner = 0;
+  super->opts.use_ncurses_terminal = 0;
+  super->opts.ncurses_no_history = 0;
 
   //Pulse Audio User Options
   super->opts.use_pa_input = 0;

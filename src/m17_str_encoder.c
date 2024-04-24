@@ -981,8 +981,10 @@ void encodeM17STR(Super * super)
     }
 
     //refresh ncurses printer, if enabled
-    // if (super->opts.use_ncurses_terminal == 1)
-    //   ncursesPrinter(opts, state);
+    #ifdef USE_CURSES
+    if (super->opts.use_ncurses_terminal == 1)
+      print_ncurses_terminal(super);
+    #endif
     
   }
 
