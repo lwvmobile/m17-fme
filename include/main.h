@@ -316,8 +316,10 @@ short read_stdin_pipe (Super * super);
 //Time and Date Functions
 char * getTime();
 char * getTimeC();
+char * getTimeN(time_t t);
 char * getDate();
 char * getDateH();
+char * getDateN(time_t t);
 
 //misc utility functions
 uint64_t ConvertBitIntoBytes (uint8_t * BufferIn, uint32_t BitLength);
