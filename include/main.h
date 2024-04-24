@@ -317,6 +317,7 @@ short read_stdin_pipe (Super * super);
 char * getTime();
 char * getTimeC();
 char * getDate();
+char * getDateH();
 
 //misc utility functions
 uint64_t ConvertBitIntoBytes (uint8_t * BufferIn, uint32_t BitLength);

@@ -32,45 +32,42 @@ uint64_t ConvertBitIntoBytes(uint8_t * BufferIn, uint32_t BitLength)
   return Output;
 }
 
-char * getTime() //get hhmmss timestamp (Windows files can't have colons in them)
+//get hhmmss timestamp no colon
+char * getTime()
 {
   char * curr = (char *) malloc(9);
   time_t t = time(NULL);
   struct tm * ptm = localtime(& t);
-  sprintf(
-    curr,
-    "%02d%02d%02d",
-    ptm->tm_hour,
-    ptm->tm_min,
-    ptm->tm_sec
-  );
+  sprintf(curr,"%02d%02d%02d", ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
   return curr;
 }
 
-char * getTimeC() //get hh:mm:ss timestamp (Ncurses Display)
+//get hh:mm:ss timestamp with colon (Ncurses Display)
+char * getTimeC()
 {
   char * curr = (char *) malloc(9);
   time_t t = time(NULL);
   struct tm * ptm = localtime(& t);
-  sprintf(
-    curr,
-    "%02d:%02d:%02d",
-    ptm->tm_hour,
-    ptm->tm_min,
-    ptm->tm_sec
-  );
+  sprintf(curr, "%02d:%02d:%02d", ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
   return curr;
 }
 
+//get YYYYMMDD without hyphen
 char * getDate()
 {
-  char * datename = (char *) malloc(9);
-  char * curr;
-  struct tm * to;
-  time_t t;
-  t = time(NULL);
-  to = localtime( & t);
-  strftime(datename, sizeof(datename), "%Y%m%d", to);
-  curr = strtok(datename, " ");
+  char * curr = (char *) malloc(25);
+  time_t t = time(NULL);
+  struct tm * ptm = localtime(& t);
+  sprintf(curr,"%04d%02d%02d", ptm->tm_year+1900, ptm->tm_mon+1, ptm->tm_mday);
+  return curr;
+}
+
+//get YYYY-MM-DD without hyphen (Ncurses Display)
+char * getDateH()
+{
+  char * curr = (char *) malloc(27);
+  time_t t = time(NULL);
+  struct tm * ptm = localtime(& t);
+  sprintf(curr, "%04d-%02d-%02d", ptm->tm_year+1900, ptm->tm_mon+1, ptm->tm_mday);
   return curr;
 }

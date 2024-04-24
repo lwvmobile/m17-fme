@@ -54,9 +54,12 @@ void open_ncurses_terminal ()
 void print_ncurses_terminal(Super * super)
 {
 
-  char * timestr = getTime();
-  char * datestr = getDate();
-  int input_keystroke = 0; UNUSED(input_keystroke);
+  char * timestr  = getTime();
+  char * datestr  = getDate();
+  char * timestrC = getTimeC();
+  char * datestrH = getDateH();
+  
+  int input_keystroke = 0;
 
   //can't run getch/menu when using STDIN -
   if (super->opts.use_stdin_input != 1)
@@ -81,7 +84,8 @@ void print_ncurses_terminal(Super * super)
   print_ncurses_callhistory(super);
 
   //test
-  // printw ("TIME: %s; DATE: %s; ", timestr, datestr);
+  printw ("TIME: %s; DATE: %s; ", timestr, datestr);
+  printw ("TIME: %s; DATE: %s; ", timestrC, datestrH);
 
   //Handle Input Keystrokes
   input_ncurses_terminal(super, input_keystroke);
@@ -89,8 +93,11 @@ void print_ncurses_terminal(Super * super)
   //refresh the terminal
   refresh();
 
+  //free allocated memory
   free (timestr);
   free (datestr);
+  free (timestrC);
+  free (datestrH);
   
 }
 
