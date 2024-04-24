@@ -5,7 +5,7 @@
  * defined by CMakeLists.txt -- Enable by using cmake -DCOLORS=ON ..
  *
  * LWVMOBILE
- * 2024-04 Project M17 - Florida Man Edition
+ * 2024-05 Project M17 - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #ifdef PRETTY_COLORS

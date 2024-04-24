@@ -3,7 +3,7 @@
  * Project M17 - CRC16 Checksum
  *
  * LWVMOBILE
- * 2024-04 Project M17 - Florida Man Edition
+ * 2024-05 Project M17 - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"
