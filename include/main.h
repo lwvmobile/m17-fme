@@ -291,11 +291,18 @@ uint16_t crc16 (const uint8_t *in, const uint16_t len);
 //demodulation and sync functions
 void framesync (Super * super);
 
-//misc utility functions
+//stdin and stdout
 void open_stdout_pipe (Super * super);
 void write_stdout_pipe (Super * super, short * out, size_t nsam);
 void open_stdin_pipe (Super * super);
 short read_stdin_pipe (Super * super);
+
+//Time and Date Functions
+char * getTime();
+char * getTimeC();
+char * getDate();
+
+//misc utility functions
 uint64_t ConvertBitIntoBytes (uint8_t * BufferIn, uint32_t BitLength);
 
 //M17 Frame Encoders

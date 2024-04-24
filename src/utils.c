@@ -31,3 +31,46 @@ uint64_t ConvertBitIntoBytes(uint8_t * BufferIn, uint32_t BitLength)
 
   return Output;
 }
+
+char * getTime() //get hhmmss timestamp (Windows files can't have colons in them)
+{
+  char * curr = (char *) malloc(9);
+  time_t t = time(NULL);
+  struct tm * ptm = localtime(& t);
+  sprintf(
+    curr,
+    "%02d%02d%02d",
+    ptm->tm_hour,
+    ptm->tm_min,
+    ptm->tm_sec
+  );
+  return curr;
+}
+
+char * getTimeC() //get hh:mm:ss timestamp (Ncurses Display)
+{
+  char * curr = (char *) malloc(9);
+  time_t t = time(NULL);
+  struct tm * ptm = localtime(& t);
+  sprintf(
+    curr,
+    "%02d:%02d:%02d",
+    ptm->tm_hour,
+    ptm->tm_min,
+    ptm->tm_sec
+  );
+  return curr;
+}
+
+char * getDate()
+{
+  char * datename = (char *) malloc(9);
+  char * curr;
+  struct tm * to;
+  time_t t;
+  t = time(NULL);
+  to = localtime( & t);
+  strftime(datename, sizeof(datename), "%Y%m%d", to);
+  curr = strtok(datename, " ");
+  return curr;
+}
