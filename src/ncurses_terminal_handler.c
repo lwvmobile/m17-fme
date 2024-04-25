@@ -58,6 +58,8 @@ void print_ncurses_terminal(Super * super)
   char * datestr  = getDate();
   char * timestrC = getTimeC();
   char * datestrH = getDateH();
+  char * timestrN = getTimeN(time(NULL));
+  char * datestrN = getDateN((time(NULL)));
   
   int input_keystroke = 0;
 
@@ -83,9 +85,12 @@ void print_ncurses_terminal(Super * super)
   //Print Call History
   print_ncurses_callhistory(super);
 
-  //test
+  //test various time / date strings
   printw ("TIME: %s; DATE: %s; ", timestr, datestr);
+  printw ("\n");
   printw ("TIME: %s; DATE: %s; ", timestrC, datestrH);
+  printw ("\n");
+  printw ("TIME: %s; DATE: %s; ", timestrN, datestrN);
 
   //Handle Input Keystrokes
   input_ncurses_terminal(super, input_keystroke);
@@ -98,6 +103,8 @@ void print_ncurses_terminal(Super * super)
   free (datestr);
   free (timestrC);
   free (datestrH);
+  free (timestrN);
+  free (datestrN);
   
 }
 
