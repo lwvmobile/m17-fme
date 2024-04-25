@@ -54,12 +54,21 @@ void open_ncurses_terminal ()
 void print_ncurses_terminal(Super * super)
 {
 
-  char * timestr  = getTime();
-  char * datestr  = getDate();
-  char * timestrC = getTimeC();
-  char * datestrH = getDateH();
-  char * timestrN = getTimeN(time(NULL));
-  char * datestrN = getDateN((time(NULL)));
+  //assign ptrs to NULL
+  char * timestr  = NULL;
+  char * datestr  = NULL;
+  char * timestrC = NULL;
+  char * datestrH = NULL;
+  char * timestrN = NULL;
+  char * datestrN = NULL;
+
+  //assign them with function w/ allocated memory
+  timestr  = getTime();
+  datestr  = getDate();
+  timestrC = getTimeC();
+  datestrH = getDateH();
+  timestrN = getTimeN(time(NULL));
+  datestrN = getDateN((time(NULL)));
   
   int input_keystroke = 0;
 
@@ -98,14 +107,38 @@ void print_ncurses_terminal(Super * super)
   //refresh the terminal
   refresh();
 
-  //free allocated memory
-  free (timestr);
-  free (datestr);
-  free (timestrC);
-  free (datestrH);
-  free (timestrN);
-  free (datestrN);
-  
+  //free allocated memory and set ptr to NULL
+  if (timestr != NULL)
+  {
+    free (timestr);
+    timestr = NULL;
+  }
+  if (datestr != NULL)
+  {
+    free (datestr);
+    datestr = NULL;
+  }
+  if (timestrC != NULL)
+  {
+    free (timestrC);
+    timestrC = NULL;
+  }
+  if (datestrH != NULL)
+  {
+    free (datestrH);
+    datestrH = NULL;
+  }
+  if (timestrN != NULL)
+  {
+    free (timestrN);
+    timestrN = NULL;
+  }
+  if (datestrN != NULL)
+  {
+    free (datestrN);
+    datestrN = NULL;
+  }
+    
 }
 
 void print_ncurses_banner (Super * super)
