@@ -343,108 +343,23 @@ void encodeM17STR(Super * super)
       }
     }
 
-    #ifdef USE_PULSEAUDIO
-    //read some audio samples from source and load them into an audio buffer
-    if (super->opts.use_pa_input == 0) //pulse audio
+    //read in short audio input samples from source
+    for (i = 0; i < (int)nsam; i++)
+    {
+      for (j = 0; j < dec; j++)
+        sample = get_short_audio_input_sample(super);
+      voice1[i] = sample; //only store the 6th sample
+    }
+
+    if (st == 2)
     {
       for (i = 0; i < (int)nsam; i++)
       {
         for (j = 0; j < dec; j++)
-          // pa_simple_read(pa->pa_input_device, &sample, 2, NULL );
-          sample = pa_input_read(super);
-        voice1[i] = sample; //only store the 6th sample
-      }
-
-      if (st == 2)
-      {
-        for (i = 0; i < (int)nsam; i++)
-        {
-          for (j = 0; j < dec; j++)
-            // pa_simple_read(pa->pa_input_device, &sample, 2, NULL );
-            sample = pa_input_read(super);
-          voice2[i] = sample; //only store the 6th sample
-        }
+          sample = get_short_audio_input_sample(super);
+        voice2[i] = sample; //only store the 6th sample
       }
     }
-    #endif
-
-    if (super->opts.use_stdin_input == 1) //stdin
-    {
-
-      for (i = 0; i < (int)nsam; i++)
-      {
-        for (j = 0; j < dec; j++)
-          sample = read_stdin_pipe(super);
-        voice1[i] = sample;
-      }
-
-      if (st == 2)
-      {
-        for (i = 0; i < (int)nsam; i++)
-        {
-          for (j = 0; j < dec; j++)
-            sample = read_stdin_pipe(super);
-          voice2[i] = sample;
-        }
-      }
-    }
-
-    // if (super->opts.audio_in_type == 5) //OSS
-    // {
-    //   for (i = 0; i < nsam; i++)
-    //   {
-    //     for (j = 0; j < dec; j++)
-    //       read (super->opts.audio_in_fd, &sample, 2);
-    //     voice1[i] = sample;
-    //   }
-
-    //   if (st == 2)
-    //   {
-    //     for (i = 0; i < nsam; i++)
-    //     {
-    //       for (j = 0; j < dec; j++)
-    //         read (super->opts.audio_in_fd, &sample, 2);
-    //       voice2[i] = sample;
-    //     }
-    //   }
-    // }
-
-    // if (super->opts.audio_in_type == 8) //TCP
-    // {
-    //   int result = 0;
-    //   for (i = 0; i < nsam; i++)
-    //   {
-    //     for (j = 0; j < dec; j++)
-    //       result = sf_read_short(super->opts.tcp_file_in, &sample, 1);
-    //     voice1[i] = sample;
-    //     if (result == 0)
-    //     {
-    //       sf_close(super->opts.tcp_file_in);
-    //       fprintf (stderr, "Connection to TCP Server Disconnected.\n");
-    //       fprintf (stderr, "Closing DSD-FME.\n");
-    //       exitflag = 1;
-    //       break;
-    //     }
-    //   }
-
-    //   if (st == 2)
-    //   {
-    //     for (i = 0; i < nsam; i++)
-    //     {
-    //       for (j = 0; j < dec; j++)
-    //         result = sf_read_short(super->opts.tcp_file_in, &sample, 1);
-    //       voice2[i] = sample;
-    //       if (result == 0)
-    //       {
-    //         sf_close(super->opts.tcp_file_in);
-    //         fprintf (stderr, "Connection to TCP Server Disconnected.\n");
-    //         fprintf (stderr, "Closing DSD-FME.\n");
-    //         exitflag = 1;
-    //         break;
-    //       }
-    //     }
-    //   }
-    // }
 
     //read in RMS value for vox function; NOTE: will not work correctly SOCAT STDIO TCP due to blocking when no samples to read
     if (super->opts.use_pa_input != 3)

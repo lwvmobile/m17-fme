@@ -288,6 +288,9 @@ int m17_socket_blaster (Super * super, size_t nsam, void * data);
 int udp_socket_connectM17 (Super * super);
 int m17_socket_receiver (Super * super, void * data);
 
+//Audio Input Sample Convenience Function
+short get_short_audio_input_sample (Super * super);
+
 //Audio Manipulation and Filters
 long int raw_rms (int16_t *samples, int len, int step);
 void upsample_6x (short input, short * output);

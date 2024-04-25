@@ -18,12 +18,8 @@ void framesync (Super * super)
 
   while (!exitflag)
   {
-    if (super->pa.pa_input_is_open)
-    {
-      #ifdef USE_PULSEAUDIO
-      // super->demod.sample_buffer[(super->demod.sample_buffer_ptr%65535)] = pa_input_read(pa);
-      #endif
-    }
+
+    // super->demod.sample_buffer[(super->demod.sample_buffer_ptr%65535)] = get_short_audio_input_sample(super);
 
     //TODO: Actually find a frame sync, pretty sure libm17 likes float samples for its euclidean voodoo
     super->demod.float_sample_buffer[(super->demod.sample_buffer_ptr%65535)] = (float)super->demod.sample_buffer[(super->demod.sample_buffer_ptr%65535)];

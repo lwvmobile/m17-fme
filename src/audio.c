@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
  * audio.c
- * Project M17 - Misc Audio Related Functions
+ * Project M17 - Audio Related Functions
  *
  * LWVMOBILE
  * 2024-05 Project M17 - Florida Man Edition
@@ -8,7 +8,36 @@
 
 #include "main.h"
 
-#define PI 3.141592653
+//convenience function to retrieve 1 short input sample from any number of input methods
+short get_short_audio_input_sample (Super * super)
+{
+  short sample = 0;
+  int err = 0; UNUSED(err); //will use for TCP, other input methods
+  //STDIN
+  if (super->opts.use_stdin_input == 1)
+    sample = read_stdin_pipe(super);
+
+  #ifdef USE_PULSEAUDIO
+  //PULSE AUDIO (obviously)
+  else if (super->opts.use_pa_input == 1)
+    sample = pa_input_read(super);
+  #endif
+
+  //TOOD: Flesh this out
+  /*
+  
+  //OSS
+  read (super->opts.audio_in_fd, &sample, 2);
+
+  //TCP (via SF wav input)
+  err = sf_read_short(super->opts.tcp_file_in, &sample, 1);
+
+  //??? Others?
+
+  */
+
+  return sample;
+}
 
 //simple 6x 8K to 48K upsample
 void upsample_6x(short input, short * output)
@@ -40,57 +69,4 @@ long int raw_rms(int16_t *samples, int len, int step)
   rms = (long int)sqrt((p-err) / len);
   if (rms < 0) rms = 150;
   return rms;
-}
-
-void HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
-{
-
-	float RC=0.0;
-	RC=1.0/(2*PI*cutoffFreqHz);
-
-	filter->coef=RC/(sampleTimeS+RC);
-
-	filter->v_in[0]=0.0;
-	filter->v_in[1]=0.0;
-
-	filter->v_out[0]=0.0;
-	filter->v_out[1]=0.0;
-
-}
-
-float HPFilter_Update(HPFilter *filter, float v_in)
-{
-    
-	filter->v_in[1]=filter->v_in[0];
-	filter->v_in[0]=v_in;
-
-	filter->v_out[1]=filter->v_out[0];
-	filter->v_out[0]=filter->coef * (filter->v_in[0] - filter->v_in[1]+filter->v_out[1]);
-
-	return (filter->v_out[0]);
-
-}
-
-//high pass filter
-void hpfilter(HPFilter * hpf, short * input, int len)
-{
-  int i;
-  for (i = 0; i < len; i++)
-	{
-		// fprintf (stderr, "\n in: %05d", input[i]);
-		input[i] = HPFilter_Update(hpf, input[i]);
-		// fprintf (stderr, "\n out: %05d", input[i]);
-	}
-}
-
-//double check this one, make sure its doing what its suppoed to now
-void hpfilter_d(Super * super, short * input, int len)
-{
-  int i;
-  for (i = 0; i < len; i++)
-	{
-		// fprintf (stderr, "\n in: %05d", input[i]);
-		input[i] = HPFilter_Update(&super->hpf_d, input[i]);
-		// fprintf (stderr, "\n out: %05d", input[i]);
-	}
 }

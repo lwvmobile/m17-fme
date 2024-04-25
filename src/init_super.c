@@ -25,7 +25,7 @@ void init_super (Super * super)
   super->opts.ncurses_no_history = 0;
 
   //Pulse Audio User Options
-  super->opts.use_pa_input = 0;
+  super->opts.use_pa_input = 1;
   super->opts.use_pa_output_rf = 0;
   super->opts.use_pa_output_vx = 0;
 
