@@ -186,6 +186,8 @@ void decode_ipf (Super * super)
       //reflector module user is connecting to
       fprintf (stderr, "Module: %c; ", ip_frame[10]);
 
+      super->m17d.reflector_module = ip_frame[10];
+
       if (super->opts.payload_verbosity >= 1)
       {
         for (i = 0; i < 11; i++)

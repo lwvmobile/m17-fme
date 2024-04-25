@@ -121,6 +121,8 @@ void init_super (Super * super)
   super->m17d.enc_st = 0;
   sprintf (super->m17d.dst_csd_str, "%s", "");
   sprintf (super->m17d.src_csd_str, "%s", "");
+  
+  super->m17d.reflector_module = 0;
 
   #ifdef USE_CODEC2
   super->m17d.codec2_3200 = codec2_create(CODEC2_MODE_3200);
@@ -132,6 +134,11 @@ void init_super (Super * super)
   super->m17e.src = 0;
   super->m17e.dst = 0;
   super->m17e.can = 7;
+
+  super->m17e.enc_et = 0;
+  super->m17e.enc_st = 0;
+  //'A', single letter reflector module A-Z, 0x41 is A
+  super->m17e.reflector_module = 0x41;
 
   #ifdef USE_CODEC2
   super->m17e.codec2_3200 = codec2_create(CODEC2_MODE_3200);

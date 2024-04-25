@@ -350,7 +350,7 @@ void encodeM17PKT(Super * super)
 
   //just lump all the UDP IP Frame stuff together and one-shot it
   int use_ip = 0; //1 to enable IP Frame Broadcast over UDP
-  uint8_t reflector_module = 0x41; //'A', single letter reflector module A-Z, 0x41 is A
+  uint8_t reflector_module = super->m17e.reflector_module;
 
   //Open UDP port to default or user defined values, if enabled
   int sock_err = 0;

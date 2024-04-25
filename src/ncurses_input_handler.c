@@ -16,6 +16,12 @@ void input_ncurses_terminal (Super * super, int c)
   switch (c)
   {
 
+    //'\' key, toggle TX
+    case 92:
+      if (super->m17e.str_encoder_tx == 0) super->m17e.str_encoder_tx = 1;
+      else super->m17e.str_encoder_tx = 0;
+      break;
+
     //'c' key, no banner / compact mode
     case 99:
       if (super->opts.ncurses_no_banner == 1) super->opts.ncurses_no_banner = 0;

@@ -150,8 +150,76 @@ void print_ncurses_config (Super * super)
 
 void print_ncurses_callinfo (Super * super)
 {
-  UNUSED(super);
+  //color on or off
+  if (super->demod.in_sync == 1)
+    attron(COLOR_PAIR(3));
+  else attron(COLOR_PAIR(6));
+
   printw ("--Call Info-------------------------------------------------------------------\n");
+
+  printw ("| ");
+  printw ("M17: ");
+
+  //insert data type and frame information
+  if (super->m17d.dt == 0) printw("Reserved");
+  if (super->m17d.dt == 1) printw("Data ");
+  if (super->m17d.dt == 2) printw("Voice (3200) ");
+  if (super->m17d.dt == 3) printw("Voice (1600) + Data");
+
+  printw ("\n");
+  printw ("| ");
+
+  printw ("DST: ");
+  if (super->m17d.dst == 0xFFFFFFFFFFFF)
+    printw("BROADCAST ");
+  else if (super->m17d.dst != 0 && super->m17d.dst >= 0xEE6B28000000)
+    printw("RESERVED (%012llx) ", super->m17d.dst);
+  else
+    printw("%s", super->m17d.dst_csd_str);
+
+  printw ("\n");
+  printw ("| ");
+
+  printw ("SRC: ");
+  if (super->m17d.src != 0 && super->m17d.src >= 0xEE6B28000000)
+    printw("RESERVED (%012llx)", super->m17d.src);
+  else
+    printw("%s", super->m17d.src_csd_str);
+
+
+  printw ("\n");
+  printw ("| ");
+
+  printw ("CAN: %02d ", super->m17d.can);
+
+  printw ("\n");
+  printw ("| ");
+
+
+  //fill in any extra info, like Meta (IV, etc)
+  if (super->m17d.enc_et == 1)
+  {
+    printw (" Scrambler - Type: %d", super->m17d.enc_st);
+  }
+
+  if (super->m17d.enc_et == 2)
+  {
+    printw (" AES-CTR - IV: ");
+    //display packed meta as IV
+    for (int i = 0; i < 16; i++)
+      printw ("%02X", super->m17d.meta[i]);
+  }
+
+  if (super->m17d.enc_et == 3)
+  {
+    printw (" Reserved Enc - Type: %d", super->m17d.enc_st);
+  }
+
+  printw ("\n");
+
+  //color off, back to white
+  attron(COLOR_PAIR(6));
+
   printw ("------------------------------------------------------------------------------\n");
 }
 

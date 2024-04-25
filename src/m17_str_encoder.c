@@ -43,7 +43,7 @@ void encodeM17STR(Super * super)
   int use_ip = 0; //1 to enable IP Frame Broadcast over UDP
   int udpport = super->opts.m17_portno; //port number for M17 IP Frame (default is 17000)
   //set at startup now via CLI, or use default if no user value specified
-  uint8_t reflector_module = 0x41; //'A', single letter reflector module A-Z, 0x41 is A
+  uint8_t reflector_module = super->m17e.reflector_module;
   uint8_t can = 7; //channel access number
   //numerical representation of dst and src after b40 encoding, or special/reserved value
   unsigned long long int dst = 0;

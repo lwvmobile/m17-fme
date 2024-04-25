@@ -296,17 +296,46 @@ int main (int argc, char **argv)
   // open_stdout_pipe(&super); //works
 
   //Parse any User Input Strings that need to be broken into smaller components UDP and USER CSD
-  char * curr;
+  char * curr; // = malloc (1024*sizeof(char));
   if (super.opts.m17_udp_input[0] != 0 && super.opts.m17_use_ip == 1)
   {
+    //debug
+    // fprintf (stderr, "UDP INPUT STR: %s\n", super.opts.m17_udp_input);
+
     curr = strtok(super.opts.m17_udp_input, ":");
     if (curr != NULL)
       strncpy (super.opts.m17_hostname, curr, 1023);
     curr = strtok(NULL, ":"); //host port
       if (curr != NULL) super.opts.m17_portno = atoi (curr);
 
+    curr = strtok(NULL, ":"); //reflector module
+    if (curr != NULL)
+    {
+      //read reflector module
+      super.m17e.reflector_module = *curr; //straight assignment to convert char 'A' to number
+
+      //debug char to number
+      // fprintf (stderr, "%d:%d:%d; ", super.m17e.reflector_module, *curr, 'A');
+
+      //check for capitalization
+      if(super.m17e.reflector_module >= 'a' && super.m17e.reflector_module <= 'z')
+        super.m17e.reflector_module = super.m17e.reflector_module -32;
+      
+      //make sure its a value from A to Z
+      if (super.m17e.reflector_module < 0x41 || super.m17e.reflector_module > 0x5A)
+      {
+        super.m17e.reflector_module = 0;
+        fprintf (stderr, "M17 Reflector Module must be value from A-Z; \n");
+      }
+    }
+
     fprintf (stderr, "UDP Host: %s; ", super.opts.m17_hostname);
-    fprintf (stderr, "Port: %d \n", super.opts.m17_portno);
+    fprintf (stderr, "Port: %d; ", super.opts.m17_portno);
+    if (super.m17e.reflector_module != 0)
+      fprintf (stderr, "Module: %c; ", super.m17e.reflector_module);
+
+    fprintf (stderr, "\n");
+
   }
 
   if (super.m17e.user[0] != 0)

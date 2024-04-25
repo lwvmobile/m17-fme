@@ -146,6 +146,8 @@ typedef struct
   char dst_csd_str[50];
   char src_csd_str[50];
 
+  uint8_t reflector_module;
+
   #ifdef USE_CODEC2
   struct CODEC2 *codec2_3200;
   struct CODEC2 *codec2_1600;
@@ -158,6 +160,10 @@ typedef struct
   unsigned long long int src;
   unsigned long long int dst;
   int16_t can;
+
+  uint8_t enc_et; //encryption type
+  uint8_t enc_st; //encryption sub-type
+  uint8_t reflector_module;
 
   #ifdef USE_CODEC2
   struct CODEC2 *codec2_3200;
