@@ -22,7 +22,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/stat.h>
-#include <sys/ioctl.h> //OSS TODO!!
+#include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <math.h>
@@ -88,6 +88,10 @@ typedef struct
   //OSS Input and Output
   uint8_t use_oss_input;
   uint8_t use_oss_output;
+  char oss_input_dev_str[1024];
+  char oss_output_dev_str[1024];
+  int oss_input_device;
+  int oss_output_device;
 
   //SND Input
   uint8_t use_snd_input;
@@ -304,6 +308,12 @@ short pa_input_read (Super * super);
 void pulse_audio_output_rf (Super * super, short * out, size_t nsam);
 void pulse_audio_output_vx (Super * super, short * out, size_t nsam);
 #endif
+
+//OSS Garbage Handling
+void open_oss_output (Super * super);
+void open_oss_input (Super * super);
+short oss_input_read (Super * super);
+void oss_output_write (Super * super, short * out, size_t nsam);
 
 //sndfile Wav Output File Handling
 void open_wav_out_rf (Super * super);

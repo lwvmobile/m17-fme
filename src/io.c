@@ -33,10 +33,10 @@ void open_audio_input (Super * super)
     super->opts.use_snd_input = 1;
   }
 
-  //TODO: Setup OSS Input
+  //TODO: Test Setup OSS Input
   else if (super->opts.use_oss_input == 1)
   {
-
+    open_oss_input(super);
   }
 
   #ifdef USE_PULSEAUDIO
@@ -53,10 +53,18 @@ void open_audio_input (Super * super)
 void open_audio_output (Super * super)
 {
 
+  //TODO: if-elseif-elseif statements for these
+
   #ifdef USE_PULSEAUDIO
   open_pulse_audio_output_rf (super);
   open_pulse_audio_output_vx (super);
   #endif
+
+  //TODO: Test Setup OSS Output
+  if (super->opts.use_oss_output == 1)
+  {
+    open_oss_output(super);
+  }
 
   //open float symbol output file, if needed.
   if (super->opts.use_float_symbol_output)

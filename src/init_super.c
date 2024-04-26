@@ -35,6 +35,11 @@ void init_super (Super * super)
   //OSS Input and Output
   super->opts.use_oss_input = 0;
   super->opts.use_oss_output = 0;
+  sprintf (super->opts.oss_input_dev_str, "%s", "/dev/dsp");
+  sprintf (super->opts.oss_output_dev_str, "%s", "/dev/dsp");
+  super->opts.oss_input_device = 0;
+  super->opts.oss_output_device = 0;
+
 
   //SND Input
   super->opts.use_snd_input = 0;

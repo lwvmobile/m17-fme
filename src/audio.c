@@ -23,6 +23,10 @@ short get_short_audio_input_sample (Super * super)
     sample = pa_input_read(super);
   #endif
 
+  //OSS Hot Garbage
+  else if (super->opts.use_oss_input == 1)
+    sample = oss_input_read(super);
+
   //TOOD: What's left besides OSS
   /*
   

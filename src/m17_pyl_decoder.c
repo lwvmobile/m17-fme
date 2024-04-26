@@ -74,12 +74,21 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type)
       upsample_6x(samp2[i], upsamp2+(i*6));
   }
 
+  //TODO: Make Convenience Audio Output Handler
+
   //Pulse Audio Playback
   if (super->pa.pa_output_vx_is_open == 1)
   {
     pulse_audio_output_vx(super, upsamp1, nsam*6);
     if (type == 2)
       pulse_audio_output_vx(super, upsamp2, nsam*6);
+  }
+
+  else if (super->opts.use_oss_output == 1)
+  {
+    oss_output_write(super, upsamp1, nsam*6);
+    if (type == 2)
+      oss_output_write(super, upsamp2, nsam*6);
   }
 
   //Wav File Saving
