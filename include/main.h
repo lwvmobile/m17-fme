@@ -85,6 +85,10 @@ typedef struct
   //STDIN
   uint8_t use_stdin_input;
 
+  //OSS Input and Output
+  uint8_t use_oss_input;
+  uint8_t use_oss_output;
+
   //SND Input
   uint8_t use_snd_input;
 
@@ -334,8 +338,13 @@ bool rigctl_set_frequency (int sockfd, long int freq);
 //Frequency Tuning Convenience Function
 bool tune_to_frequency (Super * super, long int frequency);
 
-//Audio Input Sample Convenience Function
+//Audio Input Sample Convenience Functuion
 short get_short_audio_input_sample (Super * super);
+
+//Input and Output Open and Close Convenience Functions
+void open_audio_input (Super * super);
+void open_audio_output (Super * super);
+void cleanup_and_exit (Super * super);
 
 //Audio Manipulation and Filters
 long int raw_rms (int16_t *samples, int len, int step);
@@ -363,10 +372,8 @@ uint16_t crc16 (const uint8_t *in, const uint16_t len);
 void framesync (Super * super);
 
 //stdin and stdout
-// void open_stdout_pipe (Super * super);
 void write_stdout_pipe (Super * super, short * out, size_t nsam);
-// void open_stdin_pipe (Super * super);
-// short read_stdin_pipe (Super * super);
+bool stdin_snd_audio_source_open (Super * super);
 
 //Time and Date Functions
 char * getTime();

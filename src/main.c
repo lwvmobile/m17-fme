@@ -30,61 +30,6 @@ void usage ()
   printf ("\n");
 }
 
-void cleanup_and_exit (Super * super)
-{
-  // Signal that everything should shutdown.
-  exitflag = 1;
-
-  //do things before exiting, like closing open devices, etc
-  // super->opts.a = 0;
-  // sprintf (super->opts.b, "%s", "shutdown");
-
-  #ifdef USE_PULSEAUDIO
-  if (super->pa.pa_input_is_open)
-    close_pulse_audio_input(super);
-
-  if (super->pa.pa_output_rf_is_open)
-    close_pulse_audio_output_rf(super);
-
-  if (super->pa.pa_output_vx_is_open)
-    close_pulse_audio_output_vx(super);
-  #else
-  // UNUSED(pa);
-  #endif
-
-  if (super->wav.wav_out_rf)
-    close_wav_out_rf(super);
-
-  if (super->wav.wav_out_vx)
-    close_wav_out_vx(super);
-
-  #ifdef USE_CODEC2
-  codec2_destroy(super->m17d.codec2_1600);
-  codec2_destroy(super->m17d.codec2_3200);
-  codec2_destroy(super->m17e.codec2_1600);
-  codec2_destroy(super->m17e.codec2_3200);
-  #endif
-
-  if (super->opts.m17_udp_sock)
-    close (super->opts.m17_udp_sock);
-
-  if (super->opts.float_symbol_out)
-    fclose (super->opts.float_symbol_out);
-
-  fprintf (stderr, "\n");
-  fprintf (stderr,"Exiting.\n");
-
-  #ifdef USE_CURSES
-  if (super->opts.use_ncurses_terminal == 1)
-  {
-    close_ncurses_terminal();
-    super->opts.ncurses_is_open = 0;
-  }
-  #endif
-
-  exit(0);
-}
-
 int main (int argc, char **argv)
 {
   int i, c;
@@ -135,7 +80,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1234dhimns:v:A:D:F:INM:PS:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "12345dhimns:v:A:D:F:INM:PS:U:VX")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -168,6 +113,12 @@ int main (int argc, char **argv)
       case '4':
         super.opts.use_pa_input = 1;
         fprintf (stderr, "Pulse Audio Input Debug (Default Options). \n");
+        break;
+
+      //connect to STDIN for SND Input with default options
+      case '5':
+        super.opts.use_stdin_input = 1;
+        fprintf (stderr, "STDIN SND Audio Input Debug (Default Options). \n");
         break;
         
       // case 'a':
@@ -290,39 +241,12 @@ int main (int argc, char **argv)
   if (super.opts.use_ncurses_terminal == 1)
   {
     open_ncurses_terminal();
-    super.opts.ncurses_is_open = 0;
+    super.opts.ncurses_is_open = 1;
   }
   #endif
 
-  #ifdef USE_PULSEAUDIO
-  if (super.opts.use_pa_input == 1)
-    open_pulse_audio_input (&super);
-
-  open_pulse_audio_output_rf (&super);
-  open_pulse_audio_output_vx (&super);
-  #endif
-
-  //works now, yay
-  if (super.opts.use_tcp_input == 1)
-  {
-    super.opts.tcp_input_sock = tcp_socket_connect(super.opts.tcp_input_hostname, super.opts.tcp_input_portno);
-    //TODO: Error Handling
-    if (super.opts.tcp_input_sock)
-    {
-      tcp_snd_audio_source_open(&super);
-      super.opts.tcp_input_open = 1;
-      super.opts.use_snd_input = 1;
-    }
-    else exitflag = 1;
-  }
-
-  //open float symbol output file, if needed.
-  if (super.opts.use_float_symbol_output)
-    super.opts.float_symbol_out = fopen (super.opts.float_symbol_output_file, "w");
-
-  open_wav_out_rf(&super);
-  open_wav_out_vx(&super);
-  // open_stdout_pipe(&super); //works
+  open_audio_input (&super);
+  open_audio_output (&super);
 
   //Parse any User Input Strings that need to be broken into smaller components UDP and USER CSD
   char * curr; // = malloc (1024*sizeof(char));

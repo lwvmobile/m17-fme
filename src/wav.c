@@ -75,7 +75,8 @@ short snd_input_read (Super * super)
   if(result == 0)
   {
     sf_close(super->snd_src_in.audio_in_file);
-    // exitflag = 1;
+    super->snd_src_in.audio_in_file = NULL;
+    exitflag = 1;
   }
   return sample;
 }

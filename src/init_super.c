@@ -32,6 +32,10 @@ void init_super (Super * super)
   //STDIN
   super->opts.use_stdin_input = 0;
 
+  //OSS Input and Output
+  super->opts.use_oss_input = 0;
+  super->opts.use_oss_output = 0;
+
   //SND Input
   super->opts.use_snd_input = 0;
 
@@ -179,11 +183,14 @@ void init_super (Super * super)
   //end init_m17e_state (Encoder)
 
   //init_wav_state
+  super->wav.wav_out_vx = NULL;
+  super->wav.wav_out_rf = NULL;
   sprintf (super->wav.wav_out_file_rf, "%s", "m17_rf_wav.wav");
   sprintf (super->wav.wav_out_file_vx, "%s", "m17_vx_wav.wav");
   //end init_wav_state
 
   //init snd_src_input snd_src_in
+  super->snd_src_in.audio_in_file = NULL;
   super->snd_src_in.audio_in_file_info = calloc(1, sizeof(SF_INFO));
   super->snd_src_in.audio_in_file_info->samplerate = 48000;
   super->snd_src_in.audio_in_file_info->channels = 1;
