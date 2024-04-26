@@ -17,8 +17,12 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 #include <sys/stat.h>
-#include <sys/ioctl.h> //OSS?
+#include <sys/ioctl.h> //OSS TODO!!
 #include <fcntl.h>
 #include <unistd.h>
 #include <math.h>
@@ -81,6 +85,9 @@ typedef struct
   //STDIN
   uint8_t use_stdin_input;
 
+  //SND Input
+  uint8_t use_snd_input;
+
   //M17 Encoder and Decoder Options
   uint8_t use_m17_str_encoder;
   uint8_t use_m17_pkt_encoder;
@@ -102,11 +109,29 @@ typedef struct
   FILE * float_symbol_out;
 
   //UDP for IP frame output
-  int m17_use_ip;   //if enabled, open UDP and broadcast IP frame
+  uint8_t m17_use_ip;   //if enabled, open UDP and broadcast IP frame
   int m17_portno;   //default is 17000
-  int m17_udp_sock; //actual UDP socket for M17 to send to
+  int m17_udp_sock; //UDP socket for M17 to send to
   char m17_hostname[1024]; //hostname as a string value
   char m17_udp_input[1024]; //string value of combined input field for udp i.e., localhost:17000
+
+  //TCP Audio Source Options
+  uint8_t use_tcp_input; //if enabled, use
+  uint8_t tcp_input_open; //if successfully opened
+  int tcp_input_portno;   //default is 7355
+  int tcp_input_sock; //TCP socket for TCP Audio Source
+  char tcp_input_hostname[1024]; //hostname as a string value
+  char tcp_user_input_str[1024]; //string value of combined input field for udp i.e., localhost:7355
+
+  //RIGCTL Options
+  uint8_t use_rig_remote; //if enabled, use
+  uint8_t rig_remote_open; //if successfully opened
+  int rig_remote_portno;   //default is 4532
+  int rig_remote_sock; //TCP socket for RIGCTL Remote Control
+  char rig_remote_hostname[1024]; //hostname as a string value
+  char rig_remote_input_str[1024]; //string value of combined input field for udp i.e., localhost:4532
+
+  //Other
 
 } config_opts;
 
@@ -206,20 +231,21 @@ typedef struct
 
 } pa_state;
 
-//WAV files with sndfile
+//WAV output files with sndfile
 typedef struct
 {
-
-  SNDFILE *audio_in_file;
-  SF_INFO *audio_in_file_info;
-
   SNDFILE *wav_out_vx;
   SNDFILE *wav_out_rf;
-
   char wav_out_file_rf[1024];
   char wav_out_file_vx[1024];
-
 } wav_state;
+
+//Universal sndfile input (TCP, STDIN, WAV, named PIPE, headerless wav files)
+typedef struct
+{
+  SNDFILE *audio_in_file;
+  SF_INFO *audio_in_file_info;
+} snd_src_input;
 
 //High Pass Filter
 typedef struct
@@ -240,6 +266,7 @@ typedef struct
   m17_encoder_state m17e;
   demod_state demod;
   wav_state wav;
+  snd_src_input snd_src_in;
   HPFilter hpf_d;
   HPFilter hpf_a;
 } Super;
@@ -274,7 +301,7 @@ void pulse_audio_output_rf (Super * super, short * out, size_t nsam);
 void pulse_audio_output_vx (Super * super, short * out, size_t nsam);
 #endif
 
-//libsndfile Wav File Handling
+//sndfile Wav Output File Handling
 void open_wav_out_rf (Super * super);
 void open_wav_out_vx (Super * super);
 void close_wav_out_rf (Super * super);
@@ -282,11 +309,30 @@ void close_wav_out_vx (Super * super);
 void write_wav_out_rf (Super * super, short * out, size_t nsam);
 void write_wav_out_vx (Super * super, short * out, size_t nsam);
 
+//sndfile Input Reading
+short snd_input_read (Super * super);
+
 //UDP IP Related Functions
-int UDPBind (char *hostname, int portno);
+int udp_socket_bind (char *hostname, int portno);
 int m17_socket_blaster (Super * super, size_t nsam, void * data);
 int udp_socket_connectM17 (Super * super);
 int m17_socket_receiver (Super * super, void * data);
+void error(char *msg);
+
+//TCP IP Related Functions
+#define BUFSIZE 1024
+int  tcp_socket_connect (char *hostname, int portno);
+bool tcp_socket_send (int sockfd, char *buf);
+bool tcp_socket_receive (int sockfd, char *buf);
+bool tcp_snd_audio_source_open (Super * super);
+
+//RIGCTL (Remote Control)
+bool rigctl_set_modulation_nfm (int sockfd, int bandwidth);
+bool rigctl_set_modulation_wfm (int sockfd, int bandwidth);
+bool rigctl_set_frequency (int sockfd, long int freq);
+
+//Frequency Tuning Convenience Function
+bool tune_to_frequency (Super * super, long int frequency);
 
 //Audio Input Sample Convenience Function
 short get_short_audio_input_sample (Super * super);
@@ -317,10 +363,10 @@ uint16_t crc16 (const uint8_t *in, const uint16_t len);
 void framesync (Super * super);
 
 //stdin and stdout
-void open_stdout_pipe (Super * super);
+// void open_stdout_pipe (Super * super);
 void write_stdout_pipe (Super * super, short * out, size_t nsam);
-void open_stdin_pipe (Super * super);
-short read_stdin_pipe (Super * super);
+// void open_stdin_pipe (Super * super);
+// short read_stdin_pipe (Super * super);
 
 //Time and Date Functions
 char * getTime();

@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------------
- * net.c
+ * net_udp.c
  * Project M17 - Network Functions for UDP/IP Frame Input and Output
  *
  * LWVMOBILE
@@ -8,18 +8,9 @@
 
 #include "main.h"
 
-//UDP Specific
-#include <arpa/inet.h>
-
 struct sockaddr_in addressM17;
 
-void error(char *msg)
-{
-  perror(msg);
-  exit(0);
-}
-
-int UDPBind (char *hostname, int portno)
+int udp_socket_bind(char *hostname, int portno)
 {
   UNUSED(hostname);
 
@@ -112,4 +103,10 @@ int m17_socket_receiver(Super * super, void * data)
   err = recvfrom(super->opts.m17_udp_sock, data, 1000, 0, (struct sockaddr * ) & addressM17, &len);
 
   return err;
+}
+
+void error(char *msg)
+{
+  perror(msg);
+  exit(0);
 }

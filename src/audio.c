@@ -12,10 +12,10 @@
 short get_short_audio_input_sample (Super * super)
 {
   short sample = 0;
-  int err = 0; UNUSED(err); //will use for TCP, other input methods
-  //STDIN
-  if (super->opts.use_stdin_input == 1)
-    sample = read_stdin_pipe(super);
+  
+  //SNFILE Audio
+  if (super->opts.use_snd_input == 1)
+    sample = snd_input_read(super);
 
   #ifdef USE_PULSEAUDIO
   //PULSE AUDIO (obviously)
@@ -23,14 +23,11 @@ short get_short_audio_input_sample (Super * super)
     sample = pa_input_read(super);
   #endif
 
-  //TOOD: Flesh this out
+  //TOOD: What's left besides OSS
   /*
   
   //OSS
   read (super->opts.audio_in_fd, &sample, 2);
-
-  //TCP (via SF wav input)
-  err = sf_read_short(super->opts.tcp_file_in, &sample, 1);
 
   //??? Others?
 

@@ -25,12 +25,15 @@ void init_super (Super * super)
   super->opts.ncurses_no_history = 0;
 
   //Pulse Audio User Options
-  super->opts.use_pa_input = 1;
+  super->opts.use_pa_input = 0;
   super->opts.use_pa_output_rf = 0;
   super->opts.use_pa_output_vx = 0;
 
   //STDIN
   super->opts.use_stdin_input = 0;
+
+  //SND Input
+  super->opts.use_snd_input = 0;
 
   //M17 Encoder and Decoder Options
   super->opts.use_m17_str_encoder = 0;
@@ -58,6 +61,22 @@ void init_super (Super * super)
   super->opts.m17_udp_sock = 0;
   sprintf (super->opts.m17_hostname, "%s", "127.0.0.1");
   sprintf (super->opts.m17_udp_input, "%s", "");
+
+  //TCP Audio Source Options
+  super->opts.use_tcp_input = 0;
+  super->opts.tcp_input_open = 0;
+  super->opts.tcp_input_portno = 7355;
+  super->opts.tcp_input_sock = 0;
+  sprintf (super->opts.tcp_input_hostname, "%s", "127.0.0.1");
+  sprintf (super->opts.tcp_user_input_str, "%s", "");
+
+  //RIGCTL Options
+  super->opts.use_rig_remote = 0;
+  super->opts.rig_remote_open = 0;
+  super->opts.rig_remote_portno = 4532;
+  super->opts.rig_remote_sock = 0;
+  sprintf (super->opts.rig_remote_hostname, "%s", "127.0.0.1");
+  sprintf (super->opts.rig_remote_input_str, "%s", "");
   //end init_config_opts
 
   //init_pa_state
@@ -163,6 +182,14 @@ void init_super (Super * super)
   sprintf (super->wav.wav_out_file_rf, "%s", "m17_rf_wav.wav");
   sprintf (super->wav.wav_out_file_vx, "%s", "m17_vx_wav.wav");
   //end init_wav_state
+
+  //init snd_src_input snd_src_in
+  super->snd_src_in.audio_in_file_info = calloc(1, sizeof(SF_INFO));
+  super->snd_src_in.audio_in_file_info->samplerate = 48000;
+  super->snd_src_in.audio_in_file_info->channels = 1;
+  super->snd_src_in.audio_in_file_info->seekable = 0;
+  super->snd_src_in.audio_in_file_info->format = SF_FORMAT_RAW|SF_FORMAT_PCM_16|SF_ENDIAN_LITTLE;
+  //end snd_src_input snd_src_in
 
   //HPF Initception
   //TODO: Sort this out

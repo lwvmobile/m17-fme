@@ -28,11 +28,11 @@ void decode_ipf (Super * super)
   //decode with: dsd-fme -fU -i m17:127.0.0.1:17000 -N 2> m17ip.ans
 
   //NOTE: Currently, IP Frame decoding cannot be used with -o udp audio output
-  //its a rare use case, but should be noted, I think udpbind does something to block that functionality
+  //its a rare use case, but should be noted, I think udp_socket_bind does something to block that functionality
 
   //Bind UDP Socket
   int err = 1; //NOTE: err will tell us how many bytes were received, if successful
-  super->opts.m17_udp_sock = UDPBind(super->opts.m17_hostname, super->opts.m17_portno);
+  super->opts.m17_udp_sock = udp_socket_bind(super->opts.m17_hostname, super->opts.m17_portno);
 
   int i, j, k;
 
@@ -57,7 +57,7 @@ void decode_ipf (Super * super)
     //if reading from socket receiver
     if (super->opts.m17_udp_sock) //double check
     {
-      //NOTE: blocking issue resolved with setsockopt in UDPBind
+      //NOTE: blocking issue resolved with setsockopt in udp_socket_bind
 
       //NOTE: Using recvfrom seems to load MSB of array first, 
       //compared to having to push samples through it like with STDIN.
