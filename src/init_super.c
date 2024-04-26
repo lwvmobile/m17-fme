@@ -29,8 +29,9 @@ void init_super (Super * super)
   super->opts.use_pa_output_rf = 0;
   super->opts.use_pa_output_vx = 0;
 
-  //STDIN
+  //STDIN and STDOUT
   super->opts.use_stdin_input = 0;
+  super->opts.use_stdout_output = 0;
 
   //OSS Input and Output
   super->opts.use_oss_input = 0;
@@ -43,6 +44,10 @@ void init_super (Super * super)
 
   //SND Input
   super->opts.use_snd_input = 0;
+
+  //USE WAV OUTPUT
+  super->opts.use_wav_out_rf = 0;
+  super->opts.use_wav_out_vx = 0;
 
   //M17 Encoder and Decoder Options
   super->opts.use_m17_str_encoder = 0;

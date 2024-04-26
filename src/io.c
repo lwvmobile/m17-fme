@@ -53,36 +53,39 @@ void open_audio_input (Super * super)
 void open_audio_output (Super * super)
 {
 
-  //TODO: if-elseif-elseif statements for these
+  //wav and misc output files
+  if (super->opts.use_wav_out_rf == 1)
+    open_wav_out_rf(super);
+  if (super->opts.use_wav_out_vx == 1)
+    open_wav_out_vx(super);
 
-  #ifdef USE_PULSEAUDIO
-  open_pulse_audio_output_rf (super);
-  open_pulse_audio_output_vx (super);
-  #endif
-
-  //TODO: Test Setup OSS Output
-  if (super->opts.use_oss_output == 1)
-  {
-    open_oss_output(super);
-  }
-
-  //open float symbol output file, if needed.
-  if (super->opts.use_float_symbol_output)
+  if (super->opts.use_float_symbol_output == 1)
     super->opts.float_symbol_out = fopen (super->opts.float_symbol_output_file, "w");
 
-  open_wav_out_rf(super);
-  open_wav_out_vx(super);
-  // open_stdout_pipe(&super); //works
+  //TODO: TEST if-elseif-elseif statements for these
+  //TODO: Test Setup OSS Output
+  if (super->opts.use_oss_output == 1)
+    open_oss_output(super);
+
+  else if (super->opts.use_stdout_output == 1)
+    open_stdout_pipe(super);
+
+  #ifdef USE_PULSEAUDIO
+  else //honestly, this else may not really be needed
+  {
+    if (super->opts.use_pa_output_rf == 1)
+      open_pulse_audio_output_rf (super);
+    if (super->opts.use_pa_output_vx == 1)
+      open_pulse_audio_output_vx (super);
+  }
+  #endif
+
 }
 
 void cleanup_and_exit (Super * super)
 {
   // Signal that everything should shutdown.
   exitflag = 1;
-
-  //do things before exiting, like closing open devices, etc
-  // super->opts.a = 0;
-  // sprintf (super->opts.b, "%s", "shutdown");
 
   #ifdef USE_PULSEAUDIO
   if (super->pa.pa_input_is_open)

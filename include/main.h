@@ -82,8 +82,9 @@ typedef struct
   uint8_t use_pa_output_rf;
   uint8_t use_pa_output_vx;
 
-  //STDIN
+  //STDIN and STDOUT
   uint8_t use_stdin_input;
+  uint8_t use_stdout_output;
 
   //OSS Input and Output
   uint8_t use_oss_input;
@@ -95,6 +96,10 @@ typedef struct
 
   //SND Input
   uint8_t use_snd_input;
+
+  //USE WAV OUTPUT
+  uint8_t use_wav_out_rf;
+  uint8_t use_wav_out_vx;
 
   //M17 Encoder and Decoder Options
   uint8_t use_m17_str_encoder;
@@ -382,6 +387,7 @@ uint16_t crc16 (const uint8_t *in, const uint16_t len);
 void framesync (Super * super);
 
 //stdin and stdout
+void open_stdout_pipe(Super * super);
 void write_stdout_pipe (Super * super, short * out, size_t nsam);
 bool stdin_snd_audio_source_open (Super * super);
 

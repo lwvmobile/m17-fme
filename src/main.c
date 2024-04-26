@@ -80,7 +80,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "12345dhimns:v:A:D:F:INM:PS:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "123456dhimns:v:A:D:F:INM:PS:U:VX")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -119,6 +119,13 @@ int main (int argc, char **argv)
       case '5':
         super.opts.use_stdin_input = 1;
         fprintf (stderr, "STDIN SND Audio Input Debug (Default Options). \n");
+        break;
+
+      //connect to PA Server for Pulse Audio Output (RF and VX)
+      case '6':
+        super.opts.use_pa_output_rf = 1;
+        super.opts.use_pa_output_vx = 1;
+        fprintf (stderr, "Pulse Audio Output RF and VX Debug (Default Options). \n");
         break;
         
       // case 'a':

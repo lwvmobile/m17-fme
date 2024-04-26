@@ -182,15 +182,24 @@ void encodeM17RF (Super * super, uint8_t * input, float * mem, int type)
     }
   }
 
-  //Pulse Audio
-  #ifdef USE_PULSEAUDIO
-  if (super->pa.pa_output_rf_is_open == 1)
-    pulse_audio_output_rf(super, baseband, 1920);
-  #endif
-  
-  //STDOUT or OSS 48k/1 (OSS not implemented)
-  if (super->opts.stdout_pipe)
-    write_stdout_pipe(super, baseband, 1920);
+  //TODO: Make this a convenience function?
+  { //this section is an interntional if-elseif-elseif needs own conventience function for this
+
+    //STDOUT (if not internally decoding)
+    if (super->opts.stdout_pipe && super->opts.monitor_encode_internally == 0)
+      write_stdout_pipe(super, baseband, 1920);
+
+    //OSS output
+    else if (super->opts.use_oss_output == 1 && super->opts.monitor_encode_internally == 0)
+      oss_output_write(super, baseband, 1920);
+
+    //Pulse Audio
+    #ifdef USE_PULSEAUDIO
+    else if (super->pa.pa_output_rf_is_open == 1)
+      pulse_audio_output_rf(super, baseband, 1920);
+    #endif
+
+  }
 
   //write to rf wav file
   if (super->wav.wav_out_rf != NULL)
