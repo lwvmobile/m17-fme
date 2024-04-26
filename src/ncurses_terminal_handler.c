@@ -54,21 +54,9 @@ void open_ncurses_terminal ()
 void print_ncurses_terminal(Super * super)
 {
 
-  //assign ptrs to NULL
-  char * timestr  = NULL;
-  char * datestr  = NULL;
-  char * timestrC = NULL;
-  char * datestrH = NULL;
-  char * timestrN = NULL;
-  char * datestrN = NULL;
-
   //assign them with function w/ allocated memory
-  timestr  = getTime();
-  datestr  = getDate();
-  timestrC = getTimeC();
-  datestrH = getDateH();
-  timestrN = getTimeN(time(NULL));
-  datestrN = getDateN((time(NULL)));
+  char * timestr  = getTimeC();
+  char * datestr  = getDateH();
   
   int input_keystroke = 0;
 
@@ -97,9 +85,6 @@ void print_ncurses_terminal(Super * super)
   //test various time / date strings
   printw ("TIME: %s; DATE: %s; ", timestr, datestr);
   printw ("\n");
-  printw ("TIME: %s; DATE: %s; ", timestrC, datestrH);
-  printw ("\n");
-  printw ("TIME: %s; DATE: %s; ", timestrN, datestrN);
 
   //Handle Input Keystrokes
   input_ncurses_terminal(super, input_keystroke);
@@ -117,26 +102,6 @@ void print_ncurses_terminal(Super * super)
   {
     free (datestr);
     datestr = NULL;
-  }
-  if (timestrC != NULL)
-  {
-    free (timestrC);
-    timestrC = NULL;
-  }
-  if (datestrH != NULL)
-  {
-    free (datestrH);
-    datestrH = NULL;
-  }
-  if (timestrN != NULL)
-  {
-    free (timestrN);
-    timestrN = NULL;
-  }
-  if (datestrN != NULL)
-  {
-    free (datestrN);
-    datestrN = NULL;
   }
     
 }
