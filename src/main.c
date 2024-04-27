@@ -333,7 +333,7 @@ int main (int argc, char **argv)
 
   //call a function to run if contextual
   if (super.opts.use_m17_str_decoder == 1)
-    framesync (&super);
+    fsk4_framesync (&super);
 
   if (super.opts.use_m17_pkt_encoder == 1)
     encodeM17PKT(&super);

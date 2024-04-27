@@ -153,7 +153,6 @@ typedef struct
 //Demodulation States
 typedef struct
 {
-  float   float_sample_buffer[65535];
   short   sample_buffer[65535];
   int32_t sample_buffer_ptr;
 
@@ -162,6 +161,21 @@ typedef struct
 
   uint8_t dibit_buffer[65535];
   int32_t dibit_buffer_ptr;
+
+  float   float_symbol_buffer[65535];
+  int32_t float_symbol_buffer_ptr;
+
+  //fsk4
+  int fsk4_samples_per_symbol;
+  int fsk4_symbol_center;
+  int fsk4_jitter;
+  float fsk4_center;
+  float fsk4_min;
+  float fsk4_max;
+  float fsk4_lmid;
+  float fsk4_umid;
+  // float fsk4_minref;
+  // float fsk4_maxref;
 
   uint8_t carrier;
   uint8_t in_sync;
@@ -386,7 +400,13 @@ void Golay_24_12_init ();
 uint16_t crc16 (const uint8_t *in, const uint16_t len);
 
 //demodulation and sync functions
-void framesync (Super * super);
+void fsk4_framesync (Super * super);
+float demodulate_and_return_float_symbol(Super * super);
+uint8_t convert_float_symbol_to_dibit_and_store(Super * super, float float_symbol);
+uint8_t get_dibit (Super * super);
+float push_and_dist (float * last, float symbol);
+float eucl_norm(float* in1, int8_t* in2, uint8_t n);
+uint8_t digitize_symbol_to_dibit (float symbol);
 
 //stdin and stdout
 void open_stdout_pipe(Super * super);

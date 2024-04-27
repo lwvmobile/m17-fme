@@ -126,8 +126,10 @@ void init_super (Super * super)
   super->pa.pa_output_vx_is_open = 0;
   //end init_pa_state
 
-  //init_demod_state -- haven't even started yet, so skipping for now
-  memset (super->demod.float_sample_buffer, 0, 65535*sizeof(short));
+  //init_demod_state
+  memset (super->demod.float_symbol_buffer, 0, 65535*sizeof(short));
+  super->demod.float_symbol_buffer_ptr = 0;
+  
   memset (super->demod.sample_buffer, 0, 65535*sizeof(short));
   super->demod.sample_buffer_ptr = 0;
 
@@ -136,6 +138,17 @@ void init_super (Super * super)
 
   memset (super->demod.dibit_buffer, 0, 65535*sizeof(uint8_t));
   super->demod.dibit_buffer_ptr = 0;
+
+  super->demod.fsk4_samples_per_symbol = 10;
+  super->demod.fsk4_symbol_center = 4;
+  super->demod.fsk4_jitter = 0;
+  super->demod.fsk4_center = 0.0f;
+  super->demod.fsk4_min = 0.0f;
+  super->demod.fsk4_max = 0.0f;
+  super->demod.fsk4_lmid = 0.0f;
+  super->demod.fsk4_umid = 0.0f;
+  // super->demod.fsk4_minref = 0.0f;
+  // super->demod.fsk4_maxref = 0.0f;
 
   super->demod.carrier = 0;
   super->demod.in_sync = 0;
