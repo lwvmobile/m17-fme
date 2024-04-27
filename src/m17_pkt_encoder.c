@@ -9,12 +9,8 @@
 #include "main.h"
 #include "m17.h"
 
-//TODO: Finish up other required functions called within, and also figure out what we want to pass here
-// void encodeM17PKT(Super * super, config_opts * opts, pa_state * pa, wav_state * wav, m17_encoder_state * m17e, m17_decoder_state * m17d)
 void encodeM17PKT(Super * super)
 {
-
-  // UNUSED(m17e);
 
   //quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);

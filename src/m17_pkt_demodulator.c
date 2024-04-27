@@ -107,16 +107,70 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
   uint8_t pkt_packed[26];
   memset (pkt_packed, 0, sizeof(pkt_packed));
 
-  //pack
-  for (i = 0; i < 26; i++)
-    pkt_packed[i] = m_data[i];
+  //pack to local
+  memcpy (pkt_packed, m_data, 26);
+
+  //local variables
+  uint8_t counter = (pkt_packed[25] >> 2) & 0x1F;
+  uint8_t eot = (pkt_packed[25] >> 7) & 1;
+
+  int ptr = super->m17d.pbc_ptr*25;
+  int total = ptr + counter - 1;
+  int end = ptr + 25;
+
+  //debug counter and eot value
+  if (!eot) fprintf (stderr, " CNT: %02d; PBC: %02d; EOT: %d;", super->m17d.pbc_ptr, counter, eot);
+  else fprintf (stderr, " CNT: %02d; LST: %02d; EOT: %d;", super->m17d.pbc_ptr, counter, eot);
+
+  //put packet into storage
+  memcpy (super->m17d.pkt+ptr, pkt_packed, 25);
 
   //individual frame packet
   if (super->opts.payload_verbosity >= 1)
   {
-    fprintf (stderr, "\n PKT: ");
+    fprintf (stderr, "\n pkt: ");
     for (i = 0; i < 26; i++)
       fprintf (stderr, "%02X", pkt_packed[i]);
   }
+
+  //evaluate completed packet if eot bit is signalled in current packet
+  if (eot)
+  {
+    //do a CRC check
+    uint16_t crc_cmp = crc16(super->m17d.pkt, total+1);
+    uint16_t crc_ext = (super->m17d.pkt[total+1] << 8) + super->m17d.pkt[total+2];
+
+    // optimal location?
+    if (crc_cmp != crc_ext)
+      fprintf (stderr, " (CRC ERR) ");
+
+    //decode completed packet
+    if (crc_cmp == crc_ext)
+      decode_pkt_contents(super, super->m17d.pkt, total);
+    else if (super->opts.allow_crc_failure == 1)
+      decode_pkt_contents(super, super->m17d.pkt, total);
+
+    // if (crc_cmp != crc_ext)
+    //   fprintf (stderr, " (CRC ERR) ");
+
+    if (super->opts.payload_verbosity == 1)
+    {
+      fprintf (stderr, "\n PKT:");
+      for (i = 0; i < end; i++)
+      {
+        if ( (i%25) == 0 && i != 0)
+          fprintf (stderr, "\n     ");
+        fprintf (stderr, " %02X", super->m17d.pkt[i]);
+      }
+      fprintf (stderr, "\n      CRC - C: %04X; E: %04X", crc_cmp, crc_ext);
+    }
+
+    //reset after processing
+    memset (super->m17d.pkt, 0, sizeof(super->m17d.pkt));
+    super->m17d.pbc_ptr = 0;
+  }
+
+  //increment pbc counter last
+  if (!eot) super->m17d.pbc_ptr++;
 
 }

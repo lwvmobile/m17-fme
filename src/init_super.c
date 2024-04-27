@@ -172,6 +172,10 @@ void init_super (Super * super)
   
   super->m17d.reflector_module = 0;
 
+  //PKT specific storage and counters
+  memset (super->m17d.pkt, 0, sizeof(super->m17d.pkt));
+  super->m17d.pbc_ptr = 0;
+
   #ifdef USE_CODEC2
   super->m17d.codec2_3200 = codec2_create(CODEC2_MODE_3200);
   super->m17d.codec2_1600 = codec2_create(CODEC2_MODE_1600);

@@ -202,6 +202,10 @@ typedef struct
 
   uint8_t reflector_module;
 
+  //PKT specific storage and counters
+  uint8_t pkt[850]; //bytewise packet
+  uint8_t pbc_ptr; //internal packet block counter
+
   #ifdef USE_CODEC2
   struct CODEC2 *codec2_3200;
   struct CODEC2 *codec2_1600;
