@@ -11,8 +11,11 @@
 
 void fsk4_framesync (Super * super)
 {
+  //sync type
   int type = -1;
-  //TODO: Working, but debug why this doesn't always work when started, may be a jitter or timing issue
+
+  //TODO: Working, will want to look at the min/max based on up-to-date sample levels, etc
+  //decoding falls off when adjusting the volume to less than about 75% or so currently
 
   //quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
@@ -34,19 +37,8 @@ void fsk4_framesync (Super * super)
   while (!exitflag)
   {
 
-    // float dist = 99.0f; //euclidean distance
     float float_symbol = demodulate_and_return_float_symbol(super);
     convert_float_symbol_to_dibit_and_store(super, float_symbol);
-
-    //push the last symbol and look for a frame sync pattern
-    // dist = push_and_dist (last_symbols, float_symbol);
-    // if (dist < 2.0f) //DIST_THRESH
-    // {
-    //   //TODO: Make nicer frame sync print with timestamp and sthit
-    //   fprintf (stderr, "\n M17 Stream Frame Sync: ");
-    //   //Launch into decoder with appropriate type and setup the deocder for get_dibit function
-    //   demod_str(super, NULL, 0);
-    // }
 
     //push the float symbol to the buffer and check for sync patterns
     push_float_buffer(last_symbols, float_symbol);
@@ -68,33 +60,16 @@ void fsk4_framesync (Super * super)
     else if (type == 3)
     {
       fprintf (stderr, "\n M17 PKT Frame Sync: ");
-      // demod_pkt(super, NULL, 0); //TODO: Add this (guess I forgot to)
+      demod_pkt(super, NULL, 0);
     }
-    
+
     type = -1; //reset type
 
   }
 }
 
-float eucl_norm(float * in1, int8_t * in2, uint8_t n)
-{
-  float tmp = 0.0f;
-  for(uint8_t i = 0; i < n; i++)
-    tmp += (in1[i]-(float)in2[i])*(in1[i]-(float)in2[i]);
-  return sqrtf(tmp);
-}
-
-//this will only work for one type of sync pattern, going to break this in two
-float push_and_dist (float * last, float symbol)
-{
-  float dist = 0.0f;
-  for(uint8_t i = 0; i < 7; i++)
-    last[i]=last[i+1];
-  last[7]=symbol;
-  dist = eucl_norm(last, str_sync_symbols, 8);
-  return dist;
-}
-
+//push samples through float buffer that is used to test for sync patterns,
+//if desired, the buffer can be increased to look for longer sync patterns
 void push_float_buffer (float * last, float symbol)
 {
   for(uint8_t i = 0; i < 7; i++)
@@ -147,14 +122,12 @@ float demodulate_and_return_float_symbol(Super * super)
   int i;
   short sample = 0;
   short center_sample = 0;
-  // float float_sum = 0.0f;
   float float_symbol = 0.0f;
 
+  //gather number of samples_per_symbol, and then store the center_sample
   for (i = 0; i < super->demod.fsk4_samples_per_symbol; i++)
   {
     sample = get_short_audio_input_sample(super);
-    // float_sum += (float)sample;
-    //store sample that is at the approximate center value
     if (i == super->demod.fsk4_symbol_center)
       center_sample = sample;
   }
@@ -176,9 +149,10 @@ float demodulate_and_return_float_symbol(Super * super)
   if      (center_sample > super->demod.fsk4_max) super->demod.fsk4_max = center_sample;
   else if (center_sample < super->demod.fsk4_min) super->demod.fsk4_min = center_sample;
 
-  //calculate lower middle and upper middle values based on the min and max TODO: go by actual deviation?
-  super->demod.fsk4_lmid = super->demod.fsk4_min / 1.73f; //root 3, was 2.0f;
-  super->demod.fsk4_umid = super->demod.fsk4_max / 1.73f; //root 3, was 2.0f;
+  //TODO: go by actual deviation, find more accurate values for this?
+  //calculate lower middle and upper middle values based on the min and max
+  super->demod.fsk4_lmid = super->demod.fsk4_min / 2.0f; //root 3, was 2.0f; //1.73f
+  super->demod.fsk4_umid = super->demod.fsk4_max / 2.0f; //root 3, was 2.0f; //1.73f
 
   if (center_sample < super->demod.fsk4_lmid)
     float_symbol = -3.0f;
@@ -220,5 +194,16 @@ uint8_t get_dibit (Super * super)
   float_symbol = demodulate_and_return_float_symbol(super);
   dibit = convert_float_symbol_to_dibit_and_store(super, float_symbol);
   return dibit;
+}
+
+
+//organize some more later, and put credits for things of Woj and L and whoever else
+//based off of lib17 math https://github.com/M17-Project/libm17
+float eucl_norm(float * in1, int8_t * in2, uint8_t n)
+{
+  float tmp = 0.0f;
+  for(uint8_t i = 0; i < n; i++)
+    tmp += (in1[i]-(float)in2[i])*(in1[i]-(float)in2[i]);
+  return sqrtf(tmp);
 }
 

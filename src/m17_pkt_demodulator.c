@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
- * m17_lsf_demodulator.c
- * Project M17 - Link Setup Frame Demodulation and Debug
+ * m17_pkt_demodulator.c
+ * Project M17 - Packet Frame Demodulation and Debug
  *
  * LWVMOBILE
  * 2024-05 Project M17 - Florida Man Edition
@@ -9,13 +9,13 @@
 #include "main.h"
 #include "m17.h"
 
-void demod_lsf(Super * super, uint8_t * input, int debug)
+void demod_pkt(Super * super, uint8_t * input, int debug)
 {
   //quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
   UNUSED(lsf_sync_symbols); UNUSED(str_sync_symbols); UNUSED(pkt_sync_symbols); UNUSED(symbol_levels);
 
-  int i, j, k, x;
+  int i, x;
 
   uint8_t dbuf[384];           //384-bit frame - 16-bit (8 symbol) sync pattern (184 dibits)
   uint8_t m17_int_bits[368];  //368 bits that are still interleaved
@@ -58,53 +58,30 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
     m17_bits[i] = m17_int_bits[x];
   }
 
-  j = 0; k = 0; x = 0;
-
-  // P1 Depuncture
-  for (i = 0; i < 488; i++)
+  //P3 Depuncture
+  x = 0;
+  for (i = 0; i < 420; i++)
   {
-    //assign any puncture as a 0
-    // if (p1[k++] == 1) m17_depunc[x++] = m17_bits[j++];
-    // else m17_depunc[x++] = 0;
-
-
-    //seems to be better if we use the last bit as an educated guess on what the next bit should be
-    //this pseudo logic is based purely on 0xFFFFFFFFFF as Broadcast, and all zeroes as the Meta(IV)
-
-    //DST, or META field
-    if (i < 48 || i > 96)
-    {
-      if (p1[k++] == 1) m17_depunc[x++] = m17_bits[j++];
-      else if (m17_depunc[x-2] == 1) m17_depunc[x++] = 1;
-      else m17_depunc[x++] = 0;
-    }
-    else //any other field
-    {
-      if (p1[k++] == 1) m17_depunc[x++] = m17_bits[j++];
-      else m17_depunc[x++] = 0;
-    }
-
-    
-
-    if (k == 61) k = 0; //61 -- should reset 8 times againt the array
-
+    if (p3[i%8] == 1)
+      m17_depunc[i] = m17_bits[x++];
+    else m17_depunc[i] = 0;
   }
 
   //setup the convolutional decoder
   uint8_t temp[500];
   uint8_t s0;
   uint8_t s1;
-  uint8_t m_data[32];
+  uint8_t m_data[27];
   uint8_t trellis_buf[260]; //30*8 = 240
   memset (trellis_buf, 0, sizeof(trellis_buf));
   memset (temp, 0, sizeof (temp));
   memset (m_data, 0, sizeof (m_data));
 
-  for (i = 0; i < 488; i++)
+  for (i = 0; i < 420; i++) //double check and test value here
     temp[i] = m17_depunc[i] << 1; 
 
   convolution_start();
-  for (i = 0; i < 244; i++)
+  for (i = 0; i < 210; i++) //double check and test value here
   {
     s0 = temp[(2*i)];
     s1 = temp[(2*i)+1];
@@ -112,10 +89,10 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
     convolution_decode(s0, s1);
   }
 
-  convolution_chainback(m_data, 240);
+  convolution_chainback(m_data, 206); //double check and test value here
 
   //244/8 = 30, last 4 (244-248) are trailing zeroes
-  for(i = 0; i < 30; i++)
+  for(i = 0; i < 26; i++)
   {
     trellis_buf[(i*8)+0] = (m_data[i] >> 7) & 1;
     trellis_buf[(i*8)+1] = (m_data[i] >> 6) & 1;
@@ -127,38 +104,19 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
     trellis_buf[(i*8)+7] = (m_data[i] >> 0) & 1;
   }
 
-  memset (super->m17d.lsf, 0, sizeof(super->m17d.lsf));
-  memcpy (super->m17d.lsf, trellis_buf, 240);
+  uint8_t pkt_packed[26];
+  memset (pkt_packed, 0, sizeof(pkt_packed));
 
-  uint8_t lsf_packed[30];
-  memset (lsf_packed, 0, sizeof(lsf_packed));
+  //pack
+  for (i = 0; i < 26; i++)
+    pkt_packed[i] = m_data[i];
 
-  //need to pack bytes for the sw5wwp variant of the crc (might as well, may be useful in the future)
-  for (i = 0; i < 30; i++)
-    lsf_packed[i] = (uint8_t)ConvertBitIntoBytes(&super->m17d.lsf[i*8], 8);
-
-  uint16_t crc_cmp = crc16(lsf_packed, 28);
-  uint16_t crc_ext = (uint16_t)ConvertBitIntoBytes(&super->m17d.lsf[224], 16);
-  int crc_err = 0;
-
-  if (crc_cmp != crc_ext) crc_err = 1;
-
-  if (crc_err == 0)
-    decode_lsf_contents(super);
-  else if (super->opts.allow_crc_failure == 1)
-    decode_lsf_contents(super);
-
+  //individual frame packet
   if (super->opts.payload_verbosity >= 1)
   {
-    fprintf (stderr, "\n LSF: ");
-    for (i = 0; i < 30; i++)
-    {
-      if (i == 15) fprintf (stderr, "\n      ");
-      fprintf (stderr, "[%02X]", lsf_packed[i]);
-    }
-    fprintf (stderr, " (CRC CHK) E: %04X; C: %04X;", crc_ext, crc_cmp);
+    fprintf (stderr, "\n PKT: ");
+    for (i = 0; i < 26; i++)
+      fprintf (stderr, "%02X", pkt_packed[i]);
   }
-
-  if (crc_err == 1) fprintf (stderr, " CRC ERR");
 
 }

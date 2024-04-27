@@ -400,18 +400,19 @@ void Golay_24_12_init ();
 uint16_t crc16 (const uint8_t *in, const uint16_t len);
 
 //demodulation and sync functions
-void fsk4_framesync (Super * super);
-float demodulate_and_return_float_symbol(Super * super);
-uint8_t convert_float_symbol_to_dibit_and_store(Super * super, float float_symbol);
-uint8_t get_dibit (Super * super);
-float push_and_dist (float * last, float symbol);
-void push_float_buffer (float * last, float symbol);
-int dist_and_sync(float * last);
-float eucl_norm(float* in1, int8_t* in2, uint8_t n);
+void    fsk4_framesync (Super * super);
+float   demodulate_and_return_float_symbol (Super * super);
+uint8_t convert_float_symbol_to_dibit_and_store (Super * super, float float_symbol);
 uint8_t digitize_symbol_to_dibit (float symbol);
+uint8_t get_dibit (Super * super);
+
+//based off of lib17 math https://github.com/M17-Project/libm17
+float   eucl_norm (float* in1, int8_t* in2, uint8_t n);
+void    push_float_buffer (float * last, float symbol);
+int     dist_and_sync (float * last);
 
 //stdin and stdout
-void open_stdout_pipe(Super * super);
+void open_stdout_pipe (Super * super);
 void write_stdout_pipe (Super * super, short * out, size_t nsam);
 bool stdin_snd_audio_source_open (Super * super);
 
@@ -439,6 +440,7 @@ void decode_str_payload (Super * super, uint8_t * payload, uint8_t type);
 
 //M17 Frame Demodulators
 void demod_lsf (Super * super, uint8_t * input, int debug);
+void demod_pkt (Super * super, uint8_t * input, int debug);
 void demod_str (Super * super, uint8_t * input, int debug);
 void prepare_str (Super * super, uint8_t * input);
 void decode_ipf (Super * super);
