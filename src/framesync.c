@@ -97,11 +97,26 @@ float demodulate_and_return_float_symbol(Super * super)
       center_sample = sample;
   }
 
-  //simple straight-forward approach -- TODO: calculate max and min based on the storage buffer or subset of it
-  if (center_sample > super->demod.fsk4_max) super->demod.fsk4_max = center_sample;
+  //calculate max and min based on lastest values of the float buffer (WIP)
+  // float buffer_max, buffer_min, buffer_value = 0.0f;
+  // for (i = 0; i < 192; i++)
+  // {
+  //   buffer_value = super->demod.sample_buffer[(super->demod.sample_buffer_ptr-i)%65535];
+  //   if      (buffer_value > buffer_max) buffer_max = buffer_value;
+  //   else if (buffer_value < buffer_min) buffer_min = buffer_value;
+  // }
+
+  // super->demod.fsk4_max = buffer_max;
+  // super->demod.fsk4_min = buffer_min;
+  //end max and min float buffer calculation
+
+  //simple straight-forward approach
+  if      (center_sample > super->demod.fsk4_max) super->demod.fsk4_max = center_sample;
   else if (center_sample < super->demod.fsk4_min) super->demod.fsk4_min = center_sample;
-  super->demod.fsk4_lmid = super->demod.fsk4_min / 2;
-  super->demod.fsk4_umid = super->demod.fsk4_max / 2;
+
+  //calculate lower middle and upper middle values based on the min and max TODO: go by actual deviation?
+  super->demod.fsk4_lmid = super->demod.fsk4_min / 1.73f; //root 3, was 2.0f;
+  super->demod.fsk4_umid = super->demod.fsk4_max / 1.73f; //root 3, was 2.0f;
 
   if (center_sample < super->demod.fsk4_lmid)
     float_symbol = -3.0f;
