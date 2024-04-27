@@ -405,6 +405,8 @@ float demodulate_and_return_float_symbol(Super * super);
 uint8_t convert_float_symbol_to_dibit_and_store(Super * super, float float_symbol);
 uint8_t get_dibit (Super * super);
 float push_and_dist (float * last, float symbol);
+void push_float_buffer (float * last, float symbol);
+int dist_and_sync(float * last);
 float eucl_norm(float* in1, int8_t* in2, uint8_t n);
 uint8_t digitize_symbol_to_dibit (float symbol);
 

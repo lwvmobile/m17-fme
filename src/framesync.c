@@ -11,7 +11,7 @@
 
 void fsk4_framesync (Super * super)
 {
-
+  int type = -1;
   //TODO: Working, but debug why this doesn't always work when started, may be a jitter or timing issue
 
   //quell defined but not used warnings from m17.h
@@ -34,19 +34,44 @@ void fsk4_framesync (Super * super)
   while (!exitflag)
   {
 
-    float dist = 99.0f; //euclidean distance
+    // float dist = 99.0f; //euclidean distance
     float float_symbol = demodulate_and_return_float_symbol(super);
     convert_float_symbol_to_dibit_and_store(super, float_symbol);
 
     //push the last symbol and look for a frame sync pattern
-    dist = push_and_dist (last_symbols, float_symbol);
-    if (dist < 2.0f) //DIST_THRESH
+    // dist = push_and_dist (last_symbols, float_symbol);
+    // if (dist < 2.0f) //DIST_THRESH
+    // {
+    //   //TODO: Make nicer frame sync print with timestamp and sthit
+    //   fprintf (stderr, "\n M17 Stream Frame Sync: ");
+    //   //Launch into decoder with appropriate type and setup the deocder for get_dibit function
+    //   demod_str(super, NULL, 0);
+    // }
+
+    //push the float symbol to the buffer and check for sync patterns
+    push_float_buffer(last_symbols, float_symbol);
+    type = dist_and_sync(last_symbols);
+
+    //TODO, if not -1, then enumerate a printframe string and return appropriate function
+    if (type == 1)
     {
-      //TODO: Make nicer frame sync print with timestamp and sthit
-      fprintf (stderr, "\n M17 Stream Frame Sync: ");
-      //Launch into decoder with appropriate type and setup the deocder for get_dibit function
+      fprintf (stderr, "\n M17 LSF Frame Sync: ");
+      demod_lsf(super, NULL, 0);
+    }
+
+    else if (type == 2)
+    {
+      fprintf (stderr, "\n M17 STR Frame Sync: ");
       demod_str(super, NULL, 0);
     }
+
+    else if (type == 3)
+    {
+      fprintf (stderr, "\n M17 PKT Frame Sync: ");
+      // demod_pkt(super, NULL, 0); //TODO: Add this (guess I forgot to)
+    }
+    
+    type = -1; //reset type
 
   }
 }
@@ -59,6 +84,7 @@ float eucl_norm(float * in1, int8_t * in2, uint8_t n)
   return sqrtf(tmp);
 }
 
+//this will only work for one type of sync pattern, going to break this in two
 float push_and_dist (float * last, float symbol)
 {
   float dist = 0.0f;
@@ -67,6 +93,42 @@ float push_and_dist (float * last, float symbol)
   last[7]=symbol;
   dist = eucl_norm(last, str_sync_symbols, 8);
   return dist;
+}
+
+void push_float_buffer (float * last, float symbol)
+{
+  for(uint8_t i = 0; i < 7; i++)
+    last[i]=last[i+1];
+  last[7]=symbol;
+}
+
+//test Euclidean Distance on Multiple Frame Sync Types, Return Value is Frame Sync Type (LSF, STR, PKT, BRT)
+int dist_and_sync(float * last)
+{
+
+  float dist = 99.0f; //euclidean distance
+
+  //LSF
+  dist = eucl_norm(last, lsf_sync_symbols, 8);
+  if (dist < 2.0f) return 1;
+  dist = 99.0f; //reset
+
+  //STR
+  dist = eucl_norm(last, str_sync_symbols, 8);
+  if (dist < 2.0f) return 2;
+  dist = 99.0f; //reset
+
+  //PKT
+  dist = eucl_norm(last, pkt_sync_symbols, 8);
+  if (dist < 2.0f) return 3;
+  dist = 99.0f; //reset
+
+  //BRT
+  // dist = eucl_norm(last, brt_sync_symbols, 8); //need to add syncword for brt
+  // if (dist < 2.0f) return 4;
+  // dist = 99.0f; //reset
+
+  return -1;
 }
 
 uint8_t digitize_symbol_to_dibit (float symbol)
@@ -97,7 +159,7 @@ float demodulate_and_return_float_symbol(Super * super)
       center_sample = sample;
   }
 
-  //calculate max and min based on lastest values of the float buffer (WIP)
+  //calculate max and min based on lastest values of the sample buffer (WIP)
   // float buffer_max, buffer_min, buffer_value = 0.0f;
   // for (i = 0; i < 192; i++)
   // {
@@ -150,7 +212,7 @@ uint8_t convert_float_symbol_to_dibit_and_store(Super * super, float float_symbo
   return dibit;
 }
 
-//convenience wrapper function for easy transition
+//convenience wrapper function for easy transition from old code to new code
 uint8_t get_dibit (Super * super)
 {
   uint8_t dibit = 0;

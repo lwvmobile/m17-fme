@@ -34,8 +34,8 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
   if (debug == 0)
   {
     //load dibits into dibit buffer
-    // for (i = 0; i < 184; i++)
-    //   dbuf[i] = (uint8_t) getDibit(opts, state);
+    for (i = 0; i < 184; i++)
+      dbuf[i] = get_dibit(super);
 
     //convert dbuf into a bit array
     for (i = 0; i < 184; i++)
