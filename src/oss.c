@@ -12,7 +12,7 @@ void open_oss_output (Super * super)
 {
   
   int fmt; 
-  int speed = 48000;
+  int speed = super->opts.output_sample_rate ;
 
   super->opts.oss_output_device = open (super->opts.oss_output_dev_str, O_RDWR);
   if (super->opts.oss_output_device == -1)
@@ -52,7 +52,7 @@ void open_oss_input (Super * super)
 {
   
   int fmt; 
-  int speed = 48000;
+  int speed = super->opts.input_sample_rate ;
 
   super->opts.oss_input_device = open (super->opts.oss_input_dev_str, O_RDWR);
   if (super->opts.oss_input_device == -1)

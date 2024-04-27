@@ -73,8 +73,7 @@ void encodeM17STR(Super * super)
   int i, j, k, x;    //basic utility counters
   short sample = 0;  //individual audio sample from source
   size_t nsam = 160; //number of samples to be read in (default is 160 samples for codec2 3200 bps)
-  // int dec = super->m17d.rate / 8000; //number of samples to run before selecting a sample from source input
-  int dec = 6; //run 6 samples, we are using 48000 input rate
+  int dec = super->opts.input_sample_rate / 8000; //number of samples to run before selecting a sample from source input
   int sql_hit = 11; //squelch hits, hit enough, and deactivate vox
   int eot_out =  1; //if we have already sent the eot out once
 

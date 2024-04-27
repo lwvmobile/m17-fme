@@ -11,7 +11,7 @@
 void open_wav_out_rf (Super * super)
 {
   SF_INFO info;
-  info.samplerate = 48000;
+  info.samplerate = super->opts.output_sample_rate;
   info.channels = 1;
   info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16 | SF_ENDIAN_LITTLE;
   super->wav.wav_out_rf = sf_open (super->wav.wav_out_file_rf, SFM_WRITE, &info);
@@ -26,7 +26,7 @@ void open_wav_out_rf (Super * super)
 void open_wav_out_vx (Super * super)
 {
   SF_INFO info;
-  info.samplerate = 48000;
+  info.samplerate = super->opts.output_sample_rate;
   info.channels = 1;
   info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16 | SF_ENDIAN_LITTLE;
   super->wav.wav_out_vx = sf_open (super->wav.wav_out_file_vx, SFM_WRITE, &info);

@@ -64,6 +64,8 @@ void init_super (Super * super)
   super->opts.monitor_encode_internally = 0;
   super->opts.allow_crc_failure = 0; //allow decode attempts, even if CRC16 fails checksum
   super->opts.use_hpfilter_dig = 1;
+  super->opts.input_sample_rate = 48000;   //TODO: Make a function that reconfigures this and anythign that is set from this
+  super->opts.output_sample_rate = 48000;  //TODO: Make a function that reconfigures this and anythign that is set from this
   super->opts.stdout_pipe = 0;
   super->opts.use_float_symbol_output = 0;
   sprintf (super->opts.float_symbol_output_file, "m17_float_symbol_out.sym");
@@ -97,15 +99,15 @@ void init_super (Super * super)
   #ifdef USE_PULSEAUDIO
   super->pa.input.format = PA_SAMPLE_S16NE;
   super->pa.input.channels = 1;
-  super->pa.input.rate = 48000;
+  super->pa.input.rate = super->opts.input_sample_rate;
 
   super->pa.output_rf.format = PA_SAMPLE_S16NE;
   super->pa.output_rf.channels = 1;
-  super->pa.output_rf.rate = 48000;
+  super->pa.output_rf.rate = super->opts.output_sample_rate;
 
   super->pa.output_vx.format = PA_SAMPLE_S16NE;
   super->pa.output_vx.channels = 1;
-  super->pa.output_vx.rate = 48000;
+  super->pa.output_vx.rate = super->opts.output_sample_rate;
 
   super->pa.inputlt.fragsize = 960*5;
   super->pa.inputlt.maxlength = -1;
@@ -202,7 +204,7 @@ void init_super (Super * super)
   //init snd_src_input snd_src_in
   super->snd_src_in.audio_in_file = NULL;
   super->snd_src_in.audio_in_file_info = calloc(1, sizeof(SF_INFO));
-  super->snd_src_in.audio_in_file_info->samplerate = 48000;
+  super->snd_src_in.audio_in_file_info->samplerate = super->opts.input_sample_rate;
   super->snd_src_in.audio_in_file_info->channels = 1;
   super->snd_src_in.audio_in_file_info->seekable = 0;
   super->snd_src_in.audio_in_file_info->format = SF_FORMAT_RAW|SF_FORMAT_PCM_16|SF_ENDIAN_LITTLE;
@@ -213,8 +215,8 @@ void init_super (Super * super)
   //do I have these backwards in DSD-FME, just going to set them up as it is there for now
   // HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
   // HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
-  HPFilter_Init (&super->hpf_d, 960, (float)1/(float)48000);
-  HPFilter_Init (&super->hpf_a, 960, (float)1/(float)48000);
+  HPFilter_Init (&super->hpf_d, 960, (float)1/(float)super->opts.input_sample_rate);
+  HPFilter_Init (&super->hpf_a, 960, (float)1/(float)super->opts.input_sample_rate);
   //end HPF Init
   
 }
