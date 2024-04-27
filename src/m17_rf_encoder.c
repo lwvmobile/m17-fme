@@ -16,6 +16,7 @@ void encodeM17RF (Super * super, uint8_t * input, float * mem, int type)
 
   //quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
+  UNUSED(lsf_sync_symbols); UNUSED(str_sync_symbols); UNUSED(pkt_sync_symbols); UNUSED(symbol_levels);
 
   //NOTE: type numbers as following:
   //Single Digit numbers 1,2,3,4 are LSF, STR, BRT, and PKT

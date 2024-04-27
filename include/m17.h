@@ -7,15 +7,13 @@
  * 2024-05 Project M17 - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
-//NOTE: I swear, if this comes back to bite me in the ass with some compilers or something, just undo
-//this entire commit and rebase or something.
-
 //Project M17 Frame Sync Patterns
 #define LSF_SYNC_BURST 0x55F7
 #define BRT_SYNC_BURST 0xDF55
 #define STR_SYNC_BURST 0xFF5D
 #define PKT_SYNC_BURST 0x75FF
 
+//Base40 Call Sign Data Character Set
 static char b40[] = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.";
 
 //scramble / randomization bit array
@@ -59,7 +57,8 @@ static uint8_t p3[62] = {1, 1, 1, 1, 1, 1, 1, 0};
 //dibits-symbols map
 static int8_t symbol_map[4] = {+1, +3, -1, -3};
 
-//raised root cosine filtering
+//sample RRC filter for 48kHz sample rate
+//alpha=0.5, span=8, sps=10, gain=sqrt(sps)
 static float m17_rrc[81] =
 {
 	-0.003195702904062073f, -0.002930279157647190f, -0.001940667871554463f,
@@ -90,3 +89,11 @@ static float m17_rrc[81] =
 	 0.003389554791179751f,  0.001547011339077758f, -0.000356087678023658f,
 	-0.001940667871554463f, -0.002930279157647190f, -0.003195702904062073f
 };
+
+// syncword patterns (RX) as symbols
+static int8_t lsf_sync_symbols[8]={+3, +3, +3, +3, -3, -3, +3, -3};
+static int8_t str_sync_symbols[8]={-3, -3, -3, -3, +3, +3, -3, +3};
+static int8_t pkt_sync_symbols[8]={+3, -3, +3, +3, -3, -3, -3, -3};
+
+// symbol levels (RX) as float values
+static float symbol_levels[4]={-3.0, -1.0, +1.0, +3.0};
