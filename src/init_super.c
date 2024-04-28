@@ -144,7 +144,6 @@ void init_super (Super * super)
   super->demod.fsk4_lmid = 0.0f;
   super->demod.fsk4_umid = 0.0f;
 
-  super->demod.carrier = 0;
   super->demod.in_sync = 0;
   super->demod.current_time = time(NULL);
 

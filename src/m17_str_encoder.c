@@ -569,8 +569,7 @@ void encodeM17STR(Super * super)
     //decode stream with the M17STR_debug
     if (super->m17e.str_encoder_tx == 1) //when toggled on
     {
-      //Enable Carrier, synctype, etc
-      super->demod.carrier = 1;
+      //Enable sync
       super->demod.in_sync = 1;
 
       //send LSF frame once, if new encode session
@@ -696,7 +695,7 @@ void encodeM17STR(Super * super)
 
     } //end if (super->m17d.strencoder_tx)
 
-    else //if not tx, reset values, drop carrier and sync
+    else //if not tx, reset values, drop sync
     {
 
       //Send last IP Frame with EOT, pack this before resetting
@@ -753,7 +752,6 @@ void encodeM17STR(Super * super)
       //reset 
       lich_cnt = 0;
       fsn = 0;
-      super->demod.carrier = 0;
       super->demod.in_sync = 0;
 
       //update timestamp

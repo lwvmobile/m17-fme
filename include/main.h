@@ -171,7 +171,7 @@ typedef struct
   float fsk4_lmid;
   float fsk4_umid;
 
-  uint8_t carrier;
+  //sync and time
   uint8_t in_sync;
   time_t current_time;
 
