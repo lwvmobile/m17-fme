@@ -174,8 +174,6 @@ typedef struct
   float fsk4_max;
   float fsk4_lmid;
   float fsk4_umid;
-  // float fsk4_minref;
-  // float fsk4_maxref;
 
   uint8_t carrier;
   uint8_t in_sync;
@@ -410,6 +408,7 @@ void    fsk4_framesync (Super * super);
 float   demodulate_and_return_float_symbol (Super * super);
 void    simple_refresh_min_max_center (Super * super, float sample);
 void    complex_refresh_min_max_center (Super * super);
+void    no_carrier_sync (Super * super);
 
 //slice and dice symbols and dibits
 uint8_t convert_float_symbol_to_dibit_and_store (Super * super, float float_symbol);

@@ -14,17 +14,14 @@ void fsk4_framesync (Super * super)
   //sync type
   int type = -1;
 
-  //quell defined but not used warnings from m17.h
-  UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
-  UNUSED(lsf_sync_symbols); UNUSED(str_sync_symbols); UNUSED(pkt_sync_symbols); UNUSED(symbol_levels);
-
   //safety init on the ptrs
   super->demod.sample_buffer_ptr = 0;
   super->demod.symbol_buffer_ptr = 0;
   super->demod.dibit_buffer_ptr  = 0;
   super->demod.float_symbol_buffer_ptr = 0;
 
-  super->demod.fsk4_samples_per_symbol = 10; //set to input rate / system's bps rate (48000/4800 on M17 is 10)
+  //set to input rate / system's bps rate (48000/4800 on M17 is 10)
+  super->demod.fsk4_samples_per_symbol = 10;
   super->demod.fsk4_symbol_center = 4;
 
   //this is the buffer to check for frame sync using the euclidean distance norm
@@ -41,16 +38,15 @@ void fsk4_framesync (Super * super)
     push_float_buffer(last_symbols, float_symbol);
     type = dist_and_sync(last_symbols);
 
-    if (super->opts.payload_verbosity)
-      print_debug_information(super);
+    // if (super->opts.payload_verbosity) //MOVE THIS OUTSIDE OF THE LOOP TOO
+    //   print_debug_information(super);
 
-    //update sync time
+    //print sync information and update
     if (type != -1)
-      super->demod.sync_time = time(NULL);
-
-    //print framesync pattern
-    if (type != -1)
+    {
       print_frame_sync_pattern(type);
+      super->demod.in_sync = 1;
+    } 
 
     //execute on sync types
     if (type == 1)
@@ -67,6 +63,12 @@ void fsk4_framesync (Super * super)
 
     //reset type
     type = -1;
+
+    //no carrier reset -- this function causes lag -- time(NULL) at fault? MOVE OUTSIDE OF the WHILE LOOP, make while loop a different loopy loop
+    // if (  ((time(NULL) - super->demod.sync_time) > 1) && super->demod.in_sync == 1)
+    //   no_carrier_sync(super);
+
+    // time(NULL) // this causes lag, latency issues
 
   }
 }
@@ -174,7 +176,7 @@ void complex_refresh_min_max_center (Super * super)
 
   //calculate center, max, and min based on lastest values of the sample buffer (WIP)
   float buffer_max, buffer_min, buffer_value = 0.0f;
-  for (i = 0; i < 192*10; i++) //tweak this value? or something else?
+  for (i = 0; i < 192; i++) //tweak this value? or something else?
   {
     buffer_value = super->demod.sample_buffer[(super->demod.sample_buffer_ptr-i)%65535];
     if      (buffer_value > buffer_max) buffer_max = buffer_value;
@@ -188,6 +190,23 @@ void complex_refresh_min_max_center (Super * super)
   super->demod.fsk4_umid = buffer_max / 2.0f;
   super->demod.fsk4_center = (fabs(buffer_max) - fabs(buffer_min)) / 2.0f;
   //end max and min float buffer calculation
+}
+
+//reset values when no carrier
+void no_carrier_sync (Super * super)
+{
+  //reset some demodulator states
+  print_frame_sync_pattern(-1);
+  super->demod.fsk4_min    = 0.0f;
+  super->demod.fsk4_max    = 0.0f;
+  super->demod.fsk4_lmid   = 0.0f;
+  super->demod.fsk4_umid   = 0.0f;
+  super->demod.fsk4_center = 0.0f;
+  super->demod.in_sync     = 0;
+  // super->demod.sync_time = time(NULL);
+
+  //TODO: reset some decoder states
+
 }
 
 void simple_refresh_min_max_center (Super * super, float sample)
@@ -254,10 +273,10 @@ char * get_sync_type_string(int type)
   else if (type == 4)
     return "BRT";
   else
-    return "";
+    return " No";
 }
 
-//high level debug infomation dumps
+//high level debug infomation dumps -- THSS FUNCTION ALSO LAGS, HAS ISSUES WITH PRITNING VALUES, WHY???
 void print_debug_information(Super * super)
 {
   if (super->opts.payload_verbosity > 3)
@@ -266,36 +285,23 @@ void print_debug_information(Super * super)
       super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, 
       super->demod.fsk4_umid, super->demod.fsk4_center);
   }
-
 }
 
-//TODO: Fix datestr bs, or cleanup later
+//TODO: Okay, some time(NULL) lags INSIDE of the while loop, so move it out of the while loop
+//this is similar to an OLD issue on DSD-FME where running ncurses inside the framesync loop lagged
 void print_frame_sync_pattern(int type)
 {
-  // char * datestr = getDateH(); //THIS causes issues, like an overflow, or slows down the function too much
-  char * timestr = getTimeC();
+
   char * syncstr = get_sync_type_string(type);
-
   fprintf (stderr, "\n");
-  // fprintf (stderr, "(%s.%s) ", datestr, timestr);
-  // fprintf (stderr, "%s. ", datestr);
-  // fprintf (stderr, "%s ", timestr);
-
-  // fprintf (stderr, "M17 %s Frame Sync: ", syncstr);
-  fprintf (stderr, "M17 %s Frame Sync (%s): ", syncstr, timestr);
-
-  //free allocated memory and NULL the PTR
-  // if (datestr != NULL)
-  // {
-  //   free (datestr);
-  //   datestr = NULL;
-  // }
-
-  if (timestr != NULL)
-  {
-    free (timestr);
-    timestr = NULL;
-  }
+  fprintf (stderr, "M17 %s Frame Sync: ", syncstr);
+  // fprintf (stderr, "M17 %s Frame Sync (%s): ", syncstr, timestr);
 
 }
 
+void stfu2 ()
+{
+  //quell defined but not used warnings from m17.h
+  UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
+  UNUSED(lsf_sync_symbols); UNUSED(str_sync_symbols); UNUSED(pkt_sync_symbols); UNUSED(symbol_levels);
+}

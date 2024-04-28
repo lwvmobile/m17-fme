@@ -93,7 +93,7 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
 
     if (crc_err == 0)
       decode_lsf_contents(super);
-    else if (super->opts.allow_crc_failure == 0)
+    else if (super->opts.allow_crc_failure == 1)
       decode_lsf_contents(super);
 
     if (super->opts.payload_verbosity >= 1)

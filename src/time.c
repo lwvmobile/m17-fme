@@ -8,6 +8,8 @@
 
 #include "main.h"
 
+//WARNING: time(NULL) is an expensive lag causing call when we need low latency (unknown reason)
+
 //get HHmmss timestamp no colon (file operations)
 char * getTime()
 {

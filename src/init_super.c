@@ -147,8 +147,6 @@ void init_super (Super * super)
   super->demod.fsk4_max = 0.0f;
   super->demod.fsk4_lmid = 0.0f;
   super->demod.fsk4_umid = 0.0f;
-  // super->demod.fsk4_minref = 0.0f;
-  // super->demod.fsk4_maxref = 0.0f;
 
   super->demod.carrier = 0;
   super->demod.in_sync = 0;
