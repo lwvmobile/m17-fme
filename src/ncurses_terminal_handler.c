@@ -88,6 +88,7 @@ void print_ncurses_terminal(Super * super)
 
   //test various time / date strings
   printw ("TIME: %s; DATE: %s; ", timestr, datestr);
+  printw ("In Level: %2.1f", super->demod.input_level);
   printw ("\n");
 
   //Handle Input Keystrokes

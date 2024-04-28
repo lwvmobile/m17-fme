@@ -173,10 +173,12 @@ typedef struct
 
   //sync and time
   uint8_t in_sync;
+  time_t sync_time;
   time_t current_time;
 
   long int input_sql;
   long int input_rms;
+  float input_level;
 
 } demod_state;
 

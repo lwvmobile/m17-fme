@@ -18,7 +18,7 @@ void fsk4_framesync (Super * super)
   float last_symbols[8]; memset (last_symbols, 0.0f, sizeof(last_symbols));
 
   //look for frame synchronization
-  for (int i = 0; i < 192*50; i++) //optimal loop value (lower or higher?)
+  for (int i = 0; i < 192*10; i++)
   {
 
     //check exitflag
@@ -155,13 +155,13 @@ float float_symbol_slicer(Super * super, short sample)
 void complex_refresh_min_max_center (Super * super)
 {
 
-  //TODO: Only make buffers as large as they need to be, tweak for loop len?
+  //NOTE: Leaving Buffers at Max Sizes as a safety, but may still be able to lower it later on
 
   int i = 0;
 
   //calculate center, max, and min based on lastest values of the sample buffer (WIP)
   float buffer_max, buffer_min, buffer_value = 0.0f;
-  for (i = 0; i < 192; i++) //tweak this value? or something else?
+  for (i = 0; i < 192; i++)
   {
     buffer_value = super->demod.sample_buffer[(super->demod.sample_buffer_ptr-i)%65535];
     if      (buffer_value > buffer_max) buffer_max = buffer_value;
@@ -174,6 +174,9 @@ void complex_refresh_min_max_center (Super * super)
   super->demod.fsk4_lmid = buffer_min / 2.0f;
   super->demod.fsk4_umid = buffer_max / 2.0f;
   super->demod.fsk4_center = (fabs(buffer_max) - fabs(buffer_min)) / 2.0f;
+
+  //in level value (cheat and just use max and not the fabs of min and average them)
+  super->demod.input_level = (super->demod.fsk4_max / 32767.0f) * 100.0f;
   //end max and min float buffer calculation
 }
 
@@ -188,6 +191,17 @@ void no_carrier_sync (Super * super)
   super->demod.fsk4_umid   = 0.0f;
   super->demod.fsk4_center = 0.0f;
   super->demod.in_sync     = 0;
+  // super->demod.input_level = 0.0f;
+
+  //reset buffers here
+  memset (super->demod.float_symbol_buffer, 0, 65535*sizeof(short));
+  super->demod.float_symbol_buffer_ptr = 192;
+  
+  memset (super->demod.sample_buffer, 0, 65535*sizeof(short));
+  super->demod.sample_buffer_ptr = 192;
+
+  memset (super->demod.dibit_buffer, 0, 65535*sizeof(uint8_t));
+  super->demod.dibit_buffer_ptr = 192;
 
   //TODO: reset some decoder states
 
@@ -276,7 +290,8 @@ void print_frame_sync_pattern(Super * super, int type)
   char * timestr = getTimeN(super->demod.current_time);
   char * syncstr = get_sync_type_string(type);
   fprintf (stderr, "\n");
-  // fprintf (stderr, "M17 %s Frame Sync: ", syncstr); //keep just in case
+  if (super->opts.payload_verbosity > 1)
+    fprintf (stderr, "INLVL: %2.1f; ", super->demod.input_level);
   fprintf (stderr, "M17 %s Frame Sync (%s): ", syncstr, timestr);
   free (timestr); timestr = NULL;
 }

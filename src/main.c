@@ -330,17 +330,9 @@ int main (int argc, char **argv)
     fprintf (stderr, "DST: %s; ", super.m17e.dsts);
   }
 
-  //call a function to run if contextual
+  //demodulate, frame sync, and decode OTA RF Audio
   if (super.opts.use_m17_rfa_decoder == 1)
   {
-    //safety init on the ptrs
-    super.demod.sample_buffer_ptr = 0;
-    super.demod.dibit_buffer_ptr  = 0;
-    super.demod.float_symbol_buffer_ptr = 0;
-
-    //set to input rate / system's bps rate (48000/4800 on M17 is 10)
-    super.demod.fsk4_samples_per_symbol = 10;
-    super.demod.fsk4_symbol_center = 4;
 
     while (!exitflag)
     {
@@ -349,14 +341,21 @@ int main (int argc, char **argv)
       if (super.opts.use_ncurses_terminal == 1)
         print_ncurses_terminal(&super);
       #endif
-      
+
+      //calculate sync time_delta for when to reset carrier sync ptrs and demod/decode values
       super.demod.current_time = time(NULL);
+      time_t time_delta = super.demod.current_time - super.demod.sync_time;
+
+      //look for framesync
       fsk4_framesync (&super);
+
+      //extra verbosity debug info dump
       if (super.opts.payload_verbosity >= 3)
         print_debug_information(&super);
-      if (super.demod.in_sync == 1)
-        no_carrier_sync(&super);
 
+      //no carrier sync if we were in sync and time_delta is more than 1 second
+      if (super.demod.in_sync == 1 && time_delta > 1)
+        no_carrier_sync(&super);
     }
   }
 

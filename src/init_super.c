@@ -127,13 +127,13 @@ void init_super (Super * super)
 
   //init_demod_state
   memset (super->demod.float_symbol_buffer, 0, 65535*sizeof(short));
-  super->demod.float_symbol_buffer_ptr = 0;
+  super->demod.float_symbol_buffer_ptr = 192;
   
   memset (super->demod.sample_buffer, 0, 65535*sizeof(short));
-  super->demod.sample_buffer_ptr = 0;
+  super->demod.sample_buffer_ptr = 192;
 
   memset (super->demod.dibit_buffer, 0, 65535*sizeof(uint8_t));
-  super->demod.dibit_buffer_ptr = 0;
+  super->demod.dibit_buffer_ptr = 192;
 
   super->demod.fsk4_samples_per_symbol = 10;
   super->demod.fsk4_symbol_center = 4;
@@ -145,10 +145,12 @@ void init_super (Super * super)
   super->demod.fsk4_umid = 0.0f;
 
   super->demod.in_sync = 0;
+  super->demod.sync_time    = time(NULL);
   super->demod.current_time = time(NULL);
 
   super->demod.input_sql = 100;
   super->demod.input_rms = 0;
+  super->demod.input_level = 0.0f;
   //end init_demod_state
 
   //init_m17d_state (Decoder)
