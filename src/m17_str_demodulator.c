@@ -71,6 +71,9 @@ void demod_str(Super * super, uint8_t * input, int debug)
   //ending linebreak
   // fprintf (stderr, "\n");
 
+  //get rid of this if it costs too much CPU / skips / lags
+  super->demod.current_time = time(NULL);
+
 }
 
 void prepare_str(Super * super, uint8_t * input)

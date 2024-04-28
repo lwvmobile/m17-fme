@@ -913,4 +913,7 @@ void encodeM17STR(Super * super)
   free(samp1);
   free(samp2);
 
+  //get rid of this if it costs too much CPU / skips / lags
+  super->demod.current_time = time(NULL);
+
 }

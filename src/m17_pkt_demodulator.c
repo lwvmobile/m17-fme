@@ -173,4 +173,7 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
   //increment pbc counter last
   if (!eot) super->m17d.pbc_ptr++;
 
+  //get rid of this if it costs too much CPU / skips / lags
+  super->demod.current_time = time(NULL);
+
 }
