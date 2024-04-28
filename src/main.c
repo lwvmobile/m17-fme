@@ -145,8 +145,7 @@ int main (int argc, char **argv)
         break;
 
       case 'd':
-        super.opts.use_m17_pkt_decoder = 1;
-        super.opts.use_m17_str_decoder = 1;
+        super.opts.use_m17_rfa_decoder = 1;
         fprintf (stderr, "Project M17 RF Audio Stream and Packet Decoder Mode. \n");
         break;
 
@@ -332,8 +331,29 @@ int main (int argc, char **argv)
   }
 
   //call a function to run if contextual
-  if (super.opts.use_m17_str_decoder == 1)
-    fsk4_framesync (&super);
+  if (super.opts.use_m17_rfa_decoder == 1)
+  {
+    //safety init on the ptrs
+    super.demod.sample_buffer_ptr = 0;
+    super.demod.symbol_buffer_ptr = 0;
+    super.demod.dibit_buffer_ptr  = 0;
+    super.demod.float_symbol_buffer_ptr = 0;
+
+    //set to input rate / system's bps rate (48000/4800 on M17 is 10)
+    super.demod.fsk4_samples_per_symbol = 10;
+    super.demod.fsk4_symbol_center = 4;
+
+    while (!exitflag)
+    {
+      super.demod.current_time = time(NULL);
+      fsk4_framesync (&super);
+      if (super.opts.payload_verbosity >= 3)
+        print_debug_information(&super);
+      if (super.demod.in_sync == 1)
+        no_carrier_sync(&super);
+
+    }
+  }
 
   if (super.opts.use_m17_pkt_encoder == 1)
     encodeM17PKT(&super);

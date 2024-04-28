@@ -53,8 +53,7 @@ void init_super (Super * super)
   super->opts.use_m17_str_encoder = 0;
   super->opts.use_m17_pkt_encoder = 0;
   super->opts.use_m17_brt_encoder = 0;
-  super->opts.use_m17_str_decoder = 0;
-  super->opts.use_m17_pkt_decoder = 0;
+  super->opts.use_m17_rfa_decoder = 0;
   super->opts.use_m17_ipf_encoder = 0;
   super->opts.use_m17_ipf_decoder = 0;
 
@@ -150,8 +149,7 @@ void init_super (Super * super)
 
   super->demod.carrier = 0;
   super->demod.in_sync = 0;
-
-  super->demod.sync_time = time(NULL);
+  super->demod.current_time = time(NULL);
 
   super->demod.input_sql = 100;
   super->demod.input_rms = 0;

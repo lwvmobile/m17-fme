@@ -14,23 +14,17 @@ void fsk4_framesync (Super * super)
   //sync type
   int type = -1;
 
-  //safety init on the ptrs
-  super->demod.sample_buffer_ptr = 0;
-  super->demod.symbol_buffer_ptr = 0;
-  super->demod.dibit_buffer_ptr  = 0;
-  super->demod.float_symbol_buffer_ptr = 0;
-
-  //set to input rate / system's bps rate (48000/4800 on M17 is 10)
-  super->demod.fsk4_samples_per_symbol = 10;
-  super->demod.fsk4_symbol_center = 4;
-
   //this is the buffer to check for frame sync using the euclidean distance norm
   float last_symbols[8]; memset (last_symbols, 0.0f, sizeof(last_symbols));
 
   //look for frame synchronization
-  while (!exitflag)
+  for (int i = 0; i < 192*50; i++) //optimal loop value (lower or higher?)
   {
 
+    //check exitflag
+    if (exitflag == 1) break;
+
+    //return a sample, symbol and a dibit, place them into arrays for buffer storage
     float float_symbol = demodulate_and_return_float_symbol(super);
     convert_float_symbol_to_dibit_and_store(super, float_symbol);
 
@@ -38,13 +32,10 @@ void fsk4_framesync (Super * super)
     push_float_buffer(last_symbols, float_symbol);
     type = dist_and_sync(last_symbols);
 
-    // if (super->opts.payload_verbosity) //MOVE THIS OUTSIDE OF THE LOOP TOO
-    //   print_debug_information(super);
-
     //print sync information and update
     if (type != -1)
     {
-      print_frame_sync_pattern(type);
+      print_frame_sync_pattern(super, type);
       super->demod.in_sync = 1;
     } 
 
@@ -63,12 +54,6 @@ void fsk4_framesync (Super * super)
 
     //reset type
     type = -1;
-
-    //no carrier reset -- this function causes lag -- time(NULL) at fault? MOVE OUTSIDE OF the WHILE LOOP, make while loop a different loopy loop
-    // if (  ((time(NULL) - super->demod.sync_time) > 1) && super->demod.in_sync == 1)
-    //   no_carrier_sync(super);
-
-    // time(NULL) // this causes lag, latency issues
 
   }
 }
@@ -196,14 +181,13 @@ void complex_refresh_min_max_center (Super * super)
 void no_carrier_sync (Super * super)
 {
   //reset some demodulator states
-  print_frame_sync_pattern(-1);
+  print_frame_sync_pattern(super, -1);
   super->demod.fsk4_min    = 0.0f;
   super->demod.fsk4_max    = 0.0f;
   super->demod.fsk4_lmid   = 0.0f;
   super->demod.fsk4_umid   = 0.0f;
   super->demod.fsk4_center = 0.0f;
   super->demod.in_sync     = 0;
-  // super->demod.sync_time = time(NULL);
 
   //TODO: reset some decoder states
 
@@ -276,10 +260,10 @@ char * get_sync_type_string(int type)
     return " No";
 }
 
-//high level debug infomation dumps -- THSS FUNCTION ALSO LAGS, HAS ISSUES WITH PRITNING VALUES, WHY???
+//high level debug infomation dumps
 void print_debug_information(Super * super)
 {
-  if (super->opts.payload_verbosity > 3)
+  if (super->opts.payload_verbosity >= 3)
   {
     fprintf (stderr, "\n MIN: %f; MAX: %f; LMID: %f; UMID: %f; Center: %f; ", 
       super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, 
@@ -287,18 +271,17 @@ void print_debug_information(Super * super)
   }
 }
 
-//TODO: Okay, some time(NULL) lags INSIDE of the while loop, so move it out of the while loop
-//this is similar to an OLD issue on DSD-FME where running ncurses inside the framesync loop lagged
-void print_frame_sync_pattern(int type)
+void print_frame_sync_pattern(Super * super, int type)
 {
-
+  char * timestr = getTimeN(super->demod.current_time);
   char * syncstr = get_sync_type_string(type);
   fprintf (stderr, "\n");
-  fprintf (stderr, "M17 %s Frame Sync: ", syncstr);
-  // fprintf (stderr, "M17 %s Frame Sync (%s): ", syncstr, timestr);
-
+  // fprintf (stderr, "M17 %s Frame Sync: ", syncstr); //keep just in case
+  fprintf (stderr, "M17 %s Frame Sync (%s): ", syncstr, timestr);
+  free (timestr); timestr = NULL;
 }
 
+//sometimes you just want it to shut up
 void stfu2 ()
 {
   //quell defined but not used warnings from m17.h

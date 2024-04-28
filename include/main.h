@@ -105,8 +105,7 @@ typedef struct
   uint8_t use_m17_str_encoder;
   uint8_t use_m17_pkt_encoder;
   uint8_t use_m17_brt_encoder;
-  uint8_t use_m17_str_decoder;
-  uint8_t use_m17_pkt_decoder;
+  uint8_t use_m17_rfa_decoder;
   uint8_t use_m17_ipf_encoder;
   uint8_t use_m17_ipf_decoder;
 
@@ -177,8 +176,7 @@ typedef struct
 
   uint8_t carrier;
   uint8_t in_sync;
-
-  time_t sync_time;
+  time_t current_time;
 
   long int input_sql;
   long int input_rms;
@@ -424,8 +422,8 @@ void    push_float_buffer (float * last, float symbol);
 int     dist_and_sync (float * last);
 
 //frame sync information and debug prints
-void print_frame_sync_pattern(int type);
-void print_debug_information(Super * super);
+void print_frame_sync_pattern (Super * super, int type);
+void print_debug_information (Super * super);
 
 //stdin and stdout
 void open_stdout_pipe (Super * super);
