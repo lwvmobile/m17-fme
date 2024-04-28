@@ -333,6 +333,8 @@ int main (int argc, char **argv)
   //demodulate, frame sync, and decode OTA RF Audio
   if (super.opts.use_m17_rfa_decoder == 1)
   {
+    //initial current_time set
+    super.demod.current_time = time(NULL);
 
     while (!exitflag)
     {
@@ -342,10 +344,6 @@ int main (int argc, char **argv)
         print_ncurses_terminal(&super);
       #endif
 
-      //calculate sync time_delta for when to reset carrier sync ptrs and demod/decode values
-      super.demod.current_time = time(NULL);
-      time_t time_delta = super.demod.current_time - super.demod.sync_time;
-
       //look for framesync
       fsk4_framesync (&super);
 
@@ -353,8 +351,12 @@ int main (int argc, char **argv)
       if (super.opts.payload_verbosity >= 3)
         print_debug_information(&super);
 
-      //no carrier sync if we were in sync and time_delta is more than 1 second
-      if (super.demod.in_sync == 1 && time_delta > 1)
+      //calculate sync time_delta for when to reset carrier sync ptrs and demod/decode values
+      super.demod.current_time = time(NULL);
+      time_t time_delta = super.demod.current_time - super.demod.sync_time;
+
+      //no carrier sync if we were in sync and time_delta is equal to or more than 1 second
+      if (super.demod.in_sync == 1 && time_delta > 0)
         no_carrier_sync(&super);
     }
   }

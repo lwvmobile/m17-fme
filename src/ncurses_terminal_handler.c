@@ -87,9 +87,9 @@ void print_ncurses_terminal(Super * super)
   print_ncurses_call_history(super);
 
   //test various time / date strings
-  printw ("TIME: %s; DATE: %s; ", timestr, datestr);
-  printw ("In Level: %2.1f", super->demod.input_level);
-  printw ("\n");
+  // printw ("TIME: %s; DATE: %s; ", timestr, datestr);
+  // printw ("In Level: %2.1f", super->demod.input_level);
+  // printw ("\n");
 
   //Handle Input Keystrokes
   input_ncurses_terminal(super, input_keystroke);
@@ -205,7 +205,9 @@ void print_ncurses_call_info (Super * super)
   printw ("\n");
   printw ("| ");
 
-  printw ("CAN: %02d ", super->m17d.can);
+  if (super->m17d.can != -1)
+    printw ("CAN: %02d ", super->m17d.can);
+  else printw ("CAN:   ");
 
   printw ("\n");
   printw ("| ");

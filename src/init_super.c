@@ -126,7 +126,7 @@ void init_super (Super * super)
   //end init_pa_state
 
   //init_demod_state
-  memset (super->demod.float_symbol_buffer, 0, 65535*sizeof(short));
+  memset (super->demod.float_symbol_buffer, 0.0f, 65535*sizeof(float));
   super->demod.float_symbol_buffer_ptr = 192;
   
   memset (super->demod.sample_buffer, 0, 65535*sizeof(short));
@@ -134,6 +134,11 @@ void init_super (Super * super)
 
   memset (super->demod.dibit_buffer, 0, 65535*sizeof(uint8_t));
   super->demod.dibit_buffer_ptr = 192;
+
+  //frame sync and timing recovery
+  memset (super->demod.sync_symbols, 0, 8*sizeof(float));
+  super->demod.last_sample = 0.0f;
+  super->demod.jitter = -1;
 
   super->demod.fsk4_samples_per_symbol = 10;
   super->demod.fsk4_symbol_center = 4;
@@ -160,7 +165,7 @@ void init_super (Super * super)
 
   memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
   memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
-  super->m17d.dt = 0;
+  super->m17d.dt = 15;
   super->m17d.enc_et = 0;
   super->m17d.enc_st = 0;
   sprintf (super->m17d.dst_csd_str, "%s", "");

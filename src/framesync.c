@@ -14,8 +14,8 @@ void fsk4_framesync (Super * super)
   //sync type
   int type = -1;
 
-  //this is the buffer to check for frame sync using the euclidean distance norm
-  float last_symbols[8]; memset (last_symbols, 0.0f, sizeof(last_symbols));
+  //the last_symbol buffer is now super->demod.sync_symbols so sync
+  //can be obtained when exiting and re-entering this function if needed
 
   //look for frame synchronization
   for (int i = 0; i < 192*10; i++)
@@ -29,8 +29,8 @@ void fsk4_framesync (Super * super)
     convert_float_symbol_to_dibit_and_store(super, float_symbol);
 
     //push the float symbol to the buffer and check for sync patterns
-    push_float_buffer(last_symbols, float_symbol);
-    type = dist_and_sync(last_symbols);
+    push_float_buffer(super->demod.sync_symbols, float_symbol);
+    type = dist_and_sync(super->demod.sync_symbols);
 
     //print sync information and update
     if (type != -1)
@@ -117,7 +117,15 @@ float demodulate_and_return_float_symbol(Super * super)
   //gather number of samples_per_symbol, and then store the center_sample
   for (i = 0; i < super->demod.fsk4_samples_per_symbol; i++)
   {
+
     sample = get_short_audio_input_sample(super);
+
+    //evaluate jitter here
+    //TODO: Make a symbol_timing_recovery function
+    //collect sample for evaluation
+    
+    super->demod.last_sample = sample;
+
     if (i == super->demod.fsk4_symbol_center)
       center_sample = sample;
   }
@@ -191,10 +199,12 @@ void no_carrier_sync (Super * super)
   super->demod.fsk4_umid   = 0.0f;
   super->demod.fsk4_center = 0.0f;
   super->demod.in_sync     = 0;
-  // super->demod.input_level = 0.0f;
+
+  //timing
+  super->demod.jitter = -1;
 
   //reset buffers here
-  memset (super->demod.float_symbol_buffer, 0, 65535*sizeof(short));
+  memset (super->demod.float_symbol_buffer, 0.0f, 65535*sizeof(float));
   super->demod.float_symbol_buffer_ptr = 192;
   
   memset (super->demod.sample_buffer, 0, 65535*sizeof(short));
@@ -203,7 +213,18 @@ void no_carrier_sync (Super * super)
   memset (super->demod.dibit_buffer, 0, 65535*sizeof(uint8_t));
   super->demod.dibit_buffer_ptr = 192;
 
-  //TODO: reset some decoder states
+  //reset some decoder states
+  super->m17d.src = 0;
+  super->m17d.dst = 0;
+  super->m17d.can = -1;
+
+  memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
+  memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
+  super->m17d.dt = 15;
+  super->m17d.enc_et = 0;
+  super->m17d.enc_st = 0;
+  sprintf (super->m17d.dst_csd_str, "%s", "");
+  sprintf (super->m17d.src_csd_str, "%s", "");
 
 }
 

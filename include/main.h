@@ -161,6 +161,11 @@ typedef struct
   float   float_symbol_buffer[65535];
   int32_t float_symbol_buffer_ptr;
 
+  //frame sync and timing recovery
+  float   sync_symbols[8];
+  short   last_sample;
+  int     jitter;
+
   //fsk4
   int fsk4_samples_per_symbol;
   int fsk4_symbol_center;
