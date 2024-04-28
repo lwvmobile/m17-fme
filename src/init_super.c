@@ -132,9 +132,6 @@ void init_super (Super * super)
   memset (super->demod.sample_buffer, 0, 65535*sizeof(short));
   super->demod.sample_buffer_ptr = 0;
 
-  memset (super->demod.symbol_buffer, 0, 65535*sizeof(int16_t));
-  super->demod.symbol_buffer_ptr = 0;
-
   memset (super->demod.dibit_buffer, 0, 65535*sizeof(uint8_t));
   super->demod.dibit_buffer_ptr = 0;
 

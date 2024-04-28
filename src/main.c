@@ -335,7 +335,6 @@ int main (int argc, char **argv)
   {
     //safety init on the ptrs
     super.demod.sample_buffer_ptr = 0;
-    super.demod.symbol_buffer_ptr = 0;
     super.demod.dibit_buffer_ptr  = 0;
     super.demod.float_symbol_buffer_ptr = 0;
 

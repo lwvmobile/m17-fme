@@ -155,9 +155,6 @@ typedef struct
   short   sample_buffer[65535];
   int32_t sample_buffer_ptr;
 
-  int16_t symbol_buffer[65535];
-  int32_t symbol_buffer_ptr;
-
   uint8_t dibit_buffer[65535];
   int32_t dibit_buffer_ptr;
 
