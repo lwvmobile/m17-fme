@@ -388,7 +388,7 @@ void HPFilter_Init (HPFilter *filter, float cutoffFreqHz, float sampleTimeS);
 float HPFilter_Update (HPFilter *filter, float v_in);
 void hpfilter_d (Super * super, short * input, int len);
 
-//convolutional encoder and viterbi decoder(s)
+//convolutional encoder and decoder (viterbi)
 void simple_conv_encoder (uint8_t * input, uint8_t * output, int len);
 void convolution_decode (uint8_t s0, uint8_t s1);
 void convolution_chainback (unsigned char* out, unsigned int nBits);
@@ -406,8 +406,15 @@ uint16_t crc16 (const uint8_t *in, const uint16_t len);
 //demodulation and sync functions
 void    fsk4_framesync (Super * super);
 float   demodulate_and_return_float_symbol (Super * super);
+void    simple_refresh_min_max_center (Super * super, float sample);
+void    complex_refresh_min_max_center (Super * super);
+
+//slice and dice symbols and dibits
 uint8_t convert_float_symbol_to_dibit_and_store (Super * super, float float_symbol);
+float   float_symbol_slicer(Super * super, short sample);
 uint8_t digitize_symbol_to_dibit (float symbol);
+
+//dibit gathering convenience wrapper
 uint8_t get_dibit (Super * super);
 
 //based off of lib17 math https://github.com/M17-Project/libm17

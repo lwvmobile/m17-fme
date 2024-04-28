@@ -14,9 +14,6 @@ void fsk4_framesync (Super * super)
   //sync type
   int type = -1;
 
-  //TODO: Working, will want to look at the min/max based on up-to-date sample levels, etc
-  //decoding falls off when adjusting the volume to less than about 75% or so currently
-
   //quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
   UNUSED(lsf_sync_symbols); UNUSED(str_sync_symbols); UNUSED(pkt_sync_symbols); UNUSED(symbol_levels);
@@ -30,7 +27,7 @@ void fsk4_framesync (Super * super)
   super->demod.fsk4_samples_per_symbol = 10; //set to input rate / system's bps rate (48000/4800 on M17 is 10)
   super->demod.fsk4_symbol_center = 4;
 
-  //this is the buffer to check for frame sync using the euclidean distance mumbo jumbo
+  //this is the buffer to check for frame sync using the euclidean distance norm
   float last_symbols[8]; memset (last_symbols, 0.0f, sizeof(last_symbols));
 
   //look for frame synchronization
@@ -48,18 +45,21 @@ void fsk4_framesync (Super * super)
     if (type == 1)
     {
       fprintf (stderr, "\n M17 LSF Frame Sync: ");
+      // fprintf (stderr, "MIN: %f; MAX: %f; LMID: %f; UMID: %f; Center: %f; ", super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, super->demod.fsk4_umid, super->demod.fsk4_center);
       demod_lsf(super, NULL, 0);
     }
 
     else if (type == 2)
     {
       fprintf (stderr, "\n M17 STR Frame Sync: ");
+      // fprintf (stderr, "MIN: %f; MAX: %f; LMID: %f; UMID: %f; Center: %f; ", super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, super->demod.fsk4_umid, super->demod.fsk4_center);
       demod_str(super, NULL, 0);
     }
 
     else if (type == 3)
     {
       fprintf (stderr, "\n M17 PKT Frame Sync: ");
+      // fprintf (stderr, "MIN: %f; MAX: %f; LMID: %f; UMID: %f; Center: %f; ", super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, super->demod.fsk4_umid, super->demod.fsk4_center);
       demod_pkt(super, NULL, 0);
     }
 
@@ -69,7 +69,6 @@ void fsk4_framesync (Super * super)
 }
 
 //push samples through float buffer that is used to test for sync patterns,
-//if desired, the buffer can be increased to look for longer sync patterns
 void push_float_buffer (float * last, float symbol)
 {
   for(uint8_t i = 0; i < 7; i++)
@@ -77,7 +76,8 @@ void push_float_buffer (float * last, float symbol)
   last[7]=symbol;
 }
 
-//test Euclidean Distance on Multiple Frame Sync Types, Return Value is Frame Sync Type (LSF, STR, PKT, BRT)
+//test Euclidean Distance on Multiple Frame Sync Types,
+//Return Value is Frame Sync Type (LSF, STR, PKT, BRT)
 int dist_and_sync(float * last)
 {
 
@@ -132,36 +132,9 @@ float demodulate_and_return_float_symbol(Super * super)
       center_sample = sample;
   }
 
-  //calculate max and min based on lastest values of the sample buffer (WIP)
-  // float buffer_max, buffer_min, buffer_value = 0.0f;
-  // for (i = 0; i < 192; i++)
-  // {
-  //   buffer_value = super->demod.sample_buffer[(super->demod.sample_buffer_ptr-i)%65535];
-  //   if      (buffer_value > buffer_max) buffer_max = buffer_value;
-  //   else if (buffer_value < buffer_min) buffer_min = buffer_value;
-  // }
-
-  // super->demod.fsk4_max = buffer_max;
-  // super->demod.fsk4_min = buffer_min;
-  //end max and min float buffer calculation
-
-  //simple straight-forward approach
-  if      (center_sample > super->demod.fsk4_max) super->demod.fsk4_max = center_sample;
-  else if (center_sample < super->demod.fsk4_min) super->demod.fsk4_min = center_sample;
-
-  //TODO: go by actual deviation, find more accurate values for this?
-  //calculate lower middle and upper middle values based on the min and max
-  super->demod.fsk4_lmid = super->demod.fsk4_min / 2.0f; //root 3, was 2.0f; //1.73f
-  super->demod.fsk4_umid = super->demod.fsk4_max / 2.0f; //root 3, was 2.0f; //1.73f
-
-  if (center_sample < super->demod.fsk4_lmid)
-    float_symbol = -3.0f;
-  else if (center_sample > super->demod.fsk4_lmid && center_sample < super->demod.fsk4_center)
-    float_symbol = -1.0f;
-  else if (center_sample > super->demod.fsk4_center && center_sample < super->demod.fsk4_umid)
-    float_symbol = +1.0f;
-  else if (center_sample > super->demod.fsk4_umid)
-    float_symbol = +3.0f;
+  // simple_refresh_min_max_center(super, center_sample);
+  complex_refresh_min_max_center (super);
+  float_symbol = float_symbol_slicer(super, sample);
 
   //store float symbol
   super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr++%65535)] = float_symbol;
@@ -171,6 +144,66 @@ float demodulate_and_return_float_symbol(Super * super)
 
   //return dibit value
   return float_symbol;
+}
+
+float float_symbol_slicer(Super * super, short sample)
+{
+  float float_symbol = 0.0f;
+
+  if (sample < super->demod.fsk4_lmid)
+    float_symbol = -3.0f;
+  else if (sample > super->demod.fsk4_lmid   && sample < super->demod.fsk4_center)
+    float_symbol = -1.0f;
+  else if (sample > super->demod.fsk4_center && sample < super->demod.fsk4_umid)
+    float_symbol = +1.0f;
+  else if (sample > super->demod.fsk4_umid)
+    float_symbol = +3.0f;
+
+  return float_symbol;
+}
+
+void complex_refresh_min_max_center (Super * super)
+{
+
+  //TODO: Only make buffers as large as they need to be, tweak for loop len?
+
+  int i = 0;
+
+  //calculate center, max, and min based on lastest values of the sample buffer (WIP)
+  float buffer_max, buffer_min, buffer_value = 0.0f;
+  for (i = 0; i < 192*10; i++) //tweak this value? or something else?
+  {
+    buffer_value = super->demod.sample_buffer[(super->demod.sample_buffer_ptr-i)%65535];
+    if      (buffer_value > buffer_max) buffer_max = buffer_value;
+    else if (buffer_value < buffer_min) buffer_min = buffer_value;
+  }
+
+  super->demod.fsk4_max = buffer_max;
+  super->demod.fsk4_min = buffer_min;
+
+  super->demod.fsk4_lmid = buffer_min / 2.0f;
+  super->demod.fsk4_umid = buffer_max / 2.0f;
+  super->demod.fsk4_center = (fabs(buffer_max) - fabs(buffer_min)) / 2.0f;
+  //end max and min float buffer calculation
+}
+
+void simple_refresh_min_max_center (Super * super, float sample)
+{
+
+  //NOTE: This will only work if signal levels are consistent, which is okay
+  //for testing, but in real world application, this will easily fail
+  
+  //simple straight-forward approach
+  if      (sample > super->demod.fsk4_max) super->demod.fsk4_max = sample;
+  else if (sample < super->demod.fsk4_min) super->demod.fsk4_min = sample;
+
+  //TODO: go by actual deviation for system type, but allow 'wiggle' room
+  //calculate center, lower middle and upper middle values based on the min and max
+  super->demod.fsk4_lmid = super->demod.fsk4_min / 2.0f;
+  super->demod.fsk4_umid = super->demod.fsk4_max / 2.0f;
+
+  //disable this if issues arise, not sure if this is okay or not (I think this is okay)
+  super->demod.fsk4_center = (fabs(super->demod.fsk4_max) - fabs(super->demod.fsk4_min)) / 2.0f;
 }
 
 uint8_t convert_float_symbol_to_dibit_and_store(Super * super, float float_symbol)
