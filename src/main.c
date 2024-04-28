@@ -344,6 +344,12 @@ int main (int argc, char **argv)
 
     while (!exitflag)
     {
+      //refresh ncurses printer, if enabled
+      #ifdef USE_CURSES
+      if (super.opts.use_ncurses_terminal == 1)
+        print_ncurses_terminal(&super);
+      #endif
+      
       super.demod.current_time = time(NULL);
       fsk4_framesync (&super);
       if (super.opts.payload_verbosity >= 3)

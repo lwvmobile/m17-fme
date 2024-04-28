@@ -311,8 +311,9 @@ void close_ncurses_terminal ();
 void print_ncurses_terminal (Super * super);
 void print_ncurses_banner (Super * super);
 void print_ncurses_config (Super * super);
-void print_ncurses_callinfo (Super * super);
-void print_ncurses_callhistory (Super * super);
+void print_ncurses_call_info (Super * super);
+void print_ncurses_scope (Super * super);
+void print_ncurses_call_history (Super * super);
 void input_ncurses_terminal (Super * super, int c);
 #endif
 

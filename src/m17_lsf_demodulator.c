@@ -164,4 +164,10 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
   //get rid of this if it costs too much CPU / skips / lags
   super->demod.current_time = time(NULL);
 
+  //refresh ncurses printer, if enabled
+  #ifdef USE_CURSES
+  if (super->opts.use_ncurses_terminal == 1)
+    print_ncurses_terminal(super);
+  #endif
+
 }

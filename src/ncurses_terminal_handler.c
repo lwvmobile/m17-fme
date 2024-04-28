@@ -55,8 +55,8 @@ void print_ncurses_terminal(Super * super)
 {
 
   //assign them with function w/ allocated memory
-  char * timestr  = getTimeC();
-  char * datestr  = getDateH();
+  char * timestr  = getTimeN(super->demod.current_time); //skip time(NULL) here to avoid cycle usage
+  char * datestr  = getDateN(super->demod.current_time); //skip time(NULL) here to avoid cycle usage
   
   int input_keystroke = 0;
 
@@ -77,10 +77,14 @@ void print_ncurses_terminal(Super * super)
   print_ncurses_config(super);
 
   //Print Call Info
-  print_ncurses_callinfo(super);
+  print_ncurses_call_info(super);
+
+  //Print Symbol Scope
+  if (super->opts.payload_verbosity >= 3)
+    print_ncurses_scope(super);
 
   //Print Call History
-  print_ncurses_callhistory(super);
+  print_ncurses_call_history(super);
 
   //test various time / date strings
   printw ("TIME: %s; DATE: %s; ", timestr, datestr);
@@ -93,16 +97,8 @@ void print_ncurses_terminal(Super * super)
   refresh();
 
   //free allocated memory and set ptr to NULL
-  if (timestr != NULL)
-  {
-    free (timestr);
-    timestr = NULL;
-  }
-  if (datestr != NULL)
-  {
-    free (datestr);
-    datestr = NULL;
-  }
+  free (timestr); timestr = NULL;
+  free (datestr); datestr = NULL;
     
 }
 
@@ -146,7 +142,27 @@ void print_ncurses_config (Super * super)
   printw ("------------------------------------------------------------------------------\n");
 }
 
-void print_ncurses_callinfo (Super * super)
+void print_ncurses_scope (Super * super)
+{
+  //NOTE: This is just eye candy, it's not real time or anything
+  //it also currently prints stale storage values too
+  int i;
+  printw ("--Symbol Scope----------------------------------------------------------------");
+  printw ("\n| +3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr%65535)-(71-i)] == +3.0f) printw("*"); else printw(" ");
+  printw ("\n| +1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr%65535)-(71-i)] == +1.0f) printw("*"); else printw(" ");
+  printw ("\n| -1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr%65535)-(71-i)] == -1.0f) printw("*"); else printw(" ");
+  printw ("\n| -3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr%65535)-(71-i)] == -3.0f) printw("*"); else printw(" ");
+  printw ("\n| ");
+  //this might actually be semi useful
+  printw ("Min: %6.0f; Max: %5.0f; LMid: %6.0f; UMid: %5.0f; Center: %6.0f; ", 
+      super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, 
+      super->demod.fsk4_umid, super->demod.fsk4_center);
+
+  printw ("\n");
+  printw ("------------------------------------------------------------------------------\n");
+}
+
+void print_ncurses_call_info (Super * super)
 {
   //color on or off
   if (super->demod.in_sync == 1)
@@ -221,7 +237,7 @@ void print_ncurses_callinfo (Super * super)
   printw ("------------------------------------------------------------------------------\n");
 }
 
-void print_ncurses_callhistory (Super * super)
+void print_ncurses_call_history (Super * super)
 {
   UNUSED(super);
   printw ("--Call History----------------------------------------------------------------\n");
