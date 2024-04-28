@@ -153,6 +153,8 @@ void init_super (Super * super)
   super->demod.carrier = 0;
   super->demod.in_sync = 0;
 
+  super->demod.sync_time = time(NULL);
+
   super->demod.input_sql = 100;
   super->demod.input_rms = 0;
   //end init_demod_state

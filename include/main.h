@@ -180,6 +180,8 @@ typedef struct
   uint8_t carrier;
   uint8_t in_sync;
 
+  time_t sync_time;
+
   long int input_sql;
   long int input_rms;
 
@@ -421,6 +423,10 @@ uint8_t get_dibit (Super * super);
 float   eucl_norm (float* in1, int8_t* in2, uint8_t n);
 void    push_float_buffer (float * last, float symbol);
 int     dist_and_sync (float * last);
+
+//frame sync information and debug prints
+void print_frame_sync_pattern(int type);
+void print_debug_information(Super * super);
 
 //stdin and stdout
 void open_stdout_pipe (Super * super);

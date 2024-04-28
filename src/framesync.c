@@ -41,29 +41,32 @@ void fsk4_framesync (Super * super)
     push_float_buffer(last_symbols, float_symbol);
     type = dist_and_sync(last_symbols);
 
-    //TODO, if not -1, then enumerate a printframe string and return appropriate function
+    if (super->opts.payload_verbosity)
+      print_debug_information(super);
+
+    //update sync time
+    if (type != -1)
+      super->demod.sync_time = time(NULL);
+
+    //print framesync pattern
+    if (type != -1)
+      print_frame_sync_pattern(type);
+
+    //execute on sync types
     if (type == 1)
-    {
-      fprintf (stderr, "\n M17 LSF Frame Sync: ");
-      // fprintf (stderr, "MIN: %f; MAX: %f; LMID: %f; UMID: %f; Center: %f; ", super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, super->demod.fsk4_umid, super->demod.fsk4_center);
       demod_lsf(super, NULL, 0);
-    }
 
     else if (type == 2)
-    {
-      fprintf (stderr, "\n M17 STR Frame Sync: ");
-      // fprintf (stderr, "MIN: %f; MAX: %f; LMID: %f; UMID: %f; Center: %f; ", super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, super->demod.fsk4_umid, super->demod.fsk4_center);
       demod_str(super, NULL, 0);
-    }
 
     else if (type == 3)
-    {
-      fprintf (stderr, "\n M17 PKT Frame Sync: ");
-      // fprintf (stderr, "MIN: %f; MAX: %f; LMID: %f; UMID: %f; Center: %f; ", super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, super->demod.fsk4_umid, super->demod.fsk4_center);
       demod_pkt(super, NULL, 0);
-    }
 
-    type = -1; //reset type
+    // else if (type == 4)
+    //   demod_brt(super, NULL, 0);
+
+    //reset type
+    type = -1;
 
   }
 }
@@ -238,5 +241,61 @@ float eucl_norm(float * in1, int8_t * in2, uint8_t n)
   for(uint8_t i = 0; i < n; i++)
     tmp += (in1[i]-(float)in2[i])*(in1[i]-(float)in2[i]);
   return sqrtf(tmp);
+}
+
+char * get_sync_type_string(int type)
+{
+  if (type == 1)
+    return "LSF";
+  else if (type == 2)
+    return "STR";
+  else if (type == 3)
+    return "PKT";
+  else if (type == 4)
+    return "BRT";
+  else
+    return "";
+}
+
+//high level debug infomation dumps
+void print_debug_information(Super * super)
+{
+  if (super->opts.payload_verbosity > 3)
+  {
+    fprintf (stderr, "\n MIN: %f; MAX: %f; LMID: %f; UMID: %f; Center: %f; ", 
+      super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, 
+      super->demod.fsk4_umid, super->demod.fsk4_center);
+  }
+
+}
+
+//TODO: Fix datestr bs, or cleanup later
+void print_frame_sync_pattern(int type)
+{
+  // char * datestr = getDateH(); //THIS causes issues, like an overflow, or slows down the function too much
+  char * timestr = getTimeC();
+  char * syncstr = get_sync_type_string(type);
+
+  fprintf (stderr, "\n");
+  // fprintf (stderr, "(%s.%s) ", datestr, timestr);
+  // fprintf (stderr, "%s. ", datestr);
+  // fprintf (stderr, "%s ", timestr);
+
+  // fprintf (stderr, "M17 %s Frame Sync: ", syncstr);
+  fprintf (stderr, "M17 %s Frame Sync (%s): ", syncstr, timestr);
+
+  //free allocated memory and NULL the PTR
+  // if (datestr != NULL)
+  // {
+  //   free (datestr);
+  //   datestr = NULL;
+  // }
+
+  if (timestr != NULL)
+  {
+    free (timestr);
+    timestr = NULL;
+  }
+
 }
 
