@@ -169,6 +169,11 @@ void complex_refresh_min_max_center (Super * super)
   for (i = 0; i < 192; i++)
   {
     buffer_value = super->demod.sample_buffer[(super->demod.sample_buffer_ptr-i)%65535];
+
+    //clipping and sanity check on buffer_value (may have an overflow issue, still unsure, or issue in DSD-FME encoder w/ RRC Filter on)
+    if (buffer_value > +32760.0f) buffer_value = +32760.0f;
+    if (buffer_value < -32760.0f) buffer_value = -32760.0f;
+
     if      (buffer_value > buffer_max) buffer_max = buffer_value;
     else if (buffer_value < buffer_min) buffer_min = buffer_value;
   }
@@ -232,6 +237,10 @@ void simple_refresh_min_max_center (Super * super, float sample)
 
   //NOTE: This will only work if signal levels are consistent, which is okay
   //for testing, but in real world application, this will easily fail
+
+  //clipping and sanity check on buffer_value
+  if (sample > +32760.0f) sample = +32760.0f;
+  if (sample < -32760.0f) sample = -32760.0f;
   
   //simple straight-forward approach
   if      (sample > super->demod.fsk4_max) super->demod.fsk4_max = sample;
