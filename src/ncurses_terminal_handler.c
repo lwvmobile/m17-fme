@@ -155,9 +155,9 @@ void print_ncurses_scope (Super * super)
   printw ("\n| -3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr%65535)-(71-i)] == -3.0f) printw("*"); else printw(" ");
   printw ("\n| ");
   //this might actually be semi useful
-  printw ("Min: %6.0f; Max: %5.0f; LMid: %6.0f; UMid: %5.0f; Center: %6.0f; ", 
+  printw ("Min: %6.0f; Max: %5.0f; LMid: %6.0f; UMid: %5.0f; Center: %6.0f; In: %2.0f", 
       super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, 
-      super->demod.fsk4_umid, super->demod.fsk4_center);
+      super->demod.fsk4_umid, super->demod.fsk4_center, super->demod.input_level);
 
   printw ("\n");
   printw ("------------------------------------------------------------------------------\n");

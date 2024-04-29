@@ -111,10 +111,9 @@ float demodulate_and_return_float_symbol(Super * super)
 {
   int i;
   short sample = 0;
-  short center_sample = 0;
   float float_symbol = 0.0f;
 
-  //gather number of samples_per_symbol, and then store the center_sample
+  //gather number of samples_per_symbol, and then store the nth sample
   for (i = 0; i < super->demod.fsk4_samples_per_symbol; i++)
   {
 
@@ -122,15 +121,13 @@ float demodulate_and_return_float_symbol(Super * super)
 
     //evaluate jitter here
     //TODO: Make a symbol_timing_recovery function
-    //collect sample for evaluation
-    
+
+    //collect post sample for evaluation for timing recovery purposes
     super->demod.last_sample = sample;
 
-    if (i == super->demod.fsk4_symbol_center)
-      center_sample = sample;
   }
 
-  // simple_refresh_min_max_center(super, center_sample);
+  // simple_refresh_min_max_center(super, sample);
   complex_refresh_min_max_center (super);
   float_symbol = float_symbol_slicer(super, sample);
 
@@ -138,7 +135,7 @@ float demodulate_and_return_float_symbol(Super * super)
   super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr++%65535)] = float_symbol;
 
   //store sample used
-  super->demod.sample_buffer[(super->demod.sample_buffer_ptr++%65535)] = center_sample;
+  super->demod.sample_buffer[(super->demod.sample_buffer_ptr++%65535)] = sample;
 
   //return dibit value
   return float_symbol;
@@ -183,9 +180,11 @@ void complex_refresh_min_max_center (Super * super)
   super->demod.fsk4_umid = buffer_max / 2.0f;
   super->demod.fsk4_center = (fabs(buffer_max) - fabs(buffer_min)) / 2.0f;
 
-  //in level value (cheat and just use max and not the fabs of min and average them)
-  super->demod.input_level = (super->demod.fsk4_max / 32767.0f) * 100.0f;
-  //end max and min float buffer calculation
+  //in level value, absolute value of the greater of min or max / greatest value multiplied by 100 for percent
+  if (fabs(super->demod.fsk4_min) > fabs(super->demod.fsk4_max))
+    super->demod.input_level    = ( (fabs(super->demod.fsk4_min)) / 32767.0f) * 100.0f;
+  else super->demod.input_level = ( (fabs(super->demod.fsk4_max)) / 32767.0f) * 100.0f;
+
 }
 
 //reset values when no carrier
