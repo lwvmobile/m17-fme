@@ -80,7 +80,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "123456dhimns:v:A:D:F:INM:PS:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "123456c:df:himns:v:A:C:D:F:INM:PS:U:VX")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -149,6 +149,22 @@ int main (int argc, char **argv)
         fprintf (stderr, "Project M17 RF Audio Stream and Packet Decoder Mode. \n");
         break;
 
+      //Specify DSD-FME Dibit Capture Bin Input File Format (RF Encoded only)
+      case 'c':
+        strncpy(super.opts.dibit_input_file, optarg, 1023);
+        super.opts.dibit_input_file[1023] = '\0';
+        super.opts.use_dibit_input = 1;
+        fprintf (stderr, "DSD-FME Dibit Input File: %s \n", super.opts.dibit_input_file);
+        break;
+
+      //Specify M17 Float Symbol Input
+      case 'f':
+        strncpy(super.opts.float_symbol_input_file, optarg, 1023);
+        super.opts.float_symbol_input_file[1023] = '\0';
+        super.opts.use_float_symbol_input = 1;
+        fprintf (stderr, "Float Symbol Input File: %s \n", super.opts.float_symbol_input_file);
+        break;
+
       case 'm':
         super.opts.monitor_encode_internally = 1;
         fprintf (stderr, "Internal Encoder Loopback to Decoder. \n");
@@ -181,13 +197,21 @@ int main (int argc, char **argv)
         super.opts.m17_str_encoder_dt = 3;
         break;
 
+      //Specify DSD-FME Dibit Capture Bin File Format (RF Encoded only)
+      case 'C':
+        strncpy(super.opts.dibit_output_file, optarg, 1023);
+        super.opts.dibit_output_file[1023] = '\0';
+        super.opts.use_dibit_output = 1;
+        fprintf (stderr, "DSD-FME Dibit Output File: %s \n", super.opts.dibit_output_file);
+        break;
+
       //Specify M17 PKT Encoder Raw Encoded Data Packet (truncates at 772)
       case 'D':
         strncpy(super.m17e.dat, optarg, 772);
         super.m17e.dat[772] = '\0';
         break;
 
-      //Specify M17 RF Float Symbol Output (For M17_Implementations PKT Decoder)
+      //Specify M17 Float Symbol Output
       case 'F':
         strncpy(super.opts.float_symbol_output_file, optarg, 1023);
         super.opts.float_symbol_output_file[1023] = '\0';

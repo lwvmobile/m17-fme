@@ -10,11 +10,20 @@
 
 void open_audio_input (Super * super)
 {
+
+  //float symbol input file
+  if (super->opts.use_float_symbol_input == 1)
+    super->opts.float_symbol_in = fopen (super->opts.float_symbol_input_file, "r");
+
+  //DSD-FME Dibit Capture Bin File
+  else if (super->opts.use_dibit_input == 1)
+    super->opts.dibit_in = fopen (super->opts.dibit_input_file, "r");
   
   //Might make an all-in-one SND file input open by passing a srtring to the input name for that?
-  if (super->opts.use_tcp_input == 1)
+  else if (super->opts.use_tcp_input == 1)
   {
-    super->opts.tcp_input_sock = tcp_socket_connect(super->opts.tcp_input_hostname, super->opts.tcp_input_portno);
+    super->opts.tcp_input_sock = 
+      tcp_socket_connect(super->opts.tcp_input_hostname, super->opts.tcp_input_portno);
 
     if (super->opts.tcp_input_sock)
     {
@@ -61,6 +70,10 @@ void open_audio_output (Super * super)
 
   if (super->opts.use_float_symbol_output == 1)
     super->opts.float_symbol_out = fopen (super->opts.float_symbol_output_file, "w");
+
+  //DSD-FME Dibit Capture Bin File
+  if (super->opts.use_dibit_output == 1)
+    super->opts.dibit_out = fopen (super->opts.dibit_output_file, "w");
 
   //TODO: TEST if-elseif-elseif statements for these
   //TODO: Test Setup OSS Output
@@ -117,7 +130,8 @@ void cleanup_and_exit (Super * super)
   if (super->opts.float_symbol_out)
     fclose (super->opts.float_symbol_out);
 
-  //TOOD: Terminate SNDFILE as NULL PTR's after closing (good coding practice)
+  if (super->opts.dibit_out)
+    fclose (super->opts.dibit_out);
 
   //SND FILE
   if (super->snd_src_in.audio_in_file)

@@ -113,23 +113,51 @@ float demodulate_and_return_float_symbol(Super * super)
   short sample = 0;
   float float_symbol = 0.0f;
 
-  //gather number of samples_per_symbol, and then store the nth sample
-  for (i = 0; i < super->demod.fsk4_samples_per_symbol; i++)
+  //If reading from float symbol in file
+  if (super->opts.float_symbol_in != NULL)
   {
-
-    sample = get_short_audio_input_sample(super);
-
-    //evaluate jitter here
-    //TODO: Make a symbol_timing_recovery function
-
-    //collect post sample for evaluation for timing recovery purposes
-    super->demod.last_sample = sample;
-
+    //read in one float symbol
+    fread (&float_symbol, sizeof(float), 1, super->opts.float_symbol_in); //sizeof(float) is 4 (usually)
+    if ( feof(super->opts.float_symbol_in) ) exitflag = 1; //end of file, exit
   }
 
-  // simple_refresh_min_max_center(super, sample);
-  complex_refresh_min_max_center (super);
-  float_symbol = float_symbol_slicer(super, sample);
+  //DSD-FME based dibit input file (capture.bin)
+  else if (super->opts.dibit_in != NULL)
+  {
+    //read one dibit
+    uint8_t dibit = fgetc (super->opts.dibit_in);
+
+    //convert dibit to float (I know its redundant...but easier to shoe it in here)
+    if      (dibit == 0) float_symbol = +1.0f;
+    else if (dibit == 1) float_symbol = +3.0f;
+    else if (dibit == 2) float_symbol = -1.0f;
+    else if (dibit == 3) float_symbol = -3.0f;
+    else                 float_symbol = +0.0f;
+
+    if ( feof(super->opts.dibit_in) ) exitflag = 1; //end of file, exit
+  }
+
+  //If using RF Audio Based Input (Pulse, OSS, SNDFile or other)
+  else
+  {
+    //gather number of samples_per_symbol, and then store the nth sample
+    for (i = 0; i < super->demod.fsk4_samples_per_symbol; i++)
+    {
+
+      sample = get_short_audio_input_sample(super);
+
+      //evaluate jitter here
+      //TODO: Make a symbol_timing_recovery function
+
+      //collect post sample for evaluation for timing recovery purposes
+      super->demod.last_sample = sample;
+
+    }
+
+    // simple_refresh_min_max_center(super, sample);
+    complex_refresh_min_max_center (super);
+    float_symbol = float_symbol_slicer(super, sample);
+  }
 
   //store float symbol
   super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr++%65535)] = float_symbol;

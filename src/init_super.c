@@ -67,8 +67,17 @@ void init_super (Super * super)
   super->opts.output_sample_rate = 48000;  //TODO: Make a function that reconfigures this and anythign that is set from this
   super->opts.stdout_pipe = 0;
   super->opts.use_float_symbol_output = 0;
+  super->opts.use_float_symbol_input = 0;
+  super->opts.use_dibit_input = 0;
+  super->opts.use_dibit_output = 0;
   sprintf (super->opts.float_symbol_output_file, "m17_float_symbol_out.sym");
+  sprintf (super->opts.float_symbol_input_file, "m17_float_symbol_out.sym");
+  sprintf (super->opts.dibit_input_file, "capture.bin");
+  sprintf (super->opts.dibit_output_file, "capture.bin");
   super->opts.float_symbol_out = NULL;
+  super->opts.float_symbol_in = NULL;
+  super->opts.dibit_in = NULL;
+  super->opts.dibit_out = NULL;
 
   //UDP for IP frame input or output
   super->opts.m17_use_ip = 0;

@@ -165,12 +165,12 @@ void encodeM17RF (Super * super, uint8_t * input, float * mem, int type)
     memset (baseband, 0, 1920*sizeof(short));
   }
 
-  //save symbols (dibits, actually) to symbol capture bin file format
-  // if (super->opts.symbol_out_f) //use -c output.bin to use this format (default type for DSD-FME)
-  // {
-  //   for (i = 0; i < 192; i++)
-  //     fputc (output_dibits[i], super->opts.symbol_out_f);
-  // }
+  //save dibits to DSD-FME compatible "symbol" capture bin file format
+  if (super->opts.dibit_out) //use -C output.bin to use this format for output
+  {
+    for (i = 0; i < 192; i++)
+      fputc (output_dibits[i], super->opts.dibit_out);
+  }
 
   //save symbol stream format (M17_Implementations), if opened
   if (super->opts.float_symbol_out)
@@ -179,7 +179,7 @@ void encodeM17RF (Super * super, uint8_t * input, float * mem, int type)
     for (i = 0; i < 192; i++)
     {
       val = (float)output_symbols[i];
-      fwrite(&val, 4, 1, super->opts.float_symbol_out);
+      fwrite(&val, sizeof(float), 1, super->opts.float_symbol_out); //sizeof(float) is 4 (usually)
     }
   }
 
