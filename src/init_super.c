@@ -44,6 +44,7 @@ void init_super (Super * super)
 
   //SND Input
   super->opts.use_snd_input = 0;
+  super->opts.snd_input_is_a_file = 0;
 
   //USE WAV OUTPUT
   super->opts.use_wav_out_rf = 0;
@@ -229,6 +230,7 @@ void init_super (Super * super)
   //end init_wav_state
 
   //init snd_src_input snd_src_in
+  sprintf (super->snd_src_in.snd_in_filename, "snd_file.wav");
   super->snd_src_in.audio_in_file = NULL;
   super->snd_src_in.audio_in_file_info = calloc(1, sizeof(SF_INFO));
   super->snd_src_in.audio_in_file_info->samplerate = super->opts.input_sample_rate;

@@ -80,7 +80,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "123456c:df:himns:v:A:C:D:F:INM:PS:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "123456c:df:himns:v:w:A:C:D:F:INM:PS:U:VX")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -188,6 +188,14 @@ int main (int argc, char **argv)
       case 'v':
         super.opts.payload_verbosity = atoi(optarg);
         fprintf (stderr, "Payload Verbosity: %d; \n", super.opts.payload_verbosity);
+        break;
+
+      //Specify SND Input File (.wav, .rrc, etc)
+      case 'w':
+        strncpy(super.snd_src_in.snd_in_filename, optarg, 1023);
+        super.snd_src_in.snd_in_filename[1023] = '\0';
+        super.opts.snd_input_is_a_file = 1;
+        fprintf (stderr, "SNDFile (.wav, .rrc) Input File: %s \n", super.snd_src_in.snd_in_filename);
         break;
 
       //Specify M17 STR Encoder Arbitrary Data For 1600

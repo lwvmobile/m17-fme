@@ -8,7 +8,7 @@
 
 #include "main.h"
 
-//convenience function to retrieve 1 short input sample from any number of input methods
+//convenience function to retrieve 1 short input sample from any hardware or sndfile rf audio
 short get_short_audio_input_sample (Super * super)
 {
   short sample = 0;
@@ -26,16 +26,6 @@ short get_short_audio_input_sample (Super * super)
   //OSS Hot Garbage
   else if (super->opts.use_oss_input == 1)
     sample = oss_input_read(super);
-
-  //TOOD: What's left besides OSS
-  /*
-  
-  //OSS
-  read (super->opts.audio_in_fd, &sample, 2);
-
-  //??? Others?
-
-  */
 
   return sample;
 }

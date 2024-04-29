@@ -34,11 +34,17 @@ void open_audio_input (Super * super)
     else exitflag = 1;
   }
 
-  //TODO: Test this input method
   else if (super->opts.use_stdin_input == 1)
   {
     stdin_snd_audio_source_open(super);
     super->opts.tcp_input_open = 1;
+    super->opts.use_snd_input = 1;
+  }
+
+  //NOTE: This is working well yet, needs work in demod
+  else if (super->opts.snd_input_is_a_file == 1)
+  {
+    file_snd_audio_source_open(super);
     super->opts.use_snd_input = 1;
   }
 

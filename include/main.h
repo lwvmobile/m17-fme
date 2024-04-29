@@ -96,6 +96,7 @@ typedef struct
 
   //SND Input
   uint8_t use_snd_input;
+  uint8_t snd_input_is_a_file; //if we are specifying a .wav file, etc, and not stdin or tcp
 
   //USE WAV OUTPUT
   uint8_t use_wav_out_rf;
@@ -287,6 +288,7 @@ typedef struct
 //Universal sndfile input (TCP, STDIN, WAV, named PIPE, headerless wav files)
 typedef struct
 {
+  char snd_in_filename[1024];
   SNDFILE *audio_in_file;
   SF_INFO *audio_in_file_info;
 } snd_src_input;
@@ -360,7 +362,8 @@ void close_wav_out_vx (Super * super);
 void write_wav_out_rf (Super * super, short * out, size_t nsam);
 void write_wav_out_vx (Super * super, short * out, size_t nsam);
 
-//sndfile Input Reading
+//sndfile Input Open and Reading
+bool file_snd_audio_source_open (Super * super);
 short snd_input_read (Super * super);
 
 //UDP IP Related Functions

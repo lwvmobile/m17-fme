@@ -68,6 +68,15 @@ bool stdin_snd_audio_source_open (Super * super)
   return err;
 }
 
+bool file_snd_audio_source_open (Super * super)
+{
+  bool err = false;
+  super->snd_src_in.audio_in_file = sf_open(super->snd_src_in.snd_in_filename, SFM_READ, super->snd_src_in.audio_in_file_info);
+  if (super->snd_src_in.audio_in_file != NULL)
+    err = true;
+  return err;
+}
+
 short snd_input_read (Super * super)
 {
   short sample = 0;
