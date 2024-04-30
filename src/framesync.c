@@ -172,7 +172,8 @@ float demodulate_and_return_float_symbol(Super * super)
   if (super->demod.sample_buffer_ptr == 0) super->demod.sample_buffer_ptr = 192;
 
   //debug
-  // fprintf (stderr, "\n FSPTR: %05d; FS: %1.0f; SAPTR: %05d; SAMP: %06d;", super->demod.float_symbol_buffer_ptr, super->demod.float_symbol_buffer[super->demod.float_symbol_buffer_ptr-1], super->demod.sample_buffer_ptr, super->demod.sample_buffer[super->demod.sample_buffer_ptr-1]);
+  if (super->opts.payload_verbosity >= 5)
+    fprintf (stderr, "\n FSPTR: %05d; FS: %1.0f; SAPTR: %05d; SAMP: %06d;", super->demod.float_symbol_buffer_ptr, super->demod.float_symbol_buffer[super->demod.float_symbol_buffer_ptr-1], super->demod.sample_buffer_ptr, super->demod.sample_buffer[super->demod.sample_buffer_ptr-1]);
 
   //return dibit value
   return float_symbol;
@@ -262,9 +263,6 @@ void buffer_refresh_min_max_center (Super * super)
     ptr = super->demod.sample_buffer_ptr-i;
     buffer_value = super->demod.sample_buffer[ptr];
 
-    //debug
-    // fprintf (stderr, "\n PTR: %d; BUF: %6.0f;", ptr, buffer_value);
-
     //clipping and sanity check on buffer_value
     if (buffer_value > +32760.0f) buffer_value = +32760.0f;
     if (buffer_value < -32760.0f) buffer_value = -32760.0f;
@@ -284,6 +282,13 @@ void buffer_refresh_min_max_center (Super * super)
   if (fabs(super->demod.fsk4_min) > fabs(super->demod.fsk4_max))
     super->demod.input_level    = ( (fabs(super->demod.fsk4_min)) / 32767.0f) * 100.0f;
   else super->demod.input_level = ( (fabs(super->demod.fsk4_max)) / 32767.0f) * 100.0f;
+
+  if (super->opts.payload_verbosity >= 6)
+  {
+    fprintf (stderr, "\n Last 192 - Min: %6.0f; Max: %5.0f; LMid: %6.0f; UMid: %5.0f; Center: %6.0f; In: %2.0f", 
+      super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, 
+      super->demod.fsk4_umid, super->demod.fsk4_center, super->demod.input_level);
+  }
 
 }
 
@@ -330,7 +335,8 @@ uint8_t convert_float_symbol_to_dibit_and_store(Super * super, float float_symbo
   if (super->demod.dibit_buffer_ptr == 0) super->demod.dibit_buffer_ptr = 192;
 
   //debug
-  // fprintf (stderr, "\n DIBIT PTR: %05d; DIBIT: %d", super->demod.dibit_buffer_ptr, super->demod.dibit_buffer[super->demod.dibit_buffer_ptr-1]);
+  if (super->opts.payload_verbosity >= 5)
+    fprintf (stderr, "\n DIBIT PTR: %05d; DIBIT: %d", super->demod.dibit_buffer_ptr, super->demod.dibit_buffer[super->demod.dibit_buffer_ptr-1]);
 
   return dibit;
 }
