@@ -136,13 +136,13 @@ void init_super (Super * super)
   //end init_pa_state
 
   //init_demod_state
-  memset (super->demod.float_symbol_buffer, 0.0f, 65535*sizeof(float));
+  memset (super->demod.float_symbol_buffer, 0.0f, 65540*sizeof(float));
   super->demod.float_symbol_buffer_ptr = 192;
   
-  memset (super->demod.sample_buffer, 0, 65535*sizeof(short));
+  memset (super->demod.sample_buffer, 0, 65540*sizeof(short));
   super->demod.sample_buffer_ptr = 192;
 
-  memset (super->demod.dibit_buffer, 0, 65535*sizeof(uint8_t));
+  memset (super->demod.dibit_buffer, 0, 65540*sizeof(uint8_t));
   super->demod.dibit_buffer_ptr = 192;
 
   //frame sync and timing recovery

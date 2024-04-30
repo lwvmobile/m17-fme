@@ -66,7 +66,7 @@ void push_float_buffer (float * last, float symbol)
   last[7]=symbol;
 }
 
-//test Euclidean Distance on Multiple Frame Sync Types,
+//Euclidean Norm Distance on Multiple Frame Sync Types,
 //Return Value is Frame Sync Type (LSF, STR, PKT, BRT)
 int dist_and_sync(float * last)
 {
@@ -154,16 +154,26 @@ float demodulate_and_return_float_symbol(Super * super)
 
     }
 
-    // simple_refresh_min_max_center(super, sample);
-    complex_refresh_min_max_center (super);
+    buffer_refresh_min_max_center(super); //buffer based on last 192 symbols
+    // simple_refresh_min_max_center(super, sample); //based on current only
     float_symbol = float_symbol_slicer(super, sample);
   }
 
   //store float symbol
-  super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr++%65535)] = float_symbol;
+  super->demod.float_symbol_buffer[super->demod.float_symbol_buffer_ptr++] = float_symbol;
 
   //store sample used
-  super->demod.sample_buffer[(super->demod.sample_buffer_ptr++%65535)] = sample;
+  super->demod.sample_buffer[super->demod.sample_buffer_ptr++] = sample;
+
+  //ptr safety truncate (shouldn't be needed due to cast type as uint16_t 
+  //into an array larger, but nevertheless, good practice on array indexing)
+  super->demod.float_symbol_buffer_ptr &= 0xFFFF;
+  super->demod.sample_buffer_ptr       &= 0xFFFF;
+  if (super->demod.float_symbol_buffer_ptr == 0) super->demod.float_symbol_buffer_ptr = 192;
+  if (super->demod.sample_buffer_ptr == 0) super->demod.sample_buffer_ptr = 192;
+
+  //debug
+  // fprintf (stderr, "\n FSPTR: %05d; FS: %1.0f; SAPTR: %05d; SAMP: %06d;", super->demod.float_symbol_buffer_ptr, super->demod.float_symbol_buffer[super->demod.float_symbol_buffer_ptr-1], super->demod.sample_buffer_ptr, super->demod.sample_buffer[super->demod.sample_buffer_ptr-1]);
 
   //return dibit value
   return float_symbol;
@@ -185,18 +195,63 @@ float float_symbol_slicer(Super * super, short sample)
   return float_symbol;
 }
 
-void complex_refresh_min_max_center (Super * super)
+//reset values when no carrier
+void no_carrier_sync (Super * super)
+{
+  //reset some demodulator states
+  print_frame_sync_pattern(super, -1);
+  super->demod.fsk4_min    = 0.0f;
+  super->demod.fsk4_max    = 0.0f;
+  super->demod.fsk4_lmid   = 0.0f;
+  super->demod.fsk4_umid   = 0.0f;
+  super->demod.fsk4_center = 0.0f;
+  super->demod.in_sync     = 0;
+
+  //timing
+  super->demod.jitter = -1;
+
+  //reset buffers here
+  memset (super->demod.float_symbol_buffer, 0.0f, 65540*sizeof(float));
+  super->demod.float_symbol_buffer_ptr = 192;
+  
+  memset (super->demod.sample_buffer, 0, 65540*sizeof(short));
+  super->demod.sample_buffer_ptr = 192;
+
+  memset (super->demod.dibit_buffer, 0, 65540*sizeof(uint8_t));
+  super->demod.dibit_buffer_ptr = 192;
+
+  //reset some decoder states
+  super->m17d.src = 0;
+  super->m17d.dst = 0;
+  super->m17d.can = -1;
+
+  memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
+  memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
+  super->m17d.dt = 15;
+  super->m17d.enc_et = 0;
+  super->m17d.enc_st = 0;
+  sprintf (super->m17d.dst_csd_str, "%s", "");
+  sprintf (super->m17d.src_csd_str, "%s", "");
+
+}
+
+void buffer_refresh_min_max_center (Super * super)
 {
 
-  //NOTE: Leaving Buffers at Max Sizes as a safety, but may still be able to lower it later on
+  uint16_t i   = 0;
+  uint16_t ptr = 0;
 
-  int i = 0;
+  //calculate center, max, and min (apparently, max and min weren't initialized as 0.0f)
+  float buffer_max = 0.0f; float buffer_min = 0.0f; float buffer_value = 0.0f;
 
-  //calculate center, max, and min based on lastest values of the sample buffer (WIP)
-  float buffer_max, buffer_min, buffer_value = 0.0f;
   for (i = 0; i < 192; i++)
   {
-    buffer_value = super->demod.sample_buffer[(super->demod.sample_buffer_ptr-i)%65535];
+
+    ptr = super->demod.sample_buffer_ptr-i;
+    buffer_value = super->demod.sample_buffer[ptr];
+
+    //debug
+    // fprintf (stderr, "\n PTR: %d; BUF: %6.0f;", ptr, buffer_value);
 
     //clipping and sanity check on buffer_value (may have an overflow issue, still unsure, or issue in DSD-FME encoder w/ RRC Filter on)
     if (buffer_value > +32760.0f) buffer_value = +32760.0f;
@@ -220,51 +275,11 @@ void complex_refresh_min_max_center (Super * super)
 
 }
 
-//reset values when no carrier
-void no_carrier_sync (Super * super)
-{
-  //reset some demodulator states
-  print_frame_sync_pattern(super, -1);
-  super->demod.fsk4_min    = 0.0f;
-  super->demod.fsk4_max    = 0.0f;
-  super->demod.fsk4_lmid   = 0.0f;
-  super->demod.fsk4_umid   = 0.0f;
-  super->demod.fsk4_center = 0.0f;
-  super->demod.in_sync     = 0;
-
-  //timing
-  super->demod.jitter = -1;
-
-  //reset buffers here
-  memset (super->demod.float_symbol_buffer, 0.0f, 65535*sizeof(float));
-  super->demod.float_symbol_buffer_ptr = 192;
-  
-  memset (super->demod.sample_buffer, 0, 65535*sizeof(short));
-  super->demod.sample_buffer_ptr = 192;
-
-  memset (super->demod.dibit_buffer, 0, 65535*sizeof(uint8_t));
-  super->demod.dibit_buffer_ptr = 192;
-
-  //reset some decoder states
-  super->m17d.src = 0;
-  super->m17d.dst = 0;
-  super->m17d.can = -1;
-
-  memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
-  memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
-  super->m17d.dt = 15;
-  super->m17d.enc_et = 0;
-  super->m17d.enc_st = 0;
-  sprintf (super->m17d.dst_csd_str, "%s", "");
-  sprintf (super->m17d.src_csd_str, "%s", "");
-
-}
-
 void simple_refresh_min_max_center (Super * super, float sample)
 {
 
   //NOTE: This will only work if signal levels are consistent, which is okay
-  //for testing, but in real world application, this will easily fail
+  //for testing, but in real world application, this will probably fail
 
   //clipping and sanity check on buffer_value
   if (sample > +32760.0f) sample = +32760.0f;
@@ -274,7 +289,6 @@ void simple_refresh_min_max_center (Super * super, float sample)
   if      (sample > super->demod.fsk4_max) super->demod.fsk4_max = sample;
   else if (sample < super->demod.fsk4_min) super->demod.fsk4_min = sample;
 
-  //TODO: go by actual deviation for system type, but allow 'wiggle' room
   //calculate center, lower middle and upper middle values based on the min and max
   super->demod.fsk4_lmid = super->demod.fsk4_min / 2.0f;
   super->demod.fsk4_umid = super->demod.fsk4_max / 2.0f;
@@ -291,7 +305,15 @@ uint8_t convert_float_symbol_to_dibit_and_store(Super * super, float float_symbo
   dibit = digitize_symbol_to_dibit(float_symbol);
 
   //store dibit
-  super->demod.dibit_buffer[(super->demod.dibit_buffer_ptr++%65535)] = dibit;
+  super->demod.dibit_buffer[super->demod.dibit_buffer_ptr++] = dibit;
+
+  //ptr safety truncate (shouldn't be needed due to cast type as uint16_t 
+  //into an array larger, but nevertheless, good practice on array indexing)
+  super->demod.dibit_buffer_ptr &= 0xFFFF;
+  if (super->demod.dibit_buffer_ptr == 0) super->demod.dibit_buffer_ptr = 192;
+
+  //debug
+  // fprintf (stderr, "\n DIBIT PTR: %05d; DIBIT: %d", super->demod.dibit_buffer_ptr, super->demod.dibit_buffer[super->demod.dibit_buffer_ptr-1]);
 
   return dibit;
 }
@@ -309,6 +331,12 @@ uint8_t get_dibit (Super * super)
 
 //organize some more later, and put credits for things of Woj and L and whoever else
 //based off of lib17 math https://github.com/M17-Project/libm17
+
+//Euclidean Norm will return a distance value based on the 
+//normalized value of the sync pattern vs what was received
+//in perfect reception, the distance will be 0.0f on a sync pattern
+//but we allow a threshold value of 2.0f, which is perfectly fine
+//and has no issues with false sync pattern occurrance.
 float eucl_norm(float * in1, int8_t * in2, uint8_t n)
 {
   float tmp = 0.0f;
@@ -354,7 +382,7 @@ void print_frame_sync_pattern(Super * super, int type)
 }
 
 //sometimes you just want it to shut up
-void stfu2 ()
+void stfu ()
 {
   //quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);

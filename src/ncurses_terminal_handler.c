@@ -149,10 +149,10 @@ void print_ncurses_scope (Super * super)
   //it also currently prints stale storage values too
   int i;
   printw ("--Symbol Scope----------------------------------------------------------------");
-  printw ("\n| +3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr%65535)-(71-i)] == +3.0f) printw("*"); else printw(" ");
-  printw ("\n| +1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr%65535)-(71-i)] == +1.0f) printw("*"); else printw(" ");
-  printw ("\n| -1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr%65535)-(71-i)] == -1.0f) printw("*"); else printw(" ");
-  printw ("\n| -3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr%65535)-(71-i)] == -3.0f) printw("*"); else printw(" ");
+  printw ("\n| +3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == +3.0f) printw("*"); else printw(" ");
+  printw ("\n| +1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == +1.0f) printw("*"); else printw(" ");
+  printw ("\n| -1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == -1.0f) printw("*"); else printw(" ");
+  printw ("\n| -3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == -3.0f) printw("*"); else printw(" ");
   printw ("\n| ");
   //this might actually be semi useful
   printw ("Min: %6.0f; Max: %5.0f; LMid: %6.0f; UMid: %5.0f; Center: %6.0f; In: %2.0f", 

@@ -162,14 +162,16 @@ typedef struct
 //Demodulation States
 typedef struct
 {
-  short   sample_buffer[65535];
-  int32_t sample_buffer_ptr;
+  //NOTE: Recast ptrs as uint16_t which should never be able to exceed 65535
+  //and expanded the buffer to just a bit larger than that, so we don't need the modulos
+  short    sample_buffer[65540];
+  uint16_t sample_buffer_ptr;
 
-  uint8_t dibit_buffer[65535];
-  int32_t dibit_buffer_ptr;
+  uint8_t  dibit_buffer[65540];
+  uint16_t dibit_buffer_ptr;
 
-  float   float_symbol_buffer[65535];
-  int32_t float_symbol_buffer_ptr;
+  float    float_symbol_buffer[65540];
+  uint16_t float_symbol_buffer_ptr;
 
   //frame sync and timing recovery
   float   sync_symbols[8];
@@ -421,8 +423,8 @@ uint16_t crc16 (const uint8_t *in, const uint16_t len);
 //demodulation and sync functions
 void    fsk4_framesync (Super * super);
 float   demodulate_and_return_float_symbol (Super * super);
+void    buffer_refresh_min_max_center (Super * super);
 void    simple_refresh_min_max_center (Super * super, float sample);
-void    complex_refresh_min_max_center (Super * super);
 void    no_carrier_sync (Super * super);
 
 //slice and dice symbols and dibits
