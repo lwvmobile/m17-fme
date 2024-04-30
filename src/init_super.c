@@ -64,6 +64,7 @@ void init_super (Super * super)
   super->opts.monitor_encode_internally = 0;
   super->opts.allow_crc_failure = 0; //allow decode attempts, even if CRC16 fails checksum
   super->opts.use_hpfilter_dig = 1;
+  super->opts.inverted_signal = 0;
   super->opts.input_sample_rate = 48000;   //TODO: Make a function that reconfigures this and anythign that is set from this
   super->opts.output_sample_rate = 48000;  //TODO: Make a function that reconfigures this and anythign that is set from this
   super->opts.stdout_pipe = 0;

@@ -99,7 +99,6 @@ int dist_and_sync(float * last)
 uint8_t digitize_symbol_to_dibit (float symbol)
 {
   uint8_t dibit = 0;
-  //positive polarity TODO: Do inverted as well based on user value
   if (symbol == +3.0) dibit = 1;
   if (symbol == +1.0) dibit = 0;
   if (symbol == -1.0) dibit = 2;
@@ -182,15 +181,28 @@ float demodulate_and_return_float_symbol(Super * super)
 float float_symbol_slicer(Super * super, short sample)
 {
   float float_symbol = 0.0f;
-
-  if (sample < super->demod.fsk4_lmid)
-    float_symbol = -3.0f;
-  else if (sample > super->demod.fsk4_lmid   && sample < super->demod.fsk4_center)
-    float_symbol = -1.0f;
-  else if (sample > super->demod.fsk4_center && sample < super->demod.fsk4_umid)
-    float_symbol = +1.0f;
-  else if (sample > super->demod.fsk4_umid)
-    float_symbol = +3.0f;
+  if (super->opts.inverted_signal == 0)
+  {
+    if (sample < super->demod.fsk4_lmid)
+      float_symbol = -3.0f;
+    else if (sample > super->demod.fsk4_lmid   && sample < super->demod.fsk4_center)
+      float_symbol = -1.0f;
+    else if (sample > super->demod.fsk4_center && sample < super->demod.fsk4_umid)
+      float_symbol = +1.0f;
+    else if (sample > super->demod.fsk4_umid)
+      float_symbol = +3.0f;
+  }
+  else if (super->opts.inverted_signal == 1)
+  {
+    if (sample < super->demod.fsk4_lmid)
+      float_symbol = +3.0f;
+    else if (sample > super->demod.fsk4_lmid   && sample < super->demod.fsk4_center)
+      float_symbol = +1.0f;
+    else if (sample > super->demod.fsk4_center && sample < super->demod.fsk4_umid)
+      float_symbol = -1.0f;
+    else if (sample > super->demod.fsk4_umid)
+      float_symbol = -3.0f;
+  }
 
   return float_symbol;
 }
@@ -253,7 +265,7 @@ void buffer_refresh_min_max_center (Super * super)
     //debug
     // fprintf (stderr, "\n PTR: %d; BUF: %6.0f;", ptr, buffer_value);
 
-    //clipping and sanity check on buffer_value (may have an overflow issue, still unsure, or issue in DSD-FME encoder w/ RRC Filter on)
+    //clipping and sanity check on buffer_value
     if (buffer_value > +32760.0f) buffer_value = +32760.0f;
     if (buffer_value < -32760.0f) buffer_value = -32760.0f;
 
@@ -281,7 +293,7 @@ void simple_refresh_min_max_center (Super * super, float sample)
   //NOTE: This will only work if signal levels are consistent, which is okay
   //for testing, but in real world application, this will probably fail
 
-  //clipping and sanity check on buffer_value
+  //clipping and sanity check on sample
   if (sample > +32760.0f) sample = +32760.0f;
   if (sample < -32760.0f) sample = -32760.0f;
   
@@ -295,6 +307,11 @@ void simple_refresh_min_max_center (Super * super, float sample)
 
   //disable this if issues arise, not sure if this is okay or not (I think this is okay)
   super->demod.fsk4_center = (fabs(super->demod.fsk4_max) - fabs(super->demod.fsk4_min)) / 2.0f;
+
+  //in level value, absolute value of the greater of min or max / greatest value multiplied by 100 for percent
+  if (fabs(super->demod.fsk4_min) > fabs(super->demod.fsk4_max))
+    super->demod.input_level    = ( (fabs(super->demod.fsk4_min)) / 32767.0f) * 100.0f;
+  else super->demod.input_level = ( (fabs(super->demod.fsk4_max)) / 32767.0f) * 100.0f;
 }
 
 uint8_t convert_float_symbol_to_dibit_and_store(Super * super, float float_symbol)

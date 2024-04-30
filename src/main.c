@@ -80,7 +80,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "123456c:df:himns:v:w:A:C:D:F:INM:PS:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "123456c:df:himns:v:w:xA:C:D:F:INM:PS:U:VX")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -196,6 +196,12 @@ int main (int argc, char **argv)
         super.snd_src_in.snd_in_filename[1023] = '\0';
         super.opts.snd_input_is_a_file = 1;
         fprintf (stderr, "SNDFile (.wav, .rrc) Input File: %s \n", super.snd_src_in.snd_in_filename);
+        break;
+
+      //Expect Inverted Signal Input
+      case 'x':
+        super.opts.inverted_signal = 1;
+        fprintf (stderr, "Expecting Inverted M17 Signal Input \n");
         break;
 
       //Specify M17 STR Encoder Arbitrary Data For 1600
