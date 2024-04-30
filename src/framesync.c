@@ -385,6 +385,9 @@ char * get_sync_type_string(int type)
 //high level debug infomation dumps
 void print_debug_information(Super * super)
 {
+  //quell defined but not used warnings from m17.h
+  stfu ();
+  
   if (super->opts.payload_verbosity >= 3)
   {
     fprintf (stderr, "\n MIN: %f; MAX: %f; LMID: %f; UMID: %f; Center: %f; ", 
@@ -402,12 +405,4 @@ void print_frame_sync_pattern(Super * super, int type)
     fprintf (stderr, "INLVL: %2.1f; ", super->demod.input_level);
   fprintf (stderr, "M17 %s Frame Sync (%s): ", syncstr, timestr);
   free (timestr); timestr = NULL;
-}
-
-//sometimes you just want it to shut up
-void stfu ()
-{
-  //quell defined but not used warnings from m17.h
-  UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc);
-  UNUSED(lsf_sync_symbols); UNUSED(str_sync_symbols); UNUSED(pkt_sync_symbols); UNUSED(symbol_levels);
 }
