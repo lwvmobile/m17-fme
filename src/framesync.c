@@ -49,8 +49,8 @@ void fsk4_framesync (Super * super)
     else if (type == 3)
       demod_pkt(super, NULL, 0);
 
-    // else if (type == 4)
-    //   demod_brt(super, NULL, 0);
+    else if (type == 4)
+      demod_brt(super, NULL, 0);
 
     //reset type
     type = -1;
@@ -89,9 +89,9 @@ int dist_and_sync(float * last)
   dist = 99.0f; //reset
 
   //BRT
-  // dist = eucl_norm(last, brt_sync_symbols, 8); //need to add syncword for brt
-  // if (dist < 2.0f) return 4;
-  // dist = 99.0f; //reset
+  dist = eucl_norm(last, brt_sync_symbols, 8);
+  if (dist < 2.0f) return 4;
+  dist = 99.0f; //reset
 
   return -1;
 }
@@ -387,7 +387,7 @@ void print_debug_information(Super * super)
 {
   //quell defined but not used warnings from m17.h
   stfu ();
-  
+
   if (super->opts.payload_verbosity >= 3)
   {
     fprintf (stderr, "\n MIN: %f; MAX: %f; LMID: %f; UMID: %f; Center: %f; ", 
