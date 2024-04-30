@@ -280,8 +280,8 @@ void buffer_refresh_min_max_center (Super * super)
 
   //in level value, absolute value of the greater of min or max / greatest value multiplied by 100 for percent
   if (fabs(super->demod.fsk4_min) > fabs(super->demod.fsk4_max))
-    super->demod.input_level    = ( (fabs(super->demod.fsk4_min)) / 32767.0f) * 100.0f;
-  else super->demod.input_level = ( (fabs(super->demod.fsk4_max)) / 32767.0f) * 100.0f;
+    super->demod.input_level    = ( (fabs(super->demod.fsk4_min)) / 32760.0f) * 100.0f;
+  else super->demod.input_level = ( (fabs(super->demod.fsk4_max)) / 32760.0f) * 100.0f;
 
   if (super->opts.payload_verbosity >= 6)
   {
@@ -315,8 +315,8 @@ void simple_refresh_min_max_center (Super * super, float sample)
 
   //in level value, absolute value of the greater of min or max / greatest value multiplied by 100 for percent
   if (fabs(super->demod.fsk4_min) > fabs(super->demod.fsk4_max))
-    super->demod.input_level    = ( (fabs(super->demod.fsk4_min)) / 32767.0f) * 100.0f;
-  else super->demod.input_level = ( (fabs(super->demod.fsk4_max)) / 32767.0f) * 100.0f;
+    super->demod.input_level    = ( (fabs(super->demod.fsk4_min)) / 32760.0f) * 100.0f;
+  else super->demod.input_level = ( (fabs(super->demod.fsk4_max)) / 32760.0f) * 100.0f;
 }
 
 uint8_t convert_float_symbol_to_dibit_and_store(Super * super, float float_symbol)
