@@ -151,7 +151,8 @@ float demodulate_and_return_float_symbol(Super * super)
       //catch up or fall back -- execute clock recovery, also filter and store sample
       if (!super->demod.in_sync && super->demod.fsk4_jitter)
       {
-        sample = rrc_input_filter(super->demod.rrc_input_mem, sample);
+        if (!super->opts.disable_rrc_filter)
+          sample = rrc_input_filter(super->demod.rrc_input_mem, sample);
         for (int j = 0; j < super->demod.fsk4_jitter; j++)
           samples[j] = sample;
 
@@ -160,7 +161,7 @@ float demodulate_and_return_float_symbol(Super * super)
       }
 
       //RRC input filtering on sample
-      if (!super->opts.disable_rrc_filter)
+      if (!super->opts.disable_rrc_filter && super->demod.in_sync)
         sample = rrc_input_filter(super->demod.rrc_input_mem, sample);
 
       //store locally for clock recover / transition inspection
@@ -243,9 +244,9 @@ void clock_recovery(Super * super, short * samples)
     {
       if (super->opts.demod_verbosity >= 2)
       fprintf (stderr, "\nClock Recovery: i:%d; F: %6.0f; N: %6.0f;", i, first, fsample);
-      // super->demod.fsk4_jitter = 9-i;
-      super->demod.fsk4_jitter = i-1;
-      break;
+      super->demod.fsk4_jitter = 9-i; //seems to work better like this than it does with below
+      // super->demod.fsk4_jitter = i-1;
+      // break;
     }
 
   }
