@@ -176,8 +176,6 @@ typedef struct
 
   //frame sync and timing recovery
   float   sync_symbols[8];
-  short   last_sample;
-  int     jitter;
 
   //fsk4
   int fsk4_samples_per_symbol;
@@ -433,6 +431,7 @@ void    fsk4_framesync (Super * super);
 float   demodulate_and_return_float_symbol (Super * super);
 void    buffer_refresh_min_max_center (Super * super);
 void    simple_refresh_min_max_center (Super * super, float sample);
+void    clock_recovery(Super * super, short * samples);
 void    no_carrier_sync (Super * super);
 
 //slice and dice symbols and dibits

@@ -139,26 +139,42 @@ float demodulate_and_return_float_symbol(Super * super)
   //If using RF Audio Based Input (Pulse, OSS, SNDFile or other)
   else
   {
+    //may need external array for this
+    short samples[10]; memset (samples, 0, 10*sizeof(short));
+
     //gather number of samples_per_symbol, and then store the nth sample
     for (i = 0; i < super->demod.fsk4_samples_per_symbol; i++)
     {
       //retrieve sample from audio input handler
       sample = get_short_audio_input_sample(super);
 
-      //NOTE: Need to recover clock / phase before we can apply the RRC input filter
-      
+      //catch up or fall back -- execute clock recovery, also filter and store sample
+      if (!super->demod.in_sync && super->demod.fsk4_jitter)
+      {
+        sample = rrc_input_filter(super->demod.rrc_input_mem, sample);
+        for (int j = 0; j < super->demod.fsk4_jitter; j++)
+          samples[j] = sample;
+
+        i += super->demod.fsk4_jitter;
+        super->demod.fsk4_jitter = 0;
+      }
 
       //RRC input filtering on sample
-      if (super->opts.disable_rrc_filter == 0)
+      if (!super->opts.disable_rrc_filter)
         sample = rrc_input_filter(super->demod.rrc_input_mem, sample);
+
+      //store locally for clock recover / transition inspection
+      samples[i] = sample;
 
     }
 
-    //collect post sample for evaluation for timing recovery purposes
-    super->demod.last_sample = sample;
-
     buffer_refresh_min_max_center(super); //buffer based on last 192 symbols
     float_symbol = float_symbol_slicer(super, sample);
+
+    //look for clock recovery, if not in sync and rrc filter is on
+    if (!super->demod.in_sync && !super->opts.disable_rrc_filter)
+      clock_recovery(super, samples);
+
   }
 
   //store float symbol
@@ -180,6 +196,60 @@ float demodulate_and_return_float_symbol(Super * super)
 
   //return dibit value
   return float_symbol;
+}
+
+//very crude clock recovery based on finding a transition edge
+void clock_recovery(Super * super, short * samples)
+{
+
+  int i = 0;
+  float first   = 0.0f;
+  float fsample = 0.0f;
+  float flevel  = 0.0f;
+  float fnexts  = 0.0f;
+  
+  if (super->opts.payload_verbosity >= 2)
+  {
+    fprintf (stderr, "\nLTS:");
+    for (i = 0; i < 10; i++)
+      fprintf (stderr, " %06d;", samples[i]);
+  }
+
+  first = (float)samples[0];
+  if (first < super->demod.fsk4_lmid)
+    flevel = -3.0f;
+  else if (first > super->demod.fsk4_lmid   && first < super->demod.fsk4_center)
+    flevel = -1.0f;
+  else if (first > super->demod.fsk4_center && first < super->demod.fsk4_umid)
+    flevel = +1.0f;
+  else if (first > super->demod.fsk4_umid)
+    flevel = +3.0f;
+
+  //look for a transitional value when what we had on sample 0 is no longer true for the ith value
+  for (i = 1; i < 10; i++) //1 to 10
+  {
+    fsample = (float)samples[i];
+    if (fsample < super->demod.fsk4_lmid)
+      fnexts = -3.0f;
+    else if (fsample > super->demod.fsk4_lmid   && fsample < super->demod.fsk4_center)
+      fnexts = -1.0f;
+    else if (fsample > super->demod.fsk4_center && fsample < super->demod.fsk4_umid)
+      fnexts = +1.0f;
+    else if (fsample > super->demod.fsk4_umid)
+      fnexts = +3.0f;
+
+    //assign the jitter to the ith value for the transition edge
+    if (fnexts != flevel)
+    {
+      if (super->opts.payload_verbosity >= 2)
+      fprintf (stderr, "\nClock Recovery: i:%d; F: %6.0f; N: %6.0f;", i, first, fsample);
+      // super->demod.fsk4_jitter = 9-i;
+      super->demod.fsk4_jitter = i-1;
+      break;
+    }
+
+  }
+
 }
 
 float float_symbol_slicer(Super * super, short sample)
@@ -224,7 +294,7 @@ void no_carrier_sync (Super * super)
   super->demod.in_sync     = 0;
 
   //timing
-  super->demod.jitter = -1;
+  super->demod.fsk4_jitter = 0;
 
   //reset buffers here
   memset (super->demod.float_symbol_buffer, 0.0f, 65540*sizeof(float));
