@@ -21,7 +21,7 @@ void encodeM17RF (Super * super, uint8_t * input, float * mem, int type)
   //Single Digit numbers 1,2,3,4 are LSF, STR, BRT, and PKT
   //Double Digit numbers 11,33,55,99 are preamble, EOT, or Dead Air
 
-  int i, j, k, x;
+  int i, j, k, x; UNUSED(k); UNUSED(x);
 
   //Preamble A - 0x7777 (+3, -3, +3, -3, +3, -3, +3, -3)
   uint8_t m17_preamble_a[16] = {0,1,1,1, 0,1,1,1, 0,1,1,1, 0,1,1,1};
@@ -124,37 +124,41 @@ void encodeM17RF (Super * super, uint8_t * input, float * mem, int type)
     for (i = 0; i < 1920; i++)
       baseband[i] = output_up[i] * 7168.0f;
   }
-  
+
   //version w/ filtering lifted from M17_Implementations / libM17
   else if (super->opts.disable_rrc_filter == 0)
-  {
+    upsacale_and_rrc_output_filter (output_symbols, mem, baseband);
+  
+  //version w/ filtering lifted from M17_Implementations / libM17
+  // else if (super->opts.disable_rrc_filter == 0)
+  // {
     
-    float mac = 0.0f;
-    x = 0;
-    for (i = 0; i < 192; i++)
-    {
-      mem[0] = (float)output_symbols[i] * 7168.0f;
+  //   float mac = 0.0f;
+  //   x = 0;
+  //   for (i = 0; i < 192; i++)
+  //   {
+  //     mem[0] = (float)output_symbols[i] * 7168.0f;
 
-      for (j = 0; j < 10; j++)
-      {
+  //     for (j = 0; j < 10; j++)
+  //     {
 
-        mac = 0.0f;
+  //       mac = 0.0f;
 
-        //calc the sum of products
-        for (k = 0; k < 81; k++)
-          mac += mem[k]*m17_rrc[k]*sqrtf(10.0);
+  //       //calc the sum of products
+  //       for (k = 0; k < 81; k++)
+  //         mac += mem[k]*m17_rrc[k]*sqrtf(10.0);
 
-        //shift the delay line right by 1
-        for (k = 80; k > 0; k--)
-          mem[k] = mem[k-1];
+  //       //shift the delay line right by 1
+  //       for (k = 80; k > 0; k--)
+  //         mem[k] = mem[k-1];
 
-        mem[0] = 0.0f;
+  //       mem[0] = 0.0f;
 
-        baseband[x++] = (short)mac;
-      }
+  //       baseband[x++] = (short)mac;
+  //     }
 
-    }
-  }
+  //   }
+  // }
 
   //dead air type, output to all enabled formats zero sample to simulate dead air
   //NOTE: 25 rounds is approximately 1 second even, seems optimal

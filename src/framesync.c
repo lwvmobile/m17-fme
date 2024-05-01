@@ -142,19 +142,22 @@ float demodulate_and_return_float_symbol(Super * super)
     //gather number of samples_per_symbol, and then store the nth sample
     for (i = 0; i < super->demod.fsk4_samples_per_symbol; i++)
     {
-
+      //retrieve sample from audio input handler
       sample = get_short_audio_input_sample(super);
 
-      //evaluate jitter here
-      //TODO: Make a symbol_timing_recovery function
+      //NOTE: Need to recover clock / phase before we can apply the RRC input filter
+      
 
-      //collect post sample for evaluation for timing recovery purposes
-      super->demod.last_sample = sample;
+      //RRC input filtering on sample
+      if (super->opts.disable_rrc_filter == 0)
+        sample = rrc_input_filter(super->demod.rrc_input_mem, sample);
 
     }
 
+    //collect post sample for evaluation for timing recovery purposes
+    super->demod.last_sample = sample;
+
     buffer_refresh_min_max_center(super); //buffer based on last 192 symbols
-    // simple_refresh_min_max_center(super, sample); //based on current only
     float_symbol = float_symbol_slicer(super, sample);
   }
 

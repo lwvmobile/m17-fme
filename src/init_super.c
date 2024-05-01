@@ -60,7 +60,7 @@ void init_super (Super * super)
 
   //Misc Options to organize later
   super->opts.m17_str_encoder_dt = 2; //2 is fullrate (3200), 3 is halfrate (1600) w/ arb data
-  super->opts.disable_rrc_filter = 1; //Disable this later on
+  super->opts.disable_rrc_filter = 0; //Disable this later on
   super->opts.monitor_encode_internally = 0;
   super->opts.allow_crc_failure = 0; //allow decode attempts, even if CRC16 fails checksum
   super->opts.use_hpfilter_dig = 1;
@@ -160,6 +160,9 @@ void init_super (Super * super)
   super->demod.fsk4_lmid = 0.0f;
   super->demod.fsk4_umid = 0.0f;
 
+  //RRC Input Filter Memory
+  memset (super->demod.rrc_input_mem, 0, 81*sizeof(float));
+
   super->demod.in_sync = 0;
   super->demod.sync_time    = time(NULL);
   super->demod.current_time = time(NULL);
@@ -248,5 +251,5 @@ void init_super (Super * super)
   HPFilter_Init (&super->hpf_d, 960, (float)1/(float)super->opts.input_sample_rate);
   HPFilter_Init (&super->hpf_a, 960, (float)1/(float)super->opts.input_sample_rate);
   //end HPF Init
-  
+
 }

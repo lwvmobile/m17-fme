@@ -189,6 +189,9 @@ typedef struct
   float fsk4_lmid;
   float fsk4_umid;
 
+  //RRC Input Filter Memory
+  float rrc_input_mem[81];
+
   //sync and time
   uint8_t in_sync;
   time_t sync_time;
@@ -405,6 +408,10 @@ void upsample_6x (short input, short * output);
 void HPFilter_Init (HPFilter *filter, float cutoffFreqHz, float sampleTimeS);
 float HPFilter_Update (HPFilter *filter, float v_in);
 void hpfilter_d (Super * super, short * input, int len);
+
+//RRC Input and Output Filtering
+short rrc_input_filter(float * mem, short sample);
+void upsacale_and_rrc_output_filter (int * output_symbols, float * mem, short * baseband);
 
 //convolutional encoder and decoder (viterbi)
 void simple_conv_encoder (uint8_t * input, uint8_t * output, int len);

@@ -7,6 +7,7 @@
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"
+#include "m17.h"
 
 #define PI 3.141592653
 
@@ -61,4 +62,58 @@ void hpfilter_d(Super * super, short * input, int len)
 		input[i] = HPFilter_Update(&super->hpf_d, input[i]);
 		// fprintf (stderr, "\n out: %05d", input[i]);
 	}
+}
+
+//10x Upscale and RRC filtering lifted from M17_Implementations / libM17
+void upsacale_and_rrc_output_filter (int * output_symbols, float * mem, short * baseband)
+{
+  int i = 0; int j = 0; int k = 0; int x = 0;
+  float mac = 0.0f;
+  for (i = 0; i < 192; i++)
+  {
+    mem[0] = (float)output_symbols[i] * 7168.0f;
+
+    for (j = 0; j < 10; j++)
+    {
+
+      mac = 0.0f;
+
+      //calc the sum of products
+      for (k = 0; k < 81; k++)
+        mac += mem[k]*m17_rrc[k]*sqrtf(10.0);
+
+      //shift the delay line right by 1
+      for (k = 80; k > 0; k--)
+        mem[k] = mem[k-1];
+
+      mem[0] = 0.0f;
+
+      baseband[x++] = (short)mac;
+    }
+  }
+}
+
+short rrc_input_filter(float * mem, short sample)
+{
+  int i = 0;
+  float sum = 0.0f;
+  float out = 0.0f;
+	float gain = 12.0f;
+
+  //push memory
+  for (i = 0; i < 78; i++)
+    mem[i] = mem[i+1];
+  mem[78] = (float)sample;
+
+  for (i = 0; i < 79; i++)
+    sum += m17_input_rrc[i] * mem[i]; //change to input rrc later on
+
+  out = sum / gain;
+
+  return (short)out;
+}
+
+void asljdf()
+{
+	stfu();
 }
