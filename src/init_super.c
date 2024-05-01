@@ -24,6 +24,10 @@ void init_super (Super * super)
   super->opts.use_ncurses_terminal = 0;
   super->opts.ncurses_no_history = 0;
 
+  super->opts.payload_verbosity = 0;
+  super->opts.decoder_verbosity = 0;
+  super->opts.demod_verbosity = 0;
+
   //Pulse Audio User Options
   super->opts.use_pa_input = 0;
   super->opts.use_pa_output_rf = 0;

@@ -80,7 +80,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "123456c:df:himns:v:w:xA:C:D:F:INM:PS:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "123456c:df:himns:t:u:v:w:xA:C:D:F:INM:PS:U:VX")) != -1)
   {
     opterr = 0;
     switch (c)
@@ -183,6 +183,16 @@ int main (int argc, char **argv)
       case 's':
         super.demod.input_sql = atoi(optarg);
         fprintf (stderr, "Input Squelch: %ld; \n", super.demod.input_sql);
+        break;
+
+      case 't':
+        super.opts.demod_verbosity = atoi(optarg);
+        fprintf (stderr, "Demodulator Verbosity: %d; \n", super.opts.demod_verbosity);
+        break;
+
+      case 'u':
+        super.opts.decoder_verbosity = atoi(optarg);
+        fprintf (stderr, "Decoder / Debug Verbosity: %d; \n", super.opts.decoder_verbosity);
         break;
 
       case 'v':

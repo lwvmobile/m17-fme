@@ -610,7 +610,7 @@ void encodeM17STR(Super * super)
       }
 
       //debug show pulse input latency
-      if (super->opts.use_pa_input == 1 && super->opts.payload_verbosity >= 3)
+      if (super->opts.use_pa_input == 1 && super->opts.demod_verbosity >= 2)
       {
         unsigned long long int latency = pa_simple_get_latency (super->pa.pa_input_device, NULL);
         fprintf (stderr, " Latency: %05lld;", latency);

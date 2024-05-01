@@ -80,7 +80,7 @@ void print_ncurses_terminal(Super * super)
   print_ncurses_call_info(super);
 
   //Print Symbol Scope
-  if (super->opts.payload_verbosity >= 3)
+  if (super->opts.demod_verbosity != 0)
     print_ncurses_scope(super);
 
   //Print Call History

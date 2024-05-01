@@ -76,6 +76,8 @@ typedef struct
   uint8_t ncurses_no_history;
 
   int payload_verbosity;
+  int decoder_verbosity;
+  int demod_verbosity;
 
   //Pulse Audio User Options
   uint8_t use_pa_input;

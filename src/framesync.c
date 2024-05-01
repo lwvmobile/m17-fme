@@ -191,7 +191,7 @@ float demodulate_and_return_float_symbol(Super * super)
   if (super->demod.sample_buffer_ptr == 0) super->demod.sample_buffer_ptr = 192;
 
   //debug
-  if (super->opts.payload_verbosity >= 5)
+  if (super->opts.demod_verbosity >= 3)
     fprintf (stderr, "\n FSPTR: %05d; FS: %1.0f; SAPTR: %05d; SAMP: %06d;", super->demod.float_symbol_buffer_ptr, super->demod.float_symbol_buffer[super->demod.float_symbol_buffer_ptr-1], super->demod.sample_buffer_ptr, super->demod.sample_buffer[super->demod.sample_buffer_ptr-1]);
 
   //return dibit value
@@ -208,7 +208,7 @@ void clock_recovery(Super * super, short * samples)
   float flevel  = 0.0f;
   float fnexts  = 0.0f;
   
-  if (super->opts.payload_verbosity >= 2)
+  if (super->opts.demod_verbosity >= 3)
   {
     fprintf (stderr, "\nLTS:");
     for (i = 0; i < 10; i++)
@@ -241,7 +241,7 @@ void clock_recovery(Super * super, short * samples)
     //assign the jitter to the ith value for the transition edge
     if (fnexts != flevel)
     {
-      if (super->opts.payload_verbosity >= 2)
+      if (super->opts.demod_verbosity >= 2)
       fprintf (stderr, "\nClock Recovery: i:%d; F: %6.0f; N: %6.0f;", i, first, fsample);
       // super->demod.fsk4_jitter = 9-i;
       super->demod.fsk4_jitter = i-1;
@@ -356,7 +356,7 @@ void buffer_refresh_min_max_center (Super * super)
     super->demod.input_level    = ( (fabs(super->demod.fsk4_min)) / 32760.0f) * 100.0f;
   else super->demod.input_level = ( (fabs(super->demod.fsk4_max)) / 32760.0f) * 100.0f;
 
-  if (super->opts.payload_verbosity >= 6)
+  if (super->opts.demod_verbosity >= 3)
   {
     fprintf (stderr, "\n Last 192 - Min: %6.0f; Max: %5.0f; LMid: %6.0f; UMid: %5.0f; Center: %6.0f; In: %2.0f", 
       super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, 
@@ -408,7 +408,7 @@ uint8_t convert_float_symbol_to_dibit_and_store(Super * super, float float_symbo
   if (super->demod.dibit_buffer_ptr == 0) super->demod.dibit_buffer_ptr = 192;
 
   //debug
-  if (super->opts.payload_verbosity >= 5)
+  if (super->opts.demod_verbosity >= 4)
     fprintf (stderr, "\n DIBIT PTR: %05d; DIBIT: %d", super->demod.dibit_buffer_ptr, super->demod.dibit_buffer[super->demod.dibit_buffer_ptr-1]);
 
   return dibit;
@@ -461,7 +461,7 @@ void print_debug_information(Super * super)
   //quell defined but not used warnings from m17.h
   stfu ();
 
-  if (super->opts.payload_verbosity >= 3)
+  if (super->opts.demod_verbosity >= 1)
   {
     fprintf (stderr, "\n MIN: %f; MAX: %f; LMID: %f; UMID: %f; Center: %f; ", 
       super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, 
@@ -474,7 +474,7 @@ void print_frame_sync_pattern(Super * super, int type)
   char * timestr = getTimeN(super->demod.current_time);
   char * syncstr = get_sync_type_string(type);
   fprintf (stderr, "\n");
-  if (super->opts.payload_verbosity > 1)
+  if (super->opts.demod_verbosity >= 1)
     fprintf (stderr, "INLVL: %2.1f; ", super->demod.input_level);
   fprintf (stderr, "M17 %s Frame Sync (%s): ", syncstr, timestr);
   free (timestr); timestr = NULL;
