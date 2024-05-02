@@ -143,7 +143,7 @@ float demodulate_and_return_float_symbol(Super * super)
     short samples[10]; memset (samples, 0, 10*sizeof(short));
 
     //gather number of samples_per_symbol, and store them locally for inspection
-    for (i = 0; i < super->demod.fsk4_samples_per_symbol; i++)
+    for (i = 0; i < super->demod.fsk4_samples_per_symbol-super->demod.fsk4_offset_correction; i++)
     {
       //retrieve sample from audio input handler
       sample = get_short_audio_input_sample(super);
@@ -155,6 +155,14 @@ float demodulate_and_return_float_symbol(Super * super)
       //store locally for clock recover / transition inspection
       samples[i] = sample;
 
+      //if offset, then duplicate samples and reset
+      if (super->demod.fsk4_offset_correction)
+      {
+        for (int j = super->demod.fsk4_offset_correction; j < super->demod.fsk4_samples_per_symbol; j++)
+          samples[j] = sample; ///assign any skipped samples as the last received one instead
+        super->demod.fsk4_offset_correction = 0;
+      }
+
     }
 
     //calculate min/lmid/center/umid/max vs buffer of last 192 samples
@@ -162,6 +170,9 @@ float demodulate_and_return_float_symbol(Super * super)
 
     //vote for the best sample based on procedural criteria
     sample = vote_for_sample(super, samples);
+
+    //test for clock recovery (offset value)
+    // clock_recovery(super, samples);
 
     //slice float_symbol from provided sample
     float_symbol = float_symbol_slicer(super, sample);
@@ -281,14 +292,14 @@ void clock_recovery(Super * super, short * samples)
     else if (fsample > super->demod.fsk4_umid)
       fnexts = +3.0f;
 
-    //assign the jitter to the ith value for the transition edge
+    //assign the offset to the ith value for the transition edge
     if (fnexts != flevel)
     {
       if (super->opts.demod_verbosity >= 2)
-      fprintf (stderr, "\nClock Recovery: i:%d; F: %6.0f; N: %6.0f;", i, first, fsample);
-      super->demod.fsk4_offset_correction = 9-i; //seems to work better like this than it does with below
-      // super->demod.fsk4_offset_correction = i-1;
-      // break;
+        fprintf (stderr, "\nClock Recovery: i:%d; F: %6.0f; N: %6.0f;", i, first, fsample);
+      super->demod.fsk4_offset_correction = i;
+      // super->demod.fsk4_offset_correction = 8; //just try one
+      break;
     }
 
   }
