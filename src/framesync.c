@@ -198,6 +198,7 @@ short vote_for_sample(Super * super, short * samples)
   short vote = 0;
   
   float difference[10]; memset (difference, 0.0f, 10*sizeof(float));
+  float slope[10]; memset (slope, 0.0f, 10*sizeof(float));
   float min_dist = 32767.0f;
 
   //simple, pick center-ish sample (fallback)
@@ -213,6 +214,18 @@ short vote_for_sample(Super * super, short * samples)
       min_dist = fabs(difference[i]);
       use_sample = i;
     }
+  }
+
+  //calculate tangent line slope between each sample pair
+  float dx = PI / 40; //PI / 4 / 10 samples per symbol??
+  if (super->opts.demod_verbosity >= 2)
+    fprintf (stderr, "\nSLP:");
+  for (i = 0; i < 9; i++)
+  {
+    //y = m(x) + b //good old linear equation
+    slope[i] = ( (float)samples[i+1] - (float)samples[i] ) / dx;
+    if (super->opts.demod_verbosity >= 2)
+      fprintf (stderr, " %6.0f;", slope[i]);
   }
 
   vote = (short)samples[use_sample+1]; //or +0

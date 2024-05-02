@@ -9,6 +9,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#define PI 3.141592653
+
 #include "colors.h"
 #include <stdio.h>
 #include <stdlib.h>

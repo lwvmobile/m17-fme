@@ -9,7 +9,7 @@
 #include "main.h"
 #include "m17.h"
 
-#define PI 3.141592653
+// #define PI 3.141592653
 
 void HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
 {
