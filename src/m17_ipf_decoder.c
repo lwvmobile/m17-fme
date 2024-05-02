@@ -16,10 +16,8 @@ void decode_ipf (Super * super)
   stfu ();
 
   //Tweaks and Enable Ncurses Terminal
-  // super->opts.dmr_stereo = 0;
-  // super->opts.audio_in_type = 9; //NULL
-  // if (super->opts.use_ncurses_terminal == 1)
-  //   ncursesOpen(opts, state);
+  if (super->opts.use_ncurses_terminal == 1)
+    open_ncurses_terminal(super);
 
   //NOTE: This Internal Handling is non-blocking and keeps the connection alive
   //in the event of the other end opening and closing often (exit and restart)
@@ -76,9 +74,8 @@ void decode_ipf (Super * super)
     if (memcmp(ip_frame, magic, 4) == 0)
     {
 
-      //Enable Carrier, synctype, etc
-      // state->carrier = 1;
-      // state->synctype = 8;
+      //Enable Sync
+      super->demod.in_sync = 1;
 
       //convert bytes to bits
       k = 0;
@@ -227,8 +224,8 @@ void decode_ipf (Super * super)
       //clear frame
       memset (ip_frame, 0, sizeof(ip_frame));
 
-      // state->carrier = 0;
-      // state->synctype = -1;
+      //drop sync
+      super->demod.in_sync = 0;
     }
 
     else if (memcmp(ip_frame, eotx, 4) == 0)
@@ -260,9 +257,9 @@ void decode_ipf (Super * super)
       //clear frame
       memset (ip_frame, 0, sizeof(ip_frame));
 
-      //drop carrier and sync
-      // state->carrier = 0;
-      // state->synctype = -1;
+      //drop sync
+      super->demod.in_sync = 0;
+
     }
 
     else if (memcmp(ip_frame, ping, 4) == 0)
@@ -379,8 +376,8 @@ void decode_ipf (Super * super)
     // }
 
     //refresh ncurses printer, if enabled
-    // if (super->opts.use_ncurses_terminal == 1)
-    //   ncursesPrinter(opts, state);
+    if (super->opts.use_ncurses_terminal == 1)
+      print_ncurses_terminal(super);
 
   }
 }

@@ -140,6 +140,94 @@ void print_ncurses_config (Super * super)
 {
   UNUSED(super);
   printw ("--Input Output----------------------------------------------------------------\n");
+  printw ("| ");
+
+  //Input Methods
+  if (super->opts.use_pa_input)
+    printw ("Pulse Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+
+  else if (super->opts.use_oss_input)
+    printw ("OSS Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+
+  else if (super->opts.use_tcp_input)
+    printw ("TCP SND Input: %s:%d; %d kHz; %d Ch; ", super->opts.tcp_input_hostname, super->opts.tcp_input_portno, super->opts.input_sample_rate/1000, 1);
+
+  else if (super->opts.m17_udp_sock && super->opts.use_m17_ipf_decoder)
+    printw ("UDP IP Frame Input: %s:%d; ", super->opts.m17_hostname, super->opts.m17_portno);
+
+  else if (super->opts.snd_input_is_a_file)
+    printw ("File SND Input: %s; %d kHz; ", super->snd_src_in.snd_in_filename, super->opts.input_sample_rate);
+
+  else if (super->opts.use_stdin_input)
+    printw ("STDIN SND Input: %s; %d kHz; KB Shortcuts Disabled; ", "-", super->opts.input_sample_rate);
+
+  else if (super->opts.use_float_symbol_input == 1)
+    printw ("File: M17 Float Symbol Input: %s;", super->opts.float_symbol_input_file);
+
+  else if (super->opts.use_dibit_input == 1)
+    printw ("File: DSD-FME Dibit Capture Bin Input: %s; ", super->opts.dibit_input_file);
+
+  // if (super->opts.rig_remote_sock) //TODO: Add this functionality?
+  //   printw ("RIG: %s:%d; ", opts->tcp_hostname, opts->rigctlportno);
+
+  //debug '2' option, RRC enabled or disabled
+  if (super->opts.disable_rrc_filter == 0)
+    printw (" RRC(2);");
+  else printw ("!RRC(2);");
+
+  if (super->opts.inverted_signal == 0)
+    printw (" ++++(3);");
+  else printw (" ----(3);");
+
+  if (super->m17e.str_encoder_vox)
+    printw (" Mic Vox SQL: %04ld; RMS: %04ld;", super->demod.input_sql, super->demod.input_rms);
+
+  printw ("\n");
+  printw ("| ");
+
+  //Output Methods (Hardware)
+  if (super->pa.pa_output_rf_is_open)
+    printw ("Pulse RF Output:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+
+  if (super->pa.pa_output_vx_is_open)
+    printw ("Pulse Voice Output:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+
+  if (super->opts.use_oss_output)
+  {
+    printw ("OSS Output:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+    if      (super->opts.monitor_encode_internally) printw ("Internal Decoder; ");
+    else if (super->opts.use_m17_pkt_encoder == 1)  printw ("RF Output; ");
+    else if (super->opts.use_m17_str_encoder == 1)  printw ("RF Output; ");
+    else if (super->opts.use_m17_brt_encoder == 1)  printw ("RF Output; ");
+    else                                            printw ("Voice Decoder; ");
+  }
+
+  //Output Methods (Files)
+  if (super->opts.use_wav_out_rf == 1)
+    printw ("\n| File: RF Modulated Audio Output: %s;", super->wav.wav_out_file_rf);
+
+  if (super->opts.use_wav_out_vx == 1)
+    printw ("\n| File: Decoded Voice Audio Output: %s;", super->wav.wav_out_file_vx);
+
+  if (super->opts.use_float_symbol_output == 1)
+    printw ("\n| File: M17 Float Symbol Output: %s;", super->opts.float_symbol_output_file);
+
+  if (super->opts.use_dibit_output == 1)
+    printw ("\n| File: DSD-FME Dibit Capture Bin Output: %s;", super->opts.dibit_output_file);
+
+  //Output UDP IP Frame
+  if (super->opts.m17_udp_sock && !super->opts.use_m17_ipf_decoder)
+    printw ("\n| UDP IP Frame Output: %s:%d; ", super->opts.m17_hostname, super->opts.m17_portno);
+
+
+  //may put this here instead of down below
+  printw ("\n| ");
+  //this might actually be semi useful
+  printw ("In: %2.0f%%; -3.0: %6.0f; -1.0: %6.0f; +1.0: %6.0f; +3: %5.0f; Center: %4.0f; ", 
+      super->demod.input_level, super->demod.fsk4_min, super->demod.fsk4_lmid,
+      super->demod.fsk4_umid, super->demod.fsk4_max, super->demod.fsk4_center);
+
+  printw ("\n");
   printw ("------------------------------------------------------------------------------\n");
 }
 
@@ -155,9 +243,9 @@ void print_ncurses_scope (Super * super)
   printw ("\n| -3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == -3.0f) printw("*"); else printw(" ");
   printw ("\n| ");
   //this might actually be semi useful
-  printw ("Min: %6.0f; Max: %5.0f; LMid: %6.0f; UMid: %5.0f; Center: %6.0f; In: %2.0f", 
-      super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, 
-      super->demod.fsk4_umid, super->demod.fsk4_center, super->demod.input_level);
+  // printw ("Min: %6.0f; Max: %5.0f; LMid: %6.0f; UMid: %5.0f; Center: %6.0f; In: %2.0f", 
+  //     super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, 
+  //     super->demod.fsk4_umid, super->demod.fsk4_center, super->demod.input_level);
 
   printw ("\n");
   printw ("------------------------------------------------------------------------------\n");
@@ -175,11 +263,24 @@ void print_ncurses_call_info (Super * super)
   printw ("| ");
   printw ("M17: ");
 
+  if (super->opts.use_m17_str_encoder)
+    printw ("Stream Encoder");
+  else if (super->opts.use_m17_pkt_encoder == 1)
+    printw ("Packet Encoder"); //this doesn't use ncurses terminal, but it may later
+  else if (super->opts.use_m17_brt_encoder == 1)
+    printw ("Bit Error Rate Test Encoder"); //this doesn't use ncurses terminal, but it may later
+  else if (super->opts.use_m17_ipf_decoder == 1)
+    printw ("UDP/IP Frame Decoder");
+  else printw ("RF Stream and Packet Decoder"); //not sure what to put here, if anything
+
+  printw ("\n");
+  printw ("| ");
+  printw ("M17: ");
   //insert data type and frame information
   if (super->m17d.dt == 0) printw("Reserved");
-  if (super->m17d.dt == 1) printw("Data ");
+  if (super->m17d.dt == 1) printw("Packet Data ");
   if (super->m17d.dt == 2) printw("Voice (3200) ");
-  if (super->m17d.dt == 3) printw("Voice (1600) + Data");
+  if (super->m17d.dt == 3) printw("Voice (1600) + Arbitary Data");
 
   printw ("\n");
   printw ("| ");
@@ -211,26 +312,26 @@ void print_ncurses_call_info (Super * super)
 
   printw ("\n");
   printw ("| ");
+  printw ("ENC: ");
 
-
-  //fill in any extra info, like Meta (IV, etc)
+  //Display and Encryption Methods, if used
   if (super->m17d.enc_et == 1)
-  {
     printw (" Scrambler - Type: %d", super->m17d.enc_st);
-  }
-
-  if (super->m17d.enc_et == 2)
+  else if (super->m17d.enc_et == 2)
   {
     printw (" AES-CTR - IV: ");
     //display packed meta as IV
     for (int i = 0; i < 16; i++)
       printw ("%02X", super->m17d.meta[i]);
   }
-
-  if (super->m17d.enc_et == 3)
-  {
+  else if (super->m17d.enc_et == 3)
     printw (" Reserved Enc - Type: %d", super->m17d.enc_st);
-  }
+  else printw ("None");
+
+  printw ("\n");
+  printw ("| ");
+  printw ("PKT: ");
+  printw ("TODO, Put any decoded sms or packet data messages here, like GNSS, etc. ");
 
   printw ("\n");
 

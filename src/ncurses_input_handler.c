@@ -16,6 +16,25 @@ void input_ncurses_terminal (Super * super, int c)
   switch (c)
   {
 
+    //'2' key, toggle RRC Input / Output Filtering
+    case 50:
+      if (super->opts.disable_rrc_filter == 0) super->opts.disable_rrc_filter = 1;
+      else super->opts.disable_rrc_filter = 0;
+      no_carrier_sync (super); //reset demod
+      break;
+
+    //'3' key, toggle inversion
+    case 51:
+      if (super->opts.inverted_signal == 0) super->opts.inverted_signal = 1;
+      else super->opts.inverted_signal = 0;
+      no_carrier_sync (super); //reset demod
+      break;
+
+    //'4' key, simulate no_carrier_sync (reset states)
+    case 52:
+      no_carrier_sync (super); //reset demod
+      break;
+
     //'\' key, toggle TX
     case 92:
       if (super->m17e.str_encoder_tx == 0) super->m17e.str_encoder_tx = 1;
