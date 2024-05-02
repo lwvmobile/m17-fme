@@ -123,7 +123,7 @@ void print_ncurses_banner (Super * super)
       attron(COLOR_PAIR(9));
       printw ("%s", FME_banner[i]);
       attron(COLOR_PAIR(6));
-      if (i == 2) printw (" ESC to Menu");
+      if (i == 2) printw ("   CTRL+C or ");
       if (i == 3) printw (" 'q' to Quit ");
       #ifdef USE_CODEC2
       if (i == 6) printw (" CODEC2");
@@ -138,7 +138,9 @@ void print_ncurses_banner (Super * super)
 
 void print_ncurses_config (Super * super)
 {
-  UNUSED(super);
+  //color on, cyan
+  attron(COLOR_PAIR(4));
+
   printw ("--Input Output----------------------------------------------------------------\n");
   printw ("| ");
 
@@ -171,13 +173,16 @@ void print_ncurses_config (Super * super)
   //   printw ("RIG: %s:%d; ", opts->tcp_hostname, opts->rigctlportno);
 
   //debug '2' option, RRC enabled or disabled
-  if (super->opts.disable_rrc_filter == 0)
-    printw (" RRC(2);");
-  else printw ("!RRC(2);");
+  if (!super->opts.use_m17_ipf_decoder)
+  {
+    if (super->opts.disable_rrc_filter == 0)
+      printw (" RRC(2);");
+    else printw ("!RRC(2);");
 
-  if (super->opts.inverted_signal == 0)
-    printw (" ++++(3);");
-  else printw (" ----(3);");
+    if (super->opts.inverted_signal == 0)
+      printw (" ++++(3);");
+    else printw (" ----(3);");
+  }
 
   if (super->m17e.str_encoder_vox)
     printw (" Mic Vox SQL: %04ld; RMS: %04ld;", super->demod.input_sql, super->demod.input_rms);
@@ -217,38 +222,51 @@ void print_ncurses_config (Super * super)
 
   //Output UDP IP Frame
   if (super->opts.m17_udp_sock && !super->opts.use_m17_ipf_decoder)
-    printw ("\n| UDP IP Frame Output: %s:%d; ", super->opts.m17_hostname, super->opts.m17_portno);
+    printw ("\n| UDP IP Frame Output: %s:%d; Reflector Module: %c", super->opts.m17_hostname, super->opts.m17_portno, super->m17e.reflector_module);
 
-
-  //may put this here instead of down below
-  printw ("\n| ");
-  //this might actually be semi useful
-  printw ("In: %2.0f%%; -3.0: %6.0f; -1.0: %6.0f; +1.0: %6.0f; +3: %5.0f; Center: %4.0f; ", 
-      super->demod.input_level, super->demod.fsk4_min, super->demod.fsk4_lmid,
-      super->demod.fsk4_umid, super->demod.fsk4_max, super->demod.fsk4_center);
+  //in level and symbol levels and center value
+  if (!super->opts.use_m17_str_encoder)
+  {
+    printw ("\n| ");
+    printw ("In: %2.0f%%; +3.0: %5.0f; +1.0: %5.0f; -1.0: %6.0f; -3: %6.0f; Center: %4.0f; ", 
+        super->demod.input_level, super->demod.fsk4_max, super->demod.fsk4_umid,
+        super->demod.fsk4_lmid, super->demod.fsk4_min, super->demod.fsk4_center);
+    // printw ("In: %2.0f%%; -3.0: %6.0f; -1.0: %6.0f; +1.0: %6.0f; +3: %5.0f; Center: %4.0f; ", 
+    //     super->demod.input_level, super->demod.fsk4_min, super->demod.fsk4_lmid,
+    //     super->demod.fsk4_umid, super->demod.fsk4_max, super->demod.fsk4_center);
+  }
+  else
+  {
+    printw ("\n| "); //add an item here?
+  }
+  
 
   printw ("\n");
   printw ("------------------------------------------------------------------------------\n");
+
+  //color off, back to white
+  attron(COLOR_PAIR(6));
 }
 
+//NOTE: This is just eye candy, it's not real time or anything.
 void print_ncurses_scope (Super * super)
 {
-  //NOTE: This is just eye candy, it's not real time or anything
-  //it also currently prints stale storage values too
+  //color on, yellow
+  if (super->demod.in_sync)
+    attron(COLOR_PAIR(1));
+
   int i;
   printw ("--Symbol Scope----------------------------------------------------------------");
   printw ("\n| +3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == +3.0f) printw("*"); else printw(" ");
   printw ("\n| +1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == +1.0f) printw("*"); else printw(" ");
   printw ("\n| -1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == -1.0f) printw("*"); else printw(" ");
   printw ("\n| -3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == -3.0f) printw("*"); else printw(" ");
-  printw ("\n| ");
-  //this might actually be semi useful
-  // printw ("Min: %6.0f; Max: %5.0f; LMid: %6.0f; UMid: %5.0f; Center: %6.0f; In: %2.0f", 
-  //     super->demod.fsk4_min, super->demod.fsk4_max, super->demod.fsk4_lmid, 
-  //     super->demod.fsk4_umid, super->demod.fsk4_center, super->demod.input_level);
-
+  // printw ("\n| ");
   printw ("\n");
   printw ("------------------------------------------------------------------------------\n");
+
+  //color off, back to white
+  attron(COLOR_PAIR(6));
 }
 
 void print_ncurses_call_info (Super * super)
@@ -316,36 +334,62 @@ void print_ncurses_call_info (Super * super)
 
   //Display and Encryption Methods, if used
   if (super->m17d.enc_et == 1)
-    printw (" Scrambler - Type: %d", super->m17d.enc_st);
+    printw ("Scrambler - Type: %d", super->m17d.enc_st);
   else if (super->m17d.enc_et == 2)
   {
-    printw (" AES-CTR - IV: ");
+    printw ("AES-CTR - IV: ");
     //display packed meta as IV
     for (int i = 0; i < 16; i++)
       printw ("%02X", super->m17d.meta[i]);
   }
   else if (super->m17d.enc_et == 3)
     printw (" Reserved Enc - Type: %d", super->m17d.enc_st);
-  else printw ("None");
+  else printw ("Clear");
+
+  // printw ("TODO, Put any decoded sms or packet data messages here, like GNSS, etc. ");
+  printw ("\n");
+  printw ("| ");
+  printw ("SMS: ");
+  printw ("%s", super->m17d.sms);
 
   printw ("\n");
   printw ("| ");
-  printw ("PKT: ");
-  printw ("TODO, Put any decoded sms or packet data messages here, like GNSS, etc. ");
+  printw ("DAT: ");
+  printw ("%s", super->m17d.dat); //need hex print on these
+
+  // if (super->m17d.dt == 3)
+  {
+    printw ("\n");
+    printw ("| ");
+    printw ("ARB: ");
+    printw ("%s", super->m17d.arb);
+  }
+  // else
+  // {
+  //   printw ("\n");
+  //   printw ("| ");
+  //   // printw ("ARB: ");
+  // }
 
   printw ("\n");
+  printw ("------------------------------------------------------------------------------\n");
 
   //color off, back to white
   attron(COLOR_PAIR(6));
-
-  printw ("------------------------------------------------------------------------------\n");
 }
 
 void print_ncurses_call_history (Super * super)
 {
   UNUSED(super);
+
+  //color on, cyan
+  attron(COLOR_PAIR(4));
+  
   printw ("--Call History----------------------------------------------------------------\n");
   printw ("------------------------------------------------------------------------------\n");
+
+  //color off, back to white
+  attron(COLOR_PAIR(6));
 }
 
 #endif

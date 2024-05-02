@@ -152,10 +152,11 @@ void init_super (Super * super)
 
   //frame sync and timing recovery
   memset (super->demod.sync_symbols, 0, 8*sizeof(float));
-
   super->demod.fsk4_samples_per_symbol = 10;
   super->demod.fsk4_sample_center = 4;
-  super->demod.fsk4_jitter = 0;
+  super->demod.fsk4_offset_correction = 0;
+
+  //fsk4 symbol levels
   super->demod.fsk4_center = 0.0f;
   super->demod.fsk4_min = 0.0f;
   super->demod.fsk4_max = 0.0f;
@@ -192,6 +193,11 @@ void init_super (Super * super)
   //PKT specific storage and counters
   memset (super->m17d.pkt, 0, sizeof(super->m17d.pkt));
   super->m17d.pbc_ptr = 0;
+
+  memset (super->m17d.raw, 0, sizeof(super->m17d.raw));
+  sprintf (super->m17d.sms, "%s", "Any Decoded SMS Text Messages Appear Here.");
+  sprintf (super->m17d.dat, "%s", "Any Decoded GNSS POS Messages Appear Here.");
+  sprintf (super->m17d.arb, "%s", "Any Decoded 1600 Arb Messages Appear Here.");
 
   #ifdef USE_CODEC2
   super->m17d.codec2_3200 = codec2_create(CODEC2_MODE_3200);

@@ -180,11 +180,11 @@ typedef struct
 
   //frame sync and timing recovery
   float   sync_symbols[8];
-
-  //fsk4
   int fsk4_samples_per_symbol;
   int fsk4_sample_center;
-  int fsk4_jitter;
+  int fsk4_offset_correction;
+
+  //fsk4 symbol levels
   float fsk4_center;
   float fsk4_min;
   float fsk4_max;
@@ -225,6 +225,11 @@ typedef struct
   //PKT specific storage and counters
   uint8_t pkt[850]; //bytewise packet
   uint8_t pbc_ptr; //internal packet block counter
+
+  uint8_t raw[850]; //raw data from PDU that isn't SMS, etc
+  char sms[800]; //decoded sms text string from pkt decoder
+  char dat[800]; //decoded other data type from pkt encoder
+  char arb[800]; //decoded stream arbitrary data on 1600
 
   #ifdef USE_CODEC2
   struct CODEC2 *codec2_3200;

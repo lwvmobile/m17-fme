@@ -286,8 +286,8 @@ void clock_recovery(Super * super, short * samples)
     {
       if (super->opts.demod_verbosity >= 2)
       fprintf (stderr, "\nClock Recovery: i:%d; F: %6.0f; N: %6.0f;", i, first, fsample);
-      super->demod.fsk4_jitter = 9-i; //seems to work better like this than it does with below
-      // super->demod.fsk4_jitter = i-1;
+      super->demod.fsk4_offset_correction = 9-i; //seems to work better like this than it does with below
+      // super->demod.fsk4_offset_correction = i-1;
       // break;
     }
 
@@ -336,8 +336,9 @@ void no_carrier_sync (Super * super)
   super->demod.fsk4_center = 0.0f;
   super->demod.in_sync     = 0;
 
-  //timing
-  super->demod.fsk4_jitter = 0;
+  //frame sync and timing recovery
+  memset (super->demod.sync_symbols, 0, 8*sizeof(float));
+  super->demod.fsk4_offset_correction = 0;
 
   //reset buffers here
   memset (super->demod.float_symbol_buffer, 0.0f, 65540*sizeof(float));
@@ -349,18 +350,23 @@ void no_carrier_sync (Super * super)
   memset (super->demod.dibit_buffer, 0, 65540*sizeof(uint8_t));
   super->demod.dibit_buffer_ptr = 192;
 
-  //reset some decoder states
-  super->m17d.src = 0;
-  super->m17d.dst = 0;
-  super->m17d.can = -1;
+  //reset some decoder elements
+  // super->m17d.src = 0;
+  // super->m17d.dst = 0;
+  // super->m17d.can = -1;
 
-  memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
-  memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
-  super->m17d.dt = 15;
-  super->m17d.enc_et = 0;
-  super->m17d.enc_st = 0;
-  sprintf (super->m17d.dst_csd_str, "%s", "");
-  sprintf (super->m17d.src_csd_str, "%s", "");
+  // memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
+  // memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
+  // super->m17d.dt = 15;
+  // super->m17d.enc_et = 0;
+  // super->m17d.enc_st = 0;
+  // sprintf (super->m17d.dst_csd_str, "%s", "");
+  // sprintf (super->m17d.src_csd_str, "%s", "");
+
+  // memset (super->m17d.raw, 0, sizeof(super->m17d.raw));
+  // sprintf (super->m17d.sms, "%s", "");
+  // sprintf (super->m17d.dat, "%s", "");
+  // sprintf (super->m17d.arb, "%s", "");
 
 }
 
