@@ -139,29 +139,17 @@ float demodulate_and_return_float_symbol(Super * super)
   //If using RF Audio Based Input (Pulse, OSS, SNDFile or other)
   else
   {
-    //may need external array for this
+
     short samples[10]; memset (samples, 0, 10*sizeof(short));
 
-    //gather number of samples_per_symbol, and then store the nth sample
+    //gather number of samples_per_symbol, and store them locally for inspection
     for (i = 0; i < super->demod.fsk4_samples_per_symbol; i++)
     {
       //retrieve sample from audio input handler
       sample = get_short_audio_input_sample(super);
 
-      //catch up or fall back -- execute clock recovery, also filter and store sample
-      if (!super->demod.in_sync && super->demod.fsk4_jitter)
-      {
-        if (!super->opts.disable_rrc_filter)
-          sample = rrc_input_filter(super->demod.rrc_input_mem, sample);
-        for (int j = 0; j < super->demod.fsk4_jitter; j++)
-          samples[j] = sample;
-
-        i += super->demod.fsk4_jitter;
-        super->demod.fsk4_jitter = 0;
-      }
-
       //RRC input filtering on sample
-      if (!super->opts.disable_rrc_filter && super->demod.in_sync)
+      if (!super->opts.disable_rrc_filter) //&& super->demod.in_sync
         sample = rrc_input_filter(super->demod.rrc_input_mem, sample);
 
       //store locally for clock recover / transition inspection
@@ -169,12 +157,14 @@ float demodulate_and_return_float_symbol(Super * super)
 
     }
 
-    buffer_refresh_min_max_center(super); //buffer based on last 192 symbols
-    float_symbol = float_symbol_slicer(super, sample);
+    //calculate min/lmid/center/umid/max vs buffer of last 192 samples
+    buffer_refresh_min_max_center(super);
 
-    //look for clock recovery, if not in sync and rrc filter is on
-    if (!super->demod.in_sync && !super->opts.disable_rrc_filter)
-      clock_recovery(super, samples);
+    //vote for the best sample based on procedural criteria
+    sample = vote_for_sample(super, samples);
+
+    //slice float_symbol from provided sample
+    float_symbol = float_symbol_slicer(super, sample);
 
   }
 
@@ -199,7 +189,46 @@ float demodulate_and_return_float_symbol(Super * super)
   return float_symbol;
 }
 
-//very crude clock recovery based on finding a transition edge
+//voting procedure to determine what the optimal sample value is
+short vote_for_sample(Super * super, short * samples)
+{
+
+  int i = 0;
+  int use_sample = 0;
+  short vote = 0;
+  
+  float difference[10]; memset (difference, 0.0f, 10*sizeof(float));
+  float min_dist = 32767.0f;
+
+  //simple, pick center-ish sample (fallback)
+  // vote = samples[super->demod.fsk4_sample_center];
+
+  //find difference between middle samples
+  //and find optimal sample for collection
+  for (i = 3; i < 7; i++)
+  {
+    difference[i] = (float)samples[i+1] - (float)samples[i];
+    if (fabs(difference[i]) < min_dist)
+    {
+      min_dist = fabs(difference[i]);
+      use_sample = i;
+    }
+  }
+
+  vote = (short)samples[use_sample+1]; //or +0
+
+  if (super->opts.demod_verbosity >= 2)
+  {
+    fprintf (stderr, "\nVFS:");
+    for (i = 3; i < 7; i++)
+      fprintf (stderr, " %6.0f;", difference[i]);
+    fprintf (stderr, " USE: %d:%6.0f:%6d;", use_sample, difference[use_sample], vote);
+  }
+
+  return vote;
+}
+
+//very crude clock recovery based on finding a transition edge (doesn't work very well sometimes)
 void clock_recovery(Super * super, short * samples)
 {
 

@@ -181,7 +181,7 @@ typedef struct
 
   //fsk4
   int fsk4_samples_per_symbol;
-  int fsk4_symbol_center;
+  int fsk4_sample_center;
   int fsk4_jitter;
   float fsk4_center;
   float fsk4_min;
@@ -433,6 +433,7 @@ void    fsk4_framesync (Super * super);
 float   demodulate_and_return_float_symbol (Super * super);
 void    buffer_refresh_min_max_center (Super * super);
 void    simple_refresh_min_max_center (Super * super, float sample);
+short   vote_for_sample(Super * super, short * samples);
 void    clock_recovery(Super * super, short * samples);
 void    no_carrier_sync (Super * super);
 
