@@ -354,17 +354,17 @@ void no_carrier_sync (Super * super)
   super->demod.dibit_buffer_ptr = 192;
 
   //reset some decoder elements
-  // super->m17d.src = 0;
-  // super->m17d.dst = 0;
-  // super->m17d.can = -1;
+  super->m17d.src = 0;
+  super->m17d.dst = 0;
+  super->m17d.can = -1;
 
-  // memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
-  // memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
-  // super->m17d.dt = 15;
-  // super->m17d.enc_et = 0;
-  // super->m17d.enc_st = 0;
-  // sprintf (super->m17d.dst_csd_str, "%s", "");
-  // sprintf (super->m17d.src_csd_str, "%s", "");
+  memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
+  memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
+  super->m17d.dt = 15;
+  super->m17d.enc_et = 0;
+  super->m17d.enc_st = 0;
+  sprintf (super->m17d.dst_csd_str, "%s", "         ");
+  sprintf (super->m17d.src_csd_str, "%s", "         ");
 
   // memset (super->m17d.raw, 0, sizeof(super->m17d.raw));
   // sprintf (super->m17d.sms, "%s", "");
