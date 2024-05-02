@@ -336,6 +336,9 @@ void no_carrier_sync (Super * super)
   super->demod.fsk4_center = 0.0f;
   super->demod.in_sync     = 0;
 
+  //push call history items
+  push_call_history(super);
+
   //frame sync and timing recovery
   memset (super->demod.sync_symbols, 0, 8*sizeof(float));
   super->demod.fsk4_offset_correction = 0;
@@ -527,4 +530,20 @@ void print_frame_sync_pattern(Super * super, int type)
     fprintf (stderr, "INLVL: %2.1f; ", super->demod.input_level);
   fprintf (stderr, "M17 %s Frame Sync (%s): ", syncstr, timestr);
   free (timestr); timestr = NULL;
+}
+
+void push_call_history (Super * super)
+{
+  char dt[4]; memset (dt, 0, 4*sizeof(char));
+  if      (super->m17d.dt == 0) sprintf (dt, "RES");
+  else if (super->m17d.dt == 1) sprintf (dt, "PKT");
+  else                          sprintf (dt, "VOX");
+
+  char * timestr  = getTimeN(super->demod.current_time); //skip time(NULL) here to avoid cycle usage
+  char * datestr  = getDateN(super->demod.current_time); //skip time(NULL) here to avoid cycle usage
+  for (uint8_t i = 0; i < 9; i++)
+    memcpy (super->m17d.callhistory[i], super->m17d.callhistory[i+1], 500*sizeof(char));
+  sprintf (super->m17d.callhistory[9], "%s %s SRC: %s; DST: %s; %s;", datestr, timestr, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
+
+  free (timestr); free (datestr);
 }

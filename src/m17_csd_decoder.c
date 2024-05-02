@@ -20,12 +20,23 @@ void decode_callsign_data(Super * super, unsigned long long int dst, unsigned lo
   char dst_csd[9]; memset (dst_csd, 0, 9*sizeof(char));
   char src_csd[9]; memset (src_csd, 0, 9*sizeof(char));
 
-  if (dst == 0xFFFFFFFFFFFF) 
+  if (dst == 0xFFFFFFFFFFFF)
+  {
     fprintf (stderr, " DST: BROADCAST");
+    sprintf (super->m17d.dst_csd_str, "BROADCAST");
+  }
   else if (dst == 0)
+  {
     fprintf (stderr, " DST: RESERVED %012llx", dst);
+    sprintf (super->m17d.dst_csd_str, "RESERVED ");
+  }
+
   else if (dst >= 0xEE6B28000000)
+  {
     fprintf (stderr, " DST: RESERVED %012llx", dst);
+    sprintf (super->m17d.dst_csd_str, "RES: %012llX", dst); //can't fit the whole thing in here
+  }
+    
   else
   {
     fprintf (stderr, " DST: ");

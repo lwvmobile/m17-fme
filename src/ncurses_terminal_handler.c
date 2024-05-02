@@ -54,10 +54,7 @@ void open_ncurses_terminal ()
 void print_ncurses_terminal(Super * super)
 {
 
-  //assign them with function w/ allocated memory
-  char * timestr  = getTimeN(super->demod.current_time); //skip time(NULL) here to avoid cycle usage
-  char * datestr  = getDateN(super->demod.current_time); //skip time(NULL) here to avoid cycle usage
-  
+ 
   int input_keystroke = 0;
 
   //can't run getch/menu when using STDIN -
@@ -84,22 +81,14 @@ void print_ncurses_terminal(Super * super)
     print_ncurses_scope(super);
 
   //Print Call History
-  print_ncurses_call_history(super);
-
-  //test various time / date strings
-  // printw ("TIME: %s; DATE: %s; ", timestr, datestr);
-  // printw ("In Level: %2.1f", super->demod.input_level);
-  // printw ("\n");
+  if (!super->opts.use_m17_str_encoder && !super->opts.use_m17_ipf_encoder)
+    print_ncurses_call_history(super);
 
   //Handle Input Keystrokes
   input_ncurses_terminal(super, input_keystroke);
 
   //refresh the terminal
   refresh();
-
-  //free allocated memory and set ptr to NULL
-  free (timestr); timestr = NULL;
-  free (datestr); datestr = NULL;
     
 }
 
@@ -173,7 +162,7 @@ void print_ncurses_config (Super * super)
   //   printw ("RIG: %s:%d; ", opts->tcp_hostname, opts->rigctlportno);
 
   //debug '2' option, RRC enabled or disabled
-  if (!super->opts.use_m17_ipf_decoder)
+  if (!super->opts.use_m17_ipf_decoder) //still shows up on some encoders, but perhaps we want it to...?
   {
     if (super->opts.disable_rrc_filter == 0)
       printw (" RRC(2);");
@@ -346,30 +335,27 @@ void print_ncurses_call_info (Super * super)
     printw (" Reserved Enc - Type: %d", super->m17d.enc_st);
   else printw ("Clear");
 
-  // printw ("TODO, Put any decoded sms or packet data messages here, like GNSS, etc. ");
+  //take a truncated string, only display first 71 chars on Ncurses Terminal (see log for full messages)
+  char shortstr[76]; memset (shortstr, 0, 76*sizeof(char));
+  memcpy (shortstr, super->m17d.sms, 71);
+  shortstr[72] = 0; //terminate string
+
   printw ("\n");
   printw ("| ");
   printw ("SMS: ");
-  printw ("%s", super->m17d.sms);
+  printw ("%s", shortstr);
 
+  memcpy (shortstr, super->m17d.dat, 71);
   printw ("\n");
   printw ("| ");
-  printw ("DAT: ");
-  printw ("%s", super->m17d.dat); //need hex print on these
+  printw ("POS: ");
+  printw ("%s", shortstr); //TODO: need hex print on these, store a len value
 
-  // if (super->m17d.dt == 3)
-  {
-    printw ("\n");
-    printw ("| ");
-    printw ("ARB: ");
-    printw ("%s", super->m17d.arb);
-  }
-  // else
-  // {
-  //   printw ("\n");
-  //   printw ("| ");
-  //   // printw ("ARB: ");
-  // }
+  memcpy (shortstr, super->m17d.arb, 71);
+  printw ("\n");
+  printw ("| ");
+  printw ("ARB: ");
+  printw ("%s", shortstr);
 
   printw ("\n");
   printw ("------------------------------------------------------------------------------\n");
@@ -380,12 +366,19 @@ void print_ncurses_call_info (Super * super)
 
 void print_ncurses_call_history (Super * super)
 {
-  UNUSED(super);
+  int i;
 
   //color on, cyan
   attron(COLOR_PAIR(4));
-  
-  printw ("--Call History----------------------------------------------------------------\n");
+
+  printw ("--Call History----------------------------------------------------------------");
+  for (i = 0; i < 10; i++)
+  {
+    if (super->m17d.callhistory[9-i][0] != 0)
+      printw ("\n| #%02d. %s", i+1, super->m17d.callhistory[9-i]);
+    else printw ("\n| ");
+  }
+  printw ("\n| \n");
   printw ("------------------------------------------------------------------------------\n");
 
   //color off, back to white

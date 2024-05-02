@@ -231,6 +231,8 @@ typedef struct
   char dat[800]; //decoded other data type from pkt encoder
   char arb[800]; //decoded stream arbitrary data on 1600
 
+  char callhistory[10][500]; //condensed call history as a string
+
   #ifdef USE_CODEC2
   struct CODEC2 *codec2_3200;
   struct CODEC2 *codec2_1600;
@@ -495,6 +497,9 @@ void demod_brt(Super * super, uint8_t * input, int debug);
 void demod_str (Super * super, uint8_t * input, int debug);
 void prepare_str (Super * super, uint8_t * input);
 void decode_ipf (Super * super);
+
+//Call History
+void push_call_history (Super * super);
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus

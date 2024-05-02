@@ -199,6 +199,9 @@ void init_super (Super * super)
   sprintf (super->m17d.dat, "%s", "Any Decoded GNSS POS Messages Appear Here.");
   sprintf (super->m17d.arb, "%s", "Any Decoded 1600 Arb Messages Appear Here.");
 
+  for (int i = 0; i < 10; i++)
+    sprintf (super->m17d.callhistory[i], "%s", "");
+
   #ifdef USE_CODEC2
   super->m17d.codec2_3200 = codec2_create(CODEC2_MODE_3200);
   super->m17d.codec2_1600 = codec2_create(CODEC2_MODE_1600);
