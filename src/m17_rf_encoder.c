@@ -185,24 +185,20 @@ void encode_rfa (Super * super, uint8_t * input, float * mem, int type)
     }
   }
 
-  //don't send 'dead air' out over actual hardware devices, or will incur the 1 second lag
+  //STDOUT (if not internally decoding or using rf stream decoder)
+  if (super->opts.stdout_pipe && super->opts.monitor_encode_internally == 0)
+    write_stdout_pipe(super, baseband, 1920);
+
+  //OSS output (if not internally decoding or using rf stream decoder)
+  if (super->opts.use_oss_output == 1 && super->opts.monitor_encode_internally == 0)
+    oss_output_write(super, baseband, 1920);
+
+  //don't send 'dead air' out over pulse audio devices, or may incur some lag
   if (type != 99)
   {
-
-    //TODO: Make this a convenience function?
-    //this section is an interntional if-elseif-elseif
-
-    //STDOUT (if not internally decoding or using rf stream decoder)
-    if (super->opts.stdout_pipe && super->opts.monitor_encode_internally == 0)
-      write_stdout_pipe(super, baseband, 1920);
-
-    //OSS output (if not internally decoding or using rf stream decoder)
-    else if (super->opts.use_oss_output == 1 && super->opts.monitor_encode_internally == 0)
-      oss_output_write(super, baseband, 1920);
-
     //Pulse Audio (if RF Stream is open)
     #ifdef USE_PULSEAUDIO
-    else if (super->pa.pa_output_rf_is_open == 1)
+    if (super->pa.pa_output_rf_is_open == 1)
       pulse_audio_output_rf(super, baseband, 1920);
     #endif
 
