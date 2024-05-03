@@ -83,7 +83,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "12345678c:d:f:hi:mno:s:t:uv:w:xA:C:F:INLM:PR:S:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "12345678c:d:f:hi:mno:rs:t:uv:w:xA:C:F:INLM:PR:S:U:VX")) != -1)
   {
 
     i++;
@@ -154,11 +154,6 @@ int main (int argc, char **argv)
       //   fprintf (stderr,"B: %s\n", super.opts.b);
       //   break;
 
-      // case 'd':
-      //   super.opts.use_m17_rfa_decoder = 1;
-      //   fprintf (stderr, "Project M17 RF Audio Stream and Packet Decoder Mode. \n");
-      //   break;
-
       //Specify DSD-FME Dibit Capture Bin Input File Format (RF Encoded only)
       case 'c':
         strncpy(super.opts.dibit_input_file, optarg, 1023);
@@ -195,6 +190,12 @@ int main (int argc, char **argv)
         #else
         fprintf (stderr, "Ncurses Support Not Compiled. \n");
         #endif
+        break;
+
+      //enable the RF Audio Demodulator
+      case 'r':
+        super.opts.use_m17_rfa_decoder = 1;
+        fprintf (stderr, "Project M17 RF Audio Frame Demodulator. \n");
         break;
 
       case 's':

@@ -142,7 +142,14 @@ void print_ncurses_config (Super * super)
     printw ("Pulse Voice Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
 
   else if (super->opts.use_oss_input)
-    printw ("OSS Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+  {
+    printw ("OSS  Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+    if      (super->opts.monitor_encode_internally) printw ("Voice Input;      ");
+    else if (super->opts.use_m17_pkt_encoder)       printw ("Voice Input;      ");
+    else if (super->opts.use_m17_str_encoder)       printw ("Voice Input;      ");
+    else if (super->opts.use_m17_brt_encoder)       printw ("Voice Input;      ");
+    else                                            printw ("RF Input;         ");
+  }
 
   else if (super->opts.use_tcp_input)
     printw ("TCP SND Input: %s:%d; %d kHz; %d Ch; ", super->opts.tcp_input_hostname, super->opts.tcp_input_portno, super->opts.input_sample_rate/1000, 1);
@@ -193,11 +200,11 @@ void print_ncurses_config (Super * super)
   if (super->opts.use_oss_output)
   {
     printw ("OSS Output:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
-    if      (super->opts.monitor_encode_internally) printw ("Internal Decoder; ");
-    else if (super->opts.use_m17_pkt_encoder == 1)  printw ("RF Output; ");
-    else if (super->opts.use_m17_str_encoder == 1)  printw ("RF Output; ");
-    else if (super->opts.use_m17_brt_encoder == 1)  printw ("RF Output; ");
-    else                                            printw ("Voice Decoder; ");
+    if      (super->opts.monitor_encode_internally) printw ("Loopback Decoder; ");
+    else if (super->opts.use_m17_pkt_encoder)       printw ("RF Output;        ");
+    else if (super->opts.use_m17_str_encoder)       printw ("RF Output;        ");
+    else if (super->opts.use_m17_brt_encoder)       printw ("RF Output;        ");
+    else                                            printw ("Voice Decoder;    ");
   }
 
   //Output Methods (Files)
