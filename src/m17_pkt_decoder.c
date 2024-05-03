@@ -33,7 +33,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   //simple UTF-8 SMS Decoder
   if (protocol == 5)
   {
-    fprintf (stderr, "\n SMS:\n      ");
+    fprintf (stderr, "\n SMS: ");
     for (i = 1; i < len; i++)
     {
       fprintf (stderr, "%c", input[i]);

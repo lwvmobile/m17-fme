@@ -130,8 +130,8 @@ void decode_ipf (Super * super)
         fprintf (stderr, "\n IP:");
         for (i = 0; i < 54; i++)
         {
-          if ( (i%14) == 0 ) fprintf (stderr, "\n    ");
-          fprintf (stderr, "[%02X]", ip_frame[i]);
+          if ( (i%14) == 0 ) fprintf (stderr, "\n   ");
+          fprintf (stderr, " %02X", ip_frame[i]);
         }
         fprintf (stderr, " (CRC CHK) E: %04X; C: %04X;", crc_ext, crc_cmp);
       }
@@ -351,11 +351,11 @@ void decode_ipf (Super * super)
         for (i = 0; i < err; i++)
         {
           if ( (i%25)==0)
-            fprintf (stderr, "\n                ");
+            fprintf (stderr, "\n ");
           fprintf (stderr, "%02X ", ip_frame[i]);
         }
         fprintf (stderr, " (CRC CHK) E: %04X; C: %04X;", crc_ext, crc_cmp);
-        fprintf (stderr, "\n M17 IP   RECD: %d", err);
+        // fprintf (stderr, "\n M17 IP   RECD: %d", err);
       }
 
       if (crc_ext == crc_cmp)

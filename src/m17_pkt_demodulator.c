@@ -161,7 +161,7 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
           fprintf (stderr, "\n     ");
         fprintf (stderr, " %02X", super->m17d.pkt[i]);
       }
-      fprintf (stderr, "\n      CRC - C: %04X; E: %04X", crc_cmp, crc_ext);
+      fprintf (stderr, "\n      (CRC CHK) E: %04X; C: %04X;", crc_ext, crc_cmp);
     }
 
     //reset after processing

@@ -149,13 +149,13 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
 
   if (super->opts.payload_verbosity >= 1)
   {
-    fprintf (stderr, "\n LSF: ");
+    fprintf (stderr, "\n LSF:");
     for (i = 0; i < 30; i++)
     {
-      if (i == 15) fprintf (stderr, "\n      ");
-      fprintf (stderr, "[%02X]", lsf_packed[i]);
+      if (i == 15) fprintf (stderr, "\n     ");
+      fprintf (stderr, " %02X", lsf_packed[i]);
     }
-    fprintf (stderr, " (CRC CHK) E: %04X; C: %04X;", crc_ext, crc_cmp);
+    fprintf (stderr, "\n      (CRC CHK) E: %04X; C: %04X;", crc_ext, crc_cmp);
   }
 
   if (crc_err == 1) fprintf (stderr, " CRC ERR");

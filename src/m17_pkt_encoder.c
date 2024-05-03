@@ -245,7 +245,7 @@ void encodeM17PKT(Super * super)
   //Convert a string text message into UTF-8 octets and load into full if using SMS protocol
   if (protocol == 5)
   {
-    fprintf (stderr, "\n SMS:\n      ");
+    fprintf (stderr, "\n SMS: ");
     for (i = 0; i < tlen; i++)
     {
       cbyte = (uint8_t)text[ptr];
@@ -302,7 +302,8 @@ void encodeM17PKT(Super * super)
   // if (block > 31) block = 31;
   
   //debug position values
-  fprintf (stderr, " BLOCK: %02d; PAD: %02d; LST: %d; K: %04d; PTR: %04d;", block, pad, lst, k, ptr);
+  if (super->opts.payload_verbosity > 0)
+    fprintf (stderr, "\n BLOCK: %02d; PAD: %02d; LST: %d; K: %04d; PTR: %04d;", block, pad, lst, k, ptr);
 
   //Calculate the CRC and attach it here
   x = 0;
@@ -326,7 +327,8 @@ void encodeM17PKT(Super * super)
   crc_cmp = crc16(m17_p1_packed, x+1); //either x, or x+1?
 
   //debug dump CRC (when pad is literally zero)
-  fprintf (stderr, " X: %d; LAST: %02X; TERM: %02X; CRC: %04X", x, m17_p1_packed[x-1], m17_p1_packed[x], crc_cmp);
+  if (super->opts.payload_verbosity > 0)
+    fprintf (stderr, "\n X: %d; LAST: %02X; TERM: %02X; CRC: %04X; \n", x, m17_p1_packed[x-1], m17_p1_packed[x], crc_cmp);
 
   ptr = (block*25*8) - 16;
 

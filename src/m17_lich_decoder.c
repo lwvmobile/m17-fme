@@ -71,9 +71,10 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
 
   if (super->opts.payload_verbosity >= 1)
   {
-    fprintf (stderr, " LICH: ");
+    fprintf (stderr, "\n");
+    fprintf (stderr, " LICH:");
     for (i = 0; i < 6; i++)
-      fprintf (stderr, "[%02X]", (uint8_t)ConvertBitIntoBytes(&lich_decoded[i*8], 8)); 
+      fprintf (stderr, " %02X", (uint8_t)ConvertBitIntoBytes(&lich_decoded[i*8], 8)); 
   }
 
   uint8_t lsf_packed[30];
@@ -98,18 +99,18 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
 
     if (super->opts.payload_verbosity >= 1)
     {
-      fprintf (stderr, "\n LSF: ");
+      fprintf (stderr, "\n LSF:");
       for (i = 0; i < 30; i++)
       {
-        if (i == 15) fprintf (stderr, "\n      ");
-        fprintf (stderr, "[%02X]", lsf_packed[i]);
+        if (i == 15) fprintf (stderr, "\n     ");
+        fprintf (stderr, " %02X", lsf_packed[i]);
       }
-      fprintf (stderr, " (CRC CHK) E: %04X; C: %04X;", crc_ext, crc_cmp);
+      fprintf (stderr, "\n      (CRC CHK) E: %04X; C: %04X;", crc_ext, crc_cmp);
     }
 
     memset (super->m17d.lsf, 0, sizeof(super->m17d.lsf));
 
-    if (crc_err == 1) fprintf (stderr, " EMB LSF CRC ERR");
+    if (crc_err == 1) fprintf (stderr, "\n Embedded LSF CRC ERR");
   }
 
   return err;

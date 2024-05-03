@@ -176,8 +176,8 @@ void prepare_str(Super * super, uint8_t * input)
 
   if (super->opts.payload_verbosity >= 1 && super->m17d.dt < 2)
   {
-    fprintf (stderr, "\n STREAM: ");
+    fprintf (stderr, "\n STREAM:");
     for (i = 0; i < 18; i++) 
-      fprintf (stderr, "[%02X]", (uint8_t)ConvertBitIntoBytes(&trellis_buf[i*8], 8));
+      fprintf (stderr, " %02X", (uint8_t)ConvertBitIntoBytes(&trellis_buf[i*8], 8));
   }
 }
