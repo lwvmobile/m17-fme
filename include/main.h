@@ -336,6 +336,8 @@ typedef struct
 
 //structure element initialization
 void init_super (Super * super);
+void enable_default_state(Super * super);
+void disable_default_state(Super * super);
 
 //NCurses Terminal
 #ifdef USE_CURSES

@@ -33,14 +33,17 @@ void usage ()
 int main (int argc, char **argv)
 {
   int i, c;
+  int x = 0; //number of passes through getopt (trip flag for disabling the default starting state)
   extern char *optarg;
-  extern int optind, opterr, optopt;
 
   //The Super Struct with nested structs has replaced passing them around
   //and referencing them directly, much easier when I don't have to backtrack
   //and contantly pass more things around
   Super super;
   init_super(&super);
+
+  //enable default starting state
+  enable_default_state(&super);
 
   //initialize convolutional decoder and golay
   convolution_init();
@@ -82,7 +85,12 @@ int main (int argc, char **argv)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
   while ((c = getopt (argc, argv, "123456c:df:himns:t:u:v:w:xA:C:D:F:INM:PS:U:VX")) != -1)
   {
-    opterr = 0;
+
+    //if we have at least 1 optarg, then disable the default starting state
+    if (x == 0)
+      disable_default_state(&super);
+    x++;
+
     switch (c)
     {
       case 'h':
@@ -105,7 +113,6 @@ int main (int argc, char **argv)
       //connect to TCP Socket for SND Input with default options
       case '3':
         super.opts.use_tcp_input = 1;
-        // super.opts.use_pa_input = 0;
         fprintf (stderr, "TCP Source Connect Debug (Default Options). \n");
         break;
 

@@ -264,3 +264,33 @@ void init_super (Super * super)
   //end HPF Init
 
 }
+
+//this function will enable the default starting state (RF decoder w/ pulse audio input and output)
+void enable_default_state(Super * super)
+{
+  super->opts.use_m17_rfa_decoder = 1;
+
+  #ifdef _WIN32 //is this the correct macro?
+
+  super->opts.use_oss_input = 1;
+
+  #elif _WIN64
+
+  super->opts.use_oss_input = 1;
+
+  #else //Linux
+
+  super->opts.use_pa_input = 1;
+  super->opts.use_pa_output_vx = 1;
+
+  #endif
+}
+
+//this function will disable the default starting state (run when user CLI options force us to drop)
+void disable_default_state(Super * super)
+{
+  super->opts.use_m17_rfa_decoder = 0;
+  super->opts.use_oss_input = 0;
+  super->opts.use_pa_input = 0;
+  super->opts.use_pa_output_vx = 0;
+}
