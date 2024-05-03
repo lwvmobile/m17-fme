@@ -52,6 +52,9 @@ void decode_ipf (Super * super)
   while (!exitflag)
   {
 
+    //set current time for call history, etc
+    super->demod.current_time = time(NULL);
+
     //if reading from socket receiver
     if (super->opts.m17_udp_sock) //double check
     {

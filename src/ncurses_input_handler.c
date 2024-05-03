@@ -39,6 +39,9 @@ void input_ncurses_terminal (Super * super, int c)
     case 92:
       if (super->m17e.str_encoder_tx == 0) super->m17e.str_encoder_tx = 1;
       else super->m17e.str_encoder_tx = 0;
+
+      if (super->m17e.str_encoder_tx == 0)
+        super->m17e.str_encoder_eot = 1;
       break;
 
     //'c' key, no banner / compact mode

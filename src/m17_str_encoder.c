@@ -902,8 +902,8 @@ void encodeM17STR(Super * super)
   }
 
   //SEND EOTX to reflector
-  // if (use_ip == 1)
-  //   udp_return = m17_socket_blaster (super, 10, eotx);
+  if (use_ip == 1)
+    udp_return = m17_socket_blaster (super, 10, eotx);
 
   //SEND DISC to reflector
   if (use_ip == 1)
