@@ -19,14 +19,7 @@ void decode_ipf (Super * super)
   if (super->opts.use_ncurses_terminal == 1)
     open_ncurses_terminal(super);
 
-  //NOTE: This Internal Handling is non-blocking and keeps the connection alive
-  //in the event of the other end opening and closing often (exit and restart)
-
-  //encode with: dsd-fme -fZ -M M17:1:N0CALL:ALL:48000:1 -o m17:127.0.0.1:17000 -N 2> m17out.ans
-  //decode with: dsd-fme -fU -i m17:127.0.0.1:17000 -N 2> m17ip.ans
-
-  //NOTE: Currently, IP Frame decoding cannot be used with -o udp audio output
-  //its a rare use case, but should be noted, I think udp_socket_bind does something to block that functionality
+  //NOTE: Update info here to reflect for M17-FME and/or DSD-FME?
 
   //Bind UDP Socket
   int err = 1; //NOTE: err will tell us how many bytes were received, if successful
@@ -47,7 +40,6 @@ void decode_ipf (Super * super)
   uint8_t mpkt[4]  = {0x4D, 0x50, 0x4B, 0x54}; //MPKT is not Standard, but I think sending PKT payloads would be viable over UDP (no reason not to)
 
   unsigned long long int src = 0; //source derived from CONN, DISC, EOTX, and Other Headers
-  char c;
 
   while (!exitflag)
   {
@@ -167,22 +159,7 @@ void decode_ipf (Super * super)
     else if (memcmp(ip_frame, conn, 4) == 0)
     {
       fprintf (stderr, "\n M17 IP   CONN: ");
-
-      if (src == 0xFFFFFFFFFFFF) 
-        fprintf (stderr, "UNKNOWN FFFFFFFFFFFF");
-      else if (src == 0)
-        fprintf (stderr, "RESERVED %012llx", src);
-      else if (src >= 0xEE6B28000000)
-        fprintf (stderr, "RESERVED %012llx", src);
-      else
-      {
-        for (i = 0; i < 9; i++)
-        {
-          c = b40[src % 40];
-          fprintf (stderr, "%c", c);
-          src = src / 40;
-        }
-      }
+      decode_callsign_src(super, src);
 
       //reflector module user is connecting to
       fprintf (stderr, "Module: %c; ", ip_frame[10]);
@@ -197,28 +174,15 @@ void decode_ipf (Super * super)
 
       //clear frame
       memset (ip_frame, 0, sizeof(ip_frame));
+
+      super->m17d.dt = 6; //push an IP CONN to Call History
+      push_call_history(super);
     }
 
     else if (memcmp(ip_frame, disc, 4) == 0)
     {
       fprintf (stderr, "\n M17 IP   DISC: ");
-
-      if (src == 0xFFFFFFFFFFFF) 
-        fprintf (stderr, "UNKNOWN FFFFFFFFFFFF");
-      else if (src == 0)
-        fprintf (stderr, "RESERVED %012llx", src);
-      else if (src >= 0xEE6B28000000)
-        fprintf (stderr, "RESERVED %012llx", src);
-      else
-      {
-        for (i = 0; i < 9; i++)
-        {
-          c = b40[src % 40];
-          fprintf (stderr, "%c", c);
-          src = src / 40;
-        }
-      }
-
+      decode_callsign_src(super, src);
       if (super->opts.payload_verbosity >= 1)
       {
         for (i = 0; i < 10; i++)
@@ -229,29 +193,15 @@ void decode_ipf (Super * super)
       memset (ip_frame, 0, sizeof(ip_frame));
 
       //drop sync
-      super->demod.in_sync = 0;
+      super->m17d.dt = 5; //fake for DISC message in Call History
+      no_carrier_sync(super);
+
     }
 
     else if (memcmp(ip_frame, eotx, 4) == 0)
     {
       fprintf (stderr, "\n M17 IP   EOTX: ");
-
-      if (src == 0xFFFFFFFFFFFF) 
-        fprintf (stderr, "UNKNOWN FFFFFFFFFFFF");
-      else if (src == 0)
-        fprintf (stderr, "RESERVED %012llx", src);
-      else if (src >= 0xEE6B28000000)
-        fprintf (stderr, "RESERVED %012llx", src);
-      else
-      {
-        for (i = 0; i < 9; i++)
-        {
-          c = b40[src % 40];
-          fprintf (stderr, "%c", c);
-          src = src / 40;
-        }
-      }
-
+      decode_callsign_src(super, src);
       if (super->opts.payload_verbosity >= 1)
       {
         for (i = 0; i < 10; i++)
@@ -269,23 +219,7 @@ void decode_ipf (Super * super)
     else if (memcmp(ip_frame, ping, 4) == 0)
     {
       fprintf (stderr, "\n M17 IP   PING: ");
-
-      if (src == 0xFFFFFFFFFFFF) 
-        fprintf (stderr, "UNKNOWN FFFFFFFFFFFF");
-      else if (src == 0)
-        fprintf (stderr, "RESERVED %012llx", src);
-      else if (src >= 0xEE6B28000000)
-        fprintf (stderr, "RESERVED %012llx", src);
-      else
-      {
-        for (i = 0; i < 9; i++)
-        {
-          c = b40[src % 40];
-          fprintf (stderr, "%c", c);
-          src = src / 40;
-        }
-      }
-
+      decode_callsign_src(super, src);
       if (super->opts.payload_verbosity >= 1)
       {
         for (i = 0; i < 10; i++)
@@ -297,23 +231,7 @@ void decode_ipf (Super * super)
     else if (memcmp(ip_frame, pong, 4) == 0)
     {
       fprintf (stderr, "\n M17 IP   PONG: ");
-
-      if (src == 0xFFFFFFFFFFFF) 
-        fprintf (stderr, "UNKNOWN FFFFFFFFFFFF");
-      else if (src == 0)
-        fprintf (stderr, "RESERVED %012llx", src);
-      else if (src >= 0xEE6B28000000)
-        fprintf (stderr, "RESERVED %012llx", src);
-      else
-      {
-        for (i = 0; i < 9; i++)
-        {
-          c = b40[src % 40];
-          fprintf (stderr, "%c", c);
-          src = src / 40;
-        }
-      }
-
+      decode_callsign_src(super, src);
       if (super->opts.payload_verbosity >= 1)
       {
         for (i = 0; i < 10; i++)

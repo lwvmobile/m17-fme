@@ -9,7 +9,6 @@
 #include "main.h"
 #include "m17.h"
 
-// void decode_callsign_data(m17_decoder_state * m17d, unsigned long long int dst, unsigned long long int src)
 void decode_callsign_data(Super * super, unsigned long long int dst, unsigned long long int src)
 {
   //quell defined but not used warnings from m17.h
@@ -85,5 +84,37 @@ void decode_callsign_data(Super * super, unsigned long long int dst, unsigned lo
 
   //debug
   // fprintf (stderr, " DST: %012llX SRC: %012llX", super->m17d.dst_csd_str, super->m17d.src_csd_str);
+
+}
+
+//version just for IP Frame SRC found in CONN, DISC etc
+void decode_callsign_src(Super * super, unsigned long long int src)
+{
+  int i;
+  char c;
+  char src_csd[9]; memset (src_csd, 0, 9*sizeof(char));
+
+  if (src == 0xFFFFFFFFFFFF) 
+    fprintf (stderr, " SRC:  UNKNOWN FFFFFFFFFFFF");
+  else if (src == 0)
+    fprintf (stderr, " SRC: RESERVED %012llx", src);
+  else if (src >= 0xEE6B28000000)
+    fprintf (stderr, " SRC: RESERVED %012llx", src);
+  else
+  {
+    fprintf (stderr, " SRC: ");
+    for (i = 0; i < 9; i++)
+    {
+      c = b40[src % 40];
+      src_csd[i] = c;
+      fprintf (stderr, "%c", c);
+      src = src / 40;
+    }
+
+    //assign completed CSD to a more useful string instead
+    sprintf (super->m17d.src_csd_str, "%c%c%c%c%c%c%c%c%c", 
+    src_csd[0], src_csd[1], src_csd[2], src_csd[3], 
+    src_csd[4], src_csd[5], src_csd[6], src_csd[7], src_csd[8]);
+  }
 
 }

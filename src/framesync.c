@@ -545,10 +545,15 @@ void print_frame_sync_pattern(Super * super, int type)
 
 void push_call_history (Super * super)
 {
-  char dt[4]; memset (dt, 0, 4*sizeof(char));
-  if      (super->m17d.dt == 0) sprintf (dt, "RES");
-  else if (super->m17d.dt == 1) sprintf (dt, "PKT");
-  else                          sprintf (dt, "VOX");
+  char dt[30]; memset (dt, 0, 30*sizeof(char));
+  if      (super->m17d.dt == 0) sprintf (dt, "RESERVED");
+  else if (super->m17d.dt == 1) sprintf (dt, "PACKET DATA");
+  else if (super->m17d.dt == 2) sprintf (dt, "3200 VOICE");
+  else if (super->m17d.dt == 3) sprintf (dt, "1600 VOICE + DATA");
+  else if (super->m17d.dt == 4) sprintf (dt, "USER CARRIER RESET");
+  else if (super->m17d.dt == 5) sprintf (dt, "IP DISC");
+  else if (super->m17d.dt == 6) sprintf (dt, "IP CONN");
+  else                          sprintf (dt, "UNK");
 
   char * timestr  = getTimeN(super->demod.current_time); //skip time(NULL) here to avoid cycle usage
   char * datestr  = getDateN(super->demod.current_time); //skip time(NULL) here to avoid cycle usage

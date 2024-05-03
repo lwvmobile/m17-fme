@@ -496,11 +496,13 @@ uint64_t ConvertBitIntoBytes (uint8_t * BufferIn, uint32_t BitLength);
 void encodeM17RF (Super * super, uint8_t * input, float * mem, int type);
 void encodeM17PKT (Super * super);
 void encodeM17STR (Super * super);
+
 //M17 Content Element Decoders
 int  decode_lich_contents (Super * super, uint8_t * lich_bits);
 void decode_lsf_contents (Super * super);
 void decode_pkt_contents (Super * super, uint8_t * input, int len);
 void decode_callsign_data (Super * super, unsigned long long int dst, unsigned long long int src);
+void decode_callsign_src(Super * super, unsigned long long int src);
 void decode_str_payload (Super * super, uint8_t * payload, uint8_t type);
 
 //M17 Frame Demodulators

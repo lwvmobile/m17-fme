@@ -27,11 +27,13 @@ void input_ncurses_terminal (Super * super, int c)
     case 51:
       if (super->opts.inverted_signal == 0) super->opts.inverted_signal = 1;
       else super->opts.inverted_signal = 0;
+      super->m17d.dt = 4; //fake for carrier reset
       no_carrier_sync (super); //reset demod
       break;
 
     //'4' key, simulate no_carrier_sync (reset states)
     case 52:
+      super->m17d.dt = 4; //fake for carrier reset
       no_carrier_sync (super); //reset demod
       break;
 
