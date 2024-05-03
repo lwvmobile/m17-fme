@@ -64,7 +64,7 @@ void init_super (Super * super)
   super->opts.use_m17_pkt_encoder = 0;
   super->opts.use_m17_brt_encoder = 0;
   super->opts.use_m17_rfa_decoder = 0;
-  super->opts.use_m17_ipf_encoder = 0;
+  super->opts.use_m17_ipf_encoder = 0; //this option isn't used, should use it probably instead of use_ip
   super->opts.use_m17_ipf_decoder = 0;
 
   //Misc Options to organize later
@@ -202,9 +202,9 @@ void init_super (Super * super)
   super->m17d.pbc_ptr = 0;
 
   memset (super->m17d.raw, 0, sizeof(super->m17d.raw));
-  sprintf (super->m17d.sms, "%s", "Any Decoded SMS Text Messages Appear Here.");
-  sprintf (super->m17d.dat, "%s", "Any Decoded GNSS POS Messages Appear Here.");
-  sprintf (super->m17d.arb, "%s", "Any Decoded 1600 Arb Messages Appear Here.");
+  sprintf (super->m17d.sms, "%s", "Any Encoded or Decoded SMS Text Messages Appear Here.");
+  sprintf (super->m17d.dat, "%s", "Any Encoded or Decoded GNSS POS Messages Appear Here.");
+  sprintf (super->m17d.arb, "%s", "Any Encoded or Decoded 1600 Arb Messages Appear Here.");
 
   for (int i = 0; i < 10; i++)
     sprintf (super->m17d.callhistory[i], "%s", "");
@@ -273,7 +273,7 @@ void init_super (Super * super)
 }
 
 //this function will enable the default starting state (RF decoder w/ pulse audio input and output)
-void enable_default_state(Super * super)
+void set_default_state(Super * super)
 {
   super->opts.use_m17_rfa_decoder = 1;
 
@@ -305,14 +305,4 @@ void enable_default_state(Super * super)
   super->opts.use_pa_output_vx = 1;
 
   #endif
-}
-
-//this function will disable the default starting state (run when user CLI options force us to drop)
-void disable_default_state(Super * super)
-{
-  super->opts.use_m17_rfa_decoder = 0;
-  super->opts.use_oss_input = 0;
-  super->opts.use_oss_output = 0;
-  super->opts.use_pa_input = 0;
-  super->opts.use_pa_output_vx = 0;
 }

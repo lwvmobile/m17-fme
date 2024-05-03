@@ -81,7 +81,7 @@ void print_ncurses_terminal(Super * super)
     print_ncurses_scope(super);
 
   //Print Call History
-  if (!super->opts.use_m17_str_encoder && !super->opts.use_m17_ipf_encoder)
+  if (!super->opts.use_m17_str_encoder && !super->opts.use_m17_ipf_encoder && !super->opts.ncurses_no_history)
     print_ncurses_call_history(super);
 
   //Handle Input Keystrokes
@@ -98,7 +98,7 @@ void print_ncurses_banner (Super * super)
   if (super->opts.ncurses_no_banner == 1)
   {
     printw ("------------------------------------------------------------------------------\n");
-    printw ("| Project M17: Florida Man Edition %s \n", GIT_TAG);
+    printw ("| Project M17: Florida Man Edition - Build: %s - Session: %04X\n", GIT_TAG, super->opts.random_number);
     printw ("------------------------------------------------------------------------------\n");
   }
   else
@@ -218,7 +218,7 @@ void print_ncurses_config (Super * super)
     printw ("\n| UDP IP Frame Output: %s:%d; Reflector Module: %c", super->opts.m17_hostname, super->opts.m17_portno, super->m17e.reflector_module);
 
   //in level and symbol levels and center value
-  if (!super->opts.use_m17_str_encoder)
+  if (!super->opts.use_m17_str_encoder && !super->opts.use_m17_ipf_decoder)
   {
     printw ("\n| ");
     printw ("In: %2.0f%%; +3.0: %5.0f; +1.0: %5.0f; -1.0: %6.0f; -3: %6.0f; Center: %4.0f; ", 
@@ -269,7 +269,10 @@ void print_ncurses_call_info (Super * super)
     attron(COLOR_PAIR(3));
   else attron(COLOR_PAIR(6));
 
-  printw ("--Call Info-------------------------------------------------------------------\n");
+  if (!super->opts.use_m17_rfa_decoder && !super->opts.use_m17_ipf_decoder)
+    printw ("--Encode Info-----------------------------------------------------------------\n");
+  else
+    printw ("--Decode Info-------------------------------------------------------------------\n");
 
   printw ("| ");
   printw ("M17: ");

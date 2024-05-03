@@ -46,13 +46,13 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'c' key, no banner / compact mode
     case 99:
-      if (super->opts.ncurses_no_banner == 1) super->opts.ncurses_no_banner = 0;
+      if (super->opts.ncurses_no_banner == 0) super->opts.ncurses_no_banner = 1;
       else super->opts.ncurses_no_banner = 0;
       break;
 
     //'h' key, no history
     case 104:
-      if (super->opts.ncurses_no_history == 1) super->opts.ncurses_no_history = 0;
+      if (super->opts.ncurses_no_history == 0) super->opts.ncurses_no_history = 1;
       else super->opts.ncurses_no_history = 0;
       break;
 
