@@ -76,6 +76,9 @@ int main (int argc, char **argv)
 
   //print git tag and version number
   fprintf (stderr, "Build Version: %s \n", GIT_TAG);
+  
+  //print current session number
+  fprintf (stderr, "Session Number: %04X \n", super.opts.random_number);
 
   //use i to count number of optargs parsed
   i = 0;

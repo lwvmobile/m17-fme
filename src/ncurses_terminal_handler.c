@@ -115,8 +115,9 @@ void print_ncurses_banner (Super * super)
       if (i == 2) printw ("   CTRL+C or ");
       if (i == 3) printw (" 'q' to Quit ");
       #ifdef USE_CODEC2
-      if (i == 6) printw (" CODEC2");
+      if (i == 5) printw (" CODEC2");
       #endif
+      if (i == 6) printw (" Session: %04X", super->opts.random_number);
       if (i == 7) printw (" %s", GIT_TAG);
       printw ("\n");
     }
@@ -134,8 +135,11 @@ void print_ncurses_config (Super * super)
   printw ("| ");
 
   //Input Methods
-  if (super->opts.use_pa_input)
-    printw ("Pulse Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+  if (super->opts.use_pa_input && super->opts.use_m17_rfa_decoder)
+    printw ("Pulse RF Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+
+  else if (super->opts.use_pa_input && !super->opts.use_m17_rfa_decoder)
+    printw ("Pulse Voice Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
 
   else if (super->opts.use_oss_input)
     printw ("OSS Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);

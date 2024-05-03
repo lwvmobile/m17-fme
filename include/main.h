@@ -126,6 +126,7 @@ typedef struct
   uint8_t allow_crc_failure;
   uint8_t use_hpfilter_dig;
   uint8_t inverted_signal;
+  uint16_t random_number;
   int input_sample_rate;
   int output_sample_rate;
   int stdout_pipe;

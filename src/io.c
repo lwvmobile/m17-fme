@@ -221,7 +221,7 @@ void parse_input_option_string (Super * super, char * input)
       fprintf (stderr, "Audio  Input Device: Pulse RF Input;");
       super->opts.use_m17_rfa_decoder = 1; //enable the RF decoder if puslerf is detected
     }
-    if ( (strncmp(input, "pulsevx", 7) == 0) )
+    else if ( (strncmp(input, "pulsevx", 7) == 0) )
       fprintf (stderr, "Audio  Input Device: Pulse Mic Input;"); //default is for encoder voice
     else
     {
