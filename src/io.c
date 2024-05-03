@@ -169,19 +169,80 @@ void cleanup_and_exit (Super * super)
 void parse_input_option_string (Super * super, char * input)
 {
 
-  if ( (strncmp(input, "pulse", 5) == 0) )
+  if ( (strncmp(input, "null", 4) == 0) )
   {
     fprintf (stderr, "\n");
-    fprintf (stderr, "Audio  Input Device: Pulse Audio;");
-    super->opts.use_pa_input = 1;
+    fprintf (stderr, "Audio Input Device: NULL;");
+    super->opts.use_pa_input = 0;
+    super->opts.use_oss_input = 0;
+    super->opts.use_stdin_input = 0;
+    super->opts.use_tcp_input = 0;
+    super->opts.use_snd_input = 0;
+    super->opts.snd_input_is_a_file = 0;
   }
 
-  if ( (strncmp(input, "m17udp", 6) == 0) )
+  else if ( (strncmp(input, "tcp", 3) == 0) )
+  {
+    fprintf (stderr, "\n");
+    fprintf (stderr, "Audio Input Device: TCP;");
+    super->opts.use_tcp_input = 1;
+    //TODO: Full String Parse, if supplied (copy and paste from somewhere else)
+  }
+
+  else if ( (strncmp(input, "udp", 3) == 0) )
+  {
+    fprintf (stderr, "\n");
+    fprintf (stderr, "UDP IP Frame Input;");
+    super->opts.use_m17_ipf_decoder = 1;
+    //TODO: Full String Parse, if supplied (copy and paste from somewhere else)
+    //may not be needed, right now we are binding to the port, not to an address
+  }
+
+  else if ( (strncmp(input, "/dev/dsp", 8) == 0) )
+  {
+    fprintf (stderr, "\n");
+    fprintf (stderr, "Audio Input Device: OSS (/dev/dsp);");
+    super->opts.use_oss_input = 1;
+  }
+
+  else if ( (strncmp(input, "-", 1) == 0) )
+  {
+    fprintf (stderr, "\n");
+    fprintf (stderr, "Audio Input Device: STDIN (-);");
+    super->opts.use_stdin_input = 1;
+  }
+
+  #ifdef USE_PULSEAUDIO
+  else if ( (strncmp(input, "pulse", 5) == 0) )
+  {
+    fprintf (stderr, "\n");
+    if ( (strncmp(input, "pulserf", 7) == 0) )
+    {
+      fprintf (stderr, "Audio  Input Device: Pulse RF Input;");
+      super->opts.use_m17_rfa_decoder = 1; //enable the RF decoder if puslerf is detected
+    }
+    if ( (strncmp(input, "pulsevx", 7) == 0) )
+      fprintf (stderr, "Audio  Input Device: Pulse Mic Input;"); //default is for encoder voice
+    else
+    {
+      fprintf (stderr, "Audio  Input Device: Pulse RF Input;");
+      super->opts.use_m17_rfa_decoder = 1; //enable the RF decoder if puslerf is detected
+    }
+    super->opts.use_pa_input = 1;
+  }
+  #else
+  fprintf (stderr, " Pulse Audio Support Not Found / Compiled;");
+  #endif
+
+  else if ( (strncmp(input, "m17udp", 6) == 0) )
   {
     fprintf (stderr, "\n");
     fprintf (stderr, "M17 UDP IP Frame Input: ");
 
   }
+
+  //anything not recognized
+  else fprintf (stderr, "\nAudio Output Device: Unknown %s;", input);
 
 }
 
@@ -198,7 +259,22 @@ void parse_output_option_string (Super * super, char * output)
     super->opts.use_stdout_output = 0;
   }
 
-  if ( (strncmp(output, "pulse", 5) == 0) )
+  else if ( (strncmp(output, "/dev/dsp", 8) == 0) )
+  {
+    fprintf (stderr, "\n");
+    fprintf (stderr, "Audio Output Device: OSS (/dev/dsp);");
+    super->opts.use_oss_output = 1;
+  }
+
+  else if ( (strncmp(output, "-", 1) == 0) )
+  {
+    fprintf (stderr, "\n");
+    fprintf (stderr, "Audio Output Device: STDOUT (-);");
+    super->opts.use_stdout_output = 1;
+  }
+
+  #ifdef USE_PULSEAUDIO
+  else if ( (strncmp(output, "pulse", 5) == 0) )
   {
     fprintf (stderr, "\n");
     if ( (strncmp(output, "pulserf", 7) == 0) )
@@ -219,5 +295,12 @@ void parse_output_option_string (Super * super, char * output)
     //should never get here hopefully
     else fprintf (stderr, "Audio Output Device: Error Parsing String;");
   }
+  #else
+  else if ( (strncmp(output, "pulse", 5) == 0) )
+    fprintf (stderr, " Pulse Audio Support Not Found / Compiled;");
+  #endif
+
+  //anything not recognized
+  else fprintf (stderr, "\nAudio Output Device: Unknown %s;", output);
 
 }

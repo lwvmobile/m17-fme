@@ -297,7 +297,7 @@ void enable_default_state(Super * super)
   super->opts.use_oss_input = 1;
   super->opts.use_oss_output = 1;
 
-  #else //__gnu_linux__
+  #else //__gnu_linux__ (or any above listen #define)
 
   super->opts.use_pa_input = 1;
   super->opts.use_pa_output_vx = 1;

@@ -41,9 +41,6 @@ int main (int argc, char **argv)
   Super super;
   init_super(&super);
 
-  //enable default starting state
-  // enable_default_state(&super); //disabled for now, may remove later
-
   //initialize convolutional decoder and golay
   convolution_init();
   Golay_24_12_init();
@@ -80,11 +77,15 @@ int main (int argc, char **argv)
   //print git tag and version number
   fprintf (stderr, "Build Version: %s \n", GIT_TAG);
 
+  //use i to count number of optargs parsed
+  i = 0;
+
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
   while ((c = getopt (argc, argv, "12345678c:df:hi:mno:s:t:u:v:w:xA:C:D:F:INM:PS:U:VX")) != -1)
   {
 
+    i++;
 
     switch (c)
     {
@@ -314,6 +315,10 @@ int main (int argc, char **argv)
   //call signal handler so things like ctrl+c will allow us to gracefully close
   signal (SIGINT, handler);
   signal (SIGTERM, handler);
+
+  //enable default starting state if no optargs parsed
+  if (i == 0)
+    enable_default_state(&super);
 
   #ifdef USE_CURSES
   if (super.opts.use_ncurses_terminal == 1)
