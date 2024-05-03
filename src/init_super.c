@@ -270,15 +270,29 @@ void enable_default_state(Super * super)
 {
   super->opts.use_m17_rfa_decoder = 1;
 
-  #ifdef _WIN32 //is this the correct macro?
+  //NOTE: Run echo | gcc -dM -E -
+  //to find #defines for an environment
+
+  /* //arch linux
+  #define __linux 1
+  #define __gnu_linux__ 1
+  #define linux 1
+  #define __linux__ 1
+  */
+
+  /*
+  $ echo | g++ -dM -E - | grep CYGWIN
+  #define __CYGWIN__ 1
+  #define __CYGWIN32__ 1
+
+  */
+
+  #ifdef __CYGWIN__
 
   super->opts.use_oss_input = 1;
+  super->opts.use_oss_output = 1;
 
-  #elif _WIN64
-
-  super->opts.use_oss_input = 1;
-
-  #else //Linux
+  #else //__gnu_linux__
 
   super->opts.use_pa_input = 1;
   super->opts.use_pa_output_vx = 1;
@@ -291,6 +305,7 @@ void disable_default_state(Super * super)
 {
   super->opts.use_m17_rfa_decoder = 0;
   super->opts.use_oss_input = 0;
+  super->opts.use_oss_output = 0;
   super->opts.use_pa_input = 0;
   super->opts.use_pa_output_vx = 0;
 }
