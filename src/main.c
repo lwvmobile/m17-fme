@@ -35,9 +35,7 @@ int main (int argc, char **argv)
   int i, c;
   extern char *optarg;
 
-  //The Super Struct with nested structs has replaced passing them around
-  //and referencing them directly, much easier when I don't have to backtrack
-  //and contantly pass more things around
+  //Nested "Super" Struct to make it easy to pass around tons of smaller structs
   Super super;
   init_super(&super);
 
@@ -74,7 +72,7 @@ int main (int argc, char **argv)
     fprintf (stderr,"%s\n", M17FME_banner[i]);
   #endif
 
-  //print git tag and version number
+  //print git tag / version number
   fprintf (stderr, "Build Version: %s \n", GIT_TAG);
   
   //print current session number
@@ -83,9 +81,9 @@ int main (int argc, char **argv)
   //use i to count number of optargs parsed
   i = 0;
 
-  //process user CLI optargs (try to keep them alphabatized for my personal sanity)
+  //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "12345678c:df:hi:mno:s:t:uv:w:xA:C:D:F:INM:PS:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "12345678c:d:f:hi:mno:s:t:uv:w:xA:C:F:INLM:PR:S:U:VX")) != -1)
   {
 
     i++;
@@ -98,10 +96,10 @@ int main (int argc, char **argv)
         break;
 
       //disable high pass filter on digital
-      case '1':
-        super.opts.use_hpfilter_dig = 0;
-        fprintf (stderr, "Disable HPFilter on Digital Voice Decoding. \n");
-        break;
+      // case '1':
+      //   super.opts.use_hpfilter_dig = 0;
+      //   fprintf (stderr, "Disable HPFilter on Digital Voice Decoding. \n");
+      //   break;
       
       //disable RRC Filter
       case '2':
@@ -110,41 +108,41 @@ int main (int argc, char **argv)
         break;
 
       //connect to TCP Socket for SND Input with default options
-      case '3':
-        super.opts.use_tcp_input = 1;
-        fprintf (stderr, "TCP Source Connect Debug (Default Options). \n");
-        break;
+      // case '3':
+      //   super.opts.use_tcp_input = 1;
+      //   fprintf (stderr, "TCP Source Connect Debug (Default Options). \n");
+      //   break;
 
       //connect to PA Server for Pulse Audio Input
-      case '4':
-        super.opts.use_pa_input = 1;
-        fprintf (stderr, "Pulse Audio Input Debug (Default Options). \n");
-        break;
+      // case '4':
+      //   super.opts.use_pa_input = 1;
+      //   fprintf (stderr, "Pulse Audio Input Debug (Default Options). \n");
+      //   break;
 
       //connect to STDIN for SND Input with default options
-      case '5':
-        super.opts.use_stdin_input = 1;
-        fprintf (stderr, "STDIN SND Audio Input Debug (Default Options). \n");
-        break;
+      // case '5':
+      //   super.opts.use_stdin_input = 1;
+      //   fprintf (stderr, "STDIN SND Audio Input Debug (Default Options). \n");
+      //   break;
 
       //connect to PA Server for Pulse Audio Output (RF and VX)
-      case '6':
-        super.opts.use_pa_output_rf = 1;
-        super.opts.use_pa_output_vx = 1;
-        fprintf (stderr, "Pulse Audio Output RF and VX Debug (Default Options). \n");
-        break;
+      // case '6':
+      //   super.opts.use_pa_output_rf = 1;
+      //   super.opts.use_pa_output_vx = 1;
+      //   fprintf (stderr, "Pulse Audio Output RF and VX Debug (Default Options). \n");
+      //   break;
 
       //connect to OSS device for input
-      case '7':
-        super.opts.use_oss_input = 1;
-        fprintf (stderr, "OSS Input Debug (Default Options). \n");
-        break;
+      // case '7':
+      //   super.opts.use_oss_input = 1;
+      //   fprintf (stderr, "OSS Input Debug (Default Options). \n");
+      //   break;
 
       //connect to OSS device for output
-      case '8':
-        super.opts.use_oss_output = 1;
-        fprintf (stderr, "OSS Output Debug (Default Options). \n");
-        break;
+      // case '8':
+      //   super.opts.use_oss_output = 1;
+      //   fprintf (stderr, "OSS Output Debug (Default Options). \n");
+      //   break;
         
       // case 'a':
       //   super.opts.a = 1;
@@ -156,11 +154,10 @@ int main (int argc, char **argv)
       //   fprintf (stderr,"B: %s\n", super.opts.b);
       //   break;
 
-
-      case 'd':
-        super.opts.use_m17_rfa_decoder = 1;
-        fprintf (stderr, "Project M17 RF Audio Stream and Packet Decoder Mode. \n");
-        break;
+      // case 'd':
+      //   super.opts.use_m17_rfa_decoder = 1;
+      //   fprintf (stderr, "Project M17 RF Audio Stream and Packet Decoder Mode. \n");
+      //   break;
 
       //Specify DSD-FME Dibit Capture Bin Input File Format (RF Encoded only)
       case 'c':
@@ -182,19 +179,12 @@ int main (int argc, char **argv)
       case 'i':
         strncpy(super.opts.input_handler_string, optarg, 2047);
         super.opts.input_handler_string[2047] = '\0';
-        // fprintf (stderr, "Input String: %s \n", super.opts.input_handler_string);
         break;
 
       //Read Output String to be parsed
       case 'o':
         strncpy(super.opts.output_handler_string, optarg, 2047);
         super.opts.output_handler_string[2047] = '\0';
-        // fprintf (stderr, "Output String: %s \n", super.opts.output_handler_string);
-        break;
-
-      case 'm':
-        super.opts.monitor_encode_internally = 1;
-        fprintf (stderr, "Internal Encoder Loopback to Decoder. \n");
         break;
 
       case 'N':
@@ -212,16 +202,16 @@ int main (int argc, char **argv)
         fprintf (stderr, "Input Squelch: %ld; \n", super.demod.input_sql);
         break;
 
-      case 't':
+      case 'd':
         super.opts.demod_verbosity = atoi(optarg);
         fprintf (stderr, "Demodulator Verbosity: %d; \n", super.opts.demod_verbosity);
         break;
 
       //Enable UDP IP Frame Input
-      case 'u':
-        super.opts.use_m17_ipf_decoder = 1;
-        fprintf (stderr, "Project M17 Encoder UDP IP Frame Receiver Enabled. \n");
-        break;
+      // case 'u':
+      //   super.opts.use_m17_ipf_decoder = 1;
+      //   fprintf (stderr, "Project M17 Encoder UDP IP Frame Receiver Enabled. \n");
+      //   break;
 
       case 'v':
         super.opts.payload_verbosity = atoi(optarg);
@@ -247,6 +237,7 @@ int main (int argc, char **argv)
         strncpy(super.m17e.arb, optarg, 772);
         super.m17e.arb[772] = '\0';
         super.opts.m17_str_encoder_dt = 3;
+        memcpy (super.m17d.arb, super.m17e.arb, 772);
         break;
 
       //Specify DSD-FME Dibit Capture Bin File Format (RF Encoded only)
@@ -257,12 +248,6 @@ int main (int argc, char **argv)
         fprintf (stderr, "DSD-FME Dibit Output File: %s \n", super.opts.dibit_output_file);
         break;
 
-      //Specify M17 PKT Encoder Raw Encoded Data Packet (truncates at 772)
-      case 'D':
-        strncpy(super.m17e.dat, optarg, 772);
-        super.m17e.dat[772] = '\0';
-        break;
-
       //Specify M17 Float Symbol Output
       case 'F':
         strncpy(super.opts.float_symbol_output_file, optarg, 1023);
@@ -271,10 +256,15 @@ int main (int argc, char **argv)
         fprintf (stderr, "Float Symbol Output File: %s \n", super.opts.float_symbol_output_file);
         break;
 
-      //Enable IP Frame Output
+      //Enable IP Frame Output (with default localhost:17000)
       case 'I':
         super.opts.m17_use_ip = 1;
         fprintf (stderr, "Project M17 Encoder IP Frame Enabled. \n");
+        break;
+
+      case 'L':
+        super.opts.monitor_encode_internally = 1;
+        fprintf (stderr, "Internal Encoder Loopback to Decoder. \n");
         break;
 
       //Specify Encoder CAN, SRC, and DST Callsign Data
@@ -289,10 +279,17 @@ int main (int argc, char **argv)
         fprintf (stderr, "Project M17 Packet Encoder. \n");
         break;
 
+      //Specify M17 PKT Encoder Raw Encoded Data Packet (truncates at 772)
+      case 'R':
+        strncpy(super.m17e.dat, optarg, 772);
+        super.m17e.dat[772] = '\0';
+        break;
+
       //Specify M17 PKT Encoder SMS Message (truncates at 772)
       case 'S':
         strncpy(super.m17e.sms, optarg, 772);
         super.m17e.sms[772] = '\0';
+        memcpy (super.m17d.sms, super.m17e.sms, 772);
         break;
 
       //Specify M17 UDP Frame String Format, i.e., 'localhost:17000' or 'mycustomhost.xyz:17001'
@@ -319,10 +316,11 @@ int main (int argc, char **argv)
   signal (SIGINT, handler);
   signal (SIGTERM, handler);
 
-  //enable default starting state if no optargs parsed
+  //set default starting state if no optargs parsed
   if (i == 0)
-    enable_default_state(&super);
+    set_default_state(&super);
 
+  //open the ncurses terminal if its available and enabled
   #ifdef USE_CURSES
   if (super.opts.use_ncurses_terminal == 1)
   {
@@ -341,10 +339,11 @@ int main (int argc, char **argv)
   if (super.m17e.user[0] != 0)
     parse_m17_user_string(&super, super.m17e.user);
 
+  //open any input or output audio devices or files
   open_audio_input (&super);
   open_audio_output (&super);
 
-  //demodulate, frame sync, and decode OTA RF Audio
+  //demodulate, frame sync, and decode OTA RF Audio, or captured/crafted files
   if (super.opts.use_m17_rfa_decoder == 1)
   {
     //initial current_time set
@@ -375,12 +374,15 @@ int main (int argc, char **argv)
     }
   }
 
+  //encode M17 Packet Data Frames
   if (super.opts.use_m17_pkt_encoder == 1)
-    encodeM17PKT(&super);
-
+    encode_pkt(&super);
+  
+  //encode M17 Voice Stream Frames
   if (super.opts.use_m17_str_encoder == 1)
-    encodeM17STR(&super);
+    encode_str(&super);
 
+  //decode IP Frames
   if (super.opts.use_m17_ipf_decoder == 1)
     decode_ipf(&super);
 
