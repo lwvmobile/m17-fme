@@ -9,7 +9,7 @@
 #include "main.h"
 #include "m17.h"
 
-void encodeM17PKT(Super * super)
+void encode_pkt(Super * super)
 {
 
   //quell defined but not used warnings from m17.h
@@ -88,10 +88,10 @@ void encodeM17PKT(Super * super)
 
   //send dead air with type 99
   for (i = 0; i < 25; i++)
-    encodeM17RF (super, nil, mem, 99);
+    encode_rfa (super, nil, mem, 99);
 
   //send preamble_a for the LSF frame
-  // encodeM17RF (super, nil, mem, 11); //don't need to send twice, had wrong type anyways
+  // encode_rfa (super, nil, mem, 11); //don't need to send twice, had wrong type anyways
 
   //NOTE: PKT mode does not seem to have an IP format specified by M17 standard,
   //so I will assume that you do not send PKT data over IP to a reflector
@@ -484,9 +484,9 @@ void encodeM17PKT(Super * super)
 
       //convert bit array into symbols and RF/Audio
       memset (nil, 0, sizeof(nil));
-      encodeM17RF (super, nil, mem, 11); //Preamble
+      encode_rfa (super, nil, mem, 11); //Preamble
       for (i = 0; i < 2; i++)
-        encodeM17RF (super, m17_lsfs, mem, 1); //LSF
+        encode_rfa (super, m17_lsfs, mem, 1); //LSF
 
       //flag off after sending
       new_lsf = 0;
@@ -565,17 +565,17 @@ void encodeM17PKT(Super * super)
     // fprintf (stderr, " PBC: %d;", pbc);
 
     //convert bit array into symbols and RF/Audio
-    encodeM17RF (super, m17_p4s, mem, 4);
+    encode_rfa (super, m17_p4s, mem, 4);
 
     //send the EOT Marker and some dead air
     if (eot)
     {
       memset (nil, 0, sizeof(nil));
-      encodeM17RF (super, nil, mem, 55); //EOT Marker
+      encode_rfa (super, nil, mem, 55); //EOT Marker
 
       //send dead air with type 99
       for (i = 0; i < 25; i++)
-        encodeM17RF (super, nil, mem, 99);
+        encode_rfa (super, nil, mem, 99);
 
       //shut it down
       exitflag = 1;

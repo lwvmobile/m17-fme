@@ -365,22 +365,22 @@ void input_ncurses_terminal (Super * super, int c);
 
 //Pulse Audio Handling
 #ifdef USE_PULSEAUDIO
-void open_pulse_audio_input (Super * super);
-void open_pulse_audio_output_rf (Super * super);
-void open_pulse_audio_output_vx (Super * super);
-void close_pulse_audio_input (Super * super);
-void close_pulse_audio_output_rf (Super * super);
-void close_pulse_audio_output_vx (Super * super);
+void  open_pulse_audio_input (Super * super);
+void  open_pulse_audio_output_rf (Super * super);
+void  open_pulse_audio_output_vx (Super * super);
+void  close_pulse_audio_input (Super * super);
+void  close_pulse_audio_output_rf (Super * super);
+void  close_pulse_audio_output_vx (Super * super);
 short pa_input_read (Super * super);
-void pulse_audio_output_rf (Super * super, short * out, size_t nsam);
-void pulse_audio_output_vx (Super * super, short * out, size_t nsam);
+void  pulse_audio_output_rf (Super * super, short * out, size_t nsam);
+void  pulse_audio_output_vx (Super * super, short * out, size_t nsam);
 #endif
 
 //OSS Garbage Handling
-void open_oss_output (Super * super);
-void open_oss_input (Super * super);
+void  open_oss_output (Super * super);
+void  open_oss_input (Super * super);
 short oss_input_read (Super * super);
-void oss_output_write (Super * super, short * out, size_t nsam);
+void  oss_output_write (Super * super, short * out, size_t nsam);
 
 //sndfile Wav Output File Handling
 void open_wav_out_rf (Super * super);
@@ -395,10 +395,10 @@ bool file_snd_audio_source_open (Super * super);
 short snd_input_read (Super * super);
 
 //UDP IP Related Functions
-int udp_socket_bind (char *hostname, int portno);
-int m17_socket_blaster (Super * super, size_t nsam, void * data);
-int udp_socket_connectM17 (Super * super);
-int m17_socket_receiver (Super * super, void * data);
+int  udp_socket_bind (char *hostname, int portno);
+int  m17_socket_blaster (Super * super, size_t nsam, void * data);
+int  udp_socket_connectM17 (Super * super);
+int  m17_socket_receiver (Super * super, void * data);
 void error(char *msg);
 
 //TCP IP Related Functions
@@ -451,13 +451,13 @@ void Golay_24_12_init ();
 uint16_t crc16 (const uint8_t *in, const uint16_t len);
 
 //demodulation and sync functions
-void    fsk4_framesync (Super * super);
-float   demodulate_and_return_float_symbol (Super * super);
-void    buffer_refresh_min_max_center (Super * super);
-void    simple_refresh_min_max_center (Super * super, float sample);
-short   vote_for_sample(Super * super, short * samples);
-void    clock_recovery(Super * super, short * samples);
-void    no_carrier_sync (Super * super);
+void  fsk4_framesync (Super * super);
+float demodulate_and_return_float_symbol (Super * super);
+void  buffer_refresh_min_max_center (Super * super);
+void  simple_refresh_min_max_center (Super * super, float sample);
+short vote_for_sample(Super * super, short * samples);
+void  clock_recovery(Super * super, short * samples);
+void  no_carrier_sync (Super * super);
 
 //slice and dice symbols and dibits
 uint8_t convert_float_symbol_to_dibit_and_store (Super * super, float float_symbol);
@@ -468,9 +468,9 @@ uint8_t digitize_symbol_to_dibit (float symbol);
 uint8_t get_dibit (Super * super);
 
 //based off of lib17 math https://github.com/M17-Project/libm17
-float   eucl_norm (float* in1, int8_t* in2, uint8_t n);
-void    push_float_buffer (float * last, float symbol);
-int     dist_and_sync (float * last);
+float eucl_norm (float* in1, int8_t* in2, uint8_t n);
+void  push_float_buffer (float * last, float symbol);
+int   dist_and_sync (float * last);
 
 //frame sync information and debug prints
 void print_frame_sync_pattern (Super * super, int type);
@@ -493,9 +493,9 @@ char * getDateN(time_t t);
 uint64_t ConvertBitIntoBytes (uint8_t * BufferIn, uint32_t BitLength);
 
 //M17 Frame Encoders
-void encodeM17RF (Super * super, uint8_t * input, float * mem, int type);
-void encodeM17PKT (Super * super);
-void encodeM17STR (Super * super);
+void encode_rfa (Super * super, uint8_t * input, float * mem, int type);
+void encode_pkt (Super * super);
+void encode_str (Super * super);
 
 //M17 Content Element Decoders
 int  decode_lich_contents (Super * super, uint8_t * lich_bits);

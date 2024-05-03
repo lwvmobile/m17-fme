@@ -10,7 +10,7 @@
 #include "m17.h"
 
 //encode and create audio of a Project M17 Stream signal
-void encodeM17STR(Super * super)
+void encode_str(Super * super)
 {
   float mem[81];
 
@@ -79,7 +79,7 @@ void encodeM17STR(Super * super)
 
   //send dead air with type 99
   for (i = 0; i < 25; i++)
-    encodeM17RF (super, nil, mem, 99);
+    encode_rfa (super, nil, mem, 99);
 
   //Open UDP port to default or user defined values, if enabled
   int sock_err;
@@ -582,9 +582,9 @@ void encodeM17STR(Super * super)
 
         //convert bit array into symbols and RF/Audio
         memset (nil, 0, sizeof(nil));
-        encodeM17RF (super,      nil, mem, 11); //Preamble
+        encode_rfa (super,      nil, mem, 11); //Preamble
         for (i = 0; i < 2; i++)
-          encodeM17RF (super, m17_lsfs, mem, 1); //LSF
+          encode_rfa (super, m17_lsfs, mem, 1); //LSF
 
         //flag off after sending
         new_lsf = 0;
@@ -618,7 +618,7 @@ void encodeM17STR(Super * super)
       }
 
       //convert bit array into symbols and RF/Audio
-      encodeM17RF (super, m17_t4s, mem, 2);
+      encode_rfa (super, m17_t4s, mem, 2);
       
       //Contruct an IP frame using previously created arrays
       memset (m17_ip_frame, 0, sizeof(m17_ip_frame));
@@ -859,14 +859,14 @@ void encodeM17STR(Super * super)
         }
 
         //convert bit array into symbols and RF/Audio
-        encodeM17RF (super, m17_t4s, mem, 2); //Last Stream Frame
+        encode_rfa (super, m17_t4s, mem, 2); //Last Stream Frame
         memset (nil, 0, sizeof(nil));
-        encodeM17RF (super, nil, mem, 55);    //EOT Marker
+        encode_rfa (super, nil, mem, 55);    //EOT Marker
 
         //send dead air with type 99
         memset (nil, 0, sizeof(nil));
         for (i = 0; i < 25; i++)
-          encodeM17RF (super, nil, mem, 99);
+          encode_rfa (super, nil, mem, 99);
 
         //send IP Frame with EOT bit
         if (use_ip == 1)

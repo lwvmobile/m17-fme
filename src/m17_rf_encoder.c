@@ -10,8 +10,7 @@
 #include "m17.h"
 
 //convert bit array into symbols and RF/Audio
-// void encodeM17RF (config_opts * opts, pa_state * pa, wav_state * wav, uint8_t * input, float * mem, int type)
-void encodeM17RF (Super * super, uint8_t * input, float * mem, int type)
+void encode_rfa (Super * super, uint8_t * input, float * mem, int type)
 {
 
   //quell defined but not used warnings from m17.h
