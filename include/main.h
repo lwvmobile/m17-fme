@@ -348,6 +348,8 @@ void disable_default_state(Super * super);
 //io string parsing
 void parse_input_option_string (Super * super, char * input);
 void parse_output_option_string (Super * super, char * output);
+void parse_m17_user_string (Super * super, char * input);
+void parse_udp_user_string (Super * super, char * input);
 
 //NCurses Terminal
 #ifdef USE_CURSES

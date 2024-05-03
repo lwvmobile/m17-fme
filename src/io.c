@@ -304,3 +304,91 @@ void parse_output_option_string (Super * super, char * output)
   else fprintf (stderr, "\nAudio Output Device: Unknown %s;", output);
 
 }
+
+void parse_m17_user_string (Super * super, char * input)
+{
+  char * curr;
+
+  //check and capatalize any letters in the CSD
+  for (int i = 0; input[i]!='\0'; i++)
+  {
+    if(input[i] >= 'a' && input[i] <= 'z')
+      input[i] = input[i] -32;
+  }
+
+  curr = strtok(input, ":"); //CAN
+  if (curr != NULL)
+    super->m17e.can = atoi(curr);
+
+  curr = strtok(NULL, ":"); //m17 src callsign
+  if (curr != NULL)
+  {
+    strncpy (super->m17e.srcs, curr, 9); //only read first 9
+    super->m17e.srcs[9] = '\0';
+  }
+
+  curr = strtok(NULL, ":"); //m17 dst callsign
+  if (curr != NULL)
+  {
+    strncpy (super->m17e.dsts, curr, 9); //only read first 9
+    super->m17e.dsts[9] = '\0';
+  }
+
+  fprintf (stderr, "\n");
+  fprintf (stderr, "M17 User Data: ");
+  fprintf (stderr, "CAN: %d; ", super->m17e.can);
+  fprintf (stderr, "SRC: %s; ", super->m17e.srcs);
+  fprintf (stderr, "DST: %s; ", super->m17e.dsts);
+}
+
+
+//may put this in the input parser instead, 
+//but also is needed for output, so this may be better
+void parse_udp_user_string (Super * super, char * input)
+{
+
+  char * curr;
+
+  //debug
+  // fprintf (stderr, "UDP INPUT STR: %s\n", input);
+
+  curr = strtok(input, ":");
+  if (curr != NULL)
+    strncpy (super->opts.m17_hostname, curr, 1023);
+  curr = strtok(NULL, ":"); //host port
+    if (curr != NULL) super->opts.m17_portno = atoi (curr);
+
+  curr = strtok(NULL, ":"); //reflector module
+  if (curr != NULL)
+  {
+    //read reflector module
+    super->m17e.reflector_module = *curr; //straight assignment to convert char 'A' to number
+
+    //debug char to number
+    // fprintf (stderr, "%d:%d:%d; ", super->m17e.reflector_module, *curr, 'A');
+
+    //check for capitalization
+    if(super->m17e.reflector_module >= 'a' && super->m17e.reflector_module <= 'z')
+      super->m17e.reflector_module = super->m17e.reflector_module -32;
+    
+    //make sure its a value from A to Z
+    if (super->m17e.reflector_module < 0x41 || super->m17e.reflector_module > 0x5A)
+    {
+      super->m17e.reflector_module = 0;
+      fprintf (stderr, "\n");
+      fprintf (stderr, "M17 Reflector Module must be value from A-Z; \n");
+    }
+  }
+
+  fprintf (stderr, "\n");
+  fprintf (stderr, "UDP Host: %s; ", super->opts.m17_hostname);
+  fprintf (stderr, "Port: %d; ", super->opts.m17_portno);
+  if (super->m17e.reflector_module != 0)
+    fprintf (stderr, "Module: %c; ", super->m17e.reflector_module);
+
+  fprintf (stderr, "\n");
+
+  //since it was enabled by the user, go ahead and turn it on here
+  // super->opts.m17_use_ip = 1; //no, could be for input or output
+
+}

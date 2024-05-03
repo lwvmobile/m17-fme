@@ -130,10 +130,11 @@ void decode_ipf (Super * super)
         fprintf (stderr, "\n IP:");
         for (i = 0; i < 54; i++)
         {
-          if ( (i%14) == 0 ) fprintf (stderr, "\n   ");
+          if ( ((i%14) == 0) && i != 0)
+            fprintf (stderr, "\n    ");
           fprintf (stderr, " %02X", ip_frame[i]);
         }
-        fprintf (stderr, " (CRC CHK) E: %04X; C: %04X;", crc_ext, crc_cmp);
+        fprintf (stderr, "\n     (CRC CHK) E: %04X; C: %04X;", crc_ext, crc_cmp);
       }
 
       if (crc_ext != crc_cmp) fprintf (stderr, " IP CRC ERR");
@@ -363,17 +364,6 @@ void decode_ipf (Super * super)
       if (crc_ext != crc_cmp) fprintf (stderr, " IP CRC ERR");
 
     }
-
-    //debug
-    // else if (super->opts.payload == 1)
-    // {
-    //   fprintf (stderr, "\n UDP:");
-    //   for (i = 0; i < 54; i++)
-    //   {
-    //     if ( (i%14) == 0 ) fprintf (stderr, "\n    ");
-    //     fprintf (stderr, "[%02X]", ip_frame[i]);
-    //   }
-    // }
 
     //refresh ncurses printer, if enabled
     if (super->opts.use_ncurses_terminal == 1)

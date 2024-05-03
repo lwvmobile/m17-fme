@@ -85,7 +85,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "12345678c:df:hi:mno:s:t:u:v:w:xA:C:D:F:INM:PS:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "12345678c:df:hi:mno:s:t:uv:w:xA:C:D:F:INM:PS:U:VX")) != -1)
   {
 
     i++;
@@ -182,14 +182,14 @@ int main (int argc, char **argv)
       case 'i':
         strncpy(super.opts.input_handler_string, optarg, 2047);
         super.opts.input_handler_string[2047] = '\0';
-        fprintf (stderr, "Input String: %s \n", super.opts.input_handler_string);
+        // fprintf (stderr, "Input String: %s \n", super.opts.input_handler_string);
         break;
 
       //Read Output String to be parsed
       case 'o':
         strncpy(super.opts.output_handler_string, optarg, 2047);
         super.opts.output_handler_string[2047] = '\0';
-        fprintf (stderr, "Output String: %s \n", super.opts.output_handler_string);
+        // fprintf (stderr, "Output String: %s \n", super.opts.output_handler_string);
         break;
 
       case 'm':
@@ -217,7 +217,7 @@ int main (int argc, char **argv)
         fprintf (stderr, "Demodulator Verbosity: %d; \n", super.opts.demod_verbosity);
         break;
 
-      //Enable UDP IP Frame Input (testing using default values)
+      //Enable UDP IP Frame Input
       case 'u':
         super.opts.use_m17_ipf_decoder = 1;
         fprintf (stderr, "Project M17 Encoder UDP IP Frame Receiver Enabled. \n");
@@ -336,85 +336,13 @@ int main (int argc, char **argv)
     parse_input_option_string(&super, super.opts.input_handler_string);
   if (super.opts.output_handler_string[0] != 0)
     parse_output_option_string(&super, super.opts.output_handler_string);
+  if (super.opts.m17_udp_input[0] != 0)
+    parse_udp_user_string(&super, super.opts.m17_udp_input);
+  if (super.m17e.user[0] != 0)
+    parse_m17_user_string(&super, super.m17e.user);
 
   open_audio_input (&super);
   open_audio_output (&super);
-
-  //Parse any User Input Strings that need to be broken into smaller components UDP and USER CSD
-  char * curr; // = malloc (1024*sizeof(char));
-  if (super.opts.m17_udp_input[0] != 0 && super.opts.m17_use_ip == 1)
-  {
-    //debug
-    // fprintf (stderr, "UDP INPUT STR: %s\n", super.opts.m17_udp_input);
-
-    curr = strtok(super.opts.m17_udp_input, ":");
-    if (curr != NULL)
-      strncpy (super.opts.m17_hostname, curr, 1023);
-    curr = strtok(NULL, ":"); //host port
-      if (curr != NULL) super.opts.m17_portno = atoi (curr);
-
-    curr = strtok(NULL, ":"); //reflector module
-    if (curr != NULL)
-    {
-      //read reflector module
-      super.m17e.reflector_module = *curr; //straight assignment to convert char 'A' to number
-
-      //debug char to number
-      // fprintf (stderr, "%d:%d:%d; ", super.m17e.reflector_module, *curr, 'A');
-
-      //check for capitalization
-      if(super.m17e.reflector_module >= 'a' && super.m17e.reflector_module <= 'z')
-        super.m17e.reflector_module = super.m17e.reflector_module -32;
-      
-      //make sure its a value from A to Z
-      if (super.m17e.reflector_module < 0x41 || super.m17e.reflector_module > 0x5A)
-      {
-        super.m17e.reflector_module = 0;
-        fprintf (stderr, "M17 Reflector Module must be value from A-Z; \n");
-      }
-    }
-
-    fprintf (stderr, "UDP Host: %s; ", super.opts.m17_hostname);
-    fprintf (stderr, "Port: %d; ", super.opts.m17_portno);
-    if (super.m17e.reflector_module != 0)
-      fprintf (stderr, "Module: %c; ", super.m17e.reflector_module);
-
-    fprintf (stderr, "\n");
-
-  }
-
-  if (super.m17e.user[0] != 0)
-  {
-    //check and capatalize any letters in the CSD
-    for (int i = 0; super.m17e.user[i]!='\0'; i++)
-    {
-      if(super.m17e.user[i] >= 'a' && super.m17e.user[i] <= 'z')
-        super.m17e.user[i] = super.m17e.user[i] -32;
-    }
-
-    curr = strtok(super.m17e.user, ":"); //CAN
-    if (curr != NULL)
-      super.m17e.can = atoi(curr);
-
-    curr = strtok(NULL, ":"); //m17 src callsign
-    if (curr != NULL)
-    {
-      strncpy (super.m17e.srcs, curr, 9); //only read first 9
-      super.m17e.srcs[9] = '\0';
-    }
-
-    curr = strtok(NULL, ":"); //m17 dst callsign
-    if (curr != NULL)
-    {
-      strncpy (super.m17e.dsts, curr, 9); //only read first 9
-      super.m17e.dsts[9] = '\0';
-    }
-
-    fprintf (stderr, "M17 User Data: ");
-    fprintf (stderr, "CAN: %d; ", super.m17e.can);
-    fprintf (stderr, "SRC: %s; ", super.m17e.srcs);
-    fprintf (stderr, "DST: %s; ", super.m17e.dsts);
-  }
 
   //demodulate, frame sync, and decode OTA RF Audio
   if (super.opts.use_m17_rfa_decoder == 1)
