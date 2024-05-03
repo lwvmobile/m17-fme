@@ -189,15 +189,6 @@ void parse_input_option_string (Super * super, char * input)
     //TODO: Full String Parse, if supplied (copy and paste from somewhere else)
   }
 
-  else if ( (strncmp(input, "udp", 3) == 0) )
-  {
-    fprintf (stderr, "\n");
-    fprintf (stderr, "UDP IP Frame Input;");
-    super->opts.use_m17_ipf_decoder = 1;
-    //TODO: Full String Parse, if supplied (copy and paste from somewhere else)
-    //may not be needed, right now we are binding to the port, not to an address
-  }
-
   else if ( (strncmp(input, "/dev/dsp", 8) == 0) )
   {
     fprintf (stderr, "\n");
@@ -210,6 +201,27 @@ void parse_input_option_string (Super * super, char * input)
     fprintf (stderr, "\n");
     fprintf (stderr, "Audio Input Device: STDIN (-);");
     super->opts.use_stdin_input = 1;
+  }
+
+  else if ( (strncmp(input, "udp", 3) == 0) )
+  {
+    fprintf (stderr, "\n");
+    fprintf (stderr, "UDP IP Frame Input;");
+    super->opts.use_m17_ipf_decoder = 1;
+
+    //NOTE: We can further yeet the string to udp handler to get the rest
+    parse_udp_user_string(super, input+4);
+  }
+
+  //Mirror the DSD-FME Variation on this string
+  else if ( (strncmp(input, "m17udp", 6) == 0) )
+  {
+    fprintf (stderr, "\n");
+    fprintf (stderr, "M17 UDP IP Frame Input: ");
+    super->opts.use_m17_ipf_decoder = 1;
+
+    //NOTE: We can further yeet the string to udp handler to get the rest
+    parse_udp_user_string(super, input+7);
   }
 
   #ifdef USE_PULSEAUDIO
@@ -233,13 +245,6 @@ void parse_input_option_string (Super * super, char * input)
   #else
   fprintf (stderr, " Pulse Audio Support Not Found / Compiled;");
   #endif
-
-  else if ( (strncmp(input, "m17udp", 6) == 0) )
-  {
-    fprintf (stderr, "\n");
-    fprintf (stderr, "M17 UDP IP Frame Input: ");
-
-  }
 
   //anything not recognized
   else fprintf (stderr, "\nAudio Output Device: Unknown %s;", input);
@@ -271,6 +276,27 @@ void parse_output_option_string (Super * super, char * output)
     fprintf (stderr, "\n");
     fprintf (stderr, "Audio Output Device: STDOUT (-);");
     super->opts.use_stdout_output = 1;
+  }
+
+  else if ( (strncmp(output, "udp", 3) == 0) )
+  {
+    fprintf (stderr, "\n");
+    fprintf (stderr, "UDP IP Frame Output;");
+    super->opts.m17_use_ip = 1;
+
+    //NOTE: We can further yeet the string to udp handler to get the rest
+    parse_udp_user_string(super, output+4);
+  }
+
+  //Mirror the DSD-FME Variation on this string
+  else if ( (strncmp(output, "m17udp", 3) == 0) )
+  {
+    fprintf (stderr, "\n");
+    fprintf (stderr, "M17 UDP IP Frame Output;");
+    super->opts.m17_use_ip = 1;
+
+    //NOTE: We can further yeet the string to udp handler to get the rest
+    parse_udp_user_string(super, output+7);
   }
 
   #ifdef USE_PULSEAUDIO
