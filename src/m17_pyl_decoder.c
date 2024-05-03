@@ -84,15 +84,14 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type)
       pulse_audio_output_vx(super, upsamp2, nsam*6);
   }
 
-  else if (super->opts.use_oss_output == 1 && super->opts.monitor_encode_internally == 1)
+  else if (super->opts.oss_output_device)
   {
     oss_output_write(super, upsamp1, nsam*6);
     if (type == 2)
       oss_output_write(super, upsamp2, nsam*6);
   }
 
-  //NOTE: Can only do VX or RF on stdout pipe, not both
-  else if (super->opts.stdout_pipe && super->opts.monitor_encode_internally == 1)
+  else if (super->opts.stdout_pipe)
   {
     write_stdout_pipe(super, upsamp1, nsam*6);
     if (type == 2)
