@@ -258,7 +258,7 @@ void decode_ipf (Super * super)
       memset (ip_frame, 0, sizeof(ip_frame));
 
       //drop sync
-      super->demod.in_sync = 0;
+      no_carrier_sync(super);
 
     }
 

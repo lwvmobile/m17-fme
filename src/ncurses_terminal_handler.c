@@ -287,7 +287,7 @@ void print_ncurses_call_info (Super * super)
   if (super->m17d.dt == 0) printw("Reserved");
   if (super->m17d.dt == 1) printw("Packet Data ");
   if (super->m17d.dt == 2) printw("Voice (3200) ");
-  if (super->m17d.dt == 3) printw("Voice (1600) + Arbitary Data");
+  if (super->m17d.dt == 3) printw("Voice (1600) + Arbitrary Data");
 
   printw ("\n");
   printw ("| ");
