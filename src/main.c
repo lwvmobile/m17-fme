@@ -83,7 +83,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "123456c:df:himns:t:u:v:w:xA:C:D:F:INM:PS:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "12345678c:df:himns:t:u:v:w:xA:C:D:F:INM:PS:U:VX")) != -1)
   {
 
     //if we have at least 1 optarg, then disable the default starting state
@@ -133,6 +133,18 @@ int main (int argc, char **argv)
         super.opts.use_pa_output_rf = 1;
         super.opts.use_pa_output_vx = 1;
         fprintf (stderr, "Pulse Audio Output RF and VX Debug (Default Options). \n");
+        break;
+
+      //connect to OSS device for input
+      case '7':
+        super.opts.use_oss_input = 1;
+        fprintf (stderr, "OSS Input Debug (Default Options). \n");
+        break;
+
+      //connect to OSS device for output
+      case '8':
+        super.opts.use_oss_output = 1;
+        fprintf (stderr, "OSS Output Debug (Default Options). \n");
         break;
         
       // case 'a':
