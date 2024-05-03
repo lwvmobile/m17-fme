@@ -33,7 +33,6 @@ void usage ()
 int main (int argc, char **argv)
 {
   int i, c;
-  int x = 0; //number of passes through getopt (trip flag for disabling the default starting state)
   extern char *optarg;
 
   //The Super Struct with nested structs has replaced passing them around
@@ -43,7 +42,7 @@ int main (int argc, char **argv)
   init_super(&super);
 
   //enable default starting state
-  enable_default_state(&super);
+  // enable_default_state(&super); //disabled for now, may remove later
 
   //initialize convolutional decoder and golay
   convolution_init();
@@ -83,13 +82,9 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabatized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "12345678c:df:himns:t:u:v:w:xA:C:D:F:INM:PS:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "12345678c:df:hi:mno:s:t:u:v:w:xA:C:D:F:INM:PS:U:VX")) != -1)
   {
 
-    //if we have at least 1 optarg, then disable the default starting state
-    if (x == 0)
-      disable_default_state(&super);
-    x++;
 
     switch (c)
     {
@@ -157,11 +152,6 @@ int main (int argc, char **argv)
       //   fprintf (stderr,"B: %s\n", super.opts.b);
       //   break;
 
-      //Enable IP Frame Input (testing using default values)
-      case 'i':
-        super.opts.use_m17_ipf_decoder = 1;
-        fprintf (stderr, "Project M17 Encoder IP Frame Receiver Enabled. \n");
-        break;
 
       case 'd':
         super.opts.use_m17_rfa_decoder = 1;
@@ -182,6 +172,20 @@ int main (int argc, char **argv)
         super.opts.float_symbol_input_file[1023] = '\0';
         super.opts.use_float_symbol_input = 1;
         fprintf (stderr, "Float Symbol Input File: %s \n", super.opts.float_symbol_input_file);
+        break;
+
+      //Read Input String to be parsed
+      case 'i':
+        strncpy(super.opts.input_handler_string, optarg, 2047);
+        super.opts.input_handler_string[2047] = '\0';
+        fprintf (stderr, "Input String: %s \n", super.opts.input_handler_string);
+        break;
+
+      //Read Output String to be parsed
+      case 'o':
+        strncpy(super.opts.output_handler_string, optarg, 2047);
+        super.opts.output_handler_string[2047] = '\0';
+        fprintf (stderr, "Output String: %s \n", super.opts.output_handler_string);
         break;
 
       case 'm':
@@ -209,9 +213,10 @@ int main (int argc, char **argv)
         fprintf (stderr, "Demodulator Verbosity: %d; \n", super.opts.demod_verbosity);
         break;
 
+      //Enable UDP IP Frame Input (testing using default values)
       case 'u':
-        super.opts.decoder_verbosity = atoi(optarg);
-        fprintf (stderr, "Decoder / Debug Verbosity: %d; \n", super.opts.decoder_verbosity);
+        super.opts.use_m17_ipf_decoder = 1;
+        fprintf (stderr, "Project M17 Encoder UDP IP Frame Receiver Enabled. \n");
         break;
 
       case 'v':
@@ -317,6 +322,12 @@ int main (int argc, char **argv)
     super.opts.ncurses_is_open = 1;
   }
   #endif
+
+  //parse any user passed input or output strings
+  if (super.opts.input_handler_string[0] != 0)
+    parse_input_option_string(&super, super.opts.input_handler_string);
+  if (super.opts.output_handler_string[0] != 0)
+    parse_output_option_string(&super, super.opts.output_handler_string);
 
   open_audio_input (&super);
   open_audio_output (&super);

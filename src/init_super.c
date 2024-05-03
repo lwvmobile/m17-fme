@@ -24,6 +24,11 @@ void init_super (Super * super)
   super->opts.use_ncurses_terminal = 0;
   super->opts.ncurses_no_history = 0;
 
+  //input and output strings for parsing
+  memset (super->opts.input_handler_string,  0, 2048*sizeof(char));
+  memset (super->opts.output_handler_string, 0, 2048*sizeof(char));
+
+  //output verbosity levels
   super->opts.payload_verbosity = 0;
   super->opts.decoder_verbosity = 0;
   super->opts.demod_verbosity = 0;

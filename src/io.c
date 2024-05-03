@@ -164,3 +164,60 @@ void cleanup_and_exit (Super * super)
 
   exit(0);
 }
+
+//io string parsing
+void parse_input_option_string (Super * super, char * input)
+{
+
+  if ( (strncmp(input, "pulse", 5) == 0) )
+  {
+    fprintf (stderr, "\n");
+    fprintf (stderr, "Audio  Input Device: Pulse Audio;");
+    super->opts.use_pa_input = 1;
+  }
+
+  if ( (strncmp(input, "m17udp", 6) == 0) )
+  {
+    fprintf (stderr, "\n");
+    fprintf (stderr, "M17 UDP IP Frame Input: ");
+
+  }
+
+}
+
+void parse_output_option_string (Super * super, char * output)
+{
+  
+  if ( (strncmp(output, "null", 4) == 0) )
+  {
+    fprintf (stderr, "\n");
+    fprintf (stderr, "Audio Output Device(s): NULL;");
+    super->opts.use_pa_output_rf = 0;
+    super->opts.use_pa_output_vx = 0;
+    super->opts.use_oss_output = 0;
+    super->opts.use_stdout_output = 0;
+  }
+
+  if ( (strncmp(output, "pulse", 5) == 0) )
+  {
+    fprintf (stderr, "\n");
+    if ( (strncmp(output, "pulserf", 7) == 0) )
+      super->opts.use_pa_output_rf = 1;
+    else if ( (strncmp(output, "pulsevx", 7) == 0) )
+      super->opts.use_pa_output_vx = 1;
+    else super->opts.use_pa_output_vx = 1;
+
+    if (super->opts.use_pa_output_rf == 1)
+      fprintf (stderr, "Audio Output Device: Pulse RF Output;");
+
+    else if (super->opts.use_pa_output_vx == 1)
+    {
+      super->opts.monitor_encode_internally = 1; //may disable this later
+      fprintf (stderr, "Audio Output Device: Pulse Voice Output;");
+    }
+
+    //should never get here hopefully
+    else fprintf (stderr, "Audio Output Device: Error Parsing String;");
+  }
+
+}
