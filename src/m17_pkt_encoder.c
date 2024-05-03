@@ -91,7 +91,7 @@ void encodeM17PKT(Super * super)
     encodeM17RF (super, nil, mem, 99);
 
   //send preamble_a for the LSF frame
-  encodeM17RF (super, nil, mem, 33);
+  // encodeM17RF (super, nil, mem, 11); //don't need to send twice, had wrong type anyways
 
   //NOTE: PKT mode does not seem to have an IP format specified by M17 standard,
   //so I will assume that you do not send PKT data over IP to a reflector
@@ -483,7 +483,8 @@ void encodeM17PKT(Super * super)
       //convert bit array into symbols and RF/Audio
       memset (nil, 0, sizeof(nil));
       encodeM17RF (super, nil, mem, 11); //Preamble
-      encodeM17RF (super, m17_lsfs, mem, 1); //LSF
+      for (i = 0; i < 2; i++)
+        encodeM17RF (super, m17_lsfs, mem, 1); //LSF
 
       //flag off after sending
       new_lsf = 0;

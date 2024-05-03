@@ -64,7 +64,7 @@ void init_super (Super * super)
 
   //Misc Options to organize later
   super->opts.m17_str_encoder_dt = 2; //2 is fullrate (3200), 3 is halfrate (1600) w/ arb data
-  super->opts.disable_rrc_filter = 0; //Disable this later on
+  super->opts.disable_rrc_filter = 1; //Disable this later on
   super->opts.monitor_encode_internally = 0;
   super->opts.allow_crc_failure = 0; //allow decode attempts, even if CRC16 fails checksum
   super->opts.use_hpfilter_dig = 1;

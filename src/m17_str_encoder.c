@@ -583,7 +583,8 @@ void encodeM17STR(Super * super)
         //convert bit array into symbols and RF/Audio
         memset (nil, 0, sizeof(nil));
         encodeM17RF (super,      nil, mem, 11); //Preamble
-        encodeM17RF (super, m17_lsfs, mem, 1); //LSF
+        for (i = 0; i < 2; i++)
+          encodeM17RF (super, m17_lsfs, mem, 1); //LSF
 
         //flag off after sending
         new_lsf = 0;

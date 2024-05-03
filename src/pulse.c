@@ -54,12 +54,14 @@ void close_pulse_audio_input (Super * super)
 
 void close_pulse_audio_output_rf (Super * super)
 {
+  pa_simple_drain(super->pa.pa_output_device_rf, NULL);
   pa_simple_free (super->pa.pa_output_device_rf);
   super->pa.pa_output_rf_is_open = 0;
 }
 
 void close_pulse_audio_output_vx (Super * super)
 {
+  pa_simple_drain(super->pa.pa_output_device_vx, NULL);
   pa_simple_free (super->pa.pa_output_device_vx);
   super->pa.pa_output_vx_is_open = 0;
 }
