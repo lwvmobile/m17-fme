@@ -343,7 +343,7 @@ typedef struct
   unsigned long long int A2; //64-bit Hexidecimal Representation of Chunk 2 of AES Key (128)
   unsigned long long int A3; //64-bit Hexidecimal Representation of Chunk 3 of AES Key (192)
   unsigned long long int A4; //64-bit Hexidecimal Representation of Chunk 4 of AES Key (256)
-  uint8_t aes_key[64]; //bytewise array of a fully loaded AES key
+  uint8_t aes_key[32]; //bytewise array of a full length AES Key (256-bit max, or 32 Bytes)
 
 } Encryption;
 

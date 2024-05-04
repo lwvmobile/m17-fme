@@ -336,18 +336,47 @@ void print_ncurses_call_info (Super * super)
   printw ("ENC: ");
 
   //Display and Encryption Methods, if used
+  if (super->m17d.enc_et != 0)
+  {
+    if (super->demod.in_sync == 1)
+      attron(COLOR_PAIR(1));
+    else attron(COLOR_PAIR(6));
+  }
+
   if (super->m17d.enc_et == 1)
-    printw ("Scrambler - Type: %d", super->m17d.enc_st);
+  {
+    printw ("Scrambler Type: %d; ", super->m17d.enc_st);
+    if (super->enc.scrambler_key != 0)
+      printw( ("Key: %X"), super->enc.scrambler_key);
+  }
   else if (super->m17d.enc_et == 2)
   {
-    printw ("AES-CTR - IV: ");
+    printw ("AES-CTR IV: ");
     //display packed meta as IV
     for (int i = 0; i < 16; i++)
       printw ("%02X", super->m17d.meta[i]);
+
+    if (super->enc.aes_key_is_loaded)
+    {
+      printw ("\n");
+      printw ("| ");
+      printw ("KEY: ");
+      for (int i = 0; i < 32; i++)
+        printw ("%02X", super->enc.aes_key[i]);
+    }
   }
   else if (super->m17d.enc_et == 3)
-    printw (" Reserved Enc - Type: %d", super->m17d.enc_st);
+    printw (" Reserved Encryption Type: %d", super->m17d.enc_st);
   else printw ("Clear");
+
+  if (super->m17d.enc_et != 0)
+  {
+    if (super->demod.in_sync == 1)
+      attron(COLOR_PAIR(3));
+    else attron(COLOR_PAIR(6));
+  }
+
+  //Display any Decoded Messages
 
   //take a truncated string, only display first 71 chars on Ncurses Terminal (see log for full messages)
   char shortstr[76]; memset (shortstr, 0, 76*sizeof(char));

@@ -284,7 +284,7 @@ void init_super (Super * super)
   super->enc.A2 = 0;
   super->enc.A3 = 0;
   super->enc.A4 = 0;
-  memset (super->enc.aes_key, 0, 64*sizeof(uint8_t));
+  memset (super->enc.aes_key, 0, 32*sizeof(uint8_t));
   //end init enc
 }
 

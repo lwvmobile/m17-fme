@@ -40,19 +40,29 @@ void decode_lsf_contents(Super * super)
 
   if (lsf_rs != 0) fprintf (stderr, " RS: %02X", lsf_rs);
 
-  if (lsf_et != 0) fprintf (stderr, " ENC:");
-  if (lsf_et == 2) fprintf (stderr, " AES-CTR");
-  if (lsf_et == 1) fprintf (stderr, " Scrambler - %d", lsf_es);
-
   //packet or stream
   if (lsf_ps == 0) fprintf (stderr, " Packet");
   if (lsf_ps == 1) fprintf (stderr, " Stream");
+
+  if (lsf_et != 0) fprintf (stderr, "\n ENC:");
+  if (lsf_et == 1)
+  {
+    fprintf (stderr, " Scrambler Type: %d;", lsf_es);
+    if (super->enc.scrambler_key != 0)
+      fprintf (stderr, " Key: %X;", super->enc.scrambler_key);
+  }
+  if (lsf_et == 2)
+  {
+    fprintf (stderr, " AES-CTR");
+  }
+  
 
   super->m17d.enc_et = lsf_et;
   super->m17d.enc_st = lsf_es;
 
   //use lli and llabs instead
-  long long int tsn = (time(NULL) & 0xFFFFFFFF); //current LSB 32-bit value
+  // long long int tsn = (time(NULL) & 0xFFFFFFFF); //current LSB 32-bit value
+  long long int tsn = (super->demod.current_time & 0xFFFFFFFF); //current LSB 32-bit value
   long long int tsi = (uint32_t)ConvertBitIntoBytes(&super->m17d.lsf[112], 32); //OTA LSB 32-bit value
   long long int dif = llabs(tsn-tsi);
   if (lsf_et == 2 && dif > 3600) fprintf (stderr, " \n Warning! Time Difference > %lld secs; Potential NONCE/IV Replay!\n", dif);
@@ -64,8 +74,8 @@ void decode_lsf_contents(Super * super)
   for (i = 0; i < 14; i++)
     super->m17d.meta[i] = (uint8_t)ConvertBitIntoBytes(&super->m17d.lsf[(i*8)+112], 8);
 
-  //Decode Meta Data
-  if (lsf_et == 0 && super->m17d.meta[0] != 0) //not sure if this applies universally, or just to text data byte 0 for null data
+  //Decode Meta Data when not AES IV (if available)
+  if (lsf_et != 2 && super->m17d.meta[0] != 0)
   {
     uint8_t meta[15]; meta[0] = lsf_es + 90; //add identifier for pkt decoder
     for (i = 0; i < 14; i++) meta[i+1] = super->m17d.lsf[i];
