@@ -85,7 +85,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1:2345678c:d:e:f:hi:mno:rs:t:uv:w:xA:C:E:F:INLM:PR:S:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "12345678c:d:e:f:hi:mno:rs:t:uv:w:xA:C:E:F:INLM:PR:S:U:VX")) != -1)
   {
 
     i++;
@@ -97,55 +97,30 @@ int main (int argc, char **argv)
         exit (0);
         break;
 
-      //disable high pass filter on digital
-      // case '1':
-      //   super.opts.use_hpfilter_dig = 0;
-      //   fprintf (stderr, "Disable HPFilter on Digital Voice Decoding. \n");
-      //   break;
-      
+      //generate one time randomized scrambler key
+      case '1':
+        super.enc.scrambler_key = rand() & 0xFFFFFF;
+        super.enc.enc_type = 1;
+        pn_sequence_generator(&super); //generate pN Sequence
+        break;
+
       //disable RRC Filter
       case '2':
         super.opts.disable_rrc_filter = 1;
         fprintf (stderr, "Disable RRC Filter on RF Audio Encoding / Decoding. \n");
         break;
 
-      //connect to TCP Socket for SND Input with default options
-      // case '3':
-      //   super.opts.use_tcp_input = 1;
-      //   fprintf (stderr, "TCP Source Connect Debug (Default Options). \n");
-      //   break;
+      //generate one time randomized AES key
+      case '3':
+        super.enc.A1 = ((uint64_t)rand() << 32ULL) + rand();
+        super.enc.A2 = ((uint64_t)rand() << 32ULL) + rand();
+        super.enc.A3 = ((uint64_t)rand() << 32ULL) + rand();
+        super.enc.A4 = ((uint64_t)rand() << 32ULL) + rand();
+        super.enc.enc_type = 2;
+        aes_key_loader(&super);
+        break;
 
-      //connect to PA Server for Pulse Audio Input
-      // case '4':
-      //   super.opts.use_pa_input = 1;
-      //   fprintf (stderr, "Pulse Audio Input Debug (Default Options). \n");
-      //   break;
-
-      //connect to STDIN for SND Input with default options
-      // case '5':
-      //   super.opts.use_stdin_input = 1;
-      //   fprintf (stderr, "STDIN SND Audio Input Debug (Default Options). \n");
-      //   break;
-
-      //connect to PA Server for Pulse Audio Output (RF and VX)
-      // case '6':
-      //   super.opts.use_pa_output_rf = 1;
-      //   super.opts.use_pa_output_vx = 1;
-      //   fprintf (stderr, "Pulse Audio Output RF and VX Debug (Default Options). \n");
-      //   break;
-
-      //connect to OSS device for input
-      // case '7':
-      //   super.opts.use_oss_input = 1;
-      //   fprintf (stderr, "OSS Input Debug (Default Options). \n");
-      //   break;
-
-      //connect to OSS device for output
-      // case '8':
-      //   super.opts.use_oss_output = 1;
-      //   fprintf (stderr, "OSS Output Debug (Default Options). \n");
-      //   break;
-        
+      //just leave these here until I wrap up and get back to the 'cookie cutter' project
       // case 'a':
       //   super.opts.a = 1;
       //   break;
@@ -164,6 +139,7 @@ int main (int argc, char **argv)
         fprintf (stderr, "DSD-FME Dibit Input File: %s \n", super.opts.dibit_input_file);
         break;
 
+      //set demodulator verbosity levels
       case 'd':
         super.opts.demod_verbosity = atoi(optarg);
         fprintf (stderr, "Demodulator Verbosity: %d; \n", super.opts.demod_verbosity);
@@ -200,6 +176,7 @@ int main (int argc, char **argv)
         super.opts.output_handler_string[2047] = '\0';
         break;
 
+      //enable the ncurses terminal, if available
       case 'N':
       case 'n':
         #ifdef USE_CURSES
@@ -216,6 +193,7 @@ int main (int argc, char **argv)
         fprintf (stderr, "Project M17 RF Audio Frame Demodulator. \n");
         break;
 
+      //input quelch level (for vox input)
       case 's':
         super.demod.input_sql = atoi(optarg);
         fprintf (stderr, "Input Squelch: %ld; \n", super.demod.input_sql);
@@ -270,7 +248,6 @@ int main (int argc, char **argv)
         super.enc.A2 = strtoull (pEnd, &pEnd, 16);
         super.enc.A3 = strtoull (pEnd, &pEnd, 16);
         super.enc.A4 = strtoull (pEnd, &pEnd, 16);
-        // fprintf (stderr, "AES Key: %016llX %016llX %016llX %016llX;", super.enc.A1, super.enc.A2, super.enc.A3, super.enc.A4);
         aes_key_loader(&super);
         break;
 

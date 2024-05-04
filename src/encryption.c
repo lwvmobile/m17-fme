@@ -55,9 +55,12 @@ void pn_sequence_generator (Super * super)
   fprintf (stderr, "\n");
 }
 
-//load AES key from A1 A2 A3 A4 optarg chunks to array
+//load an AES key based on user argument
 void aes_key_loader (Super * super)
 {
+  int i;
+
+  //load AES key from A1 A2 A3 A4 optarg chunks to array
   super->enc.aes_key[0]  = (super->enc.A1 >> 56ULL) & 0xFF;
   super->enc.aes_key[1]  = (super->enc.A1 >> 48ULL) & 0xFF;
   super->enc.aes_key[2]  = (super->enc.A1 >> 40ULL) & 0xFF;
@@ -94,7 +97,8 @@ void aes_key_loader (Super * super)
   super->enc.aes_key[30] = (super->enc.A4 >>  8ULL) & 0xFF;
   super->enc.aes_key[31] = (super->enc.A4 >>  0ULL) & 0xFF;
 
-  for (int i = 0; i < 32; i++)
+  //evaluate and flag that a key is loaded if at least one byte has a non-zero value
+  for (i = 0; i < 32; i++)
   {
     if (super->enc.aes_key[i] != 0)
     {
@@ -105,10 +109,11 @@ void aes_key_loader (Super * super)
     }
   }
 
+  //print the loaded key for user confirmation
   if (super->enc.aes_key_is_loaded)
   {
     fprintf (stderr, "AES Key:");
-    for (int i = 0; i < 32; i++)
+    for (i = 0; i < 32; i++)
     {
       if (i == 16) fprintf (stderr, "\n        ");
       fprintf (stderr, " %02X", super->enc.aes_key[i]);
