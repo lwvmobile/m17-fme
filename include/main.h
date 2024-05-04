@@ -323,6 +323,30 @@ typedef struct
 
 } HPFilter;
 
+//encryption struct
+typedef struct
+{
+
+  //type and subtype as specified
+  uint8_t enc_type;
+  uint8_t enc_subtype;
+
+  //Scrambler 8/16/24 Bit LFSR pN Sequence
+  uint32_t scrambler_key;     //8, 16, or 24-bit Scrambler Key as a Hexidecimal Number
+  uint8_t  scrambler_pn[768]; //bit-wise pN sequence (keystream) of a Scrambler LFSR (6 * 128 bit payloads)
+  uint16_t bit_counter_d;     //bit counter to index a keystream pN sequence during application (decoding)
+  uint16_t bit_counter_e;     //bit counter to index a keystream pN sequence during application (encoding)
+
+  //AES 128/192/256
+  uint8_t aes_key_is_loaded; //flag whether or not an aes key has been loaded
+  unsigned long long int A1; //64-bit Hexidecimal Representation of Chunk 1 of AES Key (128)
+  unsigned long long int A2; //64-bit Hexidecimal Representation of Chunk 2 of AES Key (128)
+  unsigned long long int A3; //64-bit Hexidecimal Representation of Chunk 3 of AES Key (192)
+  unsigned long long int A4; //64-bit Hexidecimal Representation of Chunk 4 of AES Key (256)
+  uint8_t aes_key[64]; //bytewise array of a fully loaded AES key
+
+} Encryption;
+
 //Nested Super Struct comprised of all the other ones so I don't 
 //have to pass upteen structs around to everywhere
 typedef struct
@@ -336,6 +360,7 @@ typedef struct
   snd_src_input snd_src_in;
   HPFilter hpf_d;
   HPFilter hpf_a;
+  Encryption enc;
 } Super;
 
 //c function prototypes
@@ -515,6 +540,9 @@ void decode_ipf (Super * super);
 
 //Call History
 void push_call_history (Super * super);
+
+//Encryption and Decryption
+void pn_sequence_generator (Super * super);
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus

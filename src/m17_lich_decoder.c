@@ -56,6 +56,10 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
     fprintf (stderr, "LC: %d/6 ", lich_counter+1);
   else fprintf (stderr, "LICH G24 ERR");
 
+  //reset enc bit counter on each 0
+  if (lich_counter == 0)
+    super->enc.bit_counter_d = 0;
+
   // if (err == 0 && lich_reserve != 0) fprintf(stderr, " LRS: %d", lich_reserve);
 
   //This is not M17 standard, but use the LICH reserved bits to signal data type and CAN value

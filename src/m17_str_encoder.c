@@ -168,12 +168,12 @@ void encode_str(Super * super)
 
   //NOTE: Most lich and lsf_chunk bits can be pre-set before the while loop,
   //only need to refresh the lich_cnt value, nonce, and golay
-  uint16_t lsf_ps   = 1; //packet or stream indicator bit
-  uint16_t lsf_dt  = st; //stream type
-  uint16_t lsf_et   = 0; //encryption type
-  uint16_t lsf_es   = 0; //encryption sub-type
-  uint16_t lsf_cn = can; //can value
-  uint16_t lsf_rs   = 0; //reserved bits
+  uint16_t lsf_ps = 1;                      //packet or stream indicator bit
+  uint16_t lsf_dt = st;                     //stream type
+  uint16_t lsf_et = super->enc.enc_type;    //encryption type
+  uint16_t lsf_es = super->enc.enc_subtype; //encryption sub-type
+  uint16_t lsf_cn = can;                    //can value
+  uint16_t lsf_rs = 0;                      //reserved bits
 
   //compose the 16-bit frame information from the above sub elements
   uint16_t lsf_fi = 0;
@@ -464,6 +464,22 @@ void encode_str(Super * super)
 
     for (i = 0; i < 64; i++)
     {
+      //sanity check, this SHOULD never happen in the encoder, but just in case
+      if (super->enc.bit_counter_e >= 767)
+        super->enc.bit_counter_e = 0;
+
+      v1_bits[i] ^= super->enc.scrambler_pn[super->enc.bit_counter_e+00];
+      v2_bits[i] ^= super->enc.scrambler_pn[super->enc.bit_counter_e+64];
+
+      //increment bit counter
+      super->enc.bit_counter_e++;
+    }
+
+    //need to advance an additional 64-bits due to how the above for loop worked
+    super->enc.bit_counter_e += 64;
+
+    for (i = 0; i < 64; i++)
+    {
       m17_v1[i+16]    = v1_bits[i];
       m17_v1[i+16+64] = v2_bits[i];
     }
@@ -677,7 +693,11 @@ void encode_str(Super * super)
 
       //increment lich_cnt, reset on 6
       lich_cnt++;
-      if (lich_cnt == 6) lich_cnt = 0;
+      if (lich_cnt == 6)
+      {
+        lich_cnt = 0;
+        super->enc.bit_counter_e = 0;
+      }
 
       //increment frame sequency number, trunc to maximum value, roll nonce if needed
       fsn++;
@@ -753,6 +773,7 @@ void encode_str(Super * super)
       lich_cnt = 0;
       fsn = 0;
       super->demod.in_sync = 0;
+      super->enc.bit_counter_e = 0;
 
       //update timestamp
       ts = time(NULL);

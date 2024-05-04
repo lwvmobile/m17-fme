@@ -83,7 +83,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "12345678c:d:f:hi:mno:rs:t:uv:w:xA:C:F:INLM:PR:S:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "1:2345678c:d:f:hi:mno:rs:t:uv:w:xA:C:F:INLM:PR:S:U:VX")) != -1)
   {
 
     i++;
@@ -93,6 +93,17 @@ int main (int argc, char **argv)
       case 'h':
         usage ();
         exit (0);
+        break;
+
+      //Set Scrambler Key
+      case '1':
+        sscanf (optarg, "%X", &super.enc.scrambler_key);
+        super.enc.scrambler_key &= 0xFFFFFF; //trunc to 24-bit
+        if (super.enc.scrambler_key != 0)
+        {
+          super.enc.enc_type = 1;
+          pn_sequence_generator(&super); //generate pN Sequence
+        }
         break;
 
       //disable high pass filter on digital

@@ -92,6 +92,10 @@ void decode_ipf (Super * super)
       uint16_t fn = (uint16_t)ConvertBitIntoBytes(&ip_bits[273], 15);
       uint8_t eot = ip_bits[272];
 
+      //reset pN bit_counter based on fn value
+      if( (fn%6) == 0 )
+        super->enc.bit_counter_d = 0;
+
       //update IV CTR from FN
       super->m17d.meta[14] = (uint16_t)ConvertBitIntoBytes(&ip_bits[273], 7);
       super->m17d.meta[15] = (uint16_t)ConvertBitIntoBytes(&ip_bits[280], 8);

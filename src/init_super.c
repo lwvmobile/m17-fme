@@ -270,6 +270,22 @@ void init_super (Super * super)
   HPFilter_Init (&super->hpf_a, 960, (float)1/(float)super->opts.input_sample_rate);
   //end HPF Init
 
+  //init encryption items
+  super->enc.enc_type    = 0;
+  super->enc.enc_subtype = 0;
+
+  super->enc.scrambler_key = 0;
+  memset (super->enc.scrambler_pn, 0, 768*sizeof(uint8_t));
+  super->enc.bit_counter_d = 0;
+  super->enc.bit_counter_e = 0;
+
+  super->enc.aes_key_is_loaded = 0;
+  super->enc.A1 = 0;
+  super->enc.A2 = 0;
+  super->enc.A3 = 0;
+  super->enc.A4 = 0;
+  memset (super->enc.aes_key, 0, 64*sizeof(uint8_t));
+  //end init enc
 }
 
 //this function will enable the default starting state (RF decoder w/ pulse audio input and output)

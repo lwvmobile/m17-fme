@@ -11,11 +11,22 @@
 void decode_str_payload(Super * super, uint8_t * payload, uint8_t type)
 {
  
-  // UNUSED(opts);
   int i;
   unsigned char voice1[8];
   unsigned char voice2[8];
 
+  //sanity check, just in case this value isn't reset upstream (IPF decoder or LICH decoder)
+  if (super->enc.bit_counter_d >= 767)
+    super->enc.bit_counter_d = 0;
+
+  //apply keystream pN sequence here if scrambler enc and key is available
+  //note: bit_counter is now seperate for encoding and decoding (internal loopback fix)
+  if (super->m17d.enc_et == 1 && super->enc.scrambler_key != 0)
+  {
+    for (i = 0; i < 128; i++)
+      payload[i] ^= super->enc.scrambler_pn[super->enc.bit_counter_d++];
+  }
+  
   for (i = 0; i < 8; i++)
   {
     voice1[i] = (unsigned char)ConvertBitIntoBytes(&payload[i*8+0], 8);
