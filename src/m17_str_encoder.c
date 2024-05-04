@@ -315,6 +315,15 @@ void encode_str(Super * super)
   while (!exitflag) //while the software is running
   {
 
+    //refresh these here to allow toggle control
+    lsf_et = super->enc.enc_type;    //encryption type
+    lsf_es = super->enc.enc_subtype; //encryption sub-type
+
+    //compose the 16-bit frame information from the above sub elements
+    lsf_fi = 0;
+    lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
+    for (i = 0; i < 16; i++) m17_lsf[96+i] = (lsf_fi >> (15-i)) & 1;
+
     // if not decoding internally, assign values for ncurses display
     if (super->opts.monitor_encode_internally == 0)
     {
@@ -821,7 +830,13 @@ void encode_str(Super * super)
       //if AES enc employed, insert the iv into LSF
       if (lsf_et == 2) //disable to allow the 0x69 repeating non-zero fill on RES
       {
-        for (i = 0; i < 112; i++) m17_lsf[i+112] = iv[i];
+        for (i = 0; i < 112; i++)
+          m17_lsf[i+112] = iv[i];
+      }
+      else //zero out the meta field (prevent bad meta data decodes on decoder side)
+      {
+        for (i = 0; i < 112; i++)
+          m17_lsf[i+112] = 0;
       }
 
       //repack, new CRC, and update rest of lsf as well

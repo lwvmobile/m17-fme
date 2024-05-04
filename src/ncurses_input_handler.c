@@ -44,6 +44,15 @@ void input_ncurses_terminal (Super * super, int c)
         sprintf (super->m17d.callhistory[i], "%s", "");
       break;
 
+    //'E' key, Toggle AES Encryption (only when not TX, and a key is loaded)
+    case 69:
+      if (super->m17e.str_encoder_tx == 0 && super->enc.aes_key_is_loaded)
+      {
+        if (super->enc.enc_type == 0) super->enc.enc_type = 2;
+        else super->enc.enc_type = 0;
+      }
+      break;
+
     //'\' key, toggle TX
     case 92:
       if (super->m17e.str_encoder_tx == 0) super->m17e.str_encoder_tx = 1;
@@ -57,6 +66,15 @@ void input_ncurses_terminal (Super * super, int c)
     case 99:
       if (super->opts.ncurses_no_banner == 0) super->opts.ncurses_no_banner = 1;
       else super->opts.ncurses_no_banner = 0;
+      break;
+
+    //'e' key, Toggle Scrambler Encryption (only when not TX, and a key is loaded)
+    case 101:
+      if (super->m17e.str_encoder_tx == 0 && super->enc.scrambler_key != 0)
+      {
+        if (super->enc.enc_type == 0) super->enc.enc_type = 1;
+        else super->enc.enc_type = 0;
+      }
       break;
 
     //'h' key, no history
