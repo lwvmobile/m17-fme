@@ -20,6 +20,7 @@ void input_ncurses_terminal (Super * super, int c)
     case 50:
       if (super->opts.disable_rrc_filter == 0) super->opts.disable_rrc_filter = 1;
       else super->opts.disable_rrc_filter = 0;
+      super->m17d.dt = 4; //fake for carrier reset
       no_carrier_sync (super); //reset demod
       break;
 
@@ -35,6 +36,12 @@ void input_ncurses_terminal (Super * super, int c)
     case 52:
       super->m17d.dt = 4; //fake for carrier reset
       no_carrier_sync (super); //reset demod
+      break;
+
+    //'C' key, Reset Call History (Capital C)
+    case 67:
+      for (int i = 0; i < 10; i++)
+        sprintf (super->m17d.callhistory[i], "%s", "");
       break;
 
     //'\' key, toggle TX

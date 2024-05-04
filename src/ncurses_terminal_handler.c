@@ -136,10 +136,10 @@ void print_ncurses_config (Super * super)
 
   //Input Methods
   if (super->opts.use_pa_input && super->opts.use_m17_rfa_decoder)
-    printw ("Pulse RF Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+    printw ("Pulse RFA    Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
 
   else if (super->opts.use_pa_input && !super->opts.use_m17_rfa_decoder)
-    printw ("Pulse Voice Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+    printw ("Pulse Voice  Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
 
   else if (super->opts.use_oss_input)
   {
@@ -192,7 +192,7 @@ void print_ncurses_config (Super * super)
 
   //Output Methods (Hardware)
   if (super->pa.pa_output_rf_is_open)
-    printw ("Pulse RF Output:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+    printw ("Pulse RFA   Output:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
 
   if (super->pa.pa_output_vx_is_open)
     printw ("Pulse Voice Output:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
