@@ -545,21 +545,21 @@ void print_frame_sync_pattern(Super * super, int type)
 
 void push_call_history (Super * super)
 {
-  char dt[30]; memset (dt, 0, 30*sizeof(char));
+  char dt[9]; memset (dt, 0, 9*sizeof(char));
   if      (super->m17d.dt == 0) sprintf (dt, "RESERVED");
-  else if (super->m17d.dt == 1) sprintf (dt, "PACKET DATA");
-  else if (super->m17d.dt == 2) sprintf (dt, "3200 VOICE");
-  else if (super->m17d.dt == 3) sprintf (dt, "1600 VOICE + DATA");
-  else if (super->m17d.dt == 4) sprintf (dt, "USER CARRIER RESET");
-  else if (super->m17d.dt == 5) sprintf (dt, "IP DISC");
-  else if (super->m17d.dt == 6) sprintf (dt, "IP CONN");
-  else                          sprintf (dt, "UNK");
+  else if (super->m17d.dt == 1) sprintf (dt, "DATA PKT");
+  else if (super->m17d.dt == 2) sprintf (dt, "VOX 3200");
+  else if (super->m17d.dt == 3) sprintf (dt, "V+D 1600");
+  else if (super->m17d.dt == 4) sprintf (dt, "RESET DM");
+  else if (super->m17d.dt == 5) sprintf (dt, "IPF DISC");
+  else if (super->m17d.dt == 6) sprintf (dt, "IPF CONN");
+  else                          sprintf (dt, "UNK TYPE");
 
   char * timestr  = getTimeN(super->demod.current_time); //skip time(NULL) here to avoid cycle usage
   char * datestr  = getDateN(super->demod.current_time); //skip time(NULL) here to avoid cycle usage
   for (uint8_t i = 0; i < 9; i++)
     memcpy (super->m17d.callhistory[i], super->m17d.callhistory[i+1], 500*sizeof(char));
-  sprintf (super->m17d.callhistory[9], "%s %s SRC: %s; DST: %s; %s;", datestr, timestr, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
+  sprintf (super->m17d.callhistory[9], "%s %s CAN: %02d; SRC: %s; DST: %s; %s;", datestr, timestr, super->m17d.can, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
 
   free (timestr); free (datestr);
 }
