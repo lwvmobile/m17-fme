@@ -78,7 +78,11 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type)
 
   //Run HPF on decoded voice prior to upsample
   if (super->opts.use_hpfilter_dig == 1)
+  {
     hpfilter_d(super, samp1, nsam);
+    if (type == 2)
+      hpfilter_d(super, samp2, nsam);
+  }
 
   //Upsample 8k to 48k
   for (i = 0; i < (int)nsam; i++)
