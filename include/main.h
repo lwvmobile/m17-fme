@@ -543,6 +543,7 @@ void push_call_history (Super * super);
 
 //Encryption and Decryption
 void pn_sequence_generator (Super * super);
+void aes_key_loader (Super * super);
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus

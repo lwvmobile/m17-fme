@@ -54,3 +54,63 @@ void pn_sequence_generator (Super * super)
 
   fprintf (stderr, "\n");
 }
+
+//load AES key from A1 A2 A3 A4 optarg chunks to array
+void aes_key_loader (Super * super)
+{
+  super->enc.aes_key[0]  = (super->enc.A1 >> 56ULL) & 0xFF;
+  super->enc.aes_key[1]  = (super->enc.A1 >> 48ULL) & 0xFF;
+  super->enc.aes_key[2]  = (super->enc.A1 >> 40ULL) & 0xFF;
+  super->enc.aes_key[3]  = (super->enc.A1 >> 32ULL) & 0xFF;
+  super->enc.aes_key[4]  = (super->enc.A1 >> 24ULL) & 0xFF;
+  super->enc.aes_key[5]  = (super->enc.A1 >> 16ULL) & 0xFF;
+  super->enc.aes_key[6]  = (super->enc.A1 >>  8ULL) & 0xFF;
+  super->enc.aes_key[7]  = (super->enc.A1 >>  0ULL) & 0xFF;
+
+  super->enc.aes_key[8]  = (super->enc.A2 >> 56ULL) & 0xFF;
+  super->enc.aes_key[9]  = (super->enc.A2 >> 48ULL) & 0xFF;
+  super->enc.aes_key[10] = (super->enc.A2 >> 40ULL) & 0xFF;
+  super->enc.aes_key[11] = (super->enc.A2 >> 32ULL) & 0xFF;
+  super->enc.aes_key[12] = (super->enc.A2 >> 24ULL) & 0xFF;
+  super->enc.aes_key[13] = (super->enc.A2 >> 16ULL) & 0xFF;
+  super->enc.aes_key[14] = (super->enc.A2 >>  8ULL) & 0xFF;
+  super->enc.aes_key[15] = (super->enc.A2 >>  0ULL) & 0xFF;
+
+  super->enc.aes_key[16] = (super->enc.A3 >> 56ULL) & 0xFF;
+  super->enc.aes_key[17] = (super->enc.A3 >> 48ULL) & 0xFF;
+  super->enc.aes_key[18] = (super->enc.A3 >> 40ULL) & 0xFF;
+  super->enc.aes_key[19] = (super->enc.A3 >> 32ULL) & 0xFF;
+  super->enc.aes_key[20] = (super->enc.A3 >> 24ULL) & 0xFF;
+  super->enc.aes_key[21] = (super->enc.A3 >> 16ULL) & 0xFF;
+  super->enc.aes_key[22] = (super->enc.A3 >>  8ULL) & 0xFF;
+  super->enc.aes_key[23] = (super->enc.A3 >>  0ULL) & 0xFF;
+
+  super->enc.aes_key[24] = (super->enc.A4 >> 56ULL) & 0xFF;
+  super->enc.aes_key[25] = (super->enc.A4 >> 48ULL) & 0xFF;
+  super->enc.aes_key[26] = (super->enc.A4 >> 40ULL) & 0xFF;
+  super->enc.aes_key[27] = (super->enc.A4 >> 32ULL) & 0xFF;
+  super->enc.aes_key[28] = (super->enc.A4 >> 24ULL) & 0xFF;
+  super->enc.aes_key[29] = (super->enc.A4 >> 16ULL) & 0xFF;
+  super->enc.aes_key[30] = (super->enc.A4 >>  8ULL) & 0xFF;
+  super->enc.aes_key[31] = (super->enc.A4 >>  0ULL) & 0xFF;
+
+  for (int i = 0; i < 32; i++)
+  {
+    if (super->enc.aes_key[i] != 0)
+    {
+      super->enc.aes_key_is_loaded = 1;
+      break;
+    }
+  }
+
+  if (super->enc.aes_key_is_loaded)
+  {
+    fprintf (stderr, "AES Key:");
+    for (int i = 0; i < 32; i++)
+    {
+      if (i == 16) fprintf (stderr, "\n        ");
+      fprintf (stderr, " %02X", super->enc.aes_key[i]);
+    }
+  }
+
+}

@@ -34,6 +34,8 @@ int main (int argc, char **argv)
 {
   int i, c;
   extern char *optarg;
+  char * pEnd;
+  char szNumbers[1024]; memset (szNumbers, 0, 1024*sizeof(char));
 
   //Nested "Super" Struct to make it easy to pass around tons of smaller structs
   Super super;
@@ -83,7 +85,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1:2345678c:d:f:hi:mno:rs:t:uv:w:xA:C:F:INLM:PR:S:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "1:2345678c:d:e:f:hi:mno:rs:t:uv:w:xA:C:E:F:INLM:PR:S:U:VX")) != -1)
   {
 
     i++;
@@ -93,17 +95,6 @@ int main (int argc, char **argv)
       case 'h':
         usage ();
         exit (0);
-        break;
-
-      //Set Scrambler Key
-      case '1':
-        sscanf (optarg, "%X", &super.enc.scrambler_key);
-        super.enc.scrambler_key &= 0xFFFFFF; //trunc to 24-bit
-        if (super.enc.scrambler_key != 0)
-        {
-          super.enc.enc_type = 1;
-          pn_sequence_generator(&super); //generate pN Sequence
-        }
         break;
 
       //disable high pass filter on digital
@@ -171,6 +162,29 @@ int main (int argc, char **argv)
         super.opts.dibit_input_file[1023] = '\0';
         super.opts.use_dibit_input = 1;
         fprintf (stderr, "DSD-FME Dibit Input File: %s \n", super.opts.dibit_input_file);
+        break;
+
+      //Set Scrambler Key (Encoding and Decoding)
+      case 'e':
+        sscanf (optarg, "%X", &super.enc.scrambler_key);
+        super.enc.scrambler_key &= 0xFFFFFF; //trunc to 24-bit
+        if (super.enc.scrambler_key != 0)
+        {
+          super.enc.enc_type = 1;
+          pn_sequence_generator(&super); //generate pN Sequence
+        }
+        break;
+
+      //Set AES Key (Encoding and Decoding)
+      case 'E':
+        strncpy(szNumbers, optarg, 1023);
+        szNumbers[1023] = '\0';
+        super.enc.A1 = strtoull (szNumbers, &pEnd, 16);
+        super.enc.A2 = strtoull (pEnd, &pEnd, 16);
+        super.enc.A3 = strtoull (pEnd, &pEnd, 16);
+        super.enc.A4 = strtoull (pEnd, &pEnd, 16);
+        // fprintf (stderr, "AES Key: %016llX %016llX %016llX %016llX;", super.enc.A1, super.enc.A2, super.enc.A3, super.enc.A4);
+        aes_key_loader(&super);
         break;
 
       //Specify M17 Float Symbol Input
