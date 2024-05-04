@@ -462,17 +462,21 @@ void encode_str(Super * super)
       }
     }
 
-    for (i = 0; i < 64; i++)
+    //Apply pN sequence if scrambler key is available and enabled
+    if (super->enc.enc_type == 1 && super->enc.scrambler_key != 0)
     {
-      //sanity check, this SHOULD never happen in the encoder, but just in case
-      if (super->enc.bit_counter_e >= 767)
-        super->enc.bit_counter_e = 0;
+      for (i = 0; i < 64; i++)
+      {
+        //sanity check, this SHOULD never happen in the encoder, but just in case
+        if (super->enc.bit_counter_e >= 767)
+          super->enc.bit_counter_e = 0;
 
-      v1_bits[i] ^= super->enc.scrambler_pn[super->enc.bit_counter_e+00];
-      v2_bits[i] ^= super->enc.scrambler_pn[super->enc.bit_counter_e+64];
+        v1_bits[i] ^= super->enc.scrambler_pn[super->enc.bit_counter_e+00];
+        v2_bits[i] ^= super->enc.scrambler_pn[super->enc.bit_counter_e+64];
 
-      //increment bit counter
-      super->enc.bit_counter_e++;
+        //increment bit counter
+        super->enc.bit_counter_e++;
+      }
     }
 
     //need to advance an additional 64-bits due to how the above for loop worked
@@ -483,6 +487,11 @@ void encode_str(Super * super)
       m17_v1[i+16]    = v1_bits[i];
       m17_v1[i+16+64] = v2_bits[i];
     }
+
+    //TODO: Move the Scrambler pN Sequence here to the m17_v1 bits instead
+    if (super->enc.enc_type == 1 && super->enc.scrambler_key != 0) {}
+    else if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)
+      aes_ctr_payload_crypt (super->m17d.meta, super->enc.aes_key, m17_v1+16, 1);
 
     //tally consecutive squelch hits based on RMS value, or reset
     if (super->demod.input_rms > super->demod.input_sql) sql_hit = 0;

@@ -26,6 +26,9 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type)
     for (i = 0; i < 128; i++)
       payload[i] ^= super->enc.scrambler_pn[super->enc.bit_counter_d++];
   }
+  //generate AES Keystream and apply it to payload if AES enc and key is available
+  else if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded)
+    aes_ctr_payload_crypt (super->m17d.meta, super->enc.aes_key, payload, 1);
   
   for (i = 0; i < 8; i++)
   {
