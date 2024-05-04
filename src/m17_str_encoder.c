@@ -336,7 +336,7 @@ void encode_str(Super * super)
         {
           super->m17d.meta[14] <<= 1;
           super->m17d.meta[15] <<= 1;
-          super->m17d.meta[14] += ((fsn >> 7) >> (7-i)) & 1;
+          super->m17d.meta[14] += ((fsn >> 8) >> (7-i)) & 1;
           super->m17d.meta[15] += ((fsn >> 0) >> (7-i)) & 1;
         }
       }

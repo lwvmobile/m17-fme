@@ -35,7 +35,7 @@ int main (int argc, char **argv)
   int i, c;
   extern char *optarg;
   char * pEnd;
-  char szNumbers[1024]; memset (szNumbers, 0, 1024*sizeof(char));
+  char string[1024]; memset (string, 0, 1024*sizeof(char));
 
   //Nested "Super" Struct to make it easy to pass around tons of smaller structs
   Super super;
@@ -164,6 +164,11 @@ int main (int argc, char **argv)
         fprintf (stderr, "DSD-FME Dibit Input File: %s \n", super.opts.dibit_input_file);
         break;
 
+      case 'd':
+        super.opts.demod_verbosity = atoi(optarg);
+        fprintf (stderr, "Demodulator Verbosity: %d; \n", super.opts.demod_verbosity);
+        break;
+
       //Set Scrambler Key (Encoding and Decoding)
       case 'e':
         sscanf (optarg, "%X", &super.enc.scrambler_key);
@@ -173,18 +178,6 @@ int main (int argc, char **argv)
           super.enc.enc_type = 1;
           pn_sequence_generator(&super); //generate pN Sequence
         }
-        break;
-
-      //Set AES Key (Encoding and Decoding)
-      case 'E':
-        strncpy(szNumbers, optarg, 1023);
-        szNumbers[1023] = '\0';
-        super.enc.A1 = strtoull (szNumbers, &pEnd, 16);
-        super.enc.A2 = strtoull (pEnd, &pEnd, 16);
-        super.enc.A3 = strtoull (pEnd, &pEnd, 16);
-        super.enc.A4 = strtoull (pEnd, &pEnd, 16);
-        // fprintf (stderr, "AES Key: %016llX %016llX %016llX %016llX;", super.enc.A1, super.enc.A2, super.enc.A3, super.enc.A4);
-        aes_key_loader(&super);
         break;
 
       //Specify M17 Float Symbol Input
@@ -228,11 +221,6 @@ int main (int argc, char **argv)
         fprintf (stderr, "Input Squelch: %ld; \n", super.demod.input_sql);
         break;
 
-      case 'd':
-        super.opts.demod_verbosity = atoi(optarg);
-        fprintf (stderr, "Demodulator Verbosity: %d; \n", super.opts.demod_verbosity);
-        break;
-
       //Enable UDP IP Frame Input
       // case 'u':
       //   super.opts.use_m17_ipf_decoder = 1;
@@ -272,6 +260,18 @@ int main (int argc, char **argv)
         super.opts.dibit_output_file[1023] = '\0';
         super.opts.use_dibit_output = 1;
         fprintf (stderr, "DSD-FME Dibit Output File: %s \n", super.opts.dibit_output_file);
+        break;
+
+      //Set AES Key (Encoding and Decoding)
+      case 'E':
+        strncpy(string, optarg, 1023);
+        string[1023] = '\0';
+        super.enc.A1 = strtoull (string, &pEnd, 16);
+        super.enc.A2 = strtoull (pEnd, &pEnd, 16);
+        super.enc.A3 = strtoull (pEnd, &pEnd, 16);
+        super.enc.A4 = strtoull (pEnd, &pEnd, 16);
+        // fprintf (stderr, "AES Key: %016llX %016llX %016llX %016llX;", super.enc.A1, super.enc.A2, super.enc.A3, super.enc.A4);
+        aes_key_loader(&super);
         break;
 
       //Specify M17 Float Symbol Output

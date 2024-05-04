@@ -99,6 +99,8 @@ void aes_key_loader (Super * super)
     if (super->enc.aes_key[i] != 0)
     {
       super->enc.aes_key_is_loaded = 1;
+      super->enc.enc_type = 2;
+      super->m17e.enc_et = 2;
       break;
     }
   }
