@@ -25,8 +25,108 @@ void handler(int sgnl)
 void usage ()
 {
   printf ("\n");
-  printf ("Usage: m17-fme [options]            Start the Program\n");
-  printf ("  or:  m17-fme -h                   Show Help\n");
+  printf ("Usage: m17-fme [options]    Start the Program\n");
+  printf ("  or:  m17-fme -h           Show Help\n");
+  printf ("\n");
+  printf ("Display Options:\n");
+  printf ("  -N            Use NCurses Terminal\n");
+  printf ("                 m17-fme -N 2> log.txt \n");
+  printf ("  -v <num>      Payload Verbosity Level\n");
+  printf ("  -d <num>      Demodulator Verbosity Level\n");
+  printf ("\n");
+  printf ("Input Options:\n");
+  printf ("  -i <device>   Audio input device (default is pulserf)\n");
+  printf ("                pulserf for pulse audio RFA input \n");
+  printf ("                pulsevx for pulse audio Voice / Mic input\n");
+  printf ("                - for STDIN input (specify encoder or decoder options below)\n");
+  printf ("                (Note: When using STDIN, Ncurses Keyboard Shortcuts Disabled)\n");
+  #ifdef __CYGWIN__
+  printf ("                (pulse audio options will require pactl running in Cygwin)");
+  printf ("                /dev/dsp for OSS audio");
+  #endif
+  printf ("                udp for UDP Frame Input (default localhost:17000)\n");
+  printf ("                udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port\n");
+  printf ("                m17udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port\n");
+  printf ("  -w <file>     48k/1 SNDFile Compatible .wav or .rrc input file\n");
+  printf ("  -c <file>     DSD-FME Compatible Dibit/Symbol Capture Bin input file (from RF Encoder)\n");
+  printf ("  -f <file>     Float Symbol input file (from RF Encoder and M17_Implementations)\n");
+  printf ("\n");
+  printf ("Output Options:\n");
+  printf ("  -o <device>   Audio output device (default is pulsevx)\n");
+  printf ("                pulserf for pulse audio RFA output\n");
+  printf ("                pulsevx for pulse audio Voice / Loopback output\n");
+  printf ("                - for STDOUT output (specify encoder or decoder options below)\n");
+  printf ("                (Note: Don't use Ncurses Terminal w/ STDOUT enabled)\n");
+  #ifdef __CYGWIN__
+  printf ("                (pulse audio options will require pactl running in Cygwin)");
+  printf ("                /dev/dsp for OSS audio");
+  printf ("                (OSS Can only do either RF output, or VX output,");
+  printf ("                (not both at the same time, specify encoder and decoder options below)");
+  #endif
+  printf ("                udp for UDP Frame Output (default localhost:17000)\n");
+  printf ("                udp:192.168.7.8:17001 for M17 UDP/IP blaster output (Target Address and Port\n");
+  printf ("                m17udp:192.168.7.8:17001 for M17 UDP/IP blaster output (Target Address and Port\n");
+  printf ("  -W <file>     48k/1 SNDFile Compatible .wav output file\n");
+  printf ("  -C <file>     DSD-FME Compatible Dibit/Symbol Capture Bin output file\n");
+  printf ("  -F <file>     Float Symbol output file (M17_Implementations Compatible)\n");
+  printf ("\n");
+  printf ("Encoder Options:\n");
+  printf ("  -V            Enable the Stream Voice Encoder\n");
+  printf ("  -P            Enable the Packet Data  Encoder\n");
+  printf ("  -I            Enable IP Frame Output with defaults (can be combined with Loopback or RFA output)\n");
+  printf ("                (can be combined with Loopback or RFA output)\n");
+  printf ("  -L            Enable Internal Encoder Loopback Decoder (must be used with pulsevx output)\n");
+  printf ("  -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder\n");
+  printf ("Encoder Input Strings:\n");
+  printf ("\n");
+  printf ("  -M <str>      Set M17 CAN:SRC:DST \n");
+  printf ("                (example: -M 1:N0CALL:SP5WWP) \n");
+  printf ("  -U <str>      Set UDP/IP Frame HOST:PORT:MODULE \n");
+  printf ("                (example: -U 127.0.0.1:17001:B) \n");
+  printf ("  -S <str>      Enter SMS Message (up to 772 characters) for Packet Data Encoder\n");
+  printf ("                (example: -S 'Hello World! This is a text message' \n");
+  printf ("  -A <str>      Enter SMS Message For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.\n");
+  printf ("                (example: -A 'Hello World! This is a arbitrary data' \n");
+  printf ("  -R <str>      Enter RAW Data for Packet Data Encoder (TODO: Not Working Yet).\n");
+  printf ("                (example: -R 'however this ends up getting in here, update this line' \n");
+  printf ("  -x            Encode Inverted Polarity on RF Output\n");
+  printf ("\n");
+  printf ("Decoder Options:\n");
+  printf ("  -r            Enable RFA Demodulator and Decoding of Stream and Packet Data\n");
+  printf ("  -x            Expect Inverted Polarity on RF Input\n");
+  printf ("  -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 \n");
+  printf ("\n");
+  printf ("Encryption Options:\n");
+  printf ("                (NOTE: Encoder and Decoder share same values here)\n");
+  printf ("  -e <hex>      Enter Scrambler Key Value (up to 24-bit / 6 Hex Character)\n");
+  printf ("                (example: -e ABCDEF)\n");
+  printf ("  -E <hex str>  Enter AES Key Value (in single quote, space every 16 chars) \n");
+  printf ("                (example: -E '0520C1B0220AFBCA 16FB1330764B26EC 5C34A197764C147A 15FBA7515ED8BCFC')\n");
+  printf ("                (example: -E '0520C1B0220AFBCA 16FB1330764B26EC')\n");
+  printf ("                (NOTE: Due to bug in m17-tools handling of AES keys, all keys are run as AES-128)\n");
+  printf ("                (Limiting significant key value to first 32 characters to maintain compatibility)\n");
+  printf ("  -1            Generate Random One Time Use 24-bit Scrambler Key \n");
+  printf ("  -3            Generate Random One Time Use AES Key \n");
+  printf ("\n");
+  printf ("Quick Examples:\n"); //'\' key, toggle TX
+  printf (" Stream Voice Encoder with Mic Input (pulsevs) RF Output (pulserf), float symbol file output (float.sym) \n");
+  printf (" m17-fme -i pulsevx -o pulserf -V -F float.sym -N 2> m17encoder.txt \n");
+  printf ("  (Note: When Using Ncurses Terminal with Encoding and Not Vox, use '\\' key to toggle TX)\n");
+  printf ("\n");
+  printf (" RF Demodulator for Stream Voice and Data Packet with Decoded Voice Output (pulsevx) \n");
+  printf (" m17-fme -i pulserf -o pulsevx -r -N 2> m17decoder.txt \n");
+  printf ("\n");
+  printf (" Stream Voice Encoder with Mic Input (pulsevs) IP Frame Output \n");
+  printf (" m17-fme -i pulsevx -o udp -V -N 2> m17encoder.txt \n");
+  printf ("\n");
+  printf (" IP Frame Decoder for Voice Stream and Packet Data Default Host and Port \n");
+  printf (" m17-fme -i udp -u -o pulsevx -N 2> m17decoder.txt \n");
+  printf ("\n");
+  printf (" Packet Data Encoder with SMS Message to IP Frame Output to custom port and RF Audio Output\n");
+  printf (" m17-fme -o pulserf -P -S 'This is a text message' -M 1:M17-FME:ALL -I -U 127.0.0.1:17001:A \n");
+  printf ("\n");
+  printf (" IP Frame Decoder for Voice Stream and Packet Data Bound to Custom Host and Port \n");
+  printf (" m17-fme -i udp:127.0.0.1:17001 -N 2> m17decoder.txt \n");
   printf ("\n");
 }
 
@@ -200,10 +300,10 @@ int main (int argc, char **argv)
         break;
 
       //Enable UDP IP Frame Input
-      // case 'u':
-      //   super.opts.use_m17_ipf_decoder = 1;
-      //   fprintf (stderr, "Project M17 Encoder UDP IP Frame Receiver Enabled. \n");
-      //   break;
+      case 'u':
+        super.opts.use_m17_ipf_decoder = 1;
+        fprintf (stderr, "Project M17 Encoder UDP IP Frame Receiver Enabled. \n");
+        break;
 
       case 'v':
         super.opts.payload_verbosity = atoi(optarg);
@@ -326,10 +426,7 @@ int main (int argc, char **argv)
   //open the ncurses terminal if its available and enabled
   #ifdef USE_CURSES
   if (super.opts.use_ncurses_terminal == 1)
-  {
     open_ncurses_terminal();
-    super.opts.ncurses_is_open = 1;
-  }
   #endif
 
   //parse any user passed input or output strings
