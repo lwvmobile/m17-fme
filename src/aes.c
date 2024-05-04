@@ -640,17 +640,17 @@ void aes_ctr_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int 
     payload_bytes[i] = (uint8_t)ConvertBitIntoBytes(&payload[i*8], 8);
 
   //debug
-  fprintf (stderr, "\n  INPUT: ");
-  for (i = 0; i < 16; i++)
-    fprintf (stderr, "%02X", payload_bytes[i]);
+  // fprintf (stderr, "\n  INPUT: ");
+  // for (i = 0; i < 16; i++)
+  //   fprintf (stderr, "%02X", payload_bytes[i]);
 
   //pass to internal CTR handler for payload
   AES_CTR_xcrypt_buffer(&ctx, payload_bytes, 16);
 
   //debug
-  fprintf (stderr, "\n OUTPUT: ");
-  for (i = 0; i < 16; i++)
-    fprintf (stderr, "%02X", payload_bytes[i]);
+  // fprintf (stderr, "\n OUTPUT: ");
+  // for (i = 0; i < 16; i++)
+  //   fprintf (stderr, "%02X", payload_bytes[i]);
 
   //convert output bytes back to bits
   k = 0;

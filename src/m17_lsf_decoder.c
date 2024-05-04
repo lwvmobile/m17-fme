@@ -52,16 +52,12 @@ void decode_lsf_contents(Super * super)
       fprintf (stderr, " Key: %X;", super->enc.scrambler_key);
   }
   if (lsf_et == 2)
-  {
-    fprintf (stderr, " AES-CTR");
-  }
+    fprintf (stderr, " AES-CTR;");
   
-
   super->m17d.enc_et = lsf_et;
   super->m17d.enc_st = lsf_es;
 
   //use lli and llabs instead
-  // long long int tsn = (time(NULL) & 0xFFFFFFFF); //current LSB 32-bit value
   long long int tsn = (super->demod.current_time & 0xFFFFFFFF); //current LSB 32-bit value
   long long int tsi = (uint32_t)ConvertBitIntoBytes(&super->m17d.lsf[112], 32); //OTA LSB 32-bit value
   long long int dif = llabs(tsn-tsi);
@@ -88,6 +84,16 @@ void decode_lsf_contents(Super * super)
     fprintf (stderr, " IV: ");
     for (i = 0; i < 16; i++)
       fprintf (stderr, "%02X", super->m17d.meta[i]);
+
+    if (super->enc.aes_key_is_loaded)
+    {
+      fprintf (stderr, "\n AES Key:");
+      for (int i = 0; i < 32; i++)
+      {
+        if (i == 16) fprintf (stderr, "\n         ");
+        fprintf (stderr, " %02X", super->enc.aes_key[i]);
+      }
+    }
   }
   
 }
