@@ -29,7 +29,7 @@ void pn_sequence_generator (Super * super)
   super->m17e.enc_st = subtype;
 
   fprintf (stderr, "Scrambler Key: %X; Subtype: %d;", lfsr, subtype);
-  fprintf (stderr, "\npN: ");
+  if (super->opts.demod_verbosity > 2) fprintf (stderr, "\npN: ");
   //run pN sequence with taps specified
   for (i = 0; i < 128*6; i++)
   {
@@ -48,12 +48,16 @@ void pn_sequence_generator (Super * super)
     super->enc.scrambler_pn[i] = lfsr & 1;
 
     //debug
-    if ((i != 0) && (i%64 == 0) ) fprintf (stderr, "\n    ");
-    fprintf (stderr, "%d", super->enc.scrambler_pn[i]);
+    if (super->opts.demod_verbosity > 2)
+    {
+      if ((i != 0) && (i%64 == 0) ) fprintf (stderr, "\n    ");
+      fprintf (stderr, "%d", super->enc.scrambler_pn[i]);
+    }
 
   }
 
-  fprintf (stderr, "\n");
+  if (super->opts.demod_verbosity > 2)
+    fprintf (stderr, "\n");
 }
 
 //load an AES key based on user argument

@@ -158,7 +158,8 @@ void encode_str(Super * super)
   //frame sequence number and eot bit
   uint16_t fsn = 0;
   uint8_t eot = 0;
-  uint8_t lich_cnt = 0; //lich frame number counter
+  uint8_t lich_cnt = 0;   //lich frame number counter
+  uint8_t lsf_count = 0; //rolling embedded LSF counter for sending substitution LSF embedded frames 
 
   uint8_t lsf_chunk[6][48]; //40 bit chunks of link information spread across 6 frames
   uint8_t m17_lsf[240];    //the complete LSF
@@ -557,6 +558,15 @@ void encode_str(Super * super)
     for (i = 0; i < 272; i++)
       m17_t4c[i+96] = m17_v1p[i];
 
+    //make a backup copy of the original LSF
+    memcpy (super->m17e.lsf_bkp, m17_lsf, 240*sizeof(uint8_t));
+
+    //prepare substitution LSF with embedded OTAKD segment in it
+    #ifdef OTA_KEY_DELIVERY
+    if (super->enc.enc_type != 0 && ((lsf_count%5) != 0) )
+      encode_ota_key_delivery_emb(super, m17_lsf, lsf_count);
+    #endif
+
     //load up the lsf chunk for this cnt
     for (i = 0; i < 40; i++)
       lsf_chunk[lich_cnt][i] = m17_lsf[((lich_cnt)*40)+i];
@@ -573,6 +583,9 @@ void encode_str(Super * super)
 
     // lsf_chunk[lich_cnt][46] = (lsf_dt >> 1) & 1;
     // lsf_chunk[lich_cnt][47] = (lsf_dt >> 0) & 1;
+
+    //restore original LSF
+    memcpy (m17_lsf, super->m17e.lsf_bkp, 240*sizeof(uint8_t));
 
     //encode with golay 24,12 and load into m17_l1g
     Golay_24_12_encode (lsf_chunk[lich_cnt]+00, m17_l1g+00);
@@ -720,6 +733,7 @@ void encode_str(Super * super)
       {
         lich_cnt = 0;
         super->enc.bit_counter_e = 0;
+        lsf_count++;
       }
 
       //increment frame sequency number, trunc to maximum value, roll nonce if needed
@@ -797,6 +811,7 @@ void encode_str(Super * super)
       fsn = 0;
       super->demod.in_sync = 0;
       super->enc.bit_counter_e = 0;
+      lsf_count = 0;
 
       //update timestamp
       ts = time(NULL);

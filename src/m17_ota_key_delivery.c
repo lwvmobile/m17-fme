@@ -76,7 +76,7 @@ void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
   uint16_t lsf_et    = 0; //encryption type
   uint16_t lsf_es    = 0; //encryption sub-type
   uint16_t lsf_cn  = can; //can value
-  uint16_t lsf_rs = 0x10; //reserved bits (0x10 signals LSF for OTAKD)
+  uint16_t lsf_rs = 0x10; //reserved 0x10 is LSF for the PKT, not embedded LSF
 
   //compose the 16-bit frame information from the above sub elements
   uint16_t lsf_fi = 0;
@@ -439,13 +439,104 @@ void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
 }
 
 //this version is used to craft embedded OTAKD LSF that can be swapped in during STR or IPF encoding
-void encode_ota_key_delivery_emb(Super * super, uint8_t * m17_lsf)
+void encode_ota_key_delivery_emb(Super * super, uint8_t * m17_lsf, uint8_t lsf_count)
 {
-  UNUSED(super); UNUSED(m17_lsf);
-}
+  int i, k;
 
-//this function will create a backup copy of the LSF contents and restore them
-void backup_and_restore_lsf(Super * super, uint8_t * m17_lsf, int type)
-{
-  UNUSED(super); UNUSED(m17_lsf); UNUSED(type);
+  if (super->enc.aes_key_is_loaded || super->enc.scrambler_key)
+  {
+    //clear out META field / IV NONCE
+    for (i = 112; i < 224; i++)
+      m17_lsf[i] = 0;
+
+    //only manipulate the reserved bits in this portion, ignore the rest
+    uint16_t lsf_rs = 0x11; //reserved bits (0x11 signals embedded LSF for OTAKD)
+    uint16_t lsf_fi = 0;
+    lsf_fi = (lsf_rs << 11);
+    for (i = 0; i < 5; i++)
+      m17_lsf[96+i] = (lsf_fi >> (15-i)) & 1;
+
+    //load protocol, enc type, and send sequence number
+    uint8_t protocol = 9; //OTA Key Delivery Protocol
+    uint8_t enc_type = super->enc.enc_type;
+    uint8_t ssn = (lsf_count%5) - 1; //mod 5
+
+    //start manipulating at index 112
+    if (super->enc.aes_key_is_loaded)
+    {
+      k = 112;
+      for (i = 0; i < 8; i++)
+        m17_lsf[k++] = (protocol >> (7-i)) & 1;
+      //enc_type and ssn bits
+      m17_lsf[k++] = (enc_type >> 1) & 1;
+      m17_lsf[k++] = (enc_type >> 0) & 1;
+      m17_lsf[k++] = (ssn >> 5) & 1;
+      m17_lsf[k++] = (ssn >> 4) & 1;
+      m17_lsf[k++] = (ssn >> 3) & 1;
+      m17_lsf[k++] = (ssn >> 2) & 1;
+      m17_lsf[k++] = (ssn >> 1) & 1;
+      m17_lsf[k++] = (ssn >> 0) & 1;
+
+      //load aes key segment, determined by the current ssn value
+      if      (ssn == 0)
+      {
+        for (i = 0; i < 64; i++)
+          m17_lsf[k++] = (super->enc.A1 >> (63-i)) & 1;
+      }
+      else if (ssn == 1)
+      {
+        for (i = 0; i < 64; i++)
+          m17_lsf[k++] = (super->enc.A2 >> (63-i)) & 1;
+      }
+      else if (ssn == 2)
+      {
+        for (i = 0; i < 64; i++)
+          m17_lsf[k++] = (super->enc.A3 >> (63-i)) & 1;
+      }
+      else if (ssn == 3)
+      {
+        for (i = 0; i < 64; i++)
+          m17_lsf[k++] = (super->enc.A4 >> (63-i)) & 1;
+      }
+    }
+
+    else if (super->enc.scrambler_key)
+    {
+      ssn = 4; //always 4, since we only need one LSF for this
+      k = 112;
+      for (i = 0; i < 8; i++)
+        m17_lsf[k++] = (protocol >> (7-i)) & 1;
+      //enc_type and ssn bits
+      m17_lsf[k++] = (enc_type >> 1) & 1;
+      m17_lsf[k++] = (enc_type >> 0) & 1;
+      m17_lsf[k++] = (ssn >> 5) & 1;
+      m17_lsf[k++] = (ssn >> 4) & 1;
+      m17_lsf[k++] = (ssn >> 3) & 1;
+      m17_lsf[k++] = (ssn >> 2) & 1;
+      m17_lsf[k++] = (ssn >> 1) & 1;
+      m17_lsf[k++] = (ssn >> 0) & 1;
+
+      //load up to 24-bit scrambler key
+      for (i = 0; i < 24; i++)
+        m17_lsf[k++] = (super->enc.scrambler_key >> (23-i)) & 1;
+    }
+
+    //pack and compute the CRC16 for substitution LSF
+    uint16_t crc_cmp = 0;
+    uint8_t lsf_packed[30];
+    memset (lsf_packed, 0, sizeof(lsf_packed));
+    for (i = 0; i < 28; i++)
+        lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
+    crc_cmp = crc16(lsf_packed, 28);
+
+    //attach the crc16 bits to the end of the LSF data
+    for (i = 0; i < 16; i++) m17_lsf[224+i] = (crc_cmp >> (15-i)) & 1;
+
+    //pack the CRC
+    for (i = 28; i < 30; i++)
+        lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
+
+  }
+  //else if no ENC, passthough only
+
 }

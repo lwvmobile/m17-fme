@@ -68,10 +68,19 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     {
       fprintf (stderr, "\n");
       //sending full sized AES key over Embedded LSF OTAKD will require 4 embedded LSF frames
-      if      (ssn == 0) {}
-      else if (ssn == 1) {}
-      else if (ssn == 2) {}
-      else if (ssn == 3) {}
+      if      (ssn == 0)
+        super->enc.A1 = (unsigned long long int)convert_bits_into_output(bits+00+00+00, 64);
+      else if (ssn == 1)
+        super->enc.A2 = (unsigned long long int)convert_bits_into_output(bits+00+00+00, 64);
+      else if (ssn == 2)
+        super->enc.A3 = (unsigned long long int)convert_bits_into_output(bits+00+00+00, 64);
+      else if (ssn == 3)
+      {
+        super->enc.A4 = (unsigned long long int)convert_bits_into_output(bits+00+00+00, 64);
+        sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX",
+                 super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
+        aes_key_loader (super);
+      }
       else if (ssn == 4) //complete key over PACKET DATA or IPFrame Delivery
       {
         super->enc.A1 = (unsigned long long int)convert_bits_into_output(bits+00+00+00, 64);
