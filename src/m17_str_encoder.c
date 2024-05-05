@@ -234,12 +234,6 @@ void encode_str(Super * super)
   if (use_ip == 1)
     udp_return = m17_socket_blaster (super, 11, conn);
 
-  //now send the OTA key
-  #ifdef OTA_KEY_DELIVERY
-  if (super->enc.enc_type != 0)
-    encode_ota_key_delivery(super);
-  #endif
-
   //TODO: Read UDP ACKN/NACK value, disable use_ip if NULL or nack return
   
   //load dst and src values into the LSF
@@ -614,6 +608,12 @@ void encode_str(Super * super)
       if (new_lsf == 1)
       {
 
+        //send the OTA key before LSF
+        #ifdef OTA_KEY_DELIVERY
+        if (super->enc.enc_type != 0)
+          encode_ota_key_delivery_pkt(super, use_ip, sid);
+        #endif
+
         fprintf (stderr, "\n M17 LSF    (ENCODER): ");
         if (super->opts.monitor_encode_internally == 1)
           demod_lsf(super, m17_lsfs, 1);
@@ -910,6 +910,13 @@ void encode_str(Super * super)
 
         //convert bit array into symbols and RF/Audio
         encode_rfa (super, m17_t4s, mem, 2); //Last Stream Frame
+
+        //send the OTA key again at the end before the EOT Marker
+        #ifdef OTA_KEY_DELIVERY
+        if (super->enc.enc_type != 0)
+          encode_ota_key_delivery_pkt(super, use_ip, sid);
+        #endif
+
         memset (nil, 0, sizeof(nil));
         encode_rfa (super, nil, mem, 55);    //EOT Marker
 

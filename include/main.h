@@ -273,6 +273,9 @@ typedef struct
   uint8_t str_encoder_eot; //flag if transmit off and send EOT
   uint8_t str_encoder_vox; //flag if use vox mode
 
+  //LSF Backup Copy
+  uint8_t lsf_bkp[240];
+
 } m17_encoder_state;
 
 //Pulse Audio Options and States
@@ -522,7 +525,11 @@ void unpack_byte_array_into_bit_array (uint8_t * input, uint8_t * output, int le
 void encode_rfa (Super * super, uint8_t * input, float * mem, int type);
 void encode_pkt (Super * super);
 void encode_str (Super * super);
-void encode_ota_key_delivery(Super * super);
+
+//Special Frame / Packet Encoders
+void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid);
+void encode_ota_key_delivery_emb (Super * super, uint8_t * m17_lsf);
+void backup_and_restore_lsf (Super * super, uint8_t * m17_lsf, int type);
 
 //M17 Content Element Decoders
 int  decode_lich_contents (Super * super, uint8_t * lich_bits);
@@ -535,7 +542,7 @@ void decode_str_payload (Super * super, uint8_t * payload, uint8_t type);
 //M17 Frame Demodulators
 void demod_lsf (Super * super, uint8_t * input, int debug);
 void demod_pkt (Super * super, uint8_t * input, int debug);
-void demod_brt(Super * super, uint8_t * input, int debug);
+void demod_brt (Super * super, uint8_t * input, int debug);
 void demod_str (Super * super, uint8_t * input, int debug);
 void prepare_str (Super * super, uint8_t * input);
 void decode_ipf (Super * super);

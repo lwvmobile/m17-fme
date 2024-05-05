@@ -239,6 +239,9 @@ void init_super (Super * super)
   super->m17e.str_encoder_tx = 1;
   super->m17e.str_encoder_eot = 0;
   super->m17e.str_encoder_vox = 0;
+
+  //LSF Backup Copy
+  memset (super->m17e.lsf_bkp, 0, 240*sizeof(uint8_t));
   //end init_m17e_state (Encoder)
 
   //init_wav_state

@@ -64,28 +64,21 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
       pn_sequence_generator (super);
       sprintf (super->m17d.sms, "OTAKD Scrambler Key: %X;", super->enc.scrambler_key);
     }
-    if (type == 2) //still working out how to send a full sized AES key over embedded LSF frames
+    if (type == 2)
     {
       fprintf (stderr, "\n");
-      if (ssn == 0) //first half over LSF or embedded LSF
-      {
-        super->enc.A1 = (unsigned long long int)convert_bits_into_output(bits+00+00+00, 64);
-        super->enc.A2 = (unsigned long long int)convert_bits_into_output(bits+64+00+00, 64);
-      }
-      else if (ssn == 1) //second half over LSF or embedded LSF
-      {
-        super->enc.A3 = (unsigned long long int)convert_bits_into_output(bits+64+64+00, 64);
-        super->enc.A4 = (unsigned long long int)convert_bits_into_output(bits+64+64+64, 64);
-        sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX", super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
-        aes_key_loader (super);
-      }
-      else if (ssn == 2) //complete key over PACKET DATA or IPFrame Delivery
+      //still working out best way to code and send a full sized AES key over embedded LSF frames
+      if      (ssn == 0) {}
+      else if (ssn == 1) {}
+      else if (ssn == 2) {}
+      else if (ssn == 3) //complete key over PACKET DATA or IPFrame Delivery
       {
         super->enc.A1 = (unsigned long long int)convert_bits_into_output(bits+00+00+00, 64);
         super->enc.A2 = (unsigned long long int)convert_bits_into_output(bits+64+00+00, 64);
         super->enc.A3 = (unsigned long long int)convert_bits_into_output(bits+64+64+00, 64);
         super->enc.A4 = (unsigned long long int)convert_bits_into_output(bits+64+64+64, 64);
-        sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX", super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
+        sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX",
+                 super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
         aes_key_loader (super);
       }
     }

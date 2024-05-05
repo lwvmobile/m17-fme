@@ -38,11 +38,17 @@ void decode_lsf_contents(Super * super)
   if (lsf_dt == 2) fprintf (stderr, " Voice (3200bps)");
   if (lsf_dt == 3) fprintf (stderr, " Voice (1600bps)");
 
-  if (lsf_rs != 0) fprintf (stderr, " RS: %02X", lsf_rs);
-
   //packet or stream
   if (lsf_ps == 0) fprintf (stderr, " Packet");
   if (lsf_ps == 1) fprintf (stderr, " Stream");
+
+  if (lsf_rs != 0)
+  { 
+    if (lsf_rs == 0x10)
+      fprintf (stderr, " OTAKD;");
+    else
+     fprintf (stderr, " RES: %02X;", lsf_rs);
+  }
 
   if (lsf_et != 0) fprintf (stderr, "\n ENC:");
   if (lsf_et == 1)

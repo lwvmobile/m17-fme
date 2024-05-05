@@ -17,7 +17,8 @@
 //also works with some laws that require the publishing of enc if used on HAM bands since the
 //source code of HOW it is encrypted is plainly available AND the key is transmitted openly OTA.
 
-void encode_ota_key_delivery(Super * super)
+//this version will send a full LSF, then send a full Data Packet Set with the Complete Key
+void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
 {
 
   //quell defined but not used warnings from m17.h
@@ -70,12 +71,12 @@ void encode_ota_key_delivery(Super * super)
 
   //Setup LSF Variables, these are not sent in chunks like with voice
   //but only once at start of PKT TX
-  uint16_t lsf_ps   = 0; //packet or stream indicator bit
-  uint16_t lsf_dt   = 1; //Data
-  uint16_t lsf_et   = 0; //encryption type
-  uint16_t lsf_es   = 0; //encryption sub-type
-  uint16_t lsf_cn = can; //can value
-  uint16_t lsf_rs   = 0; //reserved bits
+  uint16_t lsf_ps    = 0; //packet or stream indicator bit
+  uint16_t lsf_dt    = 1; //Data
+  uint16_t lsf_et    = 0; //encryption type
+  uint16_t lsf_es    = 0; //encryption sub-type
+  uint16_t lsf_cn  = can; //can value
+  uint16_t lsf_rs = 0x10; //reserved bits (0x10 signals LSF for OTAKD)
 
   //compose the 16-bit frame information from the above sub elements
   uint16_t lsf_fi = 0;
@@ -182,11 +183,13 @@ void encode_ota_key_delivery(Super * super)
 
   //load zero fill, enc type, and send sequence number
   uint8_t enc_type = super->enc.enc_type;
-  uint8_t ssn = 2; //sending over a packet, so this will always be 2
+  uint8_t ssn = 3; //sending over a packet, so this will always be 3 (full message)
 
+  //zero fill bits
   for (i = 0; i < 4; i++)
     m17_p1_full[k++] = 0;
 
+  //enc_type and ssn bits
   m17_p1_full[k++] = (enc_type >> 1) & 1;
   m17_p1_full[k++] = (enc_type >> 0) & 1;
   m17_p1_full[k++] = (ssn >> 1) & 1;
@@ -198,7 +201,8 @@ void encode_ota_key_delivery(Super * super)
     for (i = 0; i < 24; i++)
       m17_p1_full[k++] = (super->enc.scrambler_key >> (23-i)) & 1;
   }
-  //if AES key, load complete AES key now (if this doesn't work, or even if it does, switch to unpack and load that way)
+
+  //if AES key, load complete AES key now
   else if (enc_type == 2)
   {
     for (i = 0; i < 64; i++)
@@ -229,26 +233,25 @@ void encode_ota_key_delivery(Super * super)
   //since the len of this packet is known precisely, we can hard code these values
   if (enc_type == 1)
   {
-    block = 1;
-    ptr = k;
-    lst = 6;
-    pad = 19;
-    stop = 5;
+    block =  1;
+    lst   =  6;
+    pad   = 19;
+    stop  =  5;
     sprintf (super->m17d.sms, "OTAKD Scrambler Key: %X;", super->enc.scrambler_key);
   }
   else if (enc_type == 2)
   {
-    block = 2;
-    ptr = k;
-    lst = 10; //correct, this tells the decoder where to extract the CRC from
-    pad = 69; //this has absolutely no effect
-    stop = 35;
-    sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX", super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
+    block =  2;
+    lst   = 10;
+    pad   = 15;
+    stop  = 35;
+    sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX",
+             super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
   }
   
   //debug position values
   if (super->opts.payload_verbosity > 0)
-    fprintf (stderr, "\n BLOCK: %02d; PAD: %02d; LST: %d; K: %04d; PTR: %04d;", block, pad, lst, k, ptr);
+    fprintf (stderr, "\n BLOCK: %02d; PAD: %02d; LST: %d; K: %04d;", block, pad, lst, k);
 
   //Calculate the CRC and attach it here
   x = 0;
@@ -259,9 +262,10 @@ void encode_ota_key_delivery(Super * super)
     if (i == stop) break;
     x++;
   }
-  //hard set len for CRC16 on type 2, bug fix (investigate reason later)
-  if (enc_type == 2) crc_cmp = crc16(m17_p1_packed, 35); //either x, or x+1?
-  else crc_cmp = crc16(m17_p1_packed, x+1); //either x, or x+1?
+
+  //hard set len for CRC16 for both types
+  if (enc_type == 2) crc_cmp = crc16(m17_p1_packed, 35);
+  else crc_cmp = crc16(m17_p1_packed, 6);
 
   //debug dump CRC (when pad is literally zero)
   if (super->opts.payload_verbosity > 0)
@@ -278,40 +282,12 @@ void encode_ota_key_delivery(Super * super)
   }
   fprintf (stderr, "\n");
 
-  //should already be connected earlier, if connected
-  int use_ip = super->opts.m17_use_ip;
-  uint8_t reflector_module = super->m17e.reflector_module;
-
-  //Standard IP Framing
+  //Standard IP Framing (stripped down)
   uint8_t mpkt[4]  = {0x4D, 0x50, 0x4B, 0x54};
-  uint8_t ackn[4]  = {0x41, 0x43, 0x4B, 0x4E}; UNUSED(ackn);
-  uint8_t nack[4]  = {0x4E, 0x41, 0x43, 0x4B}; UNUSED(nack);
-  uint8_t conn[11]; memset (conn, 0, sizeof(conn));
-  uint8_t disc[10]; memset (disc, 0, sizeof(disc));
-  uint8_t ping[10]; memset (ping, 0, sizeof(ping));
-  uint8_t pong[10]; memset (pong, 0, sizeof(pong));
-  uint8_t eotx[10]; memset (eotx, 0, sizeof(eotx));
-  int udp_return = 0; UNUSED(udp_return);
-  uint8_t sid[2];   memset (sid, 0, sizeof(sid));
+  int udp_return = 0;
   uint8_t  m17_ip_frame[8000]; memset (m17_ip_frame, 0, sizeof(m17_ip_frame));
   uint8_t m17_ip_packed[25*40]; memset (m17_ip_packed, 0, sizeof(m17_ip_packed));
   uint16_t ip_crc = 0;
-
-  //Setup conn, disc, eotx, ping, pong values
-  conn[0] = 0x43; conn[1] = 0x4F; conn[2] = 0x4E; conn[3] = 0x4E; conn[10] = reflector_module;
-  disc[0] = 0x44; disc[1] = 0x49; disc[2] = 0x53; disc[3] = 0x43;
-  ping[0] = 0x50; ping[1] = 0x49; ping[2] = 0x4E; ping[3] = 0x47;
-  pong[0] = 0x50; pong[1] = 0x4F; pong[2] = 0x4E; pong[3] = 0x47;
-  eotx[0] = 0x45; eotx[1] = 0x4F; eotx[2] = 0x54; eotx[3] = 0x58;
-
-  //these values were not loaded correctly before, so just manually handle one and copy to others
-  conn[4] = (src >> 40UL) & 0xFF; conn[5] = (src >> 32UL) & 0xFF; conn[6] = (src >> 24UL) & 0xFF;
-  conn[7] = (src >> 16UL) & 0xFF; conn[8] = (src >> 8UL)  & 0xFF; conn[9] = (src >> 0UL)  & 0xFF;
-  for (i = 0; i < 6; i++)
-  {
-    disc[i+4] = conn[i+4]; ping[i+4] = conn[i+4];
-    pong[i+4] = conn[i+4]; eotx[i+4] = conn[i+4];
-  }
 
   //add MPKT header
   k = 0;
@@ -321,12 +297,7 @@ void encode_ota_key_delivery(Super * super)
       m17_ip_frame[k++] = (mpkt[j] >> (7-i)) &1;
   }
 
-  //randomize ID
-  // srand(time(NULL)); //disabled, investigate any impact this has 
-  sid[0] = rand() & 0xFF;
-  sid[1] = rand() & 0xFF;
-
-  //add StreamID / PKT ID
+  //add StreamID / PKT ID (sent from calling function)
   for (j = 0; j < 2; j++)
   {
     for (i = 0; i < 8; i++)
@@ -365,15 +336,11 @@ void encode_ota_key_delivery(Super * super)
   if (use_ip == 1)
     fprintf (stderr, " UDP IP Frame CRC: %04X; UDP RETURN: %d: X: %d; SENT: %d;", ip_crc, udp_return, x, x+34+3);
 
-  //SEND EOTX to reflector
-  if (use_ip == 1)
-    udp_return = m17_socket_blaster (super, 10, eotx);
-
   //flag to determine if we send a new LSF frame for new encode
   //only send once at the appropriate time when encoder is toggled on
   int new_lsf = 1;
 
-  // while (!end)
+  //either 1 or 2 blocks for OTAKD
   for (start = 0; start < block; start++)
   {
     //send LSF frame once, if new encode session
@@ -441,9 +408,6 @@ void encode_ota_key_delivery(Super * super)
         m17_p3p[x++] = m17_p2c[i];
     }
 
-    //debug X bit positions
-    // fprintf (stderr, " X: %d", x);
-
     //interleave the bit array using Quadratic Permutation Polynomial
     //function π(x) = (45x + 92x^2 ) mod 368
     for (i = 0; i < 368; i++)
@@ -472,4 +436,16 @@ void encode_ota_key_delivery(Super * super)
     pbc++;
 
   }
+}
+
+//this version is used to craft embedded OTAKD LSF that can be swapped in during STR or IPF encoding
+void encode_ota_key_delivery_emb(Super * super, uint8_t * m17_lsf)
+{
+  UNUSED(super); UNUSED(m17_lsf);
+}
+
+//this function will create a backup copy of the LSF contents and restore them
+void backup_and_restore_lsf(Super * super, uint8_t * m17_lsf, int type)
+{
+  UNUSED(super); UNUSED(m17_lsf); UNUSED(type);
 }
