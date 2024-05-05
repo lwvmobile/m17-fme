@@ -8,7 +8,7 @@
 
 #ifndef MAIN_H
 #define MAIN_H
-#define OTA_KEY_DELIVERY //move this to cmake later
+
 #define PI 3.141592653
 
 #include "colors.h"
