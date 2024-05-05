@@ -34,7 +34,7 @@ void demod_brt(Super * super, uint8_t * input, int debug)
   else memcpy (bert, input, 368);
 
   for (i = 0; i < 46; i++)
-    fprintf (stderr, "%02X", (uint8_t)ConvertBitIntoBytes(&bert[i*8], 8));
+    fprintf (stderr, "%02X", (uint8_t)convert_bits_into_output(&bert[i*8], 8));
 
   //get rid of this if it costs too much CPU / skips / lags
   super->demod.sync_time = super->demod.current_time = time(NULL);

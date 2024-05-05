@@ -46,8 +46,8 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
 
   }
 
-  lich_counter = (uint8_t)ConvertBitIntoBytes(&lich_decoded[40], 3); //lich_cnt
-  lich_reserve = (uint8_t)ConvertBitIntoBytes(&lich_decoded[43], 5); //lich_reserved
+  lich_counter = (uint8_t)convert_bits_into_output(&lich_decoded[40], 3); //lich_cnt
+  lich_reserve = (uint8_t)convert_bits_into_output(&lich_decoded[43], 5); //lich_reserved
 
   //sanity check to prevent out of bounds
   if (lich_counter > 5) lich_counter = 5;
@@ -78,7 +78,7 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
     fprintf (stderr, "\n");
     fprintf (stderr, " LICH:");
     for (i = 0; i < 6; i++)
-      fprintf (stderr, " %02X", (uint8_t)ConvertBitIntoBytes(&lich_decoded[i*8], 8)); 
+      fprintf (stderr, " %02X", (uint8_t)convert_bits_into_output(&lich_decoded[i*8], 8)); 
   }
 
   uint8_t lsf_packed[30];
@@ -89,10 +89,10 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
 
     //need to pack bytes for the sw5wwp variant of the crc (might as well, may be useful in the future)
     for (i = 0; i < 30; i++)
-      lsf_packed[i] = (uint8_t)ConvertBitIntoBytes(&super->m17d.lsf[i*8], 8);
+      lsf_packed[i] = (uint8_t)convert_bits_into_output(&super->m17d.lsf[i*8], 8);
 
     crc_cmp = crc16(lsf_packed, 28);
-    crc_ext = (uint16_t)ConvertBitIntoBytes(&super->m17d.lsf[224], 16);
+    crc_ext = (uint16_t)convert_bits_into_output(&super->m17d.lsf[224], 16);
 
     if (crc_cmp != crc_ext) crc_err = 1;
 

@@ -134,10 +134,10 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
 
   //need to pack bytes for the sw5wwp variant of the crc (might as well, may be useful in the future)
   for (i = 0; i < 30; i++)
-    lsf_packed[i] = (uint8_t)ConvertBitIntoBytes(&super->m17d.lsf[i*8], 8);
+    lsf_packed[i] = (uint8_t)convert_bits_into_output(&super->m17d.lsf[i*8], 8);
 
   uint16_t crc_cmp = crc16(lsf_packed, 28);
-  uint16_t crc_ext = (uint16_t)ConvertBitIntoBytes(&super->m17d.lsf[224], 16);
+  uint16_t crc_ext = (uint16_t)convert_bits_into_output(&super->m17d.lsf[224], 16);
   int crc_err = 0;
 
   if (crc_cmp != crc_ext) crc_err = 1;

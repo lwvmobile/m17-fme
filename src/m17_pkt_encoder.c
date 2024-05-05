@@ -158,7 +158,7 @@ void encode_pkt(Super * super)
   uint8_t lsf_packed[30];
   memset (lsf_packed, 0, sizeof(lsf_packed));
   for (i = 0; i < 28; i++)
-      lsf_packed[i] = (uint8_t)ConvertBitIntoBytes(&m17_lsf[i*8], 8);
+      lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
   crc_cmp = crc16(lsf_packed, 28);
 
   //attach the crc16 bits to the end of the LSF data
@@ -166,7 +166,7 @@ void encode_pkt(Super * super)
 
   //pack the CRC
   for (i = 28; i < 30; i++)
-      lsf_packed[i] = (uint8_t)ConvertBitIntoBytes(&m17_lsf[i*8], 8);
+      lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
 
   //Craft and Send Initial LSF frame to be decoded
 
@@ -310,7 +310,7 @@ void encode_pkt(Super * super)
   uint8_t m17_p1_packed[31*25]; memset (m17_p1_packed, 0, sizeof(m17_p1_packed));
   for (i = 0; i < 25*31; i++)
   {
-    m17_p1_packed[x] = (uint8_t)ConvertBitIntoBytes(&m17_p1_full[i*8], 8);
+    m17_p1_packed[x] = (uint8_t)convert_bits_into_output(&m17_p1_full[i*8], 8);
     if (m17_p1_packed[x] == 0) break; //stop at the termination byte
     x++;
   }
@@ -342,7 +342,7 @@ void encode_pkt(Super * super)
   for (i = 0; i < 25*block; i++)
   {
     if ( (i%25) == 0 && i != 0 ) fprintf (stderr, "\n                       ");
-    fprintf (stderr, "%02X", (uint8_t)ConvertBitIntoBytes(&m17_p1_full[i*8], 8));
+    fprintf (stderr, "%02X", (uint8_t)convert_bits_into_output(&m17_p1_full[i*8], 8));
   }
   fprintf (stderr, "\n");
 
@@ -431,11 +431,11 @@ void encode_pkt(Super * super)
 
   //pack current bit array to current
   for (i = 0; i < 34; i++)
-    m17_ip_packed[i] = (uint8_t)ConvertBitIntoBytes(&m17_ip_frame[i*8], 8);
+    m17_ip_packed[i] = (uint8_t)convert_bits_into_output(&m17_ip_frame[i*8], 8);
 
   //pack the entire PKT payload (plus terminator, sans CRC)
   for (i = 0; i < x+1; i++)
-    m17_ip_packed[i+34] = (uint8_t)ConvertBitIntoBytes(&m17_p1_full[i*8], 8);
+    m17_ip_packed[i+34] = (uint8_t)convert_bits_into_output(&m17_p1_full[i*8], 8);
 
   //Calculate CRC over everthing packed (including the terminator)
   ip_crc = crc16(m17_ip_packed, 34+1+x);
@@ -447,7 +447,7 @@ void encode_pkt(Super * super)
 
   //pack CRC into the byte array as well
   for (i = x+34+1, j = 0; i < (x+34+3); i++, j++) //double check this
-    m17_ip_packed[i] = (uint8_t)ConvertBitIntoBytes(&crc_bits[j*8], 8);
+    m17_ip_packed[i] = (uint8_t)convert_bits_into_output(&crc_bits[j*8], 8);
 
 
   //NOTE: Fixed recvfrom limitation, MSG_WAITALL seems to be 256
@@ -559,7 +559,7 @@ void encode_pkt(Super * super)
 
     //Dump Output of the current Packet Frame
     for (i = 0; i < 26; i++)
-      fprintf (stderr, "%02X", (uint8_t)ConvertBitIntoBytes(&m17_p1[i*8], 8));
+      fprintf (stderr, "%02X", (uint8_t)convert_bits_into_output(&m17_p1[i*8], 8));
 
     //debug PBC
     // fprintf (stderr, " PBC: %d;", pbc);

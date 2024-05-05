@@ -637,7 +637,7 @@ void aes_ctr_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int 
   uint8_t payload_bytes[16];
   memset (payload_bytes, 0, sizeof(payload_bytes));
   for (i = 0; i < 16; i++)
-    payload_bytes[i] = (uint8_t)ConvertBitIntoBytes(&payload[i*8], 8);
+    payload_bytes[i] = (uint8_t)convert_bits_into_output(&payload[i*8], 8);
 
   //debug
   // fprintf (stderr, "\n  INPUT: ");

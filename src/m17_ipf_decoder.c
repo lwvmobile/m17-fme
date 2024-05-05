@@ -82,14 +82,14 @@ void decode_ipf (Super * super)
       }
 
       //copy Stream ID
-      uint16_t sid = (uint16_t)ConvertBitIntoBytes(&ip_bits[32], 16);
+      uint16_t sid = (uint16_t)convert_bits_into_output(&ip_bits[32], 16);
 
       //copy LSF
       for (i = 0; i < 224; i++)
         super->m17d.lsf[i] = ip_bits[i+48];
 
       //get FN and EOT bit
-      uint16_t fn = (uint16_t)ConvertBitIntoBytes(&ip_bits[273], 15);
+      uint16_t fn = (uint16_t)convert_bits_into_output(&ip_bits[273], 15);
       uint8_t eot = ip_bits[272];
 
       //reset pN bit_counter based on fn value
@@ -97,8 +97,8 @@ void decode_ipf (Super * super)
         super->enc.bit_counter_d = 0;
 
       //update IV CTR from FN
-      super->m17d.meta[14] = (uint16_t)ConvertBitIntoBytes(&ip_bits[273], 7);
-      super->m17d.meta[15] = (uint16_t)ConvertBitIntoBytes(&ip_bits[280], 8);
+      super->m17d.meta[14] = (uint16_t)convert_bits_into_output(&ip_bits[273], 7);
+      super->m17d.meta[15] = (uint16_t)convert_bits_into_output(&ip_bits[280], 8);
 
       fprintf (stderr, "\n M17 IP Stream: %04X; FN: %05d;", sid, fn);
       if (eot) fprintf (stderr, " EOT;");
@@ -256,7 +256,7 @@ void decode_ipf (Super * super)
       }
 
       //copy Stream ID (PKT ID)
-      uint16_t sid = (uint16_t)ConvertBitIntoBytes(&ip_bits[32], 16);
+      uint16_t sid = (uint16_t)convert_bits_into_output(&ip_bits[32], 16);
 
       //copy LSF
       for (i = 0; i < 224; i++)

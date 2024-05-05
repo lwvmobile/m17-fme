@@ -32,8 +32,8 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type)
   
   for (i = 0; i < 8; i++)
   {
-    voice1[i] = (unsigned char)ConvertBitIntoBytes(&payload[i*8+0], 8);
-    voice2[i] = (unsigned char)ConvertBitIntoBytes(&payload[i*8+64], 8);
+    voice1[i] = (unsigned char)convert_bits_into_output(&payload[i*8+0], 8);
+    voice2[i] = (unsigned char)convert_bits_into_output(&payload[i*8+64], 8);
   }
 
   //TODO: Add some decryption methods?
@@ -139,7 +139,7 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type)
   {
     uint8_t adata[9]; adata[0] = 99; //set so pkt decoder will rip these out as just utf-8 chars
     for (i = 0; i < 8; i++)
-      adata[i+1] = (unsigned char)ConvertBitIntoBytes(&payload[i*8+64], 8);
+      adata[i+1] = (unsigned char)convert_bits_into_output(&payload[i*8+64], 8);
     
     //look and see if the payload has stuff in it first, if so, then run this
     if (adata[1] != 0 || adata[2] != 0 || adata[3] != 0 || adata[4] != 0 || adata[5] != 0 || adata[6] != 0 || adata[7] != 0 || adata[8] != 0)

@@ -11,9 +11,9 @@
 void decode_lsf_contents(Super * super)
 {
   int i;
-  unsigned long long int lsf_dst = (unsigned long long int)ConvertBitIntoBytes(&super->m17d.lsf[0], 48);
-  unsigned long long int lsf_src = (unsigned long long int)ConvertBitIntoBytes(&super->m17d.lsf[48], 48);
-  uint16_t lsf_type = (uint16_t)ConvertBitIntoBytes(&super->m17d.lsf[96], 16);
+  unsigned long long int lsf_dst = (unsigned long long int)convert_bits_into_output(&super->m17d.lsf[0], 48);
+  unsigned long long int lsf_src = (unsigned long long int)convert_bits_into_output(&super->m17d.lsf[48], 48);
+  uint16_t lsf_type = (uint16_t)convert_bits_into_output(&super->m17d.lsf[96], 16);
 
   //this is the way the spec/code expects you to read these bits
   uint8_t lsf_ps = (lsf_type >> 0) & 0x1;
@@ -59,7 +59,7 @@ void decode_lsf_contents(Super * super)
 
   //use lli and llabs instead
   long long int tsn = (super->demod.current_time & 0xFFFFFFFF); //current LSB 32-bit value
-  long long int tsi = (uint32_t)ConvertBitIntoBytes(&super->m17d.lsf[112], 32); //OTA LSB 32-bit value
+  long long int tsi = (uint32_t)convert_bits_into_output(&super->m17d.lsf[112], 32); //OTA LSB 32-bit value
   long long int dif = llabs(tsn-tsi);
   if (lsf_et == 2 && dif > 3600) fprintf (stderr, " \n Warning! Time Difference > %lld secs; Potential NONCE/IV Replay!\n", dif);
 
@@ -68,7 +68,7 @@ void decode_lsf_contents(Super * super)
 
   //pack meta bits into 14 bytes
   for (i = 0; i < 14; i++)
-    super->m17d.meta[i] = (uint8_t)ConvertBitIntoBytes(&super->m17d.lsf[(i*8)+112], 8);
+    super->m17d.meta[i] = (uint8_t)convert_bits_into_output(&super->m17d.lsf[(i*8)+112], 8);
 
   //Decode Meta Data when not AES IV (if available)
   if (lsf_et != 2 && super->m17d.meta[0] != 0)

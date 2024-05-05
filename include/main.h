@@ -514,7 +514,9 @@ char * getDateH();
 char * getDateN(time_t t);
 
 //misc utility functions
-uint64_t ConvertBitIntoBytes (uint8_t * BufferIn, uint32_t BitLength);
+uint64_t convert_bits_into_output (uint8_t * input, int len);
+void pack_bit_array_into_byte_array (uint8_t * input, uint8_t * output, int len);
+void unpack_byte_array_into_bit_array (uint8_t * input, uint8_t * output, int len);
 
 //M17 Frame Encoders
 void encode_rfa (Super * super, uint8_t * input, float * mem, int type);

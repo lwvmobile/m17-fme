@@ -153,11 +153,11 @@ void prepare_str(Super * super, uint8_t * input)
   memset (payload, 0, sizeof(payload));
 
   end = trellis_buf[0];
-  fn = (uint16_t)ConvertBitIntoBytes(&trellis_buf[1], 15);
+  fn = (uint16_t)convert_bits_into_output(&trellis_buf[1], 15);
 
   //insert fn bits into meta 14 and meta 15 for Initialization Vector
-  super->m17d.meta[14] = (uint8_t)ConvertBitIntoBytes(&trellis_buf[1], 7);
-  super->m17d.meta[15] = (uint8_t)ConvertBitIntoBytes(&trellis_buf[8], 8);
+  super->m17d.meta[14] = (uint8_t)convert_bits_into_output(&trellis_buf[1], 7);
+  super->m17d.meta[15] = (uint8_t)convert_bits_into_output(&trellis_buf[8], 8);
 
   if (super->opts.payload_verbosity >= 1)
     fprintf (stderr, " FSN: %05d", fn);
@@ -178,6 +178,6 @@ void prepare_str(Super * super, uint8_t * input)
   {
     fprintf (stderr, "\n STREAM:");
     for (i = 0; i < 18; i++) 
-      fprintf (stderr, " %02X", (uint8_t)ConvertBitIntoBytes(&trellis_buf[i*8], 8));
+      fprintf (stderr, " %02X", (uint8_t)convert_bits_into_output(&trellis_buf[i*8], 8));
   }
 }

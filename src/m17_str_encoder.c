@@ -261,7 +261,7 @@ void encode_str(Super * super)
   uint8_t lsf_packed[30];
   memset (lsf_packed, 0, sizeof(lsf_packed));
   for (i = 0; i < 28; i++)
-      lsf_packed[i] = (uint8_t)ConvertBitIntoBytes(&m17_lsf[i*8], 8);
+      lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
   crc_cmp = crc16(lsf_packed, 28);
 
   //attach the crc16 bits to the end of the LSF data
@@ -269,7 +269,7 @@ void encode_str(Super * super)
 
   //pack the CRC
   for (i = 28; i < 30; i++)
-      lsf_packed[i] = (uint8_t)ConvertBitIntoBytes(&m17_lsf[i*8], 8);
+      lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
 
   //Craft and Send Initial LSF frame to be decoded
 
@@ -693,7 +693,7 @@ void encode_str(Super * super)
 
       //pack current bit array into a byte array for a CRC check
       for (i = 0; i < 52; i++)
-        m17_ip_packed[i] = (uint8_t)ConvertBitIntoBytes(&m17_ip_frame[i*8], 8);
+        m17_ip_packed[i] = (uint8_t)convert_bits_into_output(&m17_ip_frame[i*8], 8);
       ip_crc = crc16(m17_ip_packed, 52);
 
       //add CRC value to the ip frame
@@ -702,7 +702,7 @@ void encode_str(Super * super)
       
       //pack CRC into the byte array as well
       for (i = 52; i < 54; i++)
-        m17_ip_packed[i] = (uint8_t)ConvertBitIntoBytes(&m17_ip_frame[i*8], 8);
+        m17_ip_packed[i] = (uint8_t)convert_bits_into_output(&m17_ip_frame[i*8], 8);
 
       //Send packed IP frame to UDP port if enabled
       if (use_ip == 1)
@@ -775,7 +775,7 @@ void encode_str(Super * super)
 
       //pack current bit array into a byte array for a CRC check
       for (i = 0; i < 52; i++)
-        m17_ip_packed[i] = (uint8_t)ConvertBitIntoBytes(&m17_ip_frame[i*8], 8);
+        m17_ip_packed[i] = (uint8_t)convert_bits_into_output(&m17_ip_frame[i*8], 8);
       ip_crc = crc16(m17_ip_packed, 52);
 
       //add CRC value to the ip frame
@@ -784,7 +784,7 @@ void encode_str(Super * super)
 
       //pack CRC into the byte array as well
       for (i = 52; i < 54; i++)
-        m17_ip_packed[i] = (uint8_t)ConvertBitIntoBytes(&m17_ip_frame[i*8], 8);
+        m17_ip_packed[i] = (uint8_t)convert_bits_into_output(&m17_ip_frame[i*8], 8);
 
       //reset 
       lich_cnt = 0;
@@ -842,7 +842,7 @@ void encode_str(Super * super)
       //repack, new CRC, and update rest of lsf as well
       memset (lsf_packed, 0, sizeof(lsf_packed));
       for (i = 0; i < 28; i++)
-        lsf_packed[i] = (uint8_t)ConvertBitIntoBytes(&m17_lsf[i*8], 8);
+        lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
       crc_cmp = crc16(lsf_packed, 28);
 
       //attach the crc16 bits to the end of the LSF data
@@ -850,7 +850,7 @@ void encode_str(Super * super)
 
       //repack the CRC
       for (i = 28; i < 30; i++)
-          lsf_packed[i] = (uint8_t)ConvertBitIntoBytes(&m17_lsf[i*8], 8);
+          lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
 
       //Recraft and Prepare New LSF frame for next encoding session
       //this is primarily to make sure the LSF has the refreshed nonce
