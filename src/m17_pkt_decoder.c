@@ -55,8 +55,8 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     //get the encryption type and subtype from the first octet
     uint8_t bits[400]; memset (bits, 0, 400*sizeof(uint8_t));
     unpack_byte_array_into_bit_array(input+2, bits, 48); //offset is +2 (easier visualization on line up)
-    uint8_t type = (input[1] >> 2) & 0x3;
-    uint8_t ssn  = (input[1] >> 0) & 0x3;
+    uint8_t type = (input[1] >> 6) & 0x3;
+    uint8_t ssn  = (input[1] >> 0) & 0x3F;
     if (type == 1)
     {
       fprintf (stderr, "\n");
@@ -67,11 +67,12 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     if (type == 2)
     {
       fprintf (stderr, "\n");
-      //still working out best way to code and send a full sized AES key over embedded LSF frames
+      //sending full sized AES key over Embedded LSF OTAKD will require 4 embedded LSF frames
       if      (ssn == 0) {}
       else if (ssn == 1) {}
       else if (ssn == 2) {}
-      else if (ssn == 3) //complete key over PACKET DATA or IPFrame Delivery
+      else if (ssn == 3) {}
+      else if (ssn == 4) //complete key over PACKET DATA or IPFrame Delivery
       {
         super->enc.A1 = (unsigned long long int)convert_bits_into_output(bits+00+00+00, 64);
         super->enc.A2 = (unsigned long long int)convert_bits_into_output(bits+64+00+00, 64);

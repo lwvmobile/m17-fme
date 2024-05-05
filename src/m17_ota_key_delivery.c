@@ -181,17 +181,17 @@ void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
   for (i = 0; i < 8; i++)
     m17_p1_full[k++] = (protocol >> (7-i)) & 1;
 
-  //load zero fill, enc type, and send sequence number
+  //load enc type, and send sequence number
   uint8_t enc_type = super->enc.enc_type;
-  uint8_t ssn = 3; //sending over a packet, so this will always be 3 (full message)
-
-  //zero fill bits
-  for (i = 0; i < 4; i++)
-    m17_p1_full[k++] = 0;
+  uint8_t ssn = 4; //sending over a packet, so this will always be 4 (full message)
 
   //enc_type and ssn bits
   m17_p1_full[k++] = (enc_type >> 1) & 1;
   m17_p1_full[k++] = (enc_type >> 0) & 1;
+  m17_p1_full[k++] = (ssn >> 5) & 1;
+  m17_p1_full[k++] = (ssn >> 4) & 1;
+  m17_p1_full[k++] = (ssn >> 3) & 1;
+  m17_p1_full[k++] = (ssn >> 2) & 1;
   m17_p1_full[k++] = (ssn >> 1) & 1;
   m17_p1_full[k++] = (ssn >> 0) & 1;
 
