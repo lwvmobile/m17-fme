@@ -23,7 +23,7 @@ void encode_ota_key_delivery(Super * super)
   //quell defined but not used warnings from m17.h
   stfu ();
 
-  int start = 0, end = 0;
+  int start = 0;
 
   float mem[81];
 
@@ -212,37 +212,36 @@ void encode_ota_key_delivery(Super * super)
   }
 
   //zero fill terminating byte (for compatibility)
-  // for (i = 0; i < 8; i++)
-  //   m17_p1_full[k++] = 0;
+  for (i = 0; i < 8; i++)
+    m17_p1_full[k++] = 0;
 
   //counter values
   int block = 0; //number of blocks in total
-  int ptr = 0;  //ptr to current position of the text
-  int pad = 0; //amount of padding to apply to last frame
-  int lst = 0; //amount of significant octets in the last block
-  int stop = 0; //where to stop packing
+  int ptr = 0;   //ptr to current position of the text
+  int pad = 0;   //amount of padding to apply to last frame
+  int lst = 0;   //amount of significant octets in the last block
+  int stop = 0;  //where to stop packing
 
   //encode elements
   uint8_t pbc = 0; //packet/octet counter
   uint8_t eot = 0; //end of tx bit
 
+  //since the len of this packet is known precisely, we can hard code these values
   if (enc_type == 1)
   {
     block = 1;
-    ptr = k; //yes?
-    lst = 5;
-    pad = 20;
-    stop = 4;
-    end = 1;
+    ptr = k;
+    lst = 6;
+    pad = 19;
+    stop = 5;
   }
   else if (enc_type == 2)
   {
     block = 2;
-    ptr = k; //yes?
-    lst = 9;
-    pad = 14;
-    stop = 24;
-    end = 2;
+    ptr = k;
+    lst = 10; //correct, this tells the decoder where to extract the CRC from
+    pad = 69; //this has absolutely no effect
+    stop = 35;
   }
   
   //debug position values
@@ -258,14 +257,13 @@ void encode_ota_key_delivery(Super * super)
     if (i == stop) break;
     x++;
   }
-
-  crc_cmp = crc16(m17_p1_packed, x+1); //either x, or x+1?
+  //hard set len for CRC16 on type 2, bug fix (investigate reason later)
+  if (enc_type == 2) crc_cmp = crc16(m17_p1_packed, 35); //either x, or x+1?
+  else crc_cmp = crc16(m17_p1_packed, x+1); //either x, or x+1?
 
   //debug dump CRC (when pad is literally zero)
   if (super->opts.payload_verbosity > 0)
     fprintf (stderr, "\n X: %d; LAST: %02X; TERM: %02X; CRC: %04X; \n", x, m17_p1_packed[x-1], m17_p1_packed[x], crc_cmp);
-
-  // ptr = (block*25*8) - 16;
 
   for (i = 0; i < 16; i++) m17_p1_full[k++] = (crc_cmp >> (15-i)) & 1; //this one puts it immediately after the terminating byte
 
@@ -278,14 +276,9 @@ void encode_ota_key_delivery(Super * super)
   }
   fprintf (stderr, "\n");
 
-  //just lump all the UDP IP Frame stuff together and one-shot it
-  int use_ip = super->opts.m17_use_ip; //should already be connected earlier, if connected
+  //should already be connected earlier, if connected
+  int use_ip = super->opts.m17_use_ip;
   uint8_t reflector_module = super->m17e.reflector_module;
-
-  //NOTE: IP Framing is not standard on M17 for PKT mode, but
-  //I don't see any reason why we can't send them anyways, just
-  //need to use a new magic for it: MPKT. The receiver here is capable
-  //of decoding them
 
   //Standard IP Framing
   uint8_t mpkt[4]  = {0x4D, 0x50, 0x4B, 0x54};
@@ -318,10 +311,6 @@ void encode_ota_key_delivery(Super * super)
     pong[i+4] = conn[i+4]; eotx[i+4] = conn[i+4];
   }
 
-  //SEND CONN to reflector
-  // if (use_ip == 1)
-  //   udp_return = m17_socket_blaster (super, 11, conn);
-
   //add MPKT header
   k = 0;
   for (j = 0; j < 4; j++)
@@ -331,7 +320,7 @@ void encode_ota_key_delivery(Super * super)
   }
 
   //randomize ID
-  srand(time(NULL));
+  // srand(time(NULL)); //disabled, investigate any impact this has 
   sid[0] = rand() & 0xFF;
   sid[1] = rand() & 0xFF;
 
@@ -366,10 +355,6 @@ void encode_ota_key_delivery(Super * super)
   for (i = x+34+1, j = 0; i < (x+34+3); i++, j++) //double check this
     m17_ip_packed[i] = (uint8_t)convert_bits_into_output(&crc_bits[j*8], 8);
 
-
-  //NOTE: Fixed recvfrom limitation, MSG_WAITALL seems to be 256
-  //manually inserted 1000 into recvfrom instead, max MPKT size should be 809.
-
   //Send MPKT to reflector
   if (use_ip == 1)
     udp_return = m17_socket_blaster (super, x+34+3, m17_ip_packed);
@@ -382,16 +367,12 @@ void encode_ota_key_delivery(Super * super)
   if (use_ip == 1)
     udp_return = m17_socket_blaster (super, 10, eotx);
 
-  //SEND DISC to reflector
-  // if (use_ip == 1)
-  //   udp_return = m17_socket_blaster (super, 10, disc);
-
   //flag to determine if we send a new LSF frame for new encode
   //only send once at the appropriate time when encoder is toggled on
   int new_lsf = 1;
 
   // while (!end)
-  for (start = 0; start < end; start++)
+  for (start = 0; start < block; start++)
   {
     //send LSF frame once, if new encode session
     if (new_lsf == 1)
@@ -482,26 +463,8 @@ void encode_ota_key_delivery(Super * super)
     for (i = 0; i < 26; i++)
       fprintf (stderr, "%02X", (uint8_t)convert_bits_into_output(&m17_p1[i*8], 8));
 
-    //debug PBC
-    // fprintf (stderr, " PBC: %d;", pbc);
-
     //convert bit array into symbols and RF/Audio
     encode_rfa (super, m17_p4s, mem, 4);
-
-    //send the EOT Marker and some dead air
-    // if (eot)
-    // {
-    //   memset (nil, 0, sizeof(nil));
-    //   encode_rfa (super, nil, mem, 55); //EOT Marker
-
-    //   //send dead air with type 99
-    //   // for (i = 0; i < 25; i++)
-    //   //   encode_rfa (super, nil, mem, 99);
-
-    //   //exit loop
-    //   // end = 1;
-    //   // close (super->opts.m17_udp_sock); //close socket without sending a DISC
-    // }
 
     //increment packet / byte counter
     pbc++;
