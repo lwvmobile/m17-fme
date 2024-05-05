@@ -176,12 +176,12 @@ void print_ncurses_config (Super * super)
   if (!super->opts.use_m17_ipf_decoder) //still shows up on some encoders, but perhaps we want it to...?
   {
     if (super->opts.disable_rrc_filter == 0)
-      printw (" RRC(2);");
-    else printw ("!RRC(2);");
+      printw (" RRC(r);");
+    else printw ("!RRC(r);");
 
     if (super->opts.inverted_signal == 0)
-      printw (" ++++(3);");
-    else printw (" ----(3);");
+      printw (" ++++(x);");
+    else printw (" ----(x);");
   }
 
   if (super->m17e.str_encoder_vox)
@@ -293,6 +293,14 @@ void print_ncurses_call_info (Super * super)
   else if (super->opts.use_m17_ipf_decoder == 1)
     printw ("UDP/IP Frame Decoder");
   else printw ("RF Stream and Packet Decoder"); //not sure what to put here, if anything
+
+  if (!super->opts.use_m17_rfa_decoder && !super->opts.use_m17_ipf_decoder)
+  {
+    printw ("\n");
+    printw ("| ");
+    printw ("M17: ");
+    printw ("Press (\\) to Toggle TX");
+  }
 
   printw ("\n");
   printw ("| ");
@@ -438,7 +446,7 @@ void print_ncurses_call_history (Super * super)
       printw ("\n| #%02d. %s", i+1, super->m17d.callhistory[9-i]);
     else printw ("\n| ");
   }
-  printw ("\n| \n");
+  printw ("\n| Reset Call History with (C) key.\n");
   printw ("------------------------------------------------------------------------------\n");
 
   //color off, back to white

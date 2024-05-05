@@ -56,6 +56,7 @@ static uint8_t p3[62] = {1, 1, 1, 1, 1, 1, 1, 0};
 
 //dibits-symbols map
 static int8_t symbol_map[4] = {+1, +3, -1, -3};
+static int8_t inv_symbol_map[4] = {-1, -3, +1, +3};
 
 //output sample RRC filter for 48kHz sample rate
 //alpha=0.5, span=8, sps=10, gain=sqrt(sps)
@@ -131,6 +132,6 @@ static int stfu ()
 	//quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(m17_rrc); UNUSED(m17_input_rrc);
   UNUSED(lsf_sync_symbols); UNUSED(str_sync_symbols); UNUSED(pkt_sync_symbols); UNUSED(brt_sync_symbols); UNUSED(symbol_levels);
-
+	UNUSED(inv_symbol_map);
 	return 0;
 }

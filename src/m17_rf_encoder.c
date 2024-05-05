@@ -101,9 +101,16 @@ void encode_rfa (Super * super, uint8_t * input, float * mem, int type)
 
   //convert to symbols
   int output_symbols[192]; memset (output_symbols, 0, 192*sizeof(int));
-  for (i = 0; i < 192; i++)
-    output_symbols[i] = symbol_map[output_dibits[i]];
-
+  if (super->opts.inverted_signal)
+  {
+    for (i = 0; i < 192; i++)
+      output_symbols[i] = inv_symbol_map[output_dibits[i]];
+  }
+  else
+  {
+    for (i = 0; i < 192; i++)
+      output_symbols[i] = symbol_map[output_dibits[i]];
+  } 
   //symbols to audio
 
   //upsample 10x
