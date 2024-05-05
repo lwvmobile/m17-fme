@@ -492,7 +492,7 @@ void encode_str(Super * super)
 
     //AES-CTR
     else if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)
-      aes_ctr_payload_crypt (super->m17d.meta, super->enc.aes_key, m17_v1+16, 1);
+      aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, m17_v1+16, 1);
 
     //if using encryption(or not), copy back to v1 an v2 bits so the IPF paylaod is also properly ENC'd
     for (i = 0; i < 64; i++)

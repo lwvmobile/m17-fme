@@ -28,7 +28,7 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type)
   }
   //generate AES Keystream and apply it to payload if AES enc and key is available
   else if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded)
-    aes_ctr_payload_crypt (super->m17d.meta, super->enc.aes_key, payload, 1);
+    aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, payload, 1);
   
   for (i = 0; i < 8; i++)
   {

@@ -544,7 +544,7 @@ void push_call_history (Super * super);
 
 //Encryption and Decryption
 void pn_sequence_generator (Super * super);
-void aes_ctr_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int type);
+void aes_ctr_str_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int type);
 void aes_key_loader (Super * super);
 
 //if using cpp code, then put function prototypes in below

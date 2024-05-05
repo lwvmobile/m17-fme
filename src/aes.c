@@ -592,17 +592,16 @@ void aes192_block_output (uint8_t * iv, uint8_t * key, uint8_t output_blocks[240
 
 }
 
-//symmetrical payload encryption and decryption for M17
-void aes_ctr_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int type)
+//symmetrical payload encryption and decryption for M17 Stream Frames (per specification)
+void aes_ctr_str_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int type)
 {
   //NOTE: This has been tested and works with m17-tools aes crypt, noting m17-tools keylen is 
   //always 128 due to hard coded Nb Nk and Nr values in the source code, regardless
   //of the user supplied key value len
 
-  //NOTE: This method is only for Stream Voice or Arbitrary Data Payloads, this function
-  //will not handle any Packet Data encryption or decryption, that will be on the TODO list.
-
-  int i, k;
+  //NOTE: Wrote new utility functions for packing and unpacking bit arrays and byte arrays,
+  //should be much easier now to encrypt packet data when I get around to it. I may still 
+  //choose to pack and unpack outside of this function, or may make a second function without that
 
   //Set values specific to type (128/192/256)
   if (type == 1) //128
@@ -633,11 +632,10 @@ void aes_ctr_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int 
   KeyExpansion(ctx.RoundKey, key);
   memcpy (ctx.Iv, iv, AES_BLOCKLEN);
 
-  //convert input bit-wise payload to byte form
+  //pack input bit-wise payload to byte array
   uint8_t payload_bytes[16];
   memset (payload_bytes, 0, sizeof(payload_bytes));
-  for (i = 0; i < 16; i++)
-    payload_bytes[i] = (uint8_t)convert_bits_into_output(&payload[i*8], 8);
+  pack_bit_array_into_byte_array (payload, payload_bytes, 16);
 
   //debug
   // fprintf (stderr, "\n  INPUT: ");
@@ -652,19 +650,8 @@ void aes_ctr_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int 
   // for (i = 0; i < 16; i++)
   //   fprintf (stderr, "%02X", payload_bytes[i]);
 
-  //convert output bytes back to bits
-  k = 0;
-  for (i = 0; i < 16; i++)
-  {
-    payload[k++] = (payload_bytes[i] >> 7) & 1;
-    payload[k++] = (payload_bytes[i] >> 6) & 1;
-    payload[k++] = (payload_bytes[i] >> 5) & 1;
-    payload[k++] = (payload_bytes[i] >> 4) & 1;
-    payload[k++] = (payload_bytes[i] >> 3) & 1;
-    payload[k++] = (payload_bytes[i] >> 2) & 1;
-    payload[k++] = (payload_bytes[i] >> 1) & 1;
-    payload[k++] = (payload_bytes[i] >> 0) & 1;
-  }
+  //unpack output bytes back to bits
+  unpack_byte_array_into_bit_array(payload_bytes, payload, 16);
 
 }
 
