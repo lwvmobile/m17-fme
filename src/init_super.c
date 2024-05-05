@@ -19,7 +19,6 @@ void init_super (Super * super)
 
   //Generic Options For Display and Logging
   super->opts.use_ncurses_terminal = 0;
-  super->opts.ncurses_is_open = 0;
   super->opts.ncurses_no_banner = 0;
   super->opts.use_ncurses_terminal = 0;
   super->opts.ncurses_no_history = 0;
@@ -30,7 +29,6 @@ void init_super (Super * super)
 
   //output verbosity levels
   super->opts.payload_verbosity = 0;
-  super->opts.decoder_verbosity = 0;
   super->opts.demod_verbosity = 0;
 
   //Pulse Audio User Options
@@ -49,7 +47,6 @@ void init_super (Super * super)
   sprintf (super->opts.oss_output_dev_str, "%s", "/dev/dsp");
   super->opts.oss_input_device = 0;
   super->opts.oss_output_device = 0;
-
 
   //SND Input
   super->opts.use_snd_input = 0;
@@ -201,7 +198,7 @@ void init_super (Super * super)
   memset (super->m17d.pkt, 0, sizeof(super->m17d.pkt));
   super->m17d.pbc_ptr = 0;
 
-  memset (super->m17d.raw, 0, sizeof(super->m17d.raw));
+  memset  (super->m17d.raw, 0, sizeof(super->m17d.raw));
   sprintf (super->m17d.sms, "%s", "Any Encoded or Decoded SMS Text Messages Appear Here.");
   sprintf (super->m17d.dat, "%s", "Any Encoded or Decoded GNSS POS Messages Appear Here.");
   sprintf (super->m17d.arb, "%s", "Any Encoded or Decoded 1600 Arb Messages Appear Here.");

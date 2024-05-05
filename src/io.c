@@ -156,10 +156,7 @@ void cleanup_and_exit (Super * super)
 
   #ifdef USE_CURSES
   if (super->opts.use_ncurses_terminal == 1)
-  {
     close_ncurses_terminal();
-    super->opts.ncurses_is_open = 0;
-  }
   #endif
 
   exit(0);

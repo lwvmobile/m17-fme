@@ -83,7 +83,6 @@ typedef struct
 
   //output verbosity levels
   int payload_verbosity;
-  int decoder_verbosity;
   int demod_verbosity;
 
   //Pulse Audio User Options
