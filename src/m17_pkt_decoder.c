@@ -61,7 +61,8 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     {
       fprintf (stderr, "\n");
       super->enc.scrambler_key = (uint32_t)convert_bits_into_output(bits, 24);
-      pn_sequence_generator (super);  
+      pn_sequence_generator (super);
+      sprintf (super->m17d.sms, "OTAKD Scrambler Key: %X;", super->enc.scrambler_key);
     }
     if (type == 2) //still working out how to send a full sized AES key over embedded LSF frames
     {
@@ -75,6 +76,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
       {
         super->enc.A3 = (unsigned long long int)convert_bits_into_output(bits+64+64+00, 64);
         super->enc.A4 = (unsigned long long int)convert_bits_into_output(bits+64+64+64, 64);
+        sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX", super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
         aes_key_loader (super);
       }
       else if (ssn == 2) //complete key over PACKET DATA or IPFrame Delivery
@@ -83,6 +85,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
         super->enc.A2 = (unsigned long long int)convert_bits_into_output(bits+64+00+00, 64);
         super->enc.A3 = (unsigned long long int)convert_bits_into_output(bits+64+64+00, 64);
         super->enc.A4 = (unsigned long long int)convert_bits_into_output(bits+64+64+64, 64);
+        sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX", super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
         aes_key_loader (super);
       }
     }

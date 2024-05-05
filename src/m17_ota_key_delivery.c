@@ -234,6 +234,7 @@ void encode_ota_key_delivery(Super * super)
     lst = 6;
     pad = 19;
     stop = 5;
+    sprintf (super->m17d.sms, "OTAKD Scrambler Key: %X;", super->enc.scrambler_key);
   }
   else if (enc_type == 2)
   {
@@ -242,6 +243,7 @@ void encode_ota_key_delivery(Super * super)
     lst = 10; //correct, this tells the decoder where to extract the CRC from
     pad = 69; //this has absolutely no effect
     stop = 35;
+    sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX", super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
   }
   
   //debug position values
