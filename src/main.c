@@ -220,6 +220,12 @@ int main (int argc, char **argv)
         aes_key_loader(&super);
         break;
 
+      //Allow CRC Failure to still be decoded (TS issue with OTA key on RFA failing)
+      case '4':
+        super.opts.allow_crc_failure = 1;
+        fprintf (stderr, "Allow CRC Failure.\n");
+        break;
+
       //just leave these here until I wrap up and get back to the 'cookie cutter' project
       // case 'a':
       //   super.opts.a = 1;

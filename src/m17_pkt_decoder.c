@@ -24,6 +24,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   else if (protocol == 4) fprintf (stderr, " IPv4;");
   else if (protocol == 5) fprintf (stderr, " SMS;");
   else if (protocol == 6) fprintf (stderr, " Winlink;");
+  else if (protocol == 9) fprintf (stderr, " OTA Key Delivery;");
   else if (protocol == 90)fprintf (stderr, " Meta Text Data;"); //internal format only from meta
   else if (protocol == 91)fprintf (stderr, " Meta GNSS Position Data;"); //internal format only from meta
   else if (protocol == 92)fprintf (stderr, " Meta Extended CSD;"); //internal format only from meta
@@ -47,6 +48,46 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     sprintf (super->m17d.sms, "%s", "");
     memcpy (super->m17d.sms, input+1, len);
   }
+  #ifdef OTA_KEY_DELIVERY
+  //OTA Key Delivery Format
+  if (protocol == 9)
+  {
+    //get the encryption type and subtype from the first octet
+    uint8_t bits[400]; memset (bits, 0, 400*sizeof(uint8_t));
+    unpack_byte_array_into_bit_array(input+2, bits, 48); //offset is +2 (easier visualization on line up)
+    uint8_t type = (input[1] >> 2) & 0x3;
+    uint8_t ssn  = (input[1] >> 0) & 0x3;
+    if (type == 1)
+    {
+      fprintf (stderr, "\n");
+      super->enc.scrambler_key = (uint32_t)convert_bits_into_output(bits, 24);
+      pn_sequence_generator (super);  
+    }
+    if (type == 2) //still working out how to send a full sized AES key over embedded LSF frames
+    {
+      fprintf (stderr, "\n");
+      if (ssn == 0) //first half over LSF or embedded LSF
+      {
+        super->enc.A1 = (unsigned long long int)convert_bits_into_output(bits+00+00+00, 64);
+        super->enc.A2 = (unsigned long long int)convert_bits_into_output(bits+64+00+00, 64);
+      }
+      else if (ssn == 1) //second half over LSF or embedded LSF
+      {
+        super->enc.A3 = (unsigned long long int)convert_bits_into_output(bits+64+64+00, 64);
+        super->enc.A4 = (unsigned long long int)convert_bits_into_output(bits+64+64+64, 64);
+        aes_key_loader (super);
+      }
+      else if (ssn == 2) //complete key over PACKET DATA or IPFrame Delivery
+      {
+        super->enc.A1 = (unsigned long long int)convert_bits_into_output(bits+00+00+00, 64);
+        super->enc.A2 = (unsigned long long int)convert_bits_into_output(bits+64+00+00, 64);
+        super->enc.A3 = (unsigned long long int)convert_bits_into_output(bits+64+64+00, 64);
+        super->enc.A4 = (unsigned long long int)convert_bits_into_output(bits+64+64+64, 64);
+        aes_key_loader (super);
+      }
+    }
+  }
+  #endif
   //Extended Call Sign Data
   else if (protocol == 92)
   {

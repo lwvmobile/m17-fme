@@ -234,6 +234,12 @@ void encode_str(Super * super)
   if (use_ip == 1)
     udp_return = m17_socket_blaster (super, 11, conn);
 
+  //now send the OTA key
+  #ifdef OTA_KEY_DELIVERY
+  if (super->enc.enc_type != 0)
+    encode_ota_key_delivery(super);
+  #endif
+
   //TODO: Read UDP ACKN/NACK value, disable use_ip if NULL or nack return
   
   //load dst and src values into the LSF

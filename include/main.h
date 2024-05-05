@@ -8,7 +8,7 @@
 
 #ifndef MAIN_H
 #define MAIN_H
-
+#define OTA_KEY_DELIVERY //move this to cmake later
 #define PI 3.141592653
 
 #include "colors.h"
@@ -522,6 +522,7 @@ void unpack_byte_array_into_bit_array (uint8_t * input, uint8_t * output, int le
 void encode_rfa (Super * super, uint8_t * input, float * mem, int type);
 void encode_pkt (Super * super);
 void encode_str (Super * super);
+void encode_ota_key_delivery(Super * super);
 
 //M17 Content Element Decoders
 int  decode_lich_contents (Super * super, uint8_t * lich_bits);

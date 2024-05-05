@@ -119,6 +119,7 @@ void aes_key_loader (Super * super)
       if (i == 16) fprintf (stderr, "\n        ");
       fprintf (stderr, " %02X", super->enc.aes_key[i]);
     }
+    fprintf (stderr, "\n");
   }
 
 }
