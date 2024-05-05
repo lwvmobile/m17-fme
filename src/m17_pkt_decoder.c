@@ -55,9 +55,10 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     //get the encryption type and subtype from the first octet
     uint8_t bits[400]; memset (bits, 0, 400*sizeof(uint8_t));
     unpack_byte_array_into_bit_array(input+2, bits, 48); //offset is +2 (easier visualization on line up)
-    uint8_t type = (input[1] >> 6) & 0x3;
-    uint8_t ssn  = (input[1] >> 0) & 0x3F;
-    fprintf (stderr, " Send Sequence Number: %d;\n", ssn);
+    uint8_t  type = (input[1] >> 6) & 0x3; //enc type
+    uint8_t stype = (input[1] >> 4) & 0x3; //enc sub-type
+    uint8_t ssn   = (input[1] >> 0) & 0xF; //send sequence number
+    fprintf (stderr, "\n Encryption Type: %d; Subtype: %d; Send Sequence Number: %d;\n", type, stype, ssn);
     if (type == 1)
     {
       super->enc.scrambler_key = (uint32_t)convert_bits_into_output(bits, 24);
