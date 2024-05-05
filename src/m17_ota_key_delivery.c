@@ -439,7 +439,7 @@ void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
 }
 
 //this version is used to craft embedded OTAKD LSF that can be swapped in during STR or IPF encoding
-void encode_ota_key_delivery_emb(Super * super, uint8_t * m17_lsf, uint8_t lsf_count)
+void encode_ota_key_delivery_emb(Super * super, uint8_t * m17_lsf, uint8_t * lsf_count)
 {
   int i, k;
 
@@ -459,7 +459,7 @@ void encode_ota_key_delivery_emb(Super * super, uint8_t * m17_lsf, uint8_t lsf_c
     //load protocol, enc type, and send sequence number
     uint8_t protocol = 9; //OTA Key Delivery Protocol
     uint8_t enc_type = super->enc.enc_type;
-    uint8_t ssn = (lsf_count%5) - 1; //mod 5
+    uint8_t ssn = (*lsf_count%5) - 1; //mod 5
 
     //start manipulating at index 112
     if (super->enc.aes_key_is_loaded)
@@ -503,6 +503,7 @@ void encode_ota_key_delivery_emb(Super * super, uint8_t * m17_lsf, uint8_t lsf_c
     else if (super->enc.scrambler_key)
     {
       ssn = 4; //always 4, since we only need one LSF for this
+      *lsf_count = 4; //advance it to 4 so we can skip over sending multiple repeats
       k = 112;
       for (i = 0; i < 8; i++)
         m17_lsf[k++] = (protocol >> (7-i)) & 1;

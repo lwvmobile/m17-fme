@@ -57,16 +57,15 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     unpack_byte_array_into_bit_array(input+2, bits, 48); //offset is +2 (easier visualization on line up)
     uint8_t type = (input[1] >> 6) & 0x3;
     uint8_t ssn  = (input[1] >> 0) & 0x3F;
+    fprintf (stderr, " Send Sequence Number: %d;\n", ssn);
     if (type == 1)
     {
-      fprintf (stderr, "\n");
       super->enc.scrambler_key = (uint32_t)convert_bits_into_output(bits, 24);
       pn_sequence_generator (super);
       sprintf (super->m17d.sms, "OTAKD Scrambler Key: %X;", super->enc.scrambler_key);
     }
     if (type == 2)
     {
-      fprintf (stderr, "\n");
       //sending full sized AES key over Embedded LSF OTAKD will require 4 embedded LSF frames
       if      (ssn == 0)
         super->enc.A1 = (unsigned long long int)convert_bits_into_output(bits+00+00+00, 64);

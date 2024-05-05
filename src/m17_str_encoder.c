@@ -564,7 +564,7 @@ void encode_str(Super * super)
     //prepare substitution LSF with embedded OTAKD segment in it
     #ifdef OTA_KEY_DELIVERY
     if (super->enc.enc_type != 0 && ((lsf_count%5) != 0) )
-      encode_ota_key_delivery_emb(super, m17_lsf, lsf_count);
+      encode_ota_key_delivery_emb(super, m17_lsf, &lsf_count);
     #endif
 
     //load up the lsf chunk for this cnt
