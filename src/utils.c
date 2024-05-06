@@ -21,8 +21,8 @@ void write_stdout_pipe(Super * super, short * out, size_t nsam)
 //input bit array, return output as up to a 64-bit value
 uint64_t convert_bits_into_output(uint8_t * input, int len)
 {
-  uint64_t output = 0;
   int i;
+  uint64_t output = 0;
   for(i = 0; i < len; i++)
   {
     output <<= 1;
@@ -39,7 +39,7 @@ void pack_bit_array_into_byte_array (uint8_t * input, uint8_t * output, int len)
     output[i] = (uint8_t)convert_bits_into_output(&input[i*8], 8);
 }
 
-//take x amount of bytes and unpack back into a bit array
+//take len amount of bytes and unpack back into a bit array
 void unpack_byte_array_into_bit_array (uint8_t * input, uint8_t * output, int len)
 {
   int i = 0, k = 0;

@@ -325,6 +325,21 @@ void encode_str(Super * super)
     lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
     for (i = 0; i < 16; i++) m17_lsf[96+i] = (lsf_fi >> (15-i)) & 1;
 
+    //pack local meta for aes encryption function (bugfix for internal loopback AES not working)
+    uint8_t meta[16]; memset (meta, 0, sizeof(meta));
+    if (lsf_et == 2)
+    {
+      for (i = 0; i < 14; i++)
+        meta[i] = nonce[i];
+      for (i = 0; i < 8; i++)
+      {
+        meta[14] <<= 1;
+        meta[15] <<= 1;
+        meta[14] += ((fsn >> 8) >> (7-i)) & 1;
+        meta[15] += ((fsn >> 0) >> (7-i)) & 1;
+      }
+    }
+
     // if not decoding internally, assign values for ncurses display
     if (super->opts.monitor_encode_internally == 0)
     {
@@ -337,19 +352,7 @@ void encode_str(Super * super)
       super->m17d.enc_et = lsf_et;
       super->m17d.enc_st = lsf_es;
       for (i = 0; i < 16; i++)
-        super->m17d.meta[i] = 0;
-      if (lsf_et == 2)
-      {
-        for (i = 0; i < 14; i++)
-          super->m17d.meta[i] = nonce[i];
-        for (i = 0; i < 8; i++)
-        {
-          super->m17d.meta[14] <<= 1;
-          super->m17d.meta[15] <<= 1;
-          super->m17d.meta[14] += ((fsn >> 8) >> (7-i)) & 1;
-          super->m17d.meta[15] += ((fsn >> 0) >> (7-i)) & 1;
-        }
-      }
+        super->m17d.meta[i] = meta[i];
     }
 
     //read in short audio input samples from source
@@ -493,7 +496,7 @@ void encode_str(Super * super)
 
     //AES-CTR
     else if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)
-      aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, m17_v1+16, 1);
+      aes_ctr_str_payload_crypt (meta, super->enc.aes_key, m17_v1+16, 1);
 
     //if using encryption(or not), copy back to v1 an v2 bits so the IPF paylaod is also properly ENC'd
     for (i = 0; i < 64; i++)
