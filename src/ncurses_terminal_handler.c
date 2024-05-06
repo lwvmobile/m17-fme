@@ -364,35 +364,36 @@ void print_ncurses_call_info (Super * super)
     for (int i = 0; i < 16; i++)
       printw ("%02X", super->m17d.meta[i]);
 
-    if (super->enc.aes_key_is_loaded)
-    {
-      //Too many color switches, but gotta pick the nits
-      if (super->demod.in_sync == 1)
-        attron(COLOR_PAIR(3));
-      else attron(COLOR_PAIR(6));
-
-      printw ("\n");
-      printw ("| ");
-      printw ("KEY: ");
-
-      if (super->demod.in_sync == 1)
-        attron(COLOR_PAIR(1));
-      else attron(COLOR_PAIR(6));
-
-      for (int i = 0; i < 32; i++)
-      {
-        if (i == 8 || i == 16 || i == 24) printw (" ");
-        printw ("%02X", super->enc.aes_key[i]);
-      }
-
-      if (super->demod.in_sync == 1)
-        attron(COLOR_PAIR(3));
-      else attron(COLOR_PAIR(6));
-    }
   }
   else if (super->m17d.enc_et == 3)
     printw (" Reserved Encryption Type: %d", super->m17d.enc_st);
   else printw ("Clear");
+
+  if (super->enc.aes_key_is_loaded)
+  {
+    //Too many color switches, but gotta pick the nits
+    if (super->demod.in_sync == 1)
+      attron(COLOR_PAIR(3));
+    else attron(COLOR_PAIR(6));
+
+    printw ("\n");
+    printw ("| ");
+    printw ("KEY: ");
+
+    if (super->demod.in_sync == 1)
+      attron(COLOR_PAIR(1));
+    else attron(COLOR_PAIR(6));
+
+    for (int i = 0; i < 32; i++)
+    {
+      if (i == 8 || i == 16 || i == 24) printw (" ");
+      printw ("%02X", super->enc.aes_key[i]);
+    }
+
+    if (super->demod.in_sync == 1)
+      attron(COLOR_PAIR(3));
+    else attron(COLOR_PAIR(6));
+  }
 
   if (super->m17d.enc_et != 0)
   {
