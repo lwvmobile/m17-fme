@@ -105,8 +105,12 @@ void usage ()
   printf ("                (example: -E '0520C1B0220AFBCA 16FB1330764B26EC')\n");
   printf ("                (NOTE: Due to bug in m17-tools handling of AES keys, all keys are run as AES-128)\n");
   printf ("                (Limiting significant key value to first 32 characters to maintain compatibility)\n");
+  printf ("\n");
+  printf ("Debug Options:\n");
   printf ("  -1            Generate Random One Time Use 24-bit Scrambler Key \n");
   printf ("  -3            Generate Random One Time Use AES Key \n");
+  printf ("  -4            Permit Data Decoding on CRC Failure (not recommended) \n");
+  printf ("  -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!) \n");
   printf ("\n");
   printf ("Quick Examples:\n"); //'\' key, toggle TX
   printf (" Stream Voice Encoder with Mic Input (pulsevs) RF Output (pulserf), float symbol file output (float.sym) \n");
@@ -224,6 +228,16 @@ int main (int argc, char **argv)
       case '4':
         super.opts.allow_crc_failure = 1;
         fprintf (stderr, "Allow CRC Failure.\n");
+        break;
+
+      //Voice Open and Send Everything!
+      case '6': //enable all input and output, loopback etc to debug any perceived lag when doing everything
+        super.opts.use_pa_input = 1;
+        super.opts.use_pa_output_rf = 1;
+        super.opts.use_pa_output_vx = 1;
+        super.opts.m17_use_ip = 1;
+        super.opts.use_m17_str_encoder = 1;
+        super.opts.monitor_encode_internally = 1;
         break;
 
       //just leave these here until I wrap up and get back to the 'cookie cutter' project
