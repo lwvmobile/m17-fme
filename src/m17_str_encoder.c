@@ -929,12 +929,6 @@ void encode_str(Super * super)
         //convert bit array into symbols and RF/Audio
         encode_rfa (super, m17_t4s, mem, 2); //Last Stream Frame
 
-        //send the OTA key again at the end before the EOT Marker
-        #ifdef OTA_KEY_DELIVERY
-        if (super->enc.enc_type != 0)
-          encode_ota_key_delivery_pkt(super, use_ip, sid);
-        #endif
-
         memset (nil, 0, sizeof(nil));
         encode_rfa (super, nil, mem, 55);    //EOT Marker
 
