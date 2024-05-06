@@ -83,10 +83,10 @@ void usage ()
   printf ("                (example: -M 1:N0CALL:SP5WWP) \n");
   printf ("  -U <str>      Set UDP/IP Frame HOST:PORT:MODULE \n");
   printf ("                (example: -U 127.0.0.1:17001:B) \n");
-  printf ("  -S <str>      Enter SMS Message (up to 772 characters) for Packet Data Encoder\n");
+  printf ("  -S <str>      Enter SMS Message (up to 772 UTF-8 characters) for Packet Data Encoder\n");
   printf ("                (example: -S 'Hello World! This is a text message' \n");
-  printf ("  -A <str>      Enter SMS Message For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.\n");
-  printf ("                (example: -A 'Hello World! This is a arbitrary data' \n");
+  printf ("  -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.\n");
+  printf ("                (example: -A 'Hello World! This is arbitrary data on 1600' \n");
   printf ("  -R <str>      Enter RAW Data for Packet Data Encoder (TODO: Not Working Yet).\n");
   printf ("                (example: -R 'however this ends up getting in here, update this line' \n");
   printf ("  -x            Encode Inverted Polarity on RF Output\n");

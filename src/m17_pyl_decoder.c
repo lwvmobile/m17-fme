@@ -8,7 +8,7 @@
 
 #include "main.h"
 
-void decode_str_payload(Super * super, uint8_t * payload, uint8_t type)
+void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t lich_cnt)
 {
  
   int i;
@@ -134,18 +134,23 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type)
 
   #endif
 
-  //decode arbitrary data, if 1600
+  //assemble and decode arbitrary data, if 1600
   if (type == 3)
   {
-    uint8_t adata[9]; adata[0] = 99; //set so pkt decoder will rip these out as just utf-8 chars
-    for (i = 0; i < 8; i++)
-      adata[i+1] = (unsigned char)convert_bits_into_output(&payload[i*8+64], 8);
-    
-    //look and see if the payload has stuff in it first, if so, then run this
-    if (adata[1] != 0 || adata[2] != 0 || adata[3] != 0 || adata[4] != 0 || adata[5] != 0 || adata[6] != 0 || adata[7] != 0 || adata[8] != 0)
+    //append incoming arbitrary data segment to m17d.raw bit array
+    memcpy (super->m17d.raw+(lich_cnt*64), payload+64, 64);
+
+    //sanity check
+    if (lich_cnt > 5)
+      lich_cnt = 5;
+
+    if (lich_cnt == 5)
     {
+      //6 x 8 octets, plus one protocol octet
+      uint8_t adata[49]; adata[0] = 99;
+      pack_bit_array_into_byte_array (super->m17d.raw, adata+1, 48);
       fprintf (stderr, "\n"); //linebreak
-      decode_pkt_contents (super, adata, 9); //decode Arbitrary Data as UTF-8
+      decode_pkt_contents (super, adata, 48); //decode Arbitrary Data as UTF-8
     }
   }
   

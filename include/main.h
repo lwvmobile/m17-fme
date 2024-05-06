@@ -536,7 +536,7 @@ void decode_lsf_contents (Super * super);
 void decode_pkt_contents (Super * super, uint8_t * input, int len);
 void decode_callsign_data (Super * super, unsigned long long int dst, unsigned long long int src);
 void decode_callsign_src(Super * super, unsigned long long int src);
-void decode_str_payload (Super * super, uint8_t * payload, uint8_t type);
+void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t lich_cnt);
 
 //M17 Frame Demodulators
 void demod_lsf (Super * super, uint8_t * input, int debug);

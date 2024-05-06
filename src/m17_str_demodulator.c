@@ -169,7 +169,7 @@ void prepare_str(Super * super, uint8_t * input)
     payload[i] = trellis_buf[i+16];
 
   if (super->m17d.dt == 2 || super->m17d.dt == 3)
-    decode_str_payload(super, payload, super->m17d.dt);
+    decode_str_payload(super, payload, super->m17d.dt, fn%6);
   else if (super->m17d.dt == 1) fprintf (stderr, " DATA;");
   else if (super->m17d.dt == 0) fprintf (stderr, "  RES;");
   // else                             fprintf (stderr, "  UNK;");

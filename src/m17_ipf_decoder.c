@@ -119,10 +119,10 @@ void decode_ipf (Super * super)
 
       //Consolodate these two
       if (super->m17d.dt == 2)
-        decode_str_payload(super, payload, 2);
+        decode_str_payload(super, payload, 2, fn%6);
 
       else if (super->m17d.dt == 3)
-        decode_str_payload(super, payload, 3);
+        decode_str_payload(super, payload, 3, fn%6);
 
       if (super->opts.payload_verbosity >= 1)
       {

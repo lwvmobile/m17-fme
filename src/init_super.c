@@ -233,7 +233,7 @@ void init_super (Super * super)
   sprintf (super->m17e.dsts, "%s", "ALL");
   sprintf (super->m17e.sms, "%s", "");
   sprintf (super->m17e.dat, "%s", "");
-  sprintf (super->m17e.arb, "%s", "1234567 ABCDEFG 7654321 GFEDCBA 0000000 ZZZZZZZ");
+  sprintf (super->m17e.arb, "%s", "Up To 48 UTF-8 Characters of Text Can Appear Here.");
 
   //Stream Voice Mode
   super->m17e.str_encoder_tx = 1;
