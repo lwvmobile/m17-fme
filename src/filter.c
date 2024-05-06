@@ -9,8 +9,6 @@
 #include "main.h"
 #include "m17.h"
 
-// #define PI 3.141592653
-
 void HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
 {
 
@@ -40,28 +38,12 @@ float HPFilter_Update(HPFilter *filter, float v_in)
 
 }
 
-//high pass filter
-void hpfilter(HPFilter * hpf, short * input, int len)
-{
-  int i;
-  for (i = 0; i < len; i++)
-	{
-		// fprintf (stderr, "\n in: %05d", input[i]);
-		input[i] = HPFilter_Update(hpf, input[i]);
-		// fprintf (stderr, "\n out: %05d", input[i]);
-	}
-}
-
-//double check this one, make sure its doing what its suppoed to now
+//high pass filter for Codec2 Digital Audio Output
 void hpfilter_d(Super * super, short * input, int len)
 {
   int i;
   for (i = 0; i < len; i++)
-	{
-		// fprintf (stderr, "\n in: %05d", input[i]);
 		input[i] = HPFilter_Update(&super->hpf_d, input[i]);
-		// fprintf (stderr, "\n out: %05d", input[i]);
-	}
 }
 
 //10x Upscale and RRC filtering lifted from M17_Implementations / libM17

@@ -378,51 +378,11 @@ void encode_str(Super * super)
     if (st == 2)
       input_gain_vx (super, voice2, nsam);
 
-    //read in RMS value for vox function; NOTE: will not work correctly SOCAT STDIO TCP due to blocking when no samples to read
+    //read in RMS value for vox function;
     if (super->opts.use_pa_input != 3)
       super->demod.input_rms = raw_rms(voice1, nsam, 1) / 2; //dividing by two so mic isn't so sensitive on vox
 
-    // //low pass filter
-    // if (super->opts.use_lpf == 1)
-    // {
-    //   lpf (state, voice1, 160);
-    //   if (st == 2)
-    //     lpf (state, voice2, 160);
-    // }
-
-    // //high pass filter
-    // if (super->opts.use_hpf == 1)
-    // {
-    //   hpf (state, voice1, 160);
-    //   if (st == 2)
-    //     hpf (state, voice2, 160);
-    // }
-    
-    // //passband filter
-    // if (super->opts.use_pbf == 1)
-    // {
-    //   pbf (state, voice1, 160);
-    //   if (st == 2)
-    //     pbf (state, voice2, 160);
-    // }
-
-    //manual gain control
-    // if (super->opts.audio_gainA > 0.0f)
-    // {
-    //   analog_gain (opts, state, voice1, 160);
-    //   if (st == 2)
-    //     analog_gain (opts, state, voice2, 160);
-    // }
-
-    //automatic gain control
-    // else
-    // {
-    //   agsm (opts, state, voice1, 160);
-    //   if (st == 2)
-    //     agsm (opts, state, voice2, 160);
-    // }
-
-    //convert out audio input into CODEC2 (3200bps) 8 byte data stream
+    //convert out audio input into CODEC2  8 byte data stream
     uint8_t vc1_bytes[8]; memset (vc1_bytes, 0, sizeof(vc1_bytes));
     uint8_t vc2_bytes[8]; memset (vc2_bytes, 0, sizeof(vc2_bytes));
 

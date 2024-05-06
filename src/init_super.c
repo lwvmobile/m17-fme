@@ -269,13 +269,9 @@ void init_super (Super * super)
   super->snd_src_in.audio_in_file_info->format = SF_FORMAT_RAW|SF_FORMAT_PCM_16|SF_ENDIAN_LITTLE;
   //end snd_src_input snd_src_in
 
-  //HPF Initception
-  //TODO: Sort this out
-  //do I have these backwards in DSD-FME, just going to set them up as it is there for now
-  // HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
+  //HPF Initception //TODO: Sort this out
   // HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
   HPFilter_Init (&super->hpf_d, 960, (float)1/(float)super->opts.input_sample_rate);
-  HPFilter_Init (&super->hpf_a, 960, (float)1/(float)super->opts.input_sample_rate);
   //end HPF Init
 
   //init encryption items

@@ -240,6 +240,12 @@ int main (int argc, char **argv)
         super.opts.monitor_encode_internally = 1;
         break;
 
+      //Disable HPF on Digital Output
+      case '8':
+        super.opts.use_hpfilter_dig = 0;
+        fprintf (stderr, "Disable High Pass Filter on CODEC2 Output.\n");
+        break;
+
       //just leave these here until I wrap up and get back to the 'cookie cutter' project
       // case 'a':
       //   super.opts.a = 1;

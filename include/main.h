@@ -369,7 +369,6 @@ typedef struct
   wav_state wav;
   snd_src_input snd_src_in;
   HPFilter hpf_d;
-  HPFilter hpf_a;
   Encryption enc;
 } Super;
 
