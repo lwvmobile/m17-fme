@@ -97,7 +97,15 @@ void input_ncurses_terminal (Super * super, int c)
     //'v' key, toggle vox
     case 118:
       if (super->m17e.str_encoder_vox == 0) super->m17e.str_encoder_vox = 1;
-      else super->m17e.str_encoder_vox = 0;
+      else
+      {
+        super->m17e.str_encoder_vox = 0;
+        if (super->m17e.str_encoder_tx == 1)
+        {
+          super->m17e.str_encoder_tx  = 0;
+          super->m17e.str_encoder_eot = 1;
+        }
+      }
       break;
 
 

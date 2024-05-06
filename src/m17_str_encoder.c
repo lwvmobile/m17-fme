@@ -74,7 +74,7 @@ void encode_str(Super * super)
   short sample = 0;  //individual audio sample from source
   size_t nsam = 160; //number of samples to be read in (default is 160 samples for codec2 3200 bps)
   int dec = super->opts.input_sample_rate / 8000; //number of samples to run before selecting a sample from source input
-  int sql_hit = 11; //squelch hits, hit enough, and deactivate vox
+  int sql_hit = 26; //squelch hits, hit enough, and deactivate vox
   int eot_out =  1; //if we have already sent the eot out once
 
   //send dead air with type 99
@@ -379,8 +379,7 @@ void encode_str(Super * super)
       input_gain_vx (super, voice2, nsam);
 
     //read in RMS value for vox function;
-    if (super->opts.use_pa_input != 3)
-      super->demod.input_rms = raw_rms(voice1, nsam, 1) / 2; //dividing by two so mic isn't so sensitive on vox
+    super->demod.input_rms = raw_rms(voice1, nsam, 1);
 
     //convert out audio input into CODEC2  8 byte data stream
     uint8_t vc1_bytes[8]; memset (vc1_bytes, 0, sizeof(vc1_bytes));
@@ -477,7 +476,7 @@ void encode_str(Super * super)
     //if vox enabled, toggle tx/eot with sql_hit comparison
     if (super->m17e.str_encoder_vox == 1)
     {
-      if (sql_hit > 10 && lich_cnt == 0) //licn_cnt 0 to prevent new LSF popping out
+      if (sql_hit > 25 && lich_cnt == 0) //licn_cnt 0 to prevent new LSF popping out
       {
         super->m17e.str_encoder_tx = 0;
         eot = 1;
@@ -625,6 +624,7 @@ void encode_str(Super * super)
       //debug RMS Value
       if (super->m17e.str_encoder_vox == 1)
       {
+        fprintf (stderr, "\n");
         fprintf (stderr, " RMS: %04ld", super->demod.input_rms);
         fprintf (stderr, " SQL: %04ld", super->demod.input_sql);
         fprintf (stderr, " SQL HIT: %d;", sql_hit);
@@ -889,6 +889,7 @@ void encode_str(Super * super)
         //debug RMS Value
         if (super->m17e.str_encoder_vox == 1)
         {
+          fprintf (stderr, "\n");
           fprintf (stderr, " RMS: %04ld", super->demod.input_rms);
           fprintf (stderr, " SQL: %04ld", super->demod.input_sql);
           fprintf (stderr, " SQL HIT: %d;", sql_hit);

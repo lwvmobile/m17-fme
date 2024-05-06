@@ -340,8 +340,8 @@ void print_ncurses_call_info (Super * super)
     {
       printw ("Press (\\) to Toggle TX");
       if (super->m17e.str_encoder_tx == 0)
-        printw (" [OFF]");
-      else printw (" [ ON]");
+        printw (" (OFF)");
+      else printw (" ( ON)");
     }
   }
 
