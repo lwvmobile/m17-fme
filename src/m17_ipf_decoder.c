@@ -285,14 +285,24 @@ void decode_ipf (Super * super)
       }
 
       if (crc_ext == crc_cmp)
+      {
+        fprintf (stderr, "\n");
         decode_pkt_contents (super, ip_frame+34, err-34-3);
+      }
+        
       if (crc_ext != crc_cmp) fprintf (stderr, " IP CRC ERR");
+
+      //clear frame
+      memset(ip_frame, 0, sizeof(ip_frame));
 
     }
 
     //refresh ncurses printer, if enabled
     if (super->opts.use_ncurses_terminal == 1)
       print_ncurses_terminal(super);
+
+    //clear frame (if not recognized format)
+    memset(ip_frame, 0, sizeof(ip_frame));
 
   }
 }
