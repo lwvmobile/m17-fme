@@ -87,6 +87,57 @@ void input_ncurses_terminal (Super * super, int c)
       super->m17d.dt = 4; //fake for carrier reset
       no_carrier_sync (super); //reset demod
       break;
+
+
+    //Manual Gain Controls
+    //'/' key, decrement voice input gain by 1%
+    case 47:
+      if (super->opts.input_gain_vx > 0.01f)
+        super->opts.input_gain_vx -= 0.01f;
+      break;
+
+    //'*' key, increment voice input gain by 1%
+    case 42:
+      if (super->opts.input_gain_vx < 1.99f)
+        super->opts.input_gain_vx += 0.01f;
+      break;
+
+    //'-' key, decrement voice output gain by 1%
+    case 45:
+      if (super->opts.output_gain_vx > 0.01f)
+        super->opts.output_gain_vx -= 0.01f;
+      break;
+
+    //'+' key, increment voice output gain by 1%
+    case 43:
+      if (super->opts.output_gain_vx < 1.99f)
+        super->opts.output_gain_vx += 0.01f;
+      break;
+
+    //'[' key, decrement rf input gain by 1%
+    case 91:
+      if (super->opts.input_gain_rf > 0.01f)
+        super->opts.input_gain_rf -= 0.01f;
+      break;
+
+    //']' key, increment rf input gain by 1%
+    case 93:
+      if (super->opts.input_gain_rf < 1.99f)
+        super->opts.input_gain_rf += 0.01f;
+      break;
+
+    //'{' key, decrement rf output gain by 1%
+    case 123:
+      if (super->opts.output_gain_rf > 0.01f)
+        super->opts.output_gain_rf -= 0.01f;
+      break;
+
+    //'}' key, increment rf output gain by 1%
+    case 125:
+      if (super->opts.output_gain_rf < 1.99f)
+        super->opts.output_gain_rf += 0.01f;
+      break;
+    
   }
 }
 

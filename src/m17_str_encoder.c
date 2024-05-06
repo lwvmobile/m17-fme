@@ -373,6 +373,11 @@ void encode_str(Super * super)
       }
     }
 
+    //Apply Gain to Input
+    input_gain_vx (super, voice1, nsam);
+    if (st == 2)
+      input_gain_vx (super, voice2, nsam);
+
     //read in RMS value for vox function; NOTE: will not work correctly SOCAT STDIO TCP due to blocking when no samples to read
     if (super->opts.use_pa_input != 3)
       super->demod.input_rms = raw_rms(voice1, nsam, 1) / 2; //dividing by two so mic isn't so sensitive on vox

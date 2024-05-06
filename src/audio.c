@@ -61,3 +61,35 @@ long int raw_rms(int16_t *samples, int len, int step)
   if (rms < 0) rms = 150;
   return rms;
 }
+
+//applies a float gain value to input voice samples
+void input_gain_rf (Super * super, short * input, int len)
+{
+  int i;
+  for (i = 0; i < len; i++)
+    input[i] *= super->opts.input_gain_rf;
+}
+
+//applies a float gain value to input voice samples
+void input_gain_vx (Super * super, short * input, int len)
+{
+  int i;
+  for (i = 0; i < len; i++)
+    input[i] *= super->opts.input_gain_vx;
+}
+
+//applies a float gain value to output rf samples
+void output_gain_rf (Super * super, short * input, int len)
+{
+  int i;
+  for (i = 0; i < len; i++)
+    input[i] *= super->opts.output_gain_rf;
+}
+
+//applies a float gain value to output voice samples
+void output_gain_vx (Super * super, short * input, int len)
+{
+  int i;
+  for (i = 0; i < len; i++)
+    input[i] *= super->opts.output_gain_vx;
+}

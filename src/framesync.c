@@ -148,6 +148,9 @@ float demodulate_and_return_float_symbol(Super * super)
       //retrieve sample from audio input handler
       sample = get_short_audio_input_sample(super);
 
+      //Apply Gain to Input
+      input_gain_rf (super, &sample, 1);
+
       //RRC input filtering on sample
       if (!super->opts.disable_rrc_filter) //&& super->demod.in_sync
         sample = rrc_input_filter(super->demod.rrc_input_mem, sample);

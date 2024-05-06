@@ -73,6 +73,9 @@ void print_ncurses_terminal(Super * super)
   //Print Config
   print_ncurses_config(super);
 
+  //Print Audio Levels
+  print_ncurses_levels(super);
+
   //Print Call Info
   print_ncurses_call_info(super);
 
@@ -263,6 +266,23 @@ void print_ncurses_scope (Super * super)
   printw ("\n| -3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == -3.0f) printw("*"); else printw(" ");
   // printw ("\n| ");
   printw ("\n");
+  printw ("------------------------------------------------------------------------------\n");
+
+  //color off, back to white
+  attron(COLOR_PAIR(6));
+}
+
+void print_ncurses_levels (Super * super)
+{
+  //color on, yellow
+  if (super->demod.in_sync)
+    attron(COLOR_PAIR(1));
+
+  printw ("--Audio Level-----------------------------------------------------------------\n");
+  printw ("|   RFA  Input: %3.0f%% ([|]) \n", super->opts.input_gain_rf  * 100);
+  printw ("|   RFA Output: %3.0f%% ({|}) \n", super->opts.output_gain_rf * 100);
+  printw ("| Voice  Input: %3.0f%% (/|*) \n", super->opts.input_gain_vx  * 100);
+  printw ("| Voice Output: %3.0f%% (+|-) \n", super->opts.output_gain_vx * 100);
   printw ("------------------------------------------------------------------------------\n");
 
   //color off, back to white

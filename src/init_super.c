@@ -76,6 +76,14 @@ void init_super (Super * super)
   super->opts.input_sample_rate = 48000;   //TODO: Make a function that reconfigures this and anythign that is set from this
   super->opts.output_sample_rate = 48000;  //TODO: Make a function that reconfigures this and anythign that is set from this
   super->opts.stdout_pipe = 0;
+
+  //Gain
+  super->opts.input_gain_rf  = 1.0f;
+  super->opts.input_gain_vx  = 1.0f;
+  super->opts.output_gain_rf = 1.0f;
+  super->opts.output_gain_vx = 1.0f;
+
+  //Input and Output Files
   super->opts.use_float_symbol_output = 0;
   super->opts.use_float_symbol_input = 0;
   super->opts.use_dibit_input = 0;

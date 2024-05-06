@@ -129,6 +129,14 @@ typedef struct
   int input_sample_rate;
   int output_sample_rate;
   int stdout_pipe;
+
+  //Gain
+  float input_gain_rf;
+  float input_gain_vx;
+  float output_gain_rf;
+  float output_gain_vx;
+
+  //Input and Output Files
   int use_float_symbol_output;
   int use_float_symbol_input;
   int use_dibit_input;
@@ -385,6 +393,7 @@ void print_ncurses_terminal (Super * super);
 void print_ncurses_banner (Super * super);
 void print_ncurses_config (Super * super);
 void print_ncurses_call_info (Super * super);
+void print_ncurses_levels (Super * super);
 void print_ncurses_scope (Super * super);
 void print_ncurses_call_history (Super * super);
 void input_ncurses_terminal (Super * super, int c);
@@ -420,6 +429,12 @@ void write_wav_out_vx (Super * super, short * out, size_t nsam);
 //sndfile Input Open and Reading
 bool file_snd_audio_source_open (Super * super);
 short snd_input_read (Super * super);
+
+//Input and Output Gain
+void  input_gain_rf (Super * super, short * input, int len);
+void  input_gain_vx (Super * super, short * input, int len);
+void output_gain_rf (Super * super, short * input, int len);
+void output_gain_vx (Super * super, short * input, int len);
 
 //UDP IP Related Functions
 int  udp_socket_bind (char *hostname, int portno);

@@ -166,6 +166,9 @@ void encode_rfa (Super * super, uint8_t * input, float * mem, int type)
   //   }
   // }
 
+  //Apply Gain to Output
+  output_gain_rf (super, baseband, 1920);
+
   //dead air type, output to all enabled formats zero sample to simulate dead air
   //NOTE: 25 rounds is approximately 1 second even, seems optimal
   if (type == 99)

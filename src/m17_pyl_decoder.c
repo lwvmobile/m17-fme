@@ -74,7 +74,10 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   else
     codec2_decode(super->m17d.codec2_1600, samp1, voice1);
 
-  //TODO LIST:
+  //Apply Gain to Output
+  output_gain_vx (super, samp1, nsam);
+  if (type == 2)
+    output_gain_vx (super, samp2, nsam);
 
   //Run HPF on decoded voice prior to upsample
   if (super->opts.use_hpfilter_dig == 1)
@@ -125,7 +128,7 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
     sf_write_sync (super->wav.wav_out_vx);
   }
 
-  //C2 File Save
+  //TODO: C2 File Save
 
   free (samp1);
   free (samp2);
