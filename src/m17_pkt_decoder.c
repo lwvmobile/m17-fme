@@ -17,7 +17,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   //Decode the completed packet
   uint8_t protocol = input[0];
   fprintf (stderr, " Protocol:");
-  if (protocol == 0) fprintf (stderr, " Raw;");
+  if      (protocol == 0) fprintf (stderr, " Raw;");
   else if (protocol == 1) fprintf (stderr, " AX.25;");
   else if (protocol == 2) fprintf (stderr, " APRS;");
   else if (protocol == 3) fprintf (stderr, " 6LoWPAN;");
@@ -50,7 +50,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   }
   #ifdef OTA_KEY_DELIVERY
   //OTA Key Delivery Format
-  if (protocol == 9)
+  else if (protocol == 9)
   {
     //get the encryption type and subtype from the first octet
     uint8_t bits[400]; memset (bits, 0, 400*sizeof(uint8_t));

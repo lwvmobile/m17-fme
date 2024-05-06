@@ -587,8 +587,8 @@ void encode_str(Super * super)
     // lsf_chunk[lich_cnt][46] = (lsf_dt >> 1) & 1;
     // lsf_chunk[lich_cnt][47] = (lsf_dt >> 0) & 1;
 
-    //restore original LSF
-    memcpy (m17_lsf, super->m17e.lsf_bkp, 240*sizeof(uint8_t));
+    // //restore original LSF (keeping here will prevent this on IP Frames)
+    // memcpy (m17_lsf, super->m17e.lsf_bkp, 240*sizeof(uint8_t));
 
     //encode with golay 24,12 and load into m17_l1g
     Golay_24_12_encode (lsf_chunk[lich_cnt]+00, m17_l1g+00);
@@ -752,6 +752,9 @@ void encode_str(Super * super)
           nonce[12] &= 0xFF; //trunc for potential rollover (doesn't spill over)
         }
       }
+
+      //restore original LSF (move to bottom so IP Frames can also have the embedded OTAKD)
+      memcpy (m17_lsf, super->m17e.lsf_bkp, 240*sizeof(uint8_t));
 
     } //end if (super->m17d.strencoder_tx)
 

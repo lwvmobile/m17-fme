@@ -151,6 +151,7 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
       pack_bit_array_into_byte_array (super->m17d.raw, adata+1, 48);
       fprintf (stderr, "\n"); //linebreak
       decode_pkt_contents (super, adata, 48); //decode Arbitrary Data as UTF-8
+      memset (super->m17d.raw, 0, sizeof(super->m17d.raw));
     }
   }
   
