@@ -175,21 +175,6 @@ void print_ncurses_config (Super * super)
   // if (super->opts.rig_remote_sock) //TODO: Add this functionality?
   //   printw ("RIG: %s:%d; ", opts->tcp_hostname, opts->rigctlportno);
 
-  //debug '2' option, RRC enabled or disabled
-  if (!super->opts.use_m17_ipf_decoder) //still shows up on some encoders, but perhaps we want it to...?
-  {
-    if (super->opts.disable_rrc_filter == 0)
-      printw (" RRC(r);");
-    else printw ("!RRC(r);");
-
-    if (super->opts.inverted_signal == 0)
-      printw (" ++++(x);");
-    else printw (" ----(x);");
-  }
-
-  if (super->m17e.str_encoder_vox)
-    printw (" Mic Vox SQL: %04ld; RMS: %04ld;", super->demod.input_sql, super->demod.input_rms);
-
   printw ("\n");
   printw ("| ");
 
@@ -279,10 +264,36 @@ void print_ncurses_levels (Super * super)
     attron(COLOR_PAIR(1));
 
   printw ("--Audio Level-----------------------------------------------------------------\n");
-  printw ("|   RFA  Input: %3.0f%% ([|]) \n", super->opts.input_gain_rf  * 100);
-  printw ("|   RFA Output: %3.0f%% ({|}) \n", super->opts.output_gain_rf * 100);
-  printw ("| Voice  Input: %3.0f%% (/|*) \n", super->opts.input_gain_vx  * 100);
-  printw ("| Voice Output: %3.0f%% (+|-) \n", super->opts.output_gain_vx * 100);
+  printw ("|   RFA  Input: %3.0f%% ([|]) ", super->opts.input_gain_rf  * 100);
+  if (super->opts.disable_rrc_filter == 0)
+    printw (" RRC(r);");
+  else printw ("!RRC(r);");
+  if (super->opts.inverted_signal == 0)
+    printw (" +Polarity(x);");
+  else printw (" -Polarity(x);");
+  printw ("\n");
+  printw ("|   RFA Output: %3.0f%% ({|}) ", super->opts.output_gain_rf * 100);
+  if (super->opts.disable_rrc_filter == 0)
+    printw (" RRC(r);");
+  else printw ("!RRC(r);");
+  if (super->opts.inverted_signal == 0)
+    printw (" +Polarity(x);");
+  else printw (" -Polarity(x);");
+  printw ("\n");
+  printw ("| Voice  Input: %3.0f%% (/|*) ", super->opts.input_gain_vx  * 100);
+  if (super->m17e.str_encoder_vox)
+  {
+    printw (" Mic Vox(v); SQL: %04ld (<|>); RMS: %04ld;", super->demod.input_sql, super->demod.input_rms);
+    if (super->m17e.str_encoder_tx)
+      printw (" !!!!!");
+  }
+  else printw ("!Mic Vox(v); ");
+  printw ("\n");
+  printw ("| Voice Output: %3.0f%% (+|-) ", super->opts.output_gain_vx * 100);
+  if (super->opts.use_hpfilter_dig == 1)
+    printw (" HPF(8);");
+  else printw ("!HPF(8);");
+  printw ("\n");
   printw ("------------------------------------------------------------------------------\n");
 
   //color off, back to white
@@ -319,7 +330,19 @@ void print_ncurses_call_info (Super * super)
     printw ("\n");
     printw ("| ");
     printw ("M17: ");
-    printw ("Press (\\) to Toggle TX");
+    if (super->m17e.str_encoder_vox)
+    {
+      printw ("Voice Activated TX (VOX)");
+      if (super->m17e.str_encoder_tx)
+        printw (" !!!!!");
+    }
+    else
+    {
+      printw ("Press (\\) to Toggle TX");
+      if (super->m17e.str_encoder_tx == 0)
+        printw (" [OFF]");
+      else printw (" [ ON]");
+    }
   }
 
   printw ("\n");

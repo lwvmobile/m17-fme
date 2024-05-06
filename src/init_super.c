@@ -182,7 +182,7 @@ void init_super (Super * super)
   super->demod.sync_time    = time(NULL);
   super->demod.current_time = time(NULL);
 
-  super->demod.input_sql = 100;
+  super->demod.input_sql = 200;
   super->demod.input_rms = 0;
   super->demod.input_level = 0.0f;
   //end init_demod_state
