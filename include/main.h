@@ -116,6 +116,7 @@ typedef struct
   uint8_t use_m17_str_encoder;
   uint8_t use_m17_pkt_encoder;
   uint8_t use_m17_brt_encoder;
+  uint8_t use_m17_tst_encoder;
   uint8_t use_m17_rfa_decoder;
   uint8_t use_m17_ipf_encoder;
   uint8_t use_m17_ipf_decoder;
@@ -545,6 +546,9 @@ void encode_str (Super * super);
 //Special Frame / Packet Encoders
 void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid);
 void encode_ota_key_delivery_emb(Super * super, uint8_t * m17_lsf, uint8_t * lsf_count);
+
+//test pattern generator
+void test_pattern_generator (Super * super);
 
 //M17 Content Element Decoders
 int  decode_lich_contents (Super * super, uint8_t * lich_bits);

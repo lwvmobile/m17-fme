@@ -189,7 +189,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "12345678c:d:e:f:hi:mno:rs:t:uv:w:xA:C:E:F:INLM:PR:S:U:VX")) != -1)
+  while ((c = getopt (argc, argv, "12345678c:d:e:f:hi:mno:rs:t:uv:w:xA:C:E:F:INLM:PR:S:TU:VX")) != -1)
   {
 
     i++;
@@ -421,6 +421,12 @@ int main (int argc, char **argv)
         memcpy (super.m17d.sms, super.m17e.sms, 772);
         break;
 
+      //Run the test pattern generator
+      case 'T':
+        super.opts.use_m17_tst_encoder = 1;
+        fprintf (stderr, "Project M17 Test Pattern Generator. \n");
+        break;
+
       //Specify M17 UDP Frame String Format, i.e., 'localhost:17000' or 'mycustomhost.xyz:17001'
       case 'U':
         strncpy(super.opts.m17_udp_input, optarg, 1024);
@@ -507,6 +513,10 @@ int main (int argc, char **argv)
   //encode M17 Voice Stream Frames
   if (super.opts.use_m17_str_encoder == 1)
     encode_str(&super);
+
+  //Test Pattern Generator
+  if (super.opts.use_m17_tst_encoder == 1)
+    test_pattern_generator(&super);
 
   //decode IP Frames
   if (super.opts.use_m17_ipf_decoder == 1)

@@ -18,7 +18,7 @@ void encode_rfa (Super * super, uint8_t * input, float * mem, int type)
 
   //NOTE: type numbers as following:
   //Single Digit numbers 1,2,3,4 are LSF, STR, BRT, and PKT
-  //Double Digit numbers 11,33,55,99 are preamble, EOT, or Dead Air
+  //Double Digit numbers 11,33,55, 88, 99 are preamble, EOT, Test Pattern, or Dead Air
 
   int i, j, k, x; UNUSED(k); UNUSED(x);
 
@@ -43,6 +43,9 @@ void encode_rfa (Super * super, uint8_t * input, float * mem, int type)
   //BRT frame sync pattern - 0xDF55 (-3, +3, -3, -3, +3, +3, +3, +3)
   uint8_t m17_brt_fs[16] = {1,1,0,1, 1,1,1,1, 0,1,0,1, 0,1,0,1};
 
+  //Test Pattern Sine Wave - 0xE14B (-3, -1, +1, +3, +3, +1, -1, -3)
+  uint8_t m17_tst_pt[16] = {1,1,1,0, 0,0,0,1, 0,1,0,0, 1,0,1,1};
+
   //load bits into a dibit array plus the framesync bits
   uint8_t output_dibits[192]; memset (output_dibits, 0, sizeof(output_dibits));
 
@@ -65,6 +68,13 @@ void encode_rfa (Super * super, uint8_t * input, float * mem, int type)
   {
     for (i = 0; i < 192; i++)
       output_dibits[i] = (m17_eot_marker[ (i*2+0)%16 ] << 1) + (m17_eot_marker[ (i*2+1)%16 ] << 0);
+  }
+
+  //Test Pattern (just repeat the Test Pattern 12 times to make 192 symbols)
+  if (type == 88)
+  {
+    for (i = 0; i < 192; i++)
+      output_dibits[i] = (m17_tst_pt[ (i*2+0)%16 ] << 1) + (m17_tst_pt[ (i*2+1)%16 ] << 0);
   }
 
   //load frame sync pattern
@@ -134,37 +144,6 @@ void encode_rfa (Super * super, uint8_t * input, float * mem, int type)
   //version w/ filtering lifted from M17_Implementations / libM17
   else if (super->opts.disable_rrc_filter == 0)
     upsacale_and_rrc_output_filter (output_symbols, mem, baseband);
-  
-  //version w/ filtering lifted from M17_Implementations / libM17
-  // else if (super->opts.disable_rrc_filter == 0)
-  // {
-    
-  //   float mac = 0.0f;
-  //   x = 0;
-  //   for (i = 0; i < 192; i++)
-  //   {
-  //     mem[0] = (float)output_symbols[i] * 7168.0f;
-
-  //     for (j = 0; j < 10; j++)
-  //     {
-
-  //       mac = 0.0f;
-
-  //       //calc the sum of products
-  //       for (k = 0; k < 81; k++)
-  //         mac += mem[k]*m17_rrc[k]*sqrtf(10.0);
-
-  //       //shift the delay line right by 1
-  //       for (k = 80; k > 0; k--)
-  //         mem[k] = mem[k-1];
-
-  //       mem[0] = 0.0f;
-
-  //       baseband[x++] = (short)mac;
-  //     }
-
-  //   }
-  // }
 
   //Apply Gain to Output
   output_gain_rf (super, baseband, 1920);
