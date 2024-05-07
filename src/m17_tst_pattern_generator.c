@@ -20,7 +20,8 @@ void test_pattern_generator (Super * super)
   while (!exitflag)
   {
     //generate a test pattern on loop indefinitely until exitflag
-    encode_rfa (super, nil, mem, 88);
+    encode_rfa (super, nil, mem, 77); //Pseudo Sine Wave
+    // encode_rfa (super, nil, mem, 88); //Pseudo Triangle
   }
 
 }

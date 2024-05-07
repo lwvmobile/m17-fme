@@ -18,7 +18,8 @@ void encode_rfa (Super * super, uint8_t * input, float * mem, int type)
 
   //NOTE: type numbers as following:
   //Single Digit numbers 1,2,3,4 are LSF, STR, BRT, and PKT
-  //Double Digit numbers 11,33,55, 88, 99 are preamble, EOT, Test Pattern, or Dead Air
+  //Double Digit numbers 11,33,55 are Preamble A, Preamble B, and EOT Marker
+  //Double Digit numbers 77,88,99 are Test Pattern A, Test Pattern B, and Dead Air
 
   int i, j, k, x; UNUSED(k); UNUSED(x);
 
@@ -43,8 +44,11 @@ void encode_rfa (Super * super, uint8_t * input, float * mem, int type)
   //BRT frame sync pattern - 0xDF55 (-3, +3, -3, -3, +3, +3, +3, +3)
   uint8_t m17_brt_fs[16] = {1,1,0,1, 1,1,1,1, 0,1,0,1, 0,1,0,1};
 
-  //Test Pattern Sine Wave - 0xE14B (-3, -1, +1, +3, +3, +1, -1, -3)
-  uint8_t m17_tst_pt[16] = {1,1,1,0, 0,0,0,1, 0,1,0,0, 1,0,1,1};
+  //Test Pattern Pseudo Sine Wav  - (-3, -1, +1, +3, +3, +1, -1, -3)
+  uint8_t m17_tst_pt_a[16] = {1,1,1,0, 0,0,0,1, 0,1,0,0, 1,0,1,1};
+
+  //Test Pattern PseudoTriangle  - ( -3,  -1,  +1,  +3,  +1,  -1)
+  uint8_t m17_tst_pt_b[12]       = {1,1, 1,0, 0,0, 0,1, 0,0, 1,0};
 
   //load bits into a dibit array plus the framesync bits
   uint8_t output_dibits[192]; memset (output_dibits, 0, sizeof(output_dibits));
@@ -70,11 +74,18 @@ void encode_rfa (Super * super, uint8_t * input, float * mem, int type)
       output_dibits[i] = (m17_eot_marker[ (i*2+0)%16 ] << 1) + (m17_eot_marker[ (i*2+1)%16 ] << 0);
   }
 
-  //Test Pattern (just repeat the Test Pattern 12 times to make 192 symbols)
-  if (type == 88)
+  //Test Pattern A (just repeat the pattern 12 times to make 192 symbols)
+  if (type == 77)
   {
     for (i = 0; i < 192; i++)
-      output_dibits[i] = (m17_tst_pt[ (i*2+0)%16 ] << 1) + (m17_tst_pt[ (i*2+1)%16 ] << 0);
+      output_dibits[i] = (m17_tst_pt_a[ (i*2+0)%16 ] << 1) + (m17_tst_pt_a[ (i*2+1)%16 ] << 0);
+  }
+
+  //Test Pattern B
+  if (type == 88) //(just repeat the pattern 16 times to make 192 symbols)
+  {
+    for (i = 0; i < 192; i++)
+      output_dibits[i] = (m17_tst_pt_b[ (i*2+0)%12 ] << 1) + (m17_tst_pt_b[ (i*2+1)%12 ] << 0);
   }
 
   //load frame sync pattern
