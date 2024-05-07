@@ -36,9 +36,11 @@
 #include <sys/soundcard.h>
 
 //Pulse Audio Support
+#ifdef USE_PULSEAUDIO
 #include <pulse/simple.h>
 #include <pulse/error.h>
 #include <pulse/introspect.h>
+#endif
 
 //Useful Warning Shoosh
 #define UNUSED(x) ((void)x)
