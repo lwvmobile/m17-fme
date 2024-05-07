@@ -60,6 +60,7 @@ void init_super (Super * super)
   super->opts.use_m17_str_encoder = 0;
   super->opts.use_m17_pkt_encoder = 0;
   super->opts.use_m17_brt_encoder = 0;
+  super->opts.use_m17_tst_encoder = 0;
   super->opts.use_m17_rfa_decoder = 0;
   super->opts.use_m17_ipf_encoder = 0; //this option isn't used, should use it probably instead of use_ip
   super->opts.use_m17_ipf_decoder = 0;

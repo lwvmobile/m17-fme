@@ -18,7 +18,7 @@ void fsk4_framesync (Super * super)
   //can be obtained when exiting and re-entering this function if needed
 
   //look for frame synchronization
-  for (int i = 0; i < 192*10; i++)
+  for (int i = 0; i < 192*1; i++)
   {
 
     //check exitflag
@@ -152,7 +152,7 @@ float demodulate_and_return_float_symbol(Super * super)
       input_gain_rf (super, &sample, 1);
 
       //RRC input filtering on sample
-      if (!super->opts.disable_rrc_filter) //&& super->demod.in_sync
+      if (!super->opts.disable_rrc_filter)
         sample = rrc_input_filter(super->demod.rrc_input_mem, sample);
 
       //store locally for clock recover / transition inspection
