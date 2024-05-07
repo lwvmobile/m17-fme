@@ -435,7 +435,7 @@ int main (int argc, char **argv)
 
       case 'X':
         super.m17e.str_encoder_vox = 1;
-        fprintf (stderr, "Project M17 Stream Voice Encoder TX on Vox. \n");
+        fprintf (stderr, "Stream Voice Encoder TX on Vox. \n");
         break;
 
     }

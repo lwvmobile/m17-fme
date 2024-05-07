@@ -31,9 +31,6 @@ void encode_str(Super * super)
 
   //Enable frame, TX and Ncurses Printer
   super->m17e.str_encoder_tx = 1;
-  
-  // if (super->opts.use_ncurses_terminal == 1)
-  //   ncursesOpen(opts, state);
 
   //if using the ncurses terminal, disable TX on startup until user toggles it with the '\' key, if not vox enabled
   if (super->opts.use_ncurses_terminal == 1 && super->opts.use_m17_str_encoder == 1 && super->m17e.str_encoder_vox == 0)
@@ -74,7 +71,7 @@ void encode_str(Super * super)
   short sample = 0;  //individual audio sample from source
   size_t nsam = 160; //number of samples to be read in (default is 160 samples for codec2 3200 bps)
   int dec = super->opts.input_sample_rate / 8000; //number of samples to run before selecting a sample from source input
-  int sql_hit = 26; //squelch hits, hit enough, and deactivate vox
+  uint32_t sql_hit = 26; //squelch hits, hit enough, and deactivate vox
   int eot_out =  1; //if we have already sent the eot out once
 
   //send dead air with type 99
@@ -119,7 +116,7 @@ void encode_str(Super * super)
   sid[0] = rand() & 0xFF;
   sid[1] = rand() & 0xFF;
 
-  //initialize a nonce (if ENC is required in future)
+  //initialize a nonce (if AES ENC is used)
   uint8_t nonce[14]; memset (nonce, 0, sizeof(nonce));
   //32bit LSB of the timestamp
   nonce[0]  = (ts >> 24) & 0xFF;
@@ -234,11 +231,9 @@ void encode_str(Super * super)
   //SEND CONN to reflector
   if (use_ip == 1)
     udp_return = m17_socket_blaster (super, 11, conn);
-
-  //TODO: Read UDP ACKN/NACK value, disable use_ip if NULL or nack return
   
   //load dst and src values into the LSF
-  for (i = 0; i < 48; i++) m17_lsf[i] = (dst >> (47ULL-(unsigned long long int)i)) & 1;
+  for (i = 0; i < 48; i++) m17_lsf[i+00] = (dst >> (47ULL-(unsigned long long int)i)) & 1;
   for (i = 0; i < 48; i++) m17_lsf[i+48] = (src >> (47ULL-(unsigned long long int)i)) & 1;
 
   //load the nonce from packed bytes to a bitwise iv array
@@ -340,7 +335,7 @@ void encode_str(Super * super)
       }
     }
 
-    // if not decoding internally, assign values for ncurses display
+    //if not decoding internally, assign values for ncurses display
     if (super->opts.monitor_encode_internally == 0)
     {
       sprintf (super->m17d.src_csd_str, "%s", s40);
@@ -360,7 +355,7 @@ void encode_str(Super * super)
     {
       for (j = 0; j < dec; j++)
         sample = get_short_audio_input_sample(super);
-      voice1[i] = sample; //only store the 6th sample
+      voice1[i] = sample; //only store the ith sample
     }
 
     if (st == 2)
@@ -369,7 +364,7 @@ void encode_str(Super * super)
       {
         for (j = 0; j < dec; j++)
           sample = get_short_audio_input_sample(super);
-        voice2[i] = sample; //only store the 6th sample
+        voice2[i] = sample; //only store the ith sample
       }
     }
 
@@ -445,7 +440,7 @@ void encode_str(Super * super)
       m17_v1[i+16+64] = v2_bits[i];
     }
 
-    //Apply Encrytion to Voice and/or Arbitrary Data if Key Available
+    //Apply Encryption to Voice and/or Arbitrary Data if Key Available
 
     //Scrambler
     if (super->enc.enc_type == 1 && super->enc.scrambler_key != 0)
@@ -471,7 +466,10 @@ void encode_str(Super * super)
 
     //tally consecutive squelch hits based on RMS value, or reset
     if (super->demod.input_rms > super->demod.input_sql) sql_hit = 0;
-    else sql_hit++; //may eventually roll over to 0 again 
+    else sql_hit++;
+
+    //sanity check to prevent roll over opening vox
+    if (sql_hit > 65000) sql_hit = 30000;
 
     //if vox enabled, toggle tx/eot with sql_hit comparison
     if (super->m17e.str_encoder_vox == 1)
@@ -479,7 +477,7 @@ void encode_str(Super * super)
       if (sql_hit > 25 && lich_cnt == 0) //licn_cnt 0 to prevent new LSF popping out
       {
         super->m17e.str_encoder_tx = 0;
-        eot = 1;
+        // eot = 1; //TODO: Trace down bug that causes this bit to cause a CRC error on LSF frames
       }
       else
       {
@@ -820,7 +818,7 @@ void encode_str(Super * super)
       }
 
       //if AES enc employed, insert the iv into LSF
-      if (lsf_et == 2) //disable to allow the 0x69 repeating non-zero fill on RES
+      if (lsf_et == 2)
       {
         for (i = 0; i < 112; i++)
           m17_lsf[i+112] = iv[i];
