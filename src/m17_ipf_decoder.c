@@ -176,6 +176,9 @@ void decode_ipf (Super * super)
           fprintf (stderr, "%02X ", ip_frame[i]);
       }
 
+      //since there is no destination, let's write REFLECTOR into dsts
+      sprintf (super->m17d.dst_csd_str, "REFLECTOR");
+
       //clear frame
       memset (ip_frame, 0, sizeof(ip_frame));
 
@@ -195,6 +198,9 @@ void decode_ipf (Super * super)
 
       //clear frame
       memset (ip_frame, 0, sizeof(ip_frame));
+
+      //since there is no destination, let's write REFLECTOR into dsts
+      sprintf (super->m17d.dst_csd_str, "REFLECTOR");
 
       //drop sync
       super->m17d.dt = 5; //fake for DISC message in Call History
