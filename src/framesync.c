@@ -190,8 +190,8 @@ float demodulate_and_return_float_symbol(Super * super)
 
   //ptr safety truncate (shouldn't be needed due to cast type as uint16_t 
   //into an array larger, but nevertheless, good practice on array indexing)
-  super->demod.float_symbol_buffer_ptr &= 0xFFFF;
-  super->demod.sample_buffer_ptr       &= 0xFFFF;
+  super->demod.float_symbol_buffer_ptr &= 0x3FF; //smaller buffer
+  super->demod.sample_buffer_ptr       &= 0x3FF; //smaller buffer
   if (super->demod.float_symbol_buffer_ptr == 0) super->demod.float_symbol_buffer_ptr = 192;
   if (super->demod.sample_buffer_ptr == 0) super->demod.sample_buffer_ptr = 192;
 
