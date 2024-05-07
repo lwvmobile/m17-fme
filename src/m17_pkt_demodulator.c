@@ -167,7 +167,7 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
     //reset after processing
     memset (super->m17d.pkt, 0, sizeof(super->m17d.pkt));
     super->m17d.pbc_ptr = 0;
-    super->m17d.dt = 15; //reset here, on OTAKD frames, if the subsequent LSF has an error, then it leaves this as DATA
+    // super->m17d.dt = 15; //reset here, on OTAKD frames, if the subsequent LSF has an error, then it leaves this as DATA
   }
 
   //increment pbc counter last

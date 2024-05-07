@@ -189,7 +189,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "12345678c:d:e:f:hi:mno:rs:t:uv:w:xA:C:E:F:INLM:PR:S:TU:VX")) != -1)
+  while ((c = getopt (argc, argv, "123456789c:d:e:f:hi:mno:rs:t:uv:w:xA:C:E:F:INLM:PR:S:TU:VX")) != -1)
   {
 
     i++;
@@ -212,6 +212,12 @@ int main (int argc, char **argv)
       case '2':
         super.opts.disable_rrc_filter = 1;
         fprintf (stderr, "Disable RRC Filter on RF Audio Encoding / Decoding. \n");
+        break;
+
+      //enable RRC Filter
+      case '9':
+        super.opts.disable_rrc_filter = 0;
+        fprintf (stderr, "Enable RRC Filter on RF Audio Encoding / Decoding. \n");
         break;
 
       //generate one time randomized AES key
