@@ -194,11 +194,10 @@ typedef struct
   float    float_symbol_buffer[65540];
   uint16_t float_symbol_buffer_ptr;
 
-  //frame sync and timing recovery
+  //frame sync
   float   sync_symbols[8];
   int fsk4_samples_per_symbol;
   int fsk4_sample_center;
-  int fsk4_offset_correction;
 
   //fsk4 symbol levels
   float fsk4_center;
@@ -501,7 +500,6 @@ float demodulate_and_return_float_symbol (Super * super);
 void  buffer_refresh_min_max_center (Super * super);
 void  simple_refresh_min_max_center (Super * super, float sample);
 short vote_for_sample(Super * super, short * samples);
-void  clock_recovery(Super * super, short * samples);
 void  no_carrier_sync (Super * super);
 
 //slice and dice symbols and dibits

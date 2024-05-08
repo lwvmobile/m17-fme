@@ -167,7 +167,6 @@ void init_super (Super * super)
   memset (super->demod.sync_symbols, 0, 8*sizeof(float));
   super->demod.fsk4_samples_per_symbol = 10;
   super->demod.fsk4_sample_center = 4;
-  super->demod.fsk4_offset_correction = 0;
 
   //fsk4 symbol levels
   super->demod.fsk4_center = 0.0f;

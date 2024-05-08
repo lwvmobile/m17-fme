@@ -143,7 +143,7 @@ float demodulate_and_return_float_symbol(Super * super)
     short samples[10]; memset (samples, 0, 10*sizeof(short));
 
     //gather number of samples_per_symbol, and store them locally for inspection
-    for (i = 0; i < super->demod.fsk4_samples_per_symbol-super->demod.fsk4_offset_correction; i++)
+    for (i = 0; i < super->demod.fsk4_samples_per_symbol; i++)
     {
       //retrieve sample from audio input handler
       sample = get_short_audio_input_sample(super);
@@ -158,14 +158,6 @@ float demodulate_and_return_float_symbol(Super * super)
       //store locally for clock recover / transition inspection
       samples[i] = sample;
 
-      //if offset, then duplicate samples and reset
-      if (super->demod.fsk4_offset_correction)
-      {
-        for (int j = super->demod.fsk4_offset_correction; j < super->demod.fsk4_samples_per_symbol; j++)
-          samples[j] = sample; ///assign any skipped samples as the last received one instead
-        super->demod.fsk4_offset_correction = 0;
-      }
-
     }
 
     //calculate min/lmid/center/umid/max vs buffer of last 192 samples
@@ -173,9 +165,6 @@ float demodulate_and_return_float_symbol(Super * super)
 
     //vote for the best sample based on procedural criteria
     sample = vote_for_sample(super, samples);
-
-    //test for clock recovery (offset value)
-    // clock_recovery(super, samples);
 
     //slice float_symbol from provided sample
     float_symbol = float_symbol_slicer(super, sample);
@@ -212,34 +201,21 @@ short vote_for_sample(Super * super, short * samples)
   short vote = 0;
   
   float difference[10]; memset (difference, 0.0f, 10*sizeof(float));
-  float slope[10]; memset (slope, 0.0f, 10*sizeof(float));
   float min_dist = 32767.0f;
-
-  //simple, pick center-ish sample (fallback)
-  // vote = samples[super->demod.fsk4_sample_center];
 
   //find difference between middle samples
   //and find optimal sample for collection
-  for (i = 3; i < 7; i++)
+  for (i = 0; i < 9; i++) //3, 7
   {
     difference[i] = (float)samples[i+1] - (float)samples[i];
-    if (fabs(difference[i]) < min_dist)
+    if (i >= 3 && i <= 7) //3,4,5,6 (3, 7)
     {
-      min_dist = fabs(difference[i]);
-      use_sample = i;
+      if (fabs(difference[i]) < min_dist)
+      {
+        min_dist = fabs(difference[i]);
+        use_sample = i;
+      }
     }
-  }
-
-  //calculate tangent line slope between each sample pair
-  float dx = PI / 40; //PI / 4 / 10 samples per symbol??
-  if (super->opts.demod_verbosity >= 2)
-    fprintf (stderr, "\nSLP:");
-  for (i = 0; i < 9; i++)
-  {
-    //y = m(x) + b //good old linear equation
-    slope[i] = ( (float)samples[i+1] - (float)samples[i] ) / dx;
-    if (super->opts.demod_verbosity >= 2)
-      fprintf (stderr, " %6.0f;", slope[i]);
   }
 
   vote = (short)samples[use_sample+1]; //or +0
@@ -253,60 +229,6 @@ short vote_for_sample(Super * super, short * samples)
   }
 
   return vote;
-}
-
-//very crude clock recovery based on finding a transition edge (doesn't work very well sometimes)
-void clock_recovery(Super * super, short * samples)
-{
-
-  int i = 0;
-  float first   = 0.0f;
-  float fsample = 0.0f;
-  float flevel  = 0.0f;
-  float fnexts  = 0.0f;
-  
-  if (super->opts.demod_verbosity >= 3)
-  {
-    fprintf (stderr, "\nLTS:");
-    for (i = 0; i < 10; i++)
-      fprintf (stderr, " %06d;", samples[i]);
-  }
-
-  first = (float)samples[0];
-  if (first < super->demod.fsk4_lmid)
-    flevel = -3.0f;
-  else if (first > super->demod.fsk4_lmid   && first < super->demod.fsk4_center)
-    flevel = -1.0f;
-  else if (first > super->demod.fsk4_center && first < super->demod.fsk4_umid)
-    flevel = +1.0f;
-  else if (first > super->demod.fsk4_umid)
-    flevel = +3.0f;
-
-  //look for a transitional value when what we had on sample 0 is no longer true for the ith value
-  for (i = 1; i < 10; i++) //1 to 10
-  {
-    fsample = (float)samples[i];
-    if (fsample < super->demod.fsk4_lmid)
-      fnexts = -3.0f;
-    else if (fsample > super->demod.fsk4_lmid   && fsample < super->demod.fsk4_center)
-      fnexts = -1.0f;
-    else if (fsample > super->demod.fsk4_center && fsample < super->demod.fsk4_umid)
-      fnexts = +1.0f;
-    else if (fsample > super->demod.fsk4_umid)
-      fnexts = +3.0f;
-
-    //assign the offset to the ith value for the transition edge
-    if (fnexts != flevel)
-    {
-      if (super->opts.demod_verbosity >= 2)
-        fprintf (stderr, "\nClock Recovery: i:%d; F: %6.0f; N: %6.0f;", i, first, fsample);
-      super->demod.fsk4_offset_correction = i;
-      // super->demod.fsk4_offset_correction = 8; //just try one
-      break;
-    }
-
-  }
-
 }
 
 float float_symbol_slicer(Super * super, short sample)
@@ -353,9 +275,8 @@ void no_carrier_sync (Super * super)
   //push call history items
   push_call_history(super);
 
-  //frame sync and timing recovery
+  //frame sync
   memset (super->demod.sync_symbols, 0, 8*sizeof(float));
-  super->demod.fsk4_offset_correction = 0;
 
   //reset buffers here
   memset (super->demod.float_symbol_buffer, 0.0f, 65540*sizeof(float));
