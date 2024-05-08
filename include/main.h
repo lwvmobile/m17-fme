@@ -438,6 +438,7 @@ void close_wav_out_pc (Super * super);
 void write_wav_out_rf (Super * super, short * out, size_t nsam);
 void write_wav_out_vx (Super * super, short * out, size_t nsam);
 void write_wav_out_pc (Super * super, short * out, size_t nsam);
+void setup_percall_filename (Super * super);
 
 //sndfile Input Open and Reading
 bool file_snd_audio_source_open (Super * super);

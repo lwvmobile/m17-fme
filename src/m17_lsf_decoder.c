@@ -107,19 +107,9 @@ void decode_lsf_contents(Super * super)
     }
   }
 
-  //open a per call wav file here if stream voice, if not already opened
+  //open a per call wav file here if stream voice, if enabled, if not already opened
   if (lsf_ps && super->opts.use_wav_out_pc && super->wav.wav_out_pc == NULL)
-  {
-    char * datestr = getDate();
-    char * timestr = getTime();
-    //NOTE: .wav extension is not included, will be renamed with .wav when closed
-    sprintf (super->wav.wav_out_file_pc, "%s_%s_CAN_%d_DST_%s_SRC_%s", datestr, timestr, lsf_cn,
-             super->m17d.dst_csd_str, super->m17d.src_csd_str);
-
-    free (datestr); free(timestr);
-
-    open_wav_out_pc(super);
-  }
+    setup_percall_filename(super);
 
   LSF_END:
   if (lsf_rs == 0x11)

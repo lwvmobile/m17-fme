@@ -214,7 +214,7 @@ void print_ncurses_config (Super * super)
     printw ("\n| File: Decoded Voice Audio Output: %s;", super->wav.wav_out_file_vx);
 
   if (super->opts.use_wav_out_pc == 1)
-    printw ("\n| Per Call: %s;", super->wav.wav_out_file_pc);
+    printw ("\n| Per Call File: %s", super->wav.wav_out_file_pc);
 
   if (super->opts.use_float_symbol_output == 1)
     printw ("\n| File: M17 Float Symbol Output: %s;", super->opts.float_symbol_output_file);

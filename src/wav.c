@@ -53,6 +53,34 @@ void open_wav_out_pc (Super * super)
   }
 }
 
+void setup_percall_filename (Super * super)
+{
+  int i;
+  char * datestr = getDate();
+  char * timestr = getTime();
+
+  //make a local copy that can be parsed to remove any spaces
+  char src_csd[10]; memset (src_csd, 0, 10*sizeof(char));
+  char dst_csd[10]; memset (dst_csd, 0, 10*sizeof(char));
+  memcpy (src_csd, super->m17d.src_csd_str, 9);
+  memcpy (dst_csd, super->m17d.dst_csd_str, 9);
+  for (i = 0; i < 9; i++)
+  {
+    if (src_csd[i] == 0x20) //change 'space' to zero will also terminate string
+      src_csd[i] = 0;
+
+    if (dst_csd[i] == 0x20) //change 'space' to zero will also terminate string
+      dst_csd[i] = 0;
+  }
+
+  //NOTE: .wav extension is not included, will be renamed with .wav when closed
+  sprintf (super->wav.wav_out_file_pc, "%s_%s_CAN_%d_SRC_%s_DST_%s", datestr, timestr, super->m17d.can, src_csd, dst_csd);
+
+  free (datestr); free(timestr);
+
+  open_wav_out_pc(super);
+}
+
 void close_wav_out_rf (Super * super)
 {
   sf_close(super->wav.wav_out_rf);
