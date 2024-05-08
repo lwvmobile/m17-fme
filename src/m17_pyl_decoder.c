@@ -12,6 +12,7 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
 {
  
   int i;
+  int mute = 1; //if ENC and not decrypted, mute
   unsigned char voice1[8];
   unsigned char voice2[8];
 
@@ -23,20 +24,29 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   //note: bit_counter is now seperate for encoding and decoding (internal loopback fix)
   if (super->m17d.enc_et == 1 && super->enc.scrambler_key != 0)
   {
+    mute = 0;
     for (i = 0; i < 128; i++)
       payload[i] ^= super->enc.scrambler_pn[super->enc.bit_counter_d++];
   }
   //generate AES Keystream and apply it to payload if AES enc and key is available
   else if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded)
+  {
+    mute = 0;
     aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, payload, 1);
+  }
+  else if (super->m17d.enc_et == 3)
+  {
+    mute = 1; //unknown type, so mute
+    //space for custom or new ENC type
+  }
+  else if (super->m17d.enc_et == 0)
+    mute = 0; //no encryption, unmute
   
   for (i = 0; i < 8; i++)
   {
     voice1[i] = (unsigned char)convert_bits_into_output(&payload[i*8+0], 8);
     voice2[i] = (unsigned char)convert_bits_into_output(&payload[i*8+64], 8);
   }
-
-  //TODO: Add some decryption methods?
 
   if (super->opts.payload_verbosity >= 1)
   {
@@ -53,6 +63,13 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
       fprintf (stderr, "\n        A_DATA: ");
     for (i = 0; i < 8; i++)
       fprintf (stderr, "%02X", voice2[i]);
+  }
+
+  //at this point, if we are ENC'd and no key, then log and skip playback
+  if (mute)
+  {
+    fprintf (stderr, " MUTE ");
+    goto END_PAYLOAD;
   }
   
   #ifdef USE_CODEC2
@@ -157,5 +174,7 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
       memset (super->m17d.raw, 0, sizeof(super->m17d.raw));
     }
   }
+
+  END_PAYLOAD: {}; //do nothing
   
 }
