@@ -73,11 +73,16 @@ typedef struct
   char c[1024];
   uint8_t d[100];
 
-  //Generic Options For Display and Logging
+  //Ncurses Options
   uint8_t use_ncurses_terminal;
   uint8_t ncurses_is_open;
-  uint8_t ncurses_no_banner;
-  uint8_t ncurses_no_history;
+
+  uint8_t ncurses_show_banner;
+  uint8_t ncurses_show_io;
+  uint8_t ncurses_show_audio;
+  uint8_t ncurses_show_decode;
+  uint8_t ncurses_show_scope;
+  uint8_t ncurses_show_history;
 
   //input and output strings for parsing
   char  input_handler_string[2048];

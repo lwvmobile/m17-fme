@@ -9,7 +9,7 @@
 //Basic Banner
 static char * M17FME_banner[9] = {
   "                                                           ",
-  "                                                           ",
+  "                                                        (C)", //NOTE: The (C) symbol is not meant to be a 'copyright, its a toggle switch indicator
   " ███╗   ███╗   ███╗  ███████╗   ███████╗███╗   ███╗███████╗",
   " ████╗ ████║  ████║  ╚════██║   ██╔════╝████╗ ████║██╔════╝",
   " ██╔████╔██║ ██╔██║      ██╔╝   █████╗  ██╔████╔██║█████╗  ",
@@ -46,7 +46,7 @@ static char * S_banner[9] = {
 
 static char * FME_banner[9] = {
   "                             ",
-  "                             ",
+  "                          (C)", //NOTE: The (C) symbol is not meant to be a 'copyright, its a toggle switch indicator
   " ███████╗███╗   ███╗███████╗ ",
   " ██╔════╝████╗ ████║██╔════╝ ",
   " █████╗  ██╔████╔██║█████╗   ",

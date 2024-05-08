@@ -17,11 +17,16 @@ void init_super (Super * super)
   super->opts.c[0] = 0;
   memset (super->opts.d, 0, sizeof(super->opts.d));
 
-  //Generic Options For Display and Logging
+  //Ncurses Options
   super->opts.use_ncurses_terminal = 0;
-  super->opts.ncurses_no_banner = 0;
-  super->opts.use_ncurses_terminal = 0;
-  super->opts.ncurses_no_history = 0;
+  super->opts.ncurses_is_open = 0;
+
+  super->opts.ncurses_show_banner = 1;
+  super->opts.ncurses_show_io = 1;
+  super->opts.ncurses_show_audio = 0;
+  super->opts.ncurses_show_decode = 1;
+  super->opts.ncurses_show_scope = 0;
+  super->opts.ncurses_show_history = 1;
 
   //input and output strings for parsing
   memset (super->opts.input_handler_string,  0, 2048*sizeof(char));
