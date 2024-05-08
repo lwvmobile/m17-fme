@@ -499,7 +499,7 @@ void  fsk4_framesync (Super * super);
 float demodulate_and_return_float_symbol (Super * super);
 void  buffer_refresh_min_max_center (Super * super);
 void  simple_refresh_min_max_center (Super * super, float sample);
-short vote_for_sample(Super * super, short * samples);
+short basic_select_sample (Super * super, short * samples);
 void  no_carrier_sync (Super * super);
 
 //slice and dice symbols and dibits

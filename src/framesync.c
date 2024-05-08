@@ -163,8 +163,8 @@ float demodulate_and_return_float_symbol(Super * super)
     //calculate min/lmid/center/umid/max vs buffer of last 192 samples
     buffer_refresh_min_max_center(super);
 
-    //vote for the best sample based on procedural criteria
-    sample = vote_for_sample(super, samples);
+    //select the best sample based on distance
+    sample = basic_select_sample(super, samples);
 
     //slice float_symbol from provided sample
     float_symbol = float_symbol_slicer(super, sample);
@@ -188,19 +188,22 @@ float demodulate_and_return_float_symbol(Super * super)
   return float_symbol;
 }
 
-//voting procedure to determine what the optimal sample value is
-short vote_for_sample(Super * super, short * samples)
+//crude selection procedure to determine what the optimal sample value is
+short basic_select_sample(Super * super, short * samples)
 {
+
+  //NOTE: This function is not meant to be a true method of FSK4
+  //clock aquisition or proper sampling, its just super basic and
+  //meant to get through the development phase.
 
   int i = 0;
   int use_sample = 0;
-  short vote = 0;
+  short sample = 0;
   
   float difference[10]; memset (difference, 0.0f, 10*sizeof(float));
   float min_dist = 32767.0f;
 
-  //find difference between middle samples
-  //and find optimal sample for collection
+  //find difference between middle samples and find optimal sample for collection
   for (i = 0; i < 9; i++) //3, 7
   {
     difference[i] = (float)samples[i+1] - (float)samples[i];
@@ -214,17 +217,17 @@ short vote_for_sample(Super * super, short * samples)
     }
   }
 
-  vote = (short)samples[use_sample+1]; //or +0
+  sample = (short)samples[use_sample+1]; //or +0
 
   if (super->opts.demod_verbosity >= 2)
   {
-    fprintf (stderr, "\nVFS:");
+    fprintf (stderr, "\nDIFF:");
     for (i = 0; i < 9; i++)
       fprintf (stderr, " %6.0f;", difference[i]);
-    fprintf (stderr, " USE: %d:%6.0f:%6d;", use_sample, difference[use_sample], vote);
+    fprintf (stderr, " USE: %d:%6.0f:%6d;", use_sample, difference[use_sample], sample);
   }
 
-  return vote;
+  return sample;
 }
 
 float float_symbol_slicer(Super * super, short sample)
