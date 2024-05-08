@@ -74,7 +74,8 @@ void setup_percall_filename (Super * super)
   }
 
   //NOTE: .wav extension is not included, will be renamed with .wav when closed
-  sprintf (super->wav.wav_out_file_pc, "%s_%s_CAN_%d_SRC_%s_DST_%s", datestr, timestr, super->m17d.can, src_csd, dst_csd);
+  sprintf (super->wav.wav_out_file_pc, "%s/%s_%s_CAN_%d_SRC_%s_DST_%s", 
+           super->wav.wav_file_direct, datestr, timestr, super->m17d.can, src_csd, dst_csd);
 
   free (datestr); free(timestr);
 
@@ -96,7 +97,7 @@ void close_wav_out_pc (Super * super)
   sf_close(super->wav.wav_out_pc);
 
   //give extension .wav after closing
-  char newfilename[1032];
+  char newfilename[1037];
   sprintf (newfilename, "%s.wav", super->wav.wav_out_file_pc);
   rename (super->wav.wav_out_file_pc, newfilename);
 

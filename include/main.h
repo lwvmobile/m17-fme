@@ -325,6 +325,7 @@ typedef struct
   char wav_out_file_rf[1024];
   char wav_out_file_vx[1024];
   char wav_out_file_pc[1024];
+  char wav_file_direct[9];
 } wav_state;
 
 //Universal sndfile input (TCP, STDIN, WAV, named PIPE, headerless wav files)

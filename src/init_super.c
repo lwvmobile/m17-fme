@@ -266,6 +266,13 @@ void init_super (Super * super)
   sprintf (super->wav.wav_out_file_rf, "%s", "m17_rf_wav.wav");
   sprintf (super->wav.wav_out_file_vx, "%s", "m17_vx_wav.wav");
   sprintf (super->wav.wav_out_file_pc, "%s", "m17_pc_wav"); //no file extension until closed
+  sprintf (super->wav.wav_file_direct, "%s", "./M17WAV");  //default wav file directory
+  struct stat st = {0};
+  if (stat(super->wav.wav_file_direct, &st) == -1)
+  {
+    fprintf (stderr, "Creating directory %s to save M17 per call wav files\n", super->wav.wav_file_direct);
+    mkdir (super->wav.wav_file_direct, 0700);
+  }
   //end init_wav_state
 
   //init snd_src_input snd_src_in
