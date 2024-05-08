@@ -275,9 +275,9 @@ void no_carrier_sync (Super * super)
   memset (super->demod.sync_symbols, 0, 8*sizeof(float));
 
   //reset buffers here
-  memset (super->demod.float_symbol_buffer, 0.0f, 65540*sizeof(float));  
-  memset (super->demod.sample_buffer, 0, 65540*sizeof(short));
-  memset (super->demod.dibit_buffer, 0, 65540*sizeof(uint8_t));
+  memset (super->demod.float_symbol_buffer, 0.0f, 256*sizeof(float));  
+  memset (super->demod.sample_buffer, 0, 256*sizeof(short));
+  memset (super->demod.dibit_buffer, 0, 256*sizeof(uint8_t));
 
   //reset some decoder elements
   super->m17d.src = 0;
@@ -314,6 +314,9 @@ void buffer_refresh_min_max_center (Super * super)
 
     ptr = super->demod.sample_buffer_ptr-i;
     buffer_value = super->demod.sample_buffer[ptr];
+
+    //debug
+    // fprintf (stderr, "\n PTR: %03d:%03u; Buffer: %6.0f;", ptr, ptr, buffer_value);
 
     //clipping and sanity check on buffer_value
     if (buffer_value > +32760.0f) buffer_value = +32760.0f;
