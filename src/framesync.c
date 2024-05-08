@@ -182,7 +182,11 @@ float demodulate_and_return_float_symbol(Super * super)
 
   //debug
   if (super->opts.demod_verbosity >= 3)
-    fprintf (stderr, "\n FSPTR: %05d; FS: %1.0f; SAPTR: %05d; SAMP: %06d;", super->demod.float_symbol_buffer_ptr, super->demod.float_symbol_buffer[super->demod.float_symbol_buffer_ptr-1], super->demod.sample_buffer_ptr, super->demod.sample_buffer[super->demod.sample_buffer_ptr-1]);
+  {
+    fprintf (stderr, "\n FSPTR: %05d; FS: %1.0f; SAPTR: %05d; SAMP: %06d;", 
+    super->demod.float_symbol_buffer_ptr, super->demod.float_symbol_buffer[super->demod.float_symbol_buffer_ptr-1], 
+    super->demod.sample_buffer_ptr, super->demod.sample_buffer[super->demod.sample_buffer_ptr-1]);
+  }
 
   //return dibit value
   return float_symbol;
@@ -318,9 +322,6 @@ void buffer_refresh_min_max_center (Super * super)
     ptr = super->demod.sample_buffer_ptr-i;
     buffer_value = super->demod.sample_buffer[ptr];
 
-    //debug
-    // fprintf (stderr, "\n PTR: %03d:%03u; Buffer: %6.0f;", ptr, ptr, buffer_value);
-
     //clipping and sanity check on buffer_value
     if (buffer_value > +32760.0f) buffer_value = +32760.0f;
     if (buffer_value < -32760.0f) buffer_value = -32760.0f;
@@ -348,33 +349,6 @@ void buffer_refresh_min_max_center (Super * super)
       super->demod.fsk4_umid, super->demod.fsk4_center, super->demod.input_level);
   }
 
-}
-
-void simple_refresh_min_max_center (Super * super, float sample)
-{
-
-  //NOTE: This will only work if signal levels are consistent, which is okay
-  //for testing, but in real world application, this will probably fail
-
-  //clipping and sanity check on sample
-  if (sample > +32760.0f) sample = +32760.0f;
-  if (sample < -32760.0f) sample = -32760.0f;
-  
-  //simple straight-forward approach
-  if      (sample > super->demod.fsk4_max) super->demod.fsk4_max = sample;
-  else if (sample < super->demod.fsk4_min) super->demod.fsk4_min = sample;
-
-  //calculate center, lower middle and upper middle values based on the min and max
-  super->demod.fsk4_lmid = super->demod.fsk4_min / 2.0f;
-  super->demod.fsk4_umid = super->demod.fsk4_max / 2.0f;
-
-  //disable this if issues arise, not sure if this is okay or not (I think this is okay)
-  super->demod.fsk4_center = (fabs(super->demod.fsk4_max) - fabs(super->demod.fsk4_min)) / 2.0f;
-
-  //in level value, absolute value of the greater of min or max / greatest value multiplied by 100 for percent
-  if (fabs(super->demod.fsk4_min) > fabs(super->demod.fsk4_max))
-    super->demod.input_level    = ( (fabs(super->demod.fsk4_min)) / 32760.0f) * 100.0f;
-  else super->demod.input_level = ( (fabs(super->demod.fsk4_max)) / 32760.0f) * 100.0f;
 }
 
 uint8_t convert_float_symbol_to_dibit_and_store(Super * super, float float_symbol)
@@ -408,9 +382,7 @@ uint8_t get_dibit (Super * super)
 }
 
 
-//organize some more later, and put credits for things of Woj and L and whoever else
 //based off of lib17 math https://github.com/M17-Project/libm17
-
 //Euclidean Norm will return a distance value based on the 
 //normalized value of the sync pattern vs what was received
 //in perfect reception, the distance will be 0.0f on a sync pattern
