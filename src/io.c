@@ -123,6 +123,10 @@ void cleanup_and_exit (Super * super)
   if (super->wav.wav_out_vx)
     close_wav_out_vx(super);
 
+  //close per call wav file, if opened
+  if (super->wav.wav_out_pc)
+    close_wav_out_pc (super);
+
   #ifdef USE_CODEC2
   codec2_destroy(super->m17d.codec2_1600);
   codec2_destroy(super->m17d.codec2_3200);

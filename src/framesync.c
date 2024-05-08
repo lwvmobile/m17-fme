@@ -279,7 +279,7 @@ void no_carrier_sync (Super * super)
   push_call_history(super);
 
   //close per call wav file, if opened
-  if (super->wav.wav_out_pc != NULL)
+  if (super->wav.wav_out_pc)
     close_wav_out_pc (super);
 
   //frame sync
