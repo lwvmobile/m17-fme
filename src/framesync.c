@@ -179,8 +179,8 @@ float demodulate_and_return_float_symbol(Super * super)
 
   //ptr safety truncate (shouldn't be needed due to cast type as uint16_t 
   //into an array larger, but nevertheless, good practice on array indexing)
-  super->demod.float_symbol_buffer_ptr &= 0x3FF; //smaller buffer
-  super->demod.sample_buffer_ptr       &= 0x3FF; //smaller buffer
+  super->demod.float_symbol_buffer_ptr &= 0xFFFF; //smaller buffer
+  super->demod.sample_buffer_ptr       &= 0xFFFF; //smaller buffer
   if (super->demod.float_symbol_buffer_ptr == 0) super->demod.float_symbol_buffer_ptr = 192;
   if (super->demod.sample_buffer_ptr == 0) super->demod.sample_buffer_ptr = 192;
 
@@ -223,7 +223,7 @@ short vote_for_sample(Super * super, short * samples)
   if (super->opts.demod_verbosity >= 2)
   {
     fprintf (stderr, "\nVFS:");
-    for (i = 3; i < 7; i++)
+    for (i = 0; i < 9; i++)
       fprintf (stderr, " %6.0f;", difference[i]);
     fprintf (stderr, " USE: %d:%6.0f:%6d;", use_sample, difference[use_sample], vote);
   }
