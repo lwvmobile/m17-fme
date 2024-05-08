@@ -148,7 +148,7 @@ void print_ncurses_config (Super * super)
   printw ("--Input-Output-(I)------------------------------------------------------------\n");
   printw ("| ");
 
-  //Input Methods
+  //Input Methods (Hardware)
   if (super->opts.use_pa_input && super->opts.use_m17_rfa_decoder)
     printw ("Pulse RFA    Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
 
@@ -165,12 +165,14 @@ void print_ncurses_config (Super * super)
     else                                            printw ("RF Input;         ");
   }
 
+  //Input Methods (Network)
   else if (super->opts.use_tcp_input)
     printw ("TCP SND Input: %s:%d; %d kHz; %d Ch; ", super->opts.tcp_input_hostname, super->opts.tcp_input_portno, super->opts.input_sample_rate/1000, 1);
 
   else if (super->opts.m17_udp_sock && super->opts.use_m17_ipf_decoder)
     printw ("UDP IP Frame Input: %s:%d; ", super->opts.m17_hostname, super->opts.m17_portno);
 
+  //Input Methods (Files)
   else if (super->opts.snd_input_is_a_file)
     printw ("File SND Input: %s; %d kHz; ", super->snd_src_in.snd_in_filename, super->opts.input_sample_rate);
 
@@ -182,9 +184,6 @@ void print_ncurses_config (Super * super)
 
   else if (super->opts.use_dibit_input == 1)
     printw ("File: DSD-FME Dibit Capture Bin Input: %s; ", super->opts.dibit_input_file);
-
-  // if (super->opts.rig_remote_sock) //TODO: Add this functionality?
-  //   printw ("RIG: %s:%d; ", opts->tcp_hostname, opts->rigctlportno);
 
   printw ("\n");
   printw ("| ");
@@ -214,7 +213,7 @@ void print_ncurses_config (Super * super)
     printw ("\n| File: Decoded Voice Audio Output: %s;", super->wav.wav_out_file_vx);
 
   if (super->opts.use_wav_out_pc == 1)
-    printw ("\n| Per Call File: %s", super->wav.wav_out_file_pc);
+    printw ("\n| Per Call: %s", super->wav.wav_out_file_pc);
 
   if (super->opts.use_float_symbol_output == 1)
     printw ("\n| File: M17 Float Symbol Output: %s;", super->opts.float_symbol_output_file);
@@ -226,10 +225,6 @@ void print_ncurses_config (Super * super)
   if (super->opts.m17_udp_sock && !super->opts.use_m17_ipf_decoder)
     printw ("\n| UDP IP Frame Output: %s:%d; Reflector Module: %c", super->opts.m17_hostname, super->opts.m17_portno, super->m17e.reflector_module);
 
-  else
-  {
-    printw ("\n| "); //add an item here?
-  }
   
 
   printw ("\n");
