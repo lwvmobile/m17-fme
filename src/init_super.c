@@ -67,15 +67,15 @@ void init_super (Super * super)
 
   //Misc Options to organize later
   super->opts.m17_str_encoder_dt = 2; //2 is fullrate (3200), 3 is halfrate (1600) w/ arb data
-  super->opts.disable_rrc_filter = 1; //Disable this later on
+  super->opts.disable_rrc_filter = 1; //Disabled until working properly with clock recovery
   super->opts.monitor_encode_internally = 0;
   super->opts.allow_crc_failure = 0; //allow decode attempts, even if CRC16 fails checksum
   super->opts.use_hpfilter_dig = 1;
   super->opts.inverted_signal = 0;
   srand(time(NULL)); //seed a random number for below
   super->opts.random_number = rand() & 0xFFFF; //random 16-bit number for session ID each start up
-  super->opts.input_sample_rate = 48000;   //TODO: Make a function that reconfigures this and anythign that is set from this
-  super->opts.output_sample_rate = 48000;  //TODO: Make a function that reconfigures this and anythign that is set from this
+  super->opts.input_sample_rate = 48000;   //TODO: Make a function that reconfigures this and anything that is set from this
+  super->opts.output_sample_rate = 48000;  //TODO: Make a function that reconfigures this and anything that is set from this
   super->opts.stdout_pipe = 0;
 
   //Gain
@@ -155,13 +155,13 @@ void init_super (Super * super)
 
   //init_demod_state
   memset (super->demod.float_symbol_buffer, 0.0f, 65540*sizeof(float));
-  super->demod.float_symbol_buffer_ptr = 192;
+  super->demod.float_symbol_buffer_ptr = 0;
   
   memset (super->demod.sample_buffer, 0, 65540*sizeof(short));
-  super->demod.sample_buffer_ptr = 192;
+  super->demod.sample_buffer_ptr = 0;
 
   memset (super->demod.dibit_buffer, 0, 65540*sizeof(uint8_t));
-  super->demod.dibit_buffer_ptr = 192;
+  super->demod.dibit_buffer_ptr = 0;
 
   //frame sync and timing recovery
   memset (super->demod.sync_symbols, 0, 8*sizeof(float));

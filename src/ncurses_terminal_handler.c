@@ -243,7 +243,7 @@ void print_ncurses_scope (Super * super)
   if (super->demod.in_sync)
     attron(COLOR_PAIR(1));
 
-  int i;
+  uint8_t i;
   printw ("--Symbol Scope----------------------------------------------------------------");
   printw ("\n| +3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == +3.0f) printw("*"); else printw(" ");
   printw ("\n| +1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == +1.0f) printw("*"); else printw(" ");

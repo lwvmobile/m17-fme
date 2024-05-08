@@ -177,12 +177,8 @@ float demodulate_and_return_float_symbol(Super * super)
   //store sample used
   super->demod.sample_buffer[super->demod.sample_buffer_ptr++] = sample;
 
-  //ptr safety truncate (shouldn't be needed due to cast type as uint16_t 
-  //into an array larger, but nevertheless, good practice on array indexing)
-  super->demod.float_symbol_buffer_ptr &= 0xFFFF; //smaller buffer
-  super->demod.sample_buffer_ptr       &= 0xFFFF; //smaller buffer
-  if (super->demod.float_symbol_buffer_ptr == 0) super->demod.float_symbol_buffer_ptr = 192;
-  if (super->demod.sample_buffer_ptr == 0) super->demod.sample_buffer_ptr = 192;
+  //NOTE: The index pointers are cast as uint8_t values, so they will never be 'negative', or core dump,
+  //they will just perpetually roll over back to zero each time so its effectively a ring buffer of 255
 
   //debug
   if (super->opts.demod_verbosity >= 3)
@@ -208,7 +204,7 @@ short vote_for_sample(Super * super, short * samples)
   for (i = 0; i < 9; i++) //3, 7
   {
     difference[i] = (float)samples[i+1] - (float)samples[i];
-    if (i >= 3 && i <= 7) //3,4,5,6 (3, 7)
+    if (i >= 3 && i <= 7) //3,4,5,6,7 (half of symbol period)
     {
       if (fabs(difference[i]) < min_dist)
       {
@@ -279,14 +275,9 @@ void no_carrier_sync (Super * super)
   memset (super->demod.sync_symbols, 0, 8*sizeof(float));
 
   //reset buffers here
-  memset (super->demod.float_symbol_buffer, 0.0f, 65540*sizeof(float));
-  super->demod.float_symbol_buffer_ptr = 192;
-  
+  memset (super->demod.float_symbol_buffer, 0.0f, 65540*sizeof(float));  
   memset (super->demod.sample_buffer, 0, 65540*sizeof(short));
-  super->demod.sample_buffer_ptr = 192;
-
   memset (super->demod.dibit_buffer, 0, 65540*sizeof(uint8_t));
-  super->demod.dibit_buffer_ptr = 192;
 
   //reset some decoder elements
   super->m17d.src = 0;
@@ -312,8 +303,8 @@ void no_carrier_sync (Super * super)
 void buffer_refresh_min_max_center (Super * super)
 {
 
-  uint16_t i   = 0;
-  uint16_t ptr = 0;
+  uint8_t i   = 0;
+  uint8_t ptr = 0;
 
   //calculate center, max, and min (apparently, max and min weren't initialized as 0.0f)
   float buffer_max = 0.0f; float buffer_min = 0.0f; float buffer_value = 0.0f;
@@ -390,10 +381,8 @@ uint8_t convert_float_symbol_to_dibit_and_store(Super * super, float float_symbo
   //store dibit
   super->demod.dibit_buffer[super->demod.dibit_buffer_ptr++] = dibit;
 
-  //ptr safety truncate (shouldn't be needed due to cast type as uint16_t 
-  //into an array larger, but nevertheless, good practice on array indexing)
-  super->demod.dibit_buffer_ptr &= 0xFFFF;
-  if (super->demod.dibit_buffer_ptr == 0) super->demod.dibit_buffer_ptr = 192;
+  //NOTE: The index pointers are cast as uint8_t values, so they will never be 'negative', or core dump,
+  //they will just perpetually roll over back to zero each time so its effectively a ring buffer of 255
 
   //debug
   if (super->opts.demod_verbosity >= 4)

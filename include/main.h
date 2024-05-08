@@ -183,16 +183,16 @@ typedef struct
 //Demodulation States
 typedef struct
 {
-  //NOTE: Recast ptrs as uint16_t which should never be able to exceed 65535
+  //NOTE: Recast ptrs as uint8_t which will reach 0xFF or 255 and roll over back to 0,
   //and expanded the buffer to just a bit larger than that, so we don't need the modulos
-  short    sample_buffer[65540];
-  uint16_t sample_buffer_ptr;
+  short   sample_buffer[65540];
+  uint8_t sample_buffer_ptr;
 
-  uint8_t  dibit_buffer[65540];
-  uint16_t dibit_buffer_ptr;
+  uint8_t dibit_buffer[65540];
+  uint8_t dibit_buffer_ptr;
 
-  float    float_symbol_buffer[65540];
-  uint16_t float_symbol_buffer_ptr;
+  float   float_symbol_buffer[65540];
+  uint8_t float_symbol_buffer_ptr;
 
   //frame sync
   float   sync_symbols[8];
