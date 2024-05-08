@@ -16,16 +16,33 @@ void input_ncurses_terminal (Super * super, int c)
   switch (c)
   {
 
+    //'1' key, Generate 1 time use Scrambler Key (24-bit)
+    case 49:
+      if (super->opts.use_m17_str_encoder == 1)
+      {
+        super->enc.scrambler_key = rand() & 0xFFFFFF;
+        super->enc.enc_type = 1;
+        pn_sequence_generator(super); //generate pN Sequence
+      }
+      break;
+
+    //'3' key, key, Generate 1 time use AES Key (256-bit)
+    case 51:
+      if (super->opts.use_m17_str_encoder == 1)
+      {
+        super->enc.A1 = ((uint64_t)rand() << 32ULL) + rand();
+        super->enc.A2 = ((uint64_t)rand() << 32ULL) + rand();
+        super->enc.A3 = ((uint64_t)rand() << 32ULL) + rand();
+        super->enc.A4 = ((uint64_t)rand() << 32ULL) + rand();
+        super->enc.enc_type = 2;
+        aes_key_loader(super);
+      }
+      break;
+
     //'4' key, simulate no_carrier_sync (reset states)
     case 52:
       super->m17d.dt = 4; //fake for carrier reset
       no_carrier_sync (super); //reset demod
-      break;
-
-    //'c' key, Reset Call History (lower c)
-    case 99:
-      for (int i = 0; i < 10; i++)
-        sprintf (super->m17d.callhistory[i], "%s", "");
       break;
 
     //'A' key, Toggle Audio Level Display
@@ -33,27 +50,17 @@ void input_ncurses_terminal (Super * super, int c)
       if (super->opts.ncurses_show_audio == 0) super->opts.ncurses_show_audio = 1;
       else super->opts.ncurses_show_audio = 0;
       break;
-      break;
 
-    //'I' key, Toggle IO Display
-    case 73:
-      if (super->opts.ncurses_show_io == 0) super->opts.ncurses_show_io = 1;
-      else super->opts.ncurses_show_io = 0;
-      break;
-      break;
-
-    //'S' key, Toggle Scope Display
-    case 83:
-      if (super->opts.ncurses_show_scope == 0) super->opts.ncurses_show_scope = 1;
-      else super->opts.ncurses_show_scope = 0;
-      break;
+    //'C' key, show banner or compact mode (Capital C)
+    case 67:
+      if (super->opts.ncurses_show_banner == 0) super->opts.ncurses_show_banner = 1;
+      else super->opts.ncurses_show_banner = 0;
       break;
 
     //'D' key, Toggle Encode / Decode Display
     case 68:
       if (super->opts.ncurses_show_decode == 0) super->opts.ncurses_show_decode = 1;
       else super->opts.ncurses_show_decode = 0;
-      break;
       break;
 
     //'E' key, Toggle AES Encryption (only when not TX, and a key is loaded)
@@ -65,10 +72,22 @@ void input_ncurses_terminal (Super * super, int c)
       }
       break;
 
-    //'h' key, toggle high pass filter on CODEC2 Output
-    case 104:
-      if (super->opts.use_hpfilter_dig == 0) super->opts.use_hpfilter_dig = 1;
-      else super->opts.use_hpfilter_dig = 0;
+    //'H' key, show history
+    case 72:
+      if (super->opts.ncurses_show_history == 0) super->opts.ncurses_show_history = 1;
+      else super->opts.ncurses_show_history = 0;
+      break;
+
+    //'I' key, Toggle IO Display
+    case 73:
+      if (super->opts.ncurses_show_io == 0) super->opts.ncurses_show_io = 1;
+      else super->opts.ncurses_show_io = 0;
+      break;
+
+    //'S' key, Toggle Scope Display
+    case 83:
+      if (super->opts.ncurses_show_scope == 0) super->opts.ncurses_show_scope = 1;
+      else super->opts.ncurses_show_scope = 0;
       break;
 
     //'\' key, toggle TX
@@ -80,10 +99,10 @@ void input_ncurses_terminal (Super * super, int c)
         super->m17e.str_encoder_eot = 1;
       break;
 
-    //'C' key, show banner or compact mode (Capital C)
-    case 67:
-      if (super->opts.ncurses_show_banner == 0) super->opts.ncurses_show_banner = 1;
-      else super->opts.ncurses_show_banner = 0;
+    //'c' key, Reset Call History (lower c)
+    case 99:
+      for (int i = 0; i < 10; i++)
+        sprintf (super->m17d.callhistory[i], "%s", "");
       break;
 
     //'e' key, Toggle Scrambler Encryption (only when not TX, and a key is loaded)
@@ -95,10 +114,10 @@ void input_ncurses_terminal (Super * super, int c)
       }
       break;
 
-    //'H' key, show history
-    case 72:
-      if (super->opts.ncurses_show_history == 0) super->opts.ncurses_show_history = 1;
-      else super->opts.ncurses_show_history = 0;
+    //'h' key, toggle high pass filter on CODEC2 Output
+    case 104:
+      if (super->opts.use_hpfilter_dig == 0) super->opts.use_hpfilter_dig = 1;
+      else super->opts.use_hpfilter_dig = 0;
       break;
 
     //q key, quit
@@ -110,14 +129,6 @@ void input_ncurses_terminal (Super * super, int c)
     case 114:
       if (super->opts.disable_rrc_filter == 0) super->opts.disable_rrc_filter = 1;
       else super->opts.disable_rrc_filter = 0;
-      super->m17d.dt = 4; //fake for carrier reset
-      no_carrier_sync (super); //reset demod
-      break;
-
-    //'x' key, toggle inversion
-    case 120:
-      if (super->opts.inverted_signal == 0) super->opts.inverted_signal = 1;
-      else super->opts.inverted_signal = 0;
       super->m17d.dt = 4; //fake for carrier reset
       no_carrier_sync (super); //reset demod
       break;
@@ -136,8 +147,15 @@ void input_ncurses_terminal (Super * super, int c)
       }
       break;
 
+    //'x' key, toggle inversion
+    case 120:
+      if (super->opts.inverted_signal == 0) super->opts.inverted_signal = 1;
+      else super->opts.inverted_signal = 0;
+      super->m17d.dt = 4; //fake for carrier reset
+      no_carrier_sync (super); //reset demod
+      break;
 
-    //Manual Gain Controls
+    //Manual Gain Controls (keep seperate)
     //'/' key, decrement voice input gain by 1%
     case 47:
       if (super->opts.input_gain_vx > 0.01f)
