@@ -38,6 +38,21 @@ void open_wav_out_vx (Super * super)
   }
 }
 
+void open_wav_out_pc (Super * super)
+{
+  SF_INFO info;
+  info.samplerate = super->opts.output_sample_rate;
+  info.channels = 1;
+  info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16 | SF_ENDIAN_LITTLE;
+  super->wav.wav_out_pc = sf_open (super->wav.wav_out_file_pc, SFM_WRITE, &info);
+
+  if (super->wav.wav_out_pc == NULL)
+  {
+    fprintf (stderr,"Error - could not open Per Call wav output file %s\n", super->wav.wav_out_file_pc);
+    return;
+  }
+}
+
 void close_wav_out_rf (Super * super)
 {
   sf_close(super->wav.wav_out_rf);
@@ -48,6 +63,23 @@ void close_wav_out_vx (Super * super)
   sf_close(super->wav.wav_out_vx);
 }
 
+void close_wav_out_pc (Super * super)
+{
+  sf_close(super->wav.wav_out_pc);
+
+  //give extension .wav after closing
+  char newfilename[1032];
+  sprintf (newfilename, "%s.wav", super->wav.wav_out_file_pc);
+  rename (super->wav.wav_out_file_pc, newfilename);
+
+  //set pointer to NULL
+  super->wav.wav_out_pc = NULL;
+
+  //copy filename back for ncurses display
+  memcpy(super->wav.wav_out_file_pc, newfilename, 1023);
+  super->wav.wav_out_file_pc[1023] = 0;
+}
+
 void write_wav_out_rf (Super * super, short * out, size_t nsam)
 {
   sf_write_short(super->wav.wav_out_rf, out, nsam);
@@ -56,6 +88,11 @@ void write_wav_out_rf (Super * super, short * out, size_t nsam)
 void write_wav_out_vx (Super * super, short * out, size_t nsam)
 {
   sf_write_short(super->wav.wav_out_vx, out, nsam);
+}
+
+void write_wav_out_pc (Super * super, short * out, size_t nsam)
+{
+  sf_write_short(super->wav.wav_out_pc, out, nsam);
 }
 
 //move?

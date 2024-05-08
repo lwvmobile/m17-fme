@@ -60,6 +60,7 @@ void init_super (Super * super)
   //USE WAV OUTPUT
   super->opts.use_wav_out_rf = 0;
   super->opts.use_wav_out_vx = 0;
+  super->opts.use_wav_out_pc = 1; //change to 0 later
 
   //M17 Encoder and Decoder Options
   super->opts.use_m17_str_encoder = 0;
@@ -259,10 +260,12 @@ void init_super (Super * super)
   //end init_m17e_state (Encoder)
 
   //init_wav_state
-  super->wav.wav_out_vx = NULL;
   super->wav.wav_out_rf = NULL;
+  super->wav.wav_out_vx = NULL;
+  super->wav.wav_out_pc = NULL;
   sprintf (super->wav.wav_out_file_rf, "%s", "m17_rf_wav.wav");
   sprintf (super->wav.wav_out_file_vx, "%s", "m17_vx_wav.wav");
+  sprintf (super->wav.wav_out_file_pc, "%s", "m17_pc_wav"); //no file extension until closed
   //end init_wav_state
 
   //init snd_src_input snd_src_in

@@ -116,6 +116,7 @@ typedef struct
   //USE WAV OUTPUT
   uint8_t use_wav_out_rf;
   uint8_t use_wav_out_vx;
+  uint8_t use_wav_out_pc;
 
   //M17 Encoder and Decoder Options
   uint8_t use_m17_str_encoder;
@@ -318,10 +319,12 @@ typedef struct
 //WAV output files with sndfile
 typedef struct
 {
-  SNDFILE *wav_out_vx;
   SNDFILE *wav_out_rf;
+  SNDFILE *wav_out_vx;
+  SNDFILE *wav_out_pc;
   char wav_out_file_rf[1024];
   char wav_out_file_vx[1024];
+  char wav_out_file_pc[1024];
 } wav_state;
 
 //Universal sndfile input (TCP, STDIN, WAV, named PIPE, headerless wav files)
@@ -428,10 +431,13 @@ void  oss_output_write (Super * super, short * out, size_t nsam);
 //sndfile Wav Output File Handling
 void open_wav_out_rf (Super * super);
 void open_wav_out_vx (Super * super);
+void open_wav_out_pc (Super * super);
 void close_wav_out_rf (Super * super);
 void close_wav_out_vx (Super * super);
+void close_wav_out_pc (Super * super);
 void write_wav_out_rf (Super * super, short * out, size_t nsam);
 void write_wav_out_vx (Super * super, short * out, size_t nsam);
+void write_wav_out_pc (Super * super, short * out, size_t nsam);
 
 //sndfile Input Open and Reading
 bool file_snd_audio_source_open (Super * super);
