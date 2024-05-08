@@ -233,6 +233,7 @@ typedef struct
   uint8_t dt;
   uint8_t enc_et; //encryption type
   uint8_t enc_st; //encryption sub-type
+  uint8_t enc_mute; //enc, muted audio out
   char dst_csd_str[50];
   char src_csd_str[50];
 

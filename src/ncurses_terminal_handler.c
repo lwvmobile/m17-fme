@@ -264,36 +264,52 @@ void print_ncurses_levels (Super * super)
     attron(COLOR_PAIR(1));
 
   printw ("--Audio Level-----------------------------------------------------------------\n");
-  printw ("|   RFA  Input: %3.0f%% ([|]) ", super->opts.input_gain_rf  * 100);
-  if (super->opts.disable_rrc_filter == 0)
-    printw (" RRC(r);");
-  else printw ("!RRC(r);");
-  if (super->opts.inverted_signal == 0)
-    printw (" +Polarity(x);");
-  else printw (" -Polarity(x);");
-  printw ("\n");
-  printw ("|   RFA Output: %3.0f%% ({|}) ", super->opts.output_gain_rf * 100);
-  if (super->opts.disable_rrc_filter == 0)
-    printw (" RRC(r);");
-  else printw ("!RRC(r);");
-  if (super->opts.inverted_signal == 0)
-    printw (" +Polarity(x);");
-  else printw (" -Polarity(x);");
-  printw ("\n");
-  printw ("| Voice  Input: %3.0f%% (/|*) ", super->opts.input_gain_vx  * 100);
-  if (super->m17e.str_encoder_vox)
+
+  if (super->opts.use_m17_rfa_decoder == 1)
   {
-    printw (" Mic Vox(v); SQL: %04ld (<|>); RMS: %04ld;", super->demod.input_sql, super->demod.input_rms);
-    if (super->m17e.str_encoder_tx)
-      printw (" !!!!!");
+    printw ("|   RFA  Input: %3.0f%% ([|]) ", super->opts.input_gain_rf  * 100);
+    if (super->opts.disable_rrc_filter == 0)
+      printw (" RRC(r);");
+    else printw ("!RRC(r);");
+    if (super->opts.inverted_signal == 0)
+      printw (" +Polarity(x);");
+    else printw (" -Polarity(x);");
+    printw ("\n");
   }
-  else printw ("!Mic Vox(v); ");
-  printw ("\n");
-  printw ("| Voice Output: %3.0f%% (+|-) ", super->opts.output_gain_vx * 100);
-  if (super->opts.use_hpfilter_dig == 1)
-    printw (" HPF(8);");
-  else printw ("!HPF(8);");
-  printw ("\n");
+
+  else if (super->opts.use_pa_output_rf || super->opts.use_oss_output || super->opts.use_stdout_output || super->wav.wav_out_rf)
+  {
+    printw ("|   RFA Output: %3.0f%% ({|}) ", super->opts.output_gain_rf * 100);
+    if (super->opts.disable_rrc_filter == 0)
+      printw (" RRC(r);");
+    else printw ("!RRC(r);");
+    if (super->opts.inverted_signal == 0)
+      printw (" +Polarity(x);");
+    else printw (" -Polarity(x);");
+    printw ("\n");
+  }
+
+  if (super->opts.use_m17_str_encoder)
+  {
+    printw ("| Voice  Input: %3.0f%% (/|*) ", super->opts.input_gain_vx  * 100);
+    if (super->m17e.str_encoder_vox)
+    {
+      printw (" Mic Vox(v); SQL: %04ld (<|>); RMS: %04ld;", super->demod.input_sql, super->demod.input_rms);
+      if (super->m17e.str_encoder_tx)
+        printw (" !!!!!");
+    }
+    else printw ("!Mic Vox(v); ");
+    printw ("\n");
+  }
+
+  if (super->opts.use_m17_rfa_decoder || super->opts.monitor_encode_internally)
+  {
+    printw ("| Voice Output: %3.0f%% (+|-) ", super->opts.output_gain_vx * 100);
+    if (super->opts.use_hpfilter_dig == 1)
+      printw (" HPF(8);");
+    else printw ("!HPF(8);");
+    printw ("\n");
+  }
   printw ("------------------------------------------------------------------------------\n");
 
   //color off, back to white
@@ -398,7 +414,19 @@ void print_ncurses_call_info (Super * super)
   {
     printw ("Scrambler Type: %d; ", super->m17d.enc_st);
     if (super->enc.scrambler_key != 0)
-      printw( ("Key: %X"), super->enc.scrambler_key);
+      printw( ("Key: %X; "), super->enc.scrambler_key);
+
+    if (super->demod.in_sync == 1)
+      attron(COLOR_PAIR(2));
+    else attron(COLOR_PAIR(6));
+
+    if (super->m17d.enc_mute)
+      printw ("MUTED");
+
+    if (super->demod.in_sync == 1)
+      attron(COLOR_PAIR(1));
+    else attron(COLOR_PAIR(6));
+    
   }
   else if (super->m17d.enc_et == 2)
   {
@@ -406,6 +434,17 @@ void print_ncurses_call_info (Super * super)
     //display packed meta as IV
     for (int i = 0; i < 16; i++)
       printw ("%02X", super->m17d.meta[i]);
+
+    if (super->demod.in_sync == 1)
+      attron(COLOR_PAIR(2));
+    else attron(COLOR_PAIR(6));
+
+    if (super->m17d.enc_mute)
+      printw (" MUTED");
+
+    if (super->demod.in_sync == 1)
+      attron(COLOR_PAIR(1));
+    else attron(COLOR_PAIR(6));
 
   }
   else if (super->m17d.enc_et == 3)

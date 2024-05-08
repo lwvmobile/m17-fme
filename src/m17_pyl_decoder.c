@@ -66,9 +66,12 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   }
 
   //at this point, if we are ENC'd and no key, then log and skip playback
-  if (mute)
+  if      (!mute)
+    super->m17d.enc_mute = 0;
+  else if (mute)
   {
-    fprintf (stderr, " MUTE ");
+    super->m17d.enc_mute = 1;
+    fprintf (stderr, " MUTED ");
     goto END_PAYLOAD;
   }
   
