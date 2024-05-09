@@ -244,7 +244,8 @@ void parse_input_option_string (Super * super, char * input)
     super->opts.use_pa_input = 1;
   }
   #else
-  fprintf (stderr, " Pulse Audio Support Not Found / Compiled;");
+  else if ( (strncmp(input, "pulse", 5) == 0) )
+    fprintf (stderr, " Pulse Audio Support Not Found / Compiled;");
   #endif
 
   //anything not recognized

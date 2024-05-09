@@ -628,12 +628,14 @@ void encode_str(Super * super)
         fprintf (stderr, " SQL HIT: %d;", sql_hit);
       }
 
+      #ifdef USE_PULSEAUDIO
       //debug show pulse input latency
       if (super->opts.use_pa_input == 1 && super->opts.demod_verbosity >= 2)
       {
         unsigned long long int latency = pa_simple_get_latency (super->pa.pa_input_device, NULL);
         fprintf (stderr, " Latency: %05lld;", latency);
       }
+      #endif
 
       //convert bit array into symbols and RF/Audio
       encode_rfa (super, m17_t4s, mem, 2);

@@ -6,9 +6,13 @@
  * 2024-05 Project M17 - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
-#ifdef USE_CURSES
+
+//have at least one thing in a file available if the entire thing is wrapped in an ifdef
+//or -pendantic warning: ISO C forbids an empty translation unit if USE_CURSES not defined
 
 #include "main.h"
+
+#ifdef USE_CURSES
 
 void input_ncurses_terminal (Super * super, int c)
 {

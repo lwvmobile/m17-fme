@@ -16,8 +16,10 @@ void decode_ipf (Super * super)
   stfu ();
 
   //Tweaks and Enable Ncurses Terminal
+  #ifdef USE_CURSES
   if (super->opts.use_ncurses_terminal == 1)
     open_ncurses_terminal(super);
+  #endif
 
   //NOTE: Update info here to reflect for M17-FME and/or DSD-FME?
 
@@ -304,8 +306,10 @@ void decode_ipf (Super * super)
     }
 
     //refresh ncurses printer, if enabled
+    #ifdef USE_CURSES
     if (super->opts.use_ncurses_terminal == 1)
       print_ncurses_terminal(super);
+    #endif
 
     //clear frame (if not recognized format)
     memset(ip_frame, 0, sizeof(ip_frame));

@@ -118,12 +118,16 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   //TODO: Make Convenience Audio Output Handler
 
   //Pulse Audio Playback
+  #ifdef USE_PULSEAUDIO
   if (super->pa.pa_output_vx_is_open == 1)
   {
     pulse_audio_output_vx(super, upsamp1, nsam*6);
     if (type == 2)
       pulse_audio_output_vx(super, upsamp2, nsam*6);
   }
+  #else
+  if (super->pa.pa_output_vx_is_open == 1) {} //should never be here, but need to fix compiler warning if NOT pulse audio
+  #endif
 
   else if (super->opts.oss_output_device)
   {

@@ -33,13 +33,13 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
   //execute golay 24,12 or 4 24-bit chunks and reorder into 4 12-bit chunks
   for (i = 0; i < 4; i++)
   {
-    g[i] = TRUE;
+    g[i] = true;
 
     for (j = 0; j < 24; j++)
       lich[i][j] = lich_bits[(i*24)+j];
 
     g[i] = Golay_24_12_decode(lich[i]);
-    if(g[i] == FALSE) err = -1;
+    if(g[i] == false) err = -1;
 
     for (j = 0; j < 12; j++)
       lich_decoded[i*12+j] = lich[i][j];
