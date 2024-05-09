@@ -391,8 +391,9 @@ void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
     }
     m17_p1[200] = eot;
 
-    //debug
-    fprintf (stderr, " EOT: %d; PBC: %d; PTR: %d;", eot, pbc, ptr);
+    //debug dump
+    // if (super->opts.payload_verbosity > 0)
+    //   fprintf (stderr, "\n EOT: %d; PBC: %d; PTR: %d;", eot, pbc, ptr);
 
     //set pbc counter to last 5 bits
     for (i = 0; i < 5; i++)

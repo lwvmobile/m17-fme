@@ -58,10 +58,11 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     uint8_t  type = (input[1] >> 6) & 0x3; //enc type
     uint8_t stype = (input[1] >> 4) & 0x3; //enc sub-type
     uint8_t ssn   = (input[1] >> 0) & 0xF; //send sequence number
-    fprintf (stderr, "\n Encryption Type: %d; Subtype: %d; Send Sequence Number: %d;\n", type, stype, ssn);
+    fprintf (stderr, "\n Encryption Type: %d; Subtype: %d; Send Sequence Number: %d;", type, stype, ssn);
     if (type == 1)
     {
       super->enc.scrambler_key = (uint32_t)convert_bits_into_output(bits, 24);
+      fprintf (stderr, "\n");
       pn_sequence_generator (super);
       sprintf (super->m17d.sms, "OTAKD Scrambler Key: %X;", super->enc.scrambler_key);
     }
@@ -79,6 +80,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
         super->enc.A4 = (unsigned long long int)convert_bits_into_output(bits+00+00+00, 64);
         sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX",
                  super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
+        fprintf (stderr, "\n");
         aes_key_loader (super);
       }
       else if (ssn == 4) //complete key over PACKET DATA or IPFrame Delivery

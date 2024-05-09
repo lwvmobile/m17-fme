@@ -218,6 +218,7 @@ int main (int argc, char **argv)
         super.enc.scrambler_key = rand() & 0xFFFFFF;
         super.enc.enc_type = 1;
         pn_sequence_generator(&super); //generate pN Sequence
+        fprintf (stderr, "\n");
         break;
 
       //disable RRC Filter
@@ -234,6 +235,7 @@ int main (int argc, char **argv)
         super.enc.A4 = ((uint64_t)rand() << 32ULL) + rand();
         super.enc.enc_type = 2;
         aes_key_loader(&super);
+        fprintf (stderr, "\n");
         break;
 
       //Allow CRC Failure to still be decoded (TS issue with OTA key on RFA failing)
@@ -298,6 +300,7 @@ int main (int argc, char **argv)
           super.enc.enc_type = 1;
           pn_sequence_generator(&super); //generate pN Sequence
         }
+        fprintf (stderr, "\n");
         break;
 
       //Specify M17 Float Symbol Input
@@ -399,6 +402,7 @@ int main (int argc, char **argv)
         super.enc.A3 = strtoull (pEnd, &pEnd, 16);
         super.enc.A4 = strtoull (pEnd, &pEnd, 16);
         aes_key_loader(&super);
+        fprintf (stderr, "\n");
         break;
 
       //Specify M17 Float Symbol Output
