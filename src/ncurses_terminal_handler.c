@@ -77,7 +77,7 @@ void print_ncurses_terminal(Super * super)
   //Print Audio Levels
   if (super->opts.ncurses_show_audio)
     print_ncurses_levels(super);
-  else printw ("--Audio-Level--(A)-------------------------------------------------------------\n");
+  else printw ("--Audio-Level--(A)------------------------------------------------------------\n");
 
   //Print Symbol Scope
   if (super->opts.ncurses_show_scope)
