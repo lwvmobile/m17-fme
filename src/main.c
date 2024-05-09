@@ -125,14 +125,14 @@ void usage ()
   printf ("\n");
   printf ("Quick Examples:\n"); //'\' key, toggle TX
   printf ("\n");
-  printf (" Stream Voice Encoder with Mic Input (pulsevs) RF Output (pulserf), float symbol file output (float.sym) \n");
+  printf (" Stream Voice Encoder with Mic Input (pulsevx) RF Output (pulserf), float symbol file output (float.sym) \n");
   printf (" m17-fme -i pulsevx -o pulserf -V -F float.sym -N 2> m17encoder.txt \n");
   printf ("  (Note: When Using Ncurses Terminal with Encoding and Not Vox, use '\\' key to toggle TX)\n");
   printf ("\n");
   printf (" RF Demodulator for Stream Voice and Data Packet with Decoded Voice Output (pulsevx) \n");
   printf (" m17-fme -i pulserf -o pulsevx -r -N 2> m17decoder.txt \n");
   printf ("\n");
-  printf (" Stream Voice Encoder with Mic Input (pulsevs) IP Frame Output \n");
+  printf (" Stream Voice Encoder with Mic Input (pulsevx) IP Frame Output \n");
   printf (" m17-fme -i pulsevx -o udp -V -N 2> m17encoder.txt \n");
   printf ("\n");
   printf (" IP Frame Decoder for Voice Stream and Packet Data Default Host and Port \n");
