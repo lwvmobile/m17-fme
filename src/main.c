@@ -35,42 +35,49 @@ void usage ()
   printf ("  -d <num>      Demodulator Verbosity Level\n");
   printf ("\n");
   printf ("Input Options:\n");
+  printf ("\n");
   printf ("  -i <device>   Audio input device (default is pulserf)\n");
   printf ("                pulserf for pulse audio RFA input \n");
   printf ("                pulsevx for pulse audio Voice / Mic input\n");
   printf ("                - for STDIN input (specify encoder or decoder options below)\n");
   printf ("                (Note: When using STDIN, Ncurses Keyboard Shortcuts Disabled)\n");
   #ifdef __CYGWIN__
-  printf ("                (pulse audio options will require pactl running in Cygwin)");
-  printf ("                /dev/dsp for OSS audio");
+  printf ("                (pulse audio options will require pactl running in Cygwin)\n");
+  #else
+  printf ("                (padsp wrapper required for OSS audio on Linux)\n");
+  printf ("                /dev/dsp for OSS audio\n");
   #endif
   printf ("                udp for UDP Frame Input (default localhost:17000)\n");
   printf ("                udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port\n");
   printf ("                m17udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port\n");
-  printf ("  -w <file>     48k/1 SNDFile Compatible .wav or .rrc input file\n");
+  printf ("  -w <file>     48k/1 SNDFile Compatible RF Audio .wav or .rrc input file\n");
   printf ("  -c <file>     DSD-FME Compatible Dibit/Symbol Capture Bin input file (from RF Encoder)\n");
   printf ("  -f <file>     Float Symbol input file (from RF Encoder and M17_Implementations)\n");
   printf ("\n");
   printf ("Output Options:\n");
+  printf ("\n");
   printf ("  -o <device>   Audio output device (default is pulsevx)\n");
   printf ("                pulserf for pulse audio RFA output\n");
   printf ("                pulsevx for pulse audio Voice / Loopback output\n");
   printf ("                - for STDOUT output (specify encoder or decoder options below)\n");
   printf ("                (Note: Don't use Ncurses Terminal w/ STDOUT enabled)\n");
   #ifdef __CYGWIN__
-  printf ("                (pulse audio options will require pactl running in Cygwin)");
-  printf ("                /dev/dsp for OSS audio");
-  printf ("                (OSS Can only do either RF output, or VX output,");
-  printf ("                (not both at the same time, specify encoder and decoder options below)");
+  printf ("                (pulse audio options will require pactl running in Cygwin)\n");
+  #else
+  printf ("                (padsp wrapper required for OSS audio on Linux)\n");
+  printf ("                /dev/dsp for OSS audio\n");
+  printf ("                (OSS Can only do either RF output, or VX output,\n");
+  printf ("                (not both at the same time, specify encoder and decoder options below)\n");
   #endif
   printf ("                udp for UDP Frame Output (default localhost:17000)\n");
   printf ("                udp:192.168.7.8:17001 for M17 UDP/IP blaster output (Target Address and Port\n");
   printf ("                m17udp:192.168.7.8:17001 for M17 UDP/IP blaster output (Target Address and Port\n");
-  printf ("  -W <file>     48k/1 SNDFile Compatible .wav output file\n");
+  printf ("  -W <file>     48k/1 SNDFile Compatible RF Audio .wav output file\n");
   printf ("  -C <file>     DSD-FME Compatible Dibit/Symbol Capture Bin output file\n");
   printf ("  -F <file>     Float Symbol output file (M17_Implementations Compatible)\n");
   printf ("\n");
   printf ("Encoder Options:\n");
+  printf ("\n");
   printf ("  -V            Enable the Stream Voice Encoder\n");
   printf ("  -P            Enable the Packet Data  Encoder\n");
   printf ("  -I            Enable IP Frame Output with defaults (can be combined with Loopback or RFA output)\n");
@@ -95,6 +102,7 @@ void usage ()
   printf ("  -r            Enable RFA Demodulator and Decoding of Stream and Packet Data\n");
   printf ("  -x            Expect Inverted Polarity on RF Input\n");
   printf ("  -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 \n");
+  printf ("  -p <file>     Per Call decoded voice wav file saving into current directory ./M17WAV folder\n");
   printf ("\n");
   printf ("Encryption Options:\n");
   printf ("                (NOTE: Encoder and Decoder share same values here)\n");
@@ -108,11 +116,15 @@ void usage ()
   printf ("\n");
   printf ("Debug Options:\n");
   printf ("  -1            Generate Random One Time Use 24-bit Scrambler Key \n");
-  printf ("  -3            Generate Random One Time Use AES Key \n");
-  printf ("  -4            Permit Data Decoding on CRC Failure (not recommended) \n");
-  printf ("  -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!) \n");
+  printf ("  -2            Disable RRC Filter on RF Audio Encoding / Decoding. \n");
+  printf ("  -3            Generate Random One Time Use 24-bit Scrambler Key. \n");
+  printf ("  -4            Permit Data Decoding on CRC Failure (not recommended). \n");
+  printf ("  -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). \n");
+  printf ("  -8            Disable High Pass Filter on CODEC2 Output. \n");
+  printf ("  -9            Enable RRC Filter on RF Audio Encoding / Decoding. \n");
   printf ("\n");
   printf ("Quick Examples:\n"); //'\' key, toggle TX
+  printf ("\n");
   printf (" Stream Voice Encoder with Mic Input (pulsevs) RF Output (pulserf), float symbol file output (float.sym) \n");
   printf (" m17-fme -i pulsevx -o pulserf -V -F float.sym -N 2> m17encoder.txt \n");
   printf ("  (Note: When Using Ncurses Terminal with Encoding and Not Vox, use '\\' key to toggle TX)\n");
@@ -214,12 +226,6 @@ int main (int argc, char **argv)
         fprintf (stderr, "Disable RRC Filter on RF Audio Encoding / Decoding. \n");
         break;
 
-      //enable RRC Filter
-      case '9':
-        super.opts.disable_rrc_filter = 0;
-        fprintf (stderr, "Enable RRC Filter on RF Audio Encoding / Decoding. \n");
-        break;
-
       //generate one time randomized AES key
       case '3':
         super.enc.A1 = ((uint64_t)rand() << 32ULL) + rand();
@@ -250,6 +256,12 @@ int main (int argc, char **argv)
       case '8':
         super.opts.use_hpfilter_dig = 0;
         fprintf (stderr, "Disable High Pass Filter on CODEC2 Output.\n");
+        break;
+
+      //enable RRC Filter
+      case '9':
+        super.opts.disable_rrc_filter = 0;
+        fprintf (stderr, "Enable RRC Filter on RF Audio Encoding / Decoding. \n");
         break;
 
       //just leave these here until I wrap up and get back to the 'cookie cutter' project
