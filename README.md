@@ -67,7 +67,7 @@ Please see Example Usage for a complete set of use case scenarios and configurat
 
 ### How to Build
 
-Add Link to .md file for install here
+Please see this section, [Install Notes](https://github.com/lwvmobile/m17-fme/install_notes.md "Install Notes") for information on cloning and compiling M17-FME.
 
 ## License
 

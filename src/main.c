@@ -502,6 +502,7 @@ int main (int argc, char **argv)
   //open any input or output audio devices or files
   open_audio_input (&super);
   open_audio_output (&super);
+  fprintf (stderr, "\n");
 
   //demodulate, frame sync, and decode OTA RF Audio, or captured/crafted files
   if (super.opts.use_m17_rfa_decoder == 1)
