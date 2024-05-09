@@ -25,25 +25,25 @@ void open_ncurses_terminal ()
   start_color();
   
   #ifdef PRETTY_COLORS
-  init_pair(1, COLOR_YELLOW, COLOR_BLACK);      //Yellow/Amber for frame sync/control channel, NV style
-  init_pair(2, COLOR_RED, COLOR_BLACK);        //Red for Terminated Calls
-  init_pair(3, COLOR_GREEN, COLOR_BLACK);     //Green for Active Calls
-  init_pair(4, COLOR_CYAN, COLOR_BLACK);     //Cyan for Site Extra and Patches
-  init_pair(5, COLOR_MAGENTA, COLOR_BLACK); //Magenta for no frame sync/signal
-  init_pair(6, COLOR_WHITE, COLOR_BLACK);  //White Card Color Scheme
-  init_pair(7, COLOR_BLACK, COLOR_WHITE);  //INVERT
-  init_pair(8, COLOR_RED, COLOR_WHITE);  //INVERT
-  init_pair(9, COLOR_BLUE, COLOR_WHITE);  //INVERT
+  init_pair(1, COLOR_YELLOW, COLOR_BLACK);  //Yellow/Amber
+  init_pair(2, COLOR_RED, COLOR_BLACK);     //Red
+  init_pair(3, COLOR_GREEN, COLOR_BLACK);   //Green
+  init_pair(4, COLOR_CYAN, COLOR_BLACK);    //Cyan
+  init_pair(5, COLOR_MAGENTA, COLOR_BLACK); //Magenta
+  init_pair(6, COLOR_WHITE, COLOR_BLACK);   //White
+  init_pair(7, COLOR_BLACK, COLOR_WHITE);   //INVERT
+  init_pair(8, COLOR_RED, COLOR_WHITE);     //INVERT
+  init_pair(9, COLOR_BLUE, COLOR_WHITE);    //INVERT
   #else
-  init_pair(1, COLOR_WHITE, COLOR_BLACK);  //White Card Color Scheme
-  init_pair(2, COLOR_WHITE, COLOR_BLACK);  //White Card Color Scheme
-  init_pair(3, COLOR_WHITE, COLOR_BLACK);  //White Card Color Scheme
-  init_pair(4, COLOR_WHITE, COLOR_BLACK);  //White Card Color Scheme
-  init_pair(5, COLOR_WHITE, COLOR_BLACK);  //White Card Color Scheme
-  init_pair(6, COLOR_WHITE, COLOR_BLACK);  //White Card Color Scheme
-  init_pair(7, COLOR_WHITE, COLOR_BLACK);  //White Card Color Scheme
-  init_pair(8, COLOR_WHITE, COLOR_BLACK);  //White Card Color Scheme
-  init_pair(9, COLOR_WHITE, COLOR_BLACK);  //White Card Color Scheme
+  init_pair(1, COLOR_WHITE, COLOR_BLACK);  //White
+  init_pair(2, COLOR_WHITE, COLOR_BLACK);  //White
+  init_pair(3, COLOR_WHITE, COLOR_BLACK);  //White
+  init_pair(4, COLOR_WHITE, COLOR_BLACK);  //White
+  init_pair(5, COLOR_WHITE, COLOR_BLACK);  //White
+  init_pair(6, COLOR_WHITE, COLOR_BLACK);  //White
+  init_pair(7, COLOR_WHITE, COLOR_BLACK);  //White
+  init_pair(8, COLOR_WHITE, COLOR_BLACK);  //White
+  init_pair(9, COLOR_WHITE, COLOR_BLACK);  //White
   #endif
 
   noecho();
@@ -54,10 +54,9 @@ void open_ncurses_terminal ()
 void print_ncurses_terminal(Super * super)
 {
 
- 
   int input_keystroke = 0;
 
-  //can't run getch/menu when using STDIN -
+  //can't run getch when using STDIN -
   if (super->opts.use_stdin_input != 1)
   {
     timeout(0);
@@ -109,6 +108,7 @@ void print_ncurses_terminal(Super * super)
 void print_ncurses_banner (Super * super)
 {
 
+  int i;
   if (super->opts.ncurses_show_banner == 0)
   {
     printw ("------------------------------------------------------------------------------\n");
@@ -117,7 +117,7 @@ void print_ncurses_banner (Super * super)
   }
   else
   {
-    for (int i = 1; i < 8; i++)
+    for (i = 1; i < 8; i++)
     {
       attron(COLOR_PAIR(7));
       printw ("%s", M_banner[i]);
@@ -241,12 +241,12 @@ void print_ncurses_scope (Super * super)
   if (super->demod.in_sync)
     attron(COLOR_PAIR(1));
 
-  uint8_t i;
+  uint8_t i; uint8_t end = 71; //uint8_t so it isn't a negative number when cycling backwards, but rollover
   printw ("--Symbol-Scope-(S)------------------------------------------------------------");
-  printw ("\n| +3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == +3.0f) printw("*"); else printw(" ");
-  printw ("\n| +1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == +1.0f) printw("*"); else printw(" ");
-  printw ("\n| -1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == -1.0f) printw("*"); else printw(" ");
-  printw ("\n| -3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(71-i)] == -3.0f) printw("*"); else printw(" ");
+  printw ("\n| +3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(end-i)] == +3.0f) printw("*"); else printw(" ");
+  printw ("\n| +1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(end-i)] == +1.0f) printw("*"); else printw(" ");
+  printw ("\n| -1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(end-i)] == -1.0f) printw("*"); else printw(" ");
+  printw ("\n| -3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(end-i)] == -3.0f) printw("*"); else printw(" ");
 
   //in level and symbol levels and center value
   if (!super->opts.use_m17_str_encoder && !super->opts.use_m17_ipf_decoder)
@@ -256,7 +256,7 @@ void print_ncurses_scope (Super * super)
         super->demod.input_level, super->demod.fsk4_max, super->demod.fsk4_umid,
         super->demod.fsk4_lmid, super->demod.fsk4_min, super->demod.fsk4_center);
   }
-  // printw ("\n| ");
+
   printw ("\n");
   printw ("------------------------------------------------------------------------------\n");
 
@@ -371,6 +371,7 @@ void print_ncurses_call_info (Super * super)
   printw ("\n");
   printw ("| ");
   printw ("M17: ");
+
   //insert data type and frame information
   if (super->m17d.dt == 0) printw("Reserved");
   if (super->m17d.dt == 1) printw("Packet Data ");
@@ -438,6 +439,7 @@ void print_ncurses_call_info (Super * super)
   else if (super->m17d.enc_et == 2)
   {
     printw ("AES-CTR IV: ");
+    
     //display packed meta as IV
     for (int i = 0; i < 16; i++)
       printw ("%02X", super->m17d.meta[i]);

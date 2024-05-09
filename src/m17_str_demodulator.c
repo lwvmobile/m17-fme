@@ -165,6 +165,15 @@ void prepare_str(Super * super, uint8_t * input)
   if (end == 1)
     fprintf (stderr, " END;");
 
+  //place code here, but may be better to leave it disabled if 
+  //bit errors occur (no parity or checksum on these bits)
+  // if (end == 1)
+  // {
+  //   //close per call wav file, if opened
+  //   if (super->wav.wav_out_pc)
+  //     close_wav_out_pc (super);
+  // }
+
   for (i = 0; i < 128; i++)
     payload[i] = trellis_buf[i+16];
 
