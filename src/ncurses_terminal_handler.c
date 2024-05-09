@@ -72,25 +72,25 @@ void print_ncurses_terminal(Super * super)
   //Print Config
   if (super->opts.ncurses_show_io)
     print_ncurses_config(super);
-  else printw ("--Input-Output-(I)------------------------------------------------------------\n");
+  else printw ("--Input-Output-(I)-------------------------------------------------------------\n");
 
   //Print Audio Levels
   if (super->opts.ncurses_show_audio)
     print_ncurses_levels(super);
-  else printw ("--Audio-Level--(A)------------------------------------------------------------\n");
+  else printw ("--Audio-Level--(A)-------------------------------------------------------------\n");
 
   //Print Symbol Scope
   if (super->opts.ncurses_show_scope)
     print_ncurses_scope(super);
-  else printw ("--Symbol-Scope-(S)------------------------------------------------------------\n");
+  else printw ("--Symbol-Scope-(S)-------------------------------------------------------------\n");
 
   //Print Decoded Call Info
   if (super->opts.ncurses_show_decode)
     print_ncurses_call_info(super);
   else if (!super->opts.use_m17_rfa_decoder && !super->opts.use_m17_ipf_decoder)
-    printw ("--Encode-Info--(D)------------------------------------------------------------\n");
+    printw ("--Encode-Info--(D)-------------------------------------------------------------\n");
   else
-    printw ("--Decode-Info--(D)------------------------------------------------------------\n");
+    printw ("--Decode-Info--(D)-------------------------------------------------------------\n");
 
   //Print Call History
   if (!super->opts.use_m17_str_encoder && !super->opts.use_m17_ipf_encoder && super->opts.ncurses_show_history)
@@ -111,9 +111,9 @@ void print_ncurses_banner (Super * super)
   int i;
   if (super->opts.ncurses_show_banner == 0)
   {
-    printw ("------------------------------------------------------------------------------\n");
+    printw ("-------------------------------------------------------------------------------\n");
     printw ("| Project M17: Florida Man Edition - Build: %s - Session: %04X\n", GIT_TAG, super->opts.random_number);
-    printw ("---------------(C)------------------------------------------------------------\n");
+    printw ("---------------(C)-------------------------------------------------------------\n");
   }
   else
   {
@@ -145,7 +145,7 @@ void print_ncurses_config (Super * super)
   //color on, cyan
   attron(COLOR_PAIR(4));
 
-  printw ("--Input-Output-(I)------------------------------------------------------------\n");
+  printw ("--Input-Output-(I)-------------------------------------------------------------\n");
   printw ("| ");
 
   //Input Methods (Hardware)
@@ -228,7 +228,7 @@ void print_ncurses_config (Super * super)
   
 
   printw ("\n");
-  printw ("------------------------------------------------------------------------------\n");
+  printw ("-------------------------------------------------------------------------------\n");
 
   //color off, back to white
   attron(COLOR_PAIR(6));
@@ -242,7 +242,7 @@ void print_ncurses_scope (Super * super)
     attron(COLOR_PAIR(1));
 
   uint8_t i; uint8_t end = 71; //uint8_t so it isn't a negative number when cycling backwards, but rollover
-  printw ("--Symbol-Scope-(S)------------------------------------------------------------");
+  printw ("--Symbol-Scope-(S)-------------------------------------------------------------");
   printw ("\n| +3:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(end-i)] == +3.0f) printw("*"); else printw(" ");
   printw ("\n| +1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(end-i)] == +1.0f) printw("*"); else printw(" ");
   printw ("\n| -1:"); for (i = 0; i < 72; i++) if (super->demod.float_symbol_buffer[(super->demod.float_symbol_buffer_ptr)-(end-i)] == -1.0f) printw("*"); else printw(" ");
@@ -258,7 +258,7 @@ void print_ncurses_scope (Super * super)
   }
 
   printw ("\n");
-  printw ("------------------------------------------------------------------------------\n");
+  printw ("-------------------------------------------------------------------------------\n");
 
   //color off, back to white
   attron(COLOR_PAIR(6));
@@ -270,7 +270,7 @@ void print_ncurses_levels (Super * super)
   if (super->demod.in_sync)
     attron(COLOR_PAIR(1));
 
-  printw ("--Audio-Level-(A)-------------------------------------------------------------\n");
+  printw ("--Audio-Level-(A)--------------------------------------------------------------\n");
 
   if (super->opts.use_m17_rfa_decoder == 1)
   {
@@ -317,7 +317,7 @@ void print_ncurses_levels (Super * super)
     else printw ("!HPF(h);");
     printw ("\n");
   }
-  printw ("------------------------------------------------------------------------------\n");
+  printw ("-------------------------------------------------------------------------------\n");
 
   //color off, back to white
   attron(COLOR_PAIR(6));
@@ -331,9 +331,9 @@ void print_ncurses_call_info (Super * super)
   else attron(COLOR_PAIR(6));
 
   if (!super->opts.use_m17_rfa_decoder && !super->opts.use_m17_ipf_decoder)
-    printw ("--Encode-Info--(D)------------------------------------------------------------\n");
+    printw ("--Encode-Info--(D)-------------------------------------------------------------\n");
   else
-    printw ("--Decode-Info--(D)------------------------------------------------------------\n");
+    printw ("--Decode-Info--(D)-------------------------------------------------------------\n");
 
   printw ("| ");
   printw ("M17: ");
@@ -518,7 +518,7 @@ void print_ncurses_call_info (Super * super)
   printw ("%s", shortstr);
 
   printw ("\n");
-  printw ("------------------------------------------------------------------------------\n");
+  printw ("-------------------------------------------------------------------------------\n");
 
   //color off, back to white
   attron(COLOR_PAIR(6));
@@ -531,7 +531,7 @@ void print_ncurses_call_history (Super * super)
   //color on, cyan
   attron(COLOR_PAIR(4));
 
-  printw ("--Call-History-(H)------------------------------------------------------------");
+  printw ("--Call-History-(H)-------------------------------------------------------------");
   for (i = 0; i < 10; i++)
   {
     if (super->m17d.callhistory[9-i][0] != 0)
@@ -539,7 +539,7 @@ void print_ncurses_call_history (Super * super)
     else printw ("\n| ");
   }
   printw ("\n| Reset Call History with (c) key.\n");
-  printw ("------------------------------------------------------------------------------\n");
+  printw ("-------------------------------------------------------------------------------\n");
 
   //color off, back to white
   attron(COLOR_PAIR(6));
