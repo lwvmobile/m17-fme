@@ -7,19 +7,19 @@ M17-FME has auto install scripts for Debian/Ubuntu/Mint based distros, Red Hat/F
 
 Debian/Ubuntu/Mint/Raspberry Pi OS
 ```
-wget https://raw.githubusercontent.com/lwvmobile/dsd-fme/audio_work/download-and-install-deb.sh
+wget https://raw.githubusercontent.com/lwvmobile/m17-fme/main/download-and-install-deb.sh
 sh download-and-install-deb.sh
 ```
 
 Red Hat/Fedora/RHEL
 ```
-wget https://raw.githubusercontent.com/lwvmobile/dsd-fme/audio_work/download-and-install-rhel.sh
+wget https://raw.githubusercontent.com/lwvmobile/m17-fme/main/download-and-install-rhel.sh
 sh download-and-install-rhel.sh
 ```
 
 Arch
 ```
-wget https://raw.githubusercontent.com/lwvmobile/dsd-fme/audio_work/download-and-install-arch.sh
+wget https://raw.githubusercontent.com/lwvmobile/m17-fme/main/download-and-install-arch.sh
 sh download-and-install-arch.sh
 ```
 
