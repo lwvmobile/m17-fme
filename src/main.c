@@ -67,7 +67,7 @@ void usage ()
   printf ("                (padsp wrapper required for OSS audio on Linux)\n");
   printf ("                /dev/dsp for OSS audio\n");
   printf ("                (OSS Can only do either RF output, or VX output,\n");
-  printf ("                (not both at the same time, specify encoder and decoder options below)\n");
+  printf ("                 not both at the same time, specify encoder and decoder options below)\n");
   #endif
   printf ("                udp for UDP Frame Output (default localhost:17000)\n");
   printf ("                udp:192.168.7.8:17001 for M17 UDP/IP blaster output (Target Address and Port)\n");
