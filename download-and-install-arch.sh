@@ -2,7 +2,7 @@
 #
 cdir=$(pwd)
 clear
-printf "Project M17: Florida Man Edition - Auto Installer For Arch Linux\n
+printf "Project M17: Florida Man Edition - Auto Installer For Arch Linux Based Distros\n
 This will install the required and recommended packages, clone, build, and install M17-FME\n.
 This has been tested on Arch 2023.08.01 and Manjaro XFCE 22.1.3 Minimal.\n
 A full system upgrade is recommended if before installing new dependencies\n
@@ -16,7 +16,7 @@ if [ "$ANSWER" = "y" ]; then
   sudo pacman -Syu 
   sudo pacman -S libpulse cmake ncurses codec2 base-devel libsndfile git wget
 
-  git clone https://github.com/lwvmobile/m17-fme
+  git clone https://github.com/lwvmobile/m17-fme.git
   cd m17-fme
   mkdir build
   cd build

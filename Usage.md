@@ -64,11 +64,11 @@ Encoder Input Strings:
   -U <str>      Set UDP/IP Frame HOST:PORT:MODULE 
                 (example: -U 127.0.0.1:17001:B) 
   -S <str>      Enter SMS Message (up to 772 UTF-8 characters) for Packet Data Encoder
-                (example: -S 'Hello World! This is a text message' 
+                (example: -S 'Hello World! This is a text message')
   -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.
-                (example: -A 'Hello World! This is arbitrary data on 1600' 
+                (example: -A 'Hello World! This is arbitrary data on 1600')
   -R <str>      Enter RAW Data for Packet Data Encoder (TODO: Not Working Yet).
-                (example: -R 'however this ends up getting in here, update this line' 
+                (example: -R 'however this ends up getting in here, update this line')
   -x            Encode Inverted Polarity on RF Output
 
 Decoder Options:
@@ -118,7 +118,3 @@ Quick Examples:
  m17-fme -i udp:127.0.0.1:17001 -N 2> m17decoder.txt 
 
 ```
-
-
-## License
-

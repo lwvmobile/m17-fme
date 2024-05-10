@@ -66,7 +66,7 @@ Please see [Usage](https://github.com/lwvmobile/m17-fme/Usage.md "Usage") for a 
 
 ### How to Build
 
-Please see this section, [Install Notes](https://github.com/lwvmobile/m17-fme/install_notes.md "Install Notes") for information on cloning and compiling M17-FME.
+Please see [Install Notes](https://github.com/lwvmobile/m17-fme/install_notes.md "Install Notes") for information on cloning and compiling M17-FME.
 
 ## License
 

@@ -2,7 +2,7 @@
 #
 cdir=$(pwd)
 clear
-printf "Project M17: Florida Man Edition - Auto Installer For Red Hat, Fedora, RHEL based Linux.\n
+printf "Project M17: Florida Man Edition - Auto Installer For Red Hat, Fedora, RHEL based Distros.\n
 This will install the required and recommended packages, clone, build, and install M17-FME\n.
 This has been tested on (Insert Latest Fedora Version Here).\n
 A full system upgrade is recommended if before installing new dependencies\n
@@ -14,7 +14,7 @@ if [ "$ANSWER" = "y" ]; then
   sudo dnf update 
   sudo dnf install libsndfile-devel pulseaudio-libs-devel cmake git ncurses ncurses-devel gcc wget pavucontrol gcc-c++ codec2-devel
 
-  git clone https://github.com/lwvmobile/m17-fme
+  git clone https://github.com/lwvmobile/m17-fme.git
   cd m17-fme
   mkdir build
   cd build

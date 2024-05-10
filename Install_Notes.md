@@ -1,15 +1,38 @@
 
 # M17 - Florida Man Edition
 
-## How to Build
+## Auto Install Scripts
+
+M17-FME has auto install scripts for Debian/Ubuntu/Mint based distros, Red Hat/Fedora/RHEL based distors, and for Arch based distros. Simply downloading and running these scripts will download all dependencies and install for you.
+
+Debian/Ubuntu/Mint/Raspberry Pi OS
+```
+wget https://raw.githubusercontent.com/lwvmobile/dsd-fme/audio_work/download-and-install-deb.sh
+sh download-and-install-deb.sh
+```
+
+Red Hat/Fedora/RHEL
+```
+wget https://raw.githubusercontent.com/lwvmobile/dsd-fme/audio_work/download-and-install-rhel.sh
+sh download-and-install-rhel.sh
+```
+
+Arch
+```
+wget https://raw.githubusercontent.com/lwvmobile/dsd-fme/audio_work/download-and-install-arch.sh
+sh download-and-install-arch.sh
+```
+
+## How to Build (Maunual Install)
 
 ### Dependencies
 
 Install Dependencies. Although M17-FME can be built with only the most minimal dependencies to make it highly modular and also highly portable, it is highly recommended to install all dependencies if possible, or there will be no nicer features like Ncurses Terminal w/ KB shortcuts, pulse audio input and output, and no Codec2 Support (which if you want M17 voice, you need Codec2).
 
-The following assumes a Debian/Ubuntu/Linux Mint Operating System, the following has been tested on Linux Mint 23.1 as of 2024.05.09. Please see your OS repo or package manager for equivalent packages if using RHEL/Arch/Other based environments.
-
+Debian/Ubuntu/Mint/Raspberry Pi OS
 ```
+sudo apt update
+
 recommended:
 sudo apt install cmake make build-essential git wget libsndfile1-dev libcodec2-dev libncurses5 libncurses5-dev libncursesw5-dev libpulse-dev pavucontrol socat
 
@@ -21,9 +44,37 @@ sudo apt install libcodec2-dev libncurses5 libncurses5-dev libncursesw5-dev libp
 
 ```
 
-NOTE: Users can see [DSD-FME](https://github.com/lwvmobile/dsd-fme/blob/audio_work/examples/Install_Notes.md#manual-install "DSD-FME") for Fedora and Arch, as the above requirements are also listed there, be sure to skip any undeeded ones such as mbelib, ITPP, rtlsdr, etc, as those are not used here. If you currently are a user of DSD-FME, you can just skip installing any of these (except Codec2) since you will already have the prerequisite dependencies installed for this as well.
+Red Hat/Fedora/RHEL
+```
+sudo dnf update
 
-### Pull and Install (Manual)
+recommended:
+sudo dnf install libsndfile-devel pulseaudio-libs-devel cmake git ncurses ncurses-devel gcc wget pavucontrol gcc-c++ codec2-devel
+
+required:
+sudo dnf install cmake build-essential git libsndfile-devel gcc-c++ wget
+
+optional:
+sudo dnf install codec2-devel ncurses ncurses-devel pulseaudio-libs-devel pavucontrol wget socat
+
+```
+
+Arch (Note, running a full system upgrade is highly advised, or you risk breaking dependency links and borking your system)
+```
+sudo pacman -Syu
+
+recommended:
+sudo pacman -S libpulse cmake ncurses codec2 base-devel libsndfile git wget
+
+required:
+sudo pacman install cmake base-devel git libsndfile
+
+optional:
+sudo apt install codec2 ncurses libpulse pavucontrol wget socat
+
+```
+
+### Pull, Compile, and Install
 
 ```
 git clone https://github.com/lwvmobile/m17-fme.git
@@ -35,9 +86,4 @@ make
 sudo make install
 ```
 
-### Automatic Build Script
-
-//TODO: Make a build script for debian/*buntu/mint and arch based on pre-existing ones for DSD-FME.
-
-## License
 
