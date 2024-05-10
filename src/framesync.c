@@ -162,7 +162,7 @@ float demodulate_and_return_float_symbol(Super * super)
     buffer_refresh_min_max_center(super);
 
     //select the best sample based on distance
-    sample = basic_select_sample(super, samples);
+    sample = basic_sample_selector(super, samples);
 
     //slice float_symbol from provided sample
     float_symbol = float_symbol_slicer(super, sample);
@@ -202,7 +202,7 @@ float demodulate_and_return_float_symbol(Super * super)
 }
 
 //crude selection procedure to determine what the optimal sample value is
-short basic_select_sample(Super * super, short * samples)
+short basic_sample_selector(Super * super, short * samples)
 {
 
   //NOTE: This function is not meant to be a true method of FSK4
