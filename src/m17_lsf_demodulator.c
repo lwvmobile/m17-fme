@@ -160,6 +160,9 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
 
   if (crc_err == 1) fprintf (stderr, " CRC ERR");
 
+  //track errors
+  if (crc_err == 1) super->error.lsf_hdr_crc_err++;
+
   //get rid of this if it costs too much CPU / skips / lags
   super->demod.sync_time = super->demod.current_time = time(NULL);
 

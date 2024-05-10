@@ -285,8 +285,7 @@ void init_super (Super * super)
   super->snd_src_in.audio_in_file_info->format = SF_FORMAT_RAW|SF_FORMAT_PCM_16|SF_ENDIAN_LITTLE;
   //end snd_src_input snd_src_in
 
-  //HPF Initception //TODO: Sort this out
-  // HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
+  //init HPF
   HPFilter_Init (&super->hpf_d, 960, (float)1/(float)super->opts.input_sample_rate);
   //end HPF Init
 
@@ -306,6 +305,16 @@ void init_super (Super * super)
   super->enc.A4 = 0;
   memset (super->enc.aes_key, 0, 32*sizeof(uint8_t));
   //end init enc
+
+  //init error
+  super->error.lsf_hdr_crc_err = 0;
+  super->error.lsf_emb_crc_err = 0;
+  super->error.pkt_crc_err = 0;
+  super->error.ipf_crc_err = 0;
+  super->error.golay_err = 0;
+  super->error.viterbi_err = 0;
+  super->error.bert_err = 0;
+  //end init error
 }
 
 //this function will enable the default starting state (RF decoder w/ pulse audio input and output)

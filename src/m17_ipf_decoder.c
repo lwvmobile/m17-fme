@@ -135,6 +135,9 @@ void decode_ipf (Super * super)
 
       if (crc_ext != crc_cmp) fprintf (stderr, " IP CRC ERR");
 
+      //track errors
+      if (crc_ext != crc_cmp) super->error.ipf_crc_err++;
+
       //clear frame
       memset (ip_frame, 0, sizeof(ip_frame));
 
@@ -294,6 +297,9 @@ void decode_ipf (Super * super)
       }
         
       if (crc_ext != crc_cmp) fprintf (stderr, " IP CRC ERR");
+
+      //track errors
+      if (crc_ext != crc_cmp) super->error.ipf_crc_err++;
 
       //clear frame
       memset(ip_frame, 0, sizeof(ip_frame));

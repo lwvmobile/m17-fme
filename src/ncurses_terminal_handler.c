@@ -521,6 +521,14 @@ void print_ncurses_call_info (Super * super)
   printw ("ARB: ");
   printw ("%s", shortstr);
 
+  //error tracking
+  printw ("\n");
+  printw ("| ");
+  printw ("ERR: ");
+  printw ("LSF: %05d; EMB: %05d; GLY: %05d; PKT: %05d; IPF: %05d; ", 
+    super->error.lsf_hdr_crc_err, super->error.lsf_emb_crc_err, 
+    super->error.golay_err, super->error.pkt_crc_err, super->error.ipf_crc_err);
+
   printw ("\n");
   printw ("-------------------------------------------------------------------------------\n");
 

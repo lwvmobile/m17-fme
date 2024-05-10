@@ -143,6 +143,9 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
     if (crc_cmp != crc_ext)
       fprintf (stderr, " (CRC ERR) ");
 
+    //error tracking
+    if (crc_cmp != crc_ext) super->error.pkt_crc_err++;
+
     //decode completed packet
     if (crc_cmp == crc_ext)
       decode_pkt_contents(super, super->m17d.pkt, total);

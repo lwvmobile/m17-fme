@@ -370,6 +370,19 @@ typedef struct
 
 } Encryption;
 
+//Error Tracking
+typedef struct
+{
+  uint16_t lsf_hdr_crc_err;
+  uint16_t lsf_emb_crc_err;
+  uint16_t pkt_crc_err;
+  uint16_t ipf_crc_err;
+  uint16_t golay_err;
+  uint16_t viterbi_err;
+  uint16_t bert_err;
+
+} Error;
+
 //Nested Super Struct comprised of all the other ones so I don't 
 //have to pass upteen structs around to everywhere
 typedef struct
@@ -383,6 +396,7 @@ typedef struct
   snd_src_input snd_src_in;
   HPFilter hpf_d;
   Encryption enc;
+  Error error;
 } Super;
 
 //c function prototypes

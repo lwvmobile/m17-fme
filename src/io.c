@@ -155,7 +155,21 @@ void cleanup_and_exit (Super * super)
   if (super->opts.rig_remote_sock)
     close (super->opts.rig_remote_sock);
 
-  fprintf (stderr, "\n\n");
+  fprintf (stderr, "\n");
+  fprintf (stderr, "\n");
+  fprintf (stderr, "Total Errors:\n");
+  fprintf (stderr, "Link Setup Frame ERR: %05d;\n", super->error.lsf_hdr_crc_err);
+  fprintf (stderr, "Embedded Link    ERR: %05d;\n", super->error.lsf_emb_crc_err);
+  fprintf (stderr, "LICH Golay 24    ERR: %05d;\n", super->error.golay_err);
+  fprintf (stderr, "Packet Data      ERR: %05d;\n", super->error.pkt_crc_err);
+  fprintf (stderr, "IP Frame         ERR: %05d;\n", super->error.ipf_crc_err);
+  
+  //TODO: Implement Metric / Error rates on Viterbi / Conv decoer and BERT when done.
+  // fprintf (stderr, "BERT Frame       ERR: %05d;\n", super->error.bert_err);
+  // fprintf (stderr, "Viterbi          ERR: %05d;\n", super->error.viterbi_err);
+
+  fprintf (stderr, "\n");
+
   fprintf (stderr,"Exiting.\n");
 
   #ifdef USE_CURSES

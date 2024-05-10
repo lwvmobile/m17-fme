@@ -39,7 +39,12 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
       lich[i][j] = lich_bits[(i*24)+j];
 
     g[i] = Golay_24_12_decode(lich[i]);
-    if(g[i] == false) err = -1;
+    if(g[i] == false)
+    {
+      //track errors
+      super->error.golay_err++;
+      err = -1;
+    }
 
     for (j = 0; j < 12; j++)
       lich_decoded[i*12+j] = lich[i][j];
@@ -115,6 +120,10 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
     memset (super->m17d.lsf, 0, sizeof(super->m17d.lsf));
 
     if (crc_err == 1) fprintf (stderr, "\n Embedded LSF CRC ERR");
+
+    //track errors
+    if (crc_err == 1) super->error.lsf_emb_crc_err++;
+
   }
 
   return err;
