@@ -48,8 +48,8 @@ void usage ()
   printf ("                /dev/dsp for OSS audio\n");
   #endif
   printf ("                udp for UDP Frame Input (default localhost:17000)\n");
-  printf ("                udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port\n");
-  printf ("                m17udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port\n");
+  printf ("                udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port)\n");
+  printf ("                m17udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port)\n");
   printf ("  -w <file>     48k/1 SNDFile Compatible RF Audio .wav or .rrc input file\n");
   printf ("  -c <file>     DSD-FME Compatible Dibit/Symbol Capture Bin input file (from RF Encoder)\n");
   printf ("  -f <file>     Float Symbol input file (from RF Encoder and M17_Implementations)\n");
@@ -70,8 +70,8 @@ void usage ()
   printf ("                (not both at the same time, specify encoder and decoder options below)\n");
   #endif
   printf ("                udp for UDP Frame Output (default localhost:17000)\n");
-  printf ("                udp:192.168.7.8:17001 for M17 UDP/IP blaster output (Target Address and Port\n");
-  printf ("                m17udp:192.168.7.8:17001 for M17 UDP/IP blaster output (Target Address and Port\n");
+  printf ("                udp:192.168.7.8:17001 for M17 UDP/IP blaster output (Target Address and Port)\n");
+  printf ("                m17udp:192.168.7.8:17001 for M17 UDP/IP blaster output (Target Address and Port)\n");
   printf ("  -W <file>     48k/1 SNDFile Compatible RF Audio .wav output file\n");
   printf ("  -C <file>     DSD-FME Compatible Dibit/Symbol Capture Bin output file\n");
   printf ("  -F <file>     Float Symbol output file (M17_Implementations Compatible)\n");
