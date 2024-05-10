@@ -97,7 +97,8 @@ void print_ncurses_terminal(Super * super)
     printw ("--Decode-Info--(D)-------------------------------------------------------------\n");
 
   //Print Call History
-  if (!super->opts.use_m17_str_encoder && !super->opts.use_m17_ipf_encoder && super->opts.ncurses_show_history)
+  if (super->opts.use_m17_str_encoder || super->opts.use_m17_ipf_encoder || super->opts.use_m17_pkt_encoder) {}
+  else if (super->opts.ncurses_show_history)
     print_ncurses_call_history(super);
   else printw ("--Call-History-(H)-------------------------------------------------------------\n");
 
