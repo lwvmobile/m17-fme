@@ -4,9 +4,11 @@
 ## Information
 
 M17-FME is a stand-alone encoder and decoder of [M17 Project](https://m17project.org/ "M17") protocol.
-M17-FME uses the open source [Codec2](https://github.com/drowe67/codec2 "Codec2") vocoder, and built on the specifications openly and freely provided under M17 Protocol Specifications. [M17 Protocol Specifications](https://spec.m17project.org/ "M17 Protocol Specifications"). M17-FME should only be considered an 'educational' tool for radio enthusiasts and people interested in tinkering. It is also in an early beta stage, and as such, is prone to error and may have changing functionality over time as features are added, removed, reworked, etc. This tool should never be used for any commercial or critical needs, and any use for ill or malicious intent (jamming, DDOS, trolling, warfare, etc) is NOT CONDONED or TOLERATED!
+M17-FME uses the open source [Codec2](https://github.com/drowe67/codec2 "Codec2") vocoder, and built on the specifications openly and freely provided under [M17 Protocol Specifications](https://spec.m17project.org/ "M17 Protocol Specifications"). M17-FME should only be considered an 'educational' tool for radio enthusiasts and people interested in tinkering. It is also in an early beta stage, and as such, is prone to error and may have changing functionality over time as features are added, removed, reworked, etc. This tool should never be used for any commercial or critical needs, and any use for ill or malicious intent (jamming, DDOS, trolling, warfare, etc) is NOT CONDONED or TOLERATED!
 
-//Add a nice photo here
+![M17-FME](https://github.com/lwvmobile/m17-fme/blob/main/m17-fme1.png)
+
+![M17-FME](https://github.com/lwvmobile/m17-fme/blob/main/m17-fme2.png)
 
 ## Functionality
 
@@ -62,11 +64,11 @@ M17-FME supports both the encryption and decryption of Voice Stream using AES an
 
 ```
 
-Please see [Usage](https://github.com/lwvmobile/m17-fme/Usage.md "Usage") for a complete set of use case scenarios and configuration.
+Please see [Usage](https://github.com/lwvmobile/m17-fme/blob/main/Usage.md "Usage") for a complete set of use case scenarios and configuration.
 
 ### How to Build
 
-Please see [Install Notes](https://github.com/lwvmobile/m17-fme/install_notes.md "Install Notes") for information on cloning and compiling M17-FME.
+Please see [Install Notes](https://github.com/lwvmobile/m17-fme/blob/main/Install_Notes.md "Install Notes") for information on cloning and compiling M17-FME.
 
 ## License
 
