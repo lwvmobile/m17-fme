@@ -123,7 +123,7 @@ void usage ()
   printf ("  -8            Disable High Pass Filter on CODEC2 Output. \n");
   printf ("  -9            Enable RRC Filter on RF Audio Encoding / Decoding. \n");
   printf ("\n");
-  printf ("Quick Examples:\n"); //'\' key, toggle TX
+  printf ("Quick Examples:\n");
   printf ("\n");
   printf (" Stream Voice Encoder with Mic Input (pulsevx) RF Output (pulserf), float symbol file output (float.sym) \n");
   printf (" m17-fme -i pulsevx -o pulserf -V -F float.sym -N 2> m17encoder.txt \n");
