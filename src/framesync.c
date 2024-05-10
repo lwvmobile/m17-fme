@@ -111,6 +111,7 @@ float demodulate_and_return_float_symbol(Super * super)
   int i;
   short sample = 0;
   float float_symbol = 0.0f;
+  uint8_t dibit = 0;
 
   //If reading from float symbol in file
   if (super->opts.float_symbol_in != NULL)
@@ -124,7 +125,7 @@ float demodulate_and_return_float_symbol(Super * super)
   else if (super->opts.dibit_in != NULL)
   {
     //read one dibit
-    uint8_t dibit = fgetc (super->opts.dibit_in);
+    dibit = fgetc (super->opts.dibit_in);
 
     //convert dibit to float (I know its redundant...but easier to shoe it in here)
     if      (dibit == 0) float_symbol = +1.0f;
@@ -176,6 +177,17 @@ float demodulate_and_return_float_symbol(Super * super)
 
   //store sample used
   super->demod.sample_buffer[super->demod.sample_buffer_ptr++] = sample;
+
+  //save symbol stream format (M17_Implementations), if opened
+  if (super->opts.float_symbol_out)
+    fwrite(&float_symbol, sizeof(float), 1, super->opts.float_symbol_out); //sizeof(float) is 4 (usually)
+
+  //save dibits to DSD-FME compatible "symbol" capture bin file format
+  if (super->opts.dibit_out) //use -C output.bin to use this format for output
+  {
+    dibit = digitize_symbol_to_dibit(float_symbol);
+    fputc (dibit, super->opts.dibit_out);
+  }
 
   //NOTE: The index pointers are cast as uint8_t values, so they will never be 'negative', or core dump,
   //they will just perpetually roll over back to zero each time so its effectively a ring buffer of 255
