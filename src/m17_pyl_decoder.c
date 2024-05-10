@@ -126,7 +126,7 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
       pulse_audio_output_vx(super, upsamp2, nsam*6);
   }
   #else
-  if (super->pa.pa_output_vx_is_open == 1) {} //should never be here, but need to fix compiler warning if NOT pulse audio
+  if (super->pa.pa_output_vx_is_open == 1) {}
   #endif
 
   else if (super->opts.oss_output_device)

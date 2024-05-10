@@ -14,9 +14,6 @@ void fsk4_framesync (Super * super)
   //sync type
   int type = -1;
 
-  //the last_symbol buffer is now super->demod.sync_symbols so sync
-  //can be obtained when exiting and re-entering this function if needed
-
   //look for frame synchronization
   for (int i = 0; i < 192*1; i++)
   {
@@ -156,7 +153,7 @@ float demodulate_and_return_float_symbol(Super * super)
       if (!super->opts.disable_rrc_filter)
         sample = rrc_input_filter(super->demod.rrc_input_mem, sample);
 
-      //store locally for clock recover / transition inspection
+      //store locally for inspection inspection
       samples[i] = sample;
 
     }
@@ -189,7 +186,7 @@ float demodulate_and_return_float_symbol(Super * super)
     fputc (dibit, super->opts.dibit_out);
   }
 
-  //NOTE: The index pointers are cast as uint8_t values, so they will never be 'negative', or core dump,
+  //NOTE: The index pointers are cast as uint8_t values, so they "SHOULD" never be 'negative', or core dump,
   //they will just perpetually roll over back to zero each time so its effectively a ring buffer of 255
 
   //debug

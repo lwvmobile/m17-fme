@@ -475,12 +475,6 @@ void aes256_block_output (uint8_t * iv, uint8_t * key, uint8_t output_blocks[240
   //load first round of processed_blocks with received IV (OFB First Input Register)
   memcpy (processed_blocks, iv, 16*sizeof(uint8_t) );
 
-  //debug the copy 
-  // fprintf (stderr, " IV = ");
-  // for (i = 0; i < 16; i++)
-  //     fprintf (stderr, "%02X", processed_blocks[i]);
-  // fprintf (stderr, "\n");
-
   //initialize the key variable for the Cipher function
   memset (ctx.RoundKey, 0, 240*sizeof(uint8_t));
   KeyExpansion(ctx.RoundKey, key);
@@ -596,7 +590,7 @@ void aes192_block_output (uint8_t * iv, uint8_t * key, uint8_t output_blocks[240
 void aes_ctr_str_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int type)
 {
   //NOTE: This has been tested and works with m17-tools aes crypt, noting m17-tools keylen is 
-  //always 128 due to hard coded Nb Nk and Nr values in the source code, regardless
+  //always 128 due to hard coded Nb Nk and Nr values in their source code, regardless
   //of the user supplied key value len
 
   //NOTE: Wrote new utility functions for packing and unpacking bit arrays and byte arrays,

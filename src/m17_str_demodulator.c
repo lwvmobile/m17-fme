@@ -67,9 +67,6 @@ void demod_str(Super * super, uint8_t * input, int debug)
   if (lich_err == 0)
     prepare_str(super, m17_bits);
 
-  //ending linebreak
-  // fprintf (stderr, "\n");
-
   //get rid of this if it costs too much CPU / skips / lags
   super->demod.sync_time = super->demod.current_time = time(NULL);
 

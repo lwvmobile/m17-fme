@@ -15,13 +15,11 @@ void decode_ipf (Super * super)
   //quell defined but not used warnings from m17.h
   stfu ();
 
-  //Tweaks and Enable Ncurses Terminal
+  //Enable Ncurses Terminal
   #ifdef USE_CURSES
   if (super->opts.use_ncurses_terminal == 1)
     open_ncurses_terminal(super);
   #endif
-
-  //NOTE: Update info here to reflect for M17-FME and/or DSD-FME?
 
   //Bind UDP Socket
   int err = 1; //NOTE: err will tell us how many bytes were received, if successful
@@ -53,9 +51,6 @@ void decode_ipf (Super * super)
     if (super->opts.m17_udp_sock) //double check
     {
       //NOTE: blocking issue resolved with setsockopt in udp_socket_bind
-
-      //NOTE: Using recvfrom seems to load MSB of array first, 
-      //compared to having to push samples through it like with STDIN.
 
       err = m17_socket_receiver(super, &ip_frame);
 
@@ -117,7 +112,7 @@ void decode_ipf (Super * super)
       uint16_t crc_cmp = crc16(ip_frame, 52);
 
       if (crc_ext == crc_cmp)
-        decode_lsf_contents(super); //double check and test this
+        decode_lsf_contents(super);
 
       //Consolodate these two
       if (super->m17d.dt == 2)

@@ -30,6 +30,7 @@ void pn_sequence_generator (Super * super)
 
   fprintf (stderr, " Scrambler Key: %X; Subtype: %d;", lfsr, subtype);
   if (super->opts.demod_verbosity > 2) fprintf (stderr, "\n pN: ");
+  
   //run pN sequence with taps specified
   for (i = 0; i < 128*6; i++)
   {

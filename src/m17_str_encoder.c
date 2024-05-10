@@ -29,7 +29,7 @@ void encode_str(Super * super)
   uint8_t nil[368]; //empty array to send to RF during Preamble, EOT Marker, or Dead Air
   memset (nil, 0, sizeof(nil));
 
-  //Enable frame, TX and Ncurses Printer
+  //Enable TX
   super->m17e.str_encoder_tx = 1;
 
   //if using the ncurses terminal, disable TX on startup until user toggles it with the '\' key, if not vox enabled
@@ -143,7 +143,7 @@ void encode_str(Super * super)
     nsam = codec2_samples_per_frame(super->m17e.codec2_3200);
   else if (st == 3)
     nsam = codec2_samples_per_frame(super->m17e.codec2_1600);
-  else nsam = 160; //default to 160 if RES or DATA, even if we don't handle those
+  else nsam = 160; //default to 160 if RES, even if we don't handle those
   #endif
 
   short * samp1 = malloc (sizeof(short) * nsam);
@@ -376,7 +376,7 @@ void encode_str(Super * super)
     //read in RMS value for vox function;
     super->demod.input_rms = raw_rms(voice1, nsam, 1);
 
-    //convert out audio input into CODEC2  8 byte data stream
+    //convert out audio input into CODEC2 8 byte data stream
     uint8_t vc1_bytes[8]; memset (vc1_bytes, 0, sizeof(vc1_bytes));
     uint8_t vc2_bytes[8]; memset (vc2_bytes, 0, sizeof(vc2_bytes));
 
@@ -496,7 +496,7 @@ void encode_str(Super * super)
       m17_v1[i+1] = ( (uint8_t)(fsn >> (14-i)) ) &1;
 
     //Use the convolutional encoder to encode the voice / data stream
-    simple_conv_encoder (m17_v1, m17_v1c, 148); //was 144, not 144+4
+    simple_conv_encoder (m17_v1, m17_v1c, 148);
 
     //use the P2 puncture to...puncture and collapse the voice / data stream
     k = 0; x = 0;
@@ -549,7 +549,7 @@ void encode_str(Super * super)
     // lsf_chunk[lich_cnt][46] = (lsf_dt >> 1) & 1;
     // lsf_chunk[lich_cnt][47] = (lsf_dt >> 0) & 1;
 
-    // //restore original LSF (keeping here will prevent this on IP Frames)
+    //restore original LSF (keeping here will prevent this on IP Frames)
     // memcpy (m17_lsf, super->m17e.lsf_bkp, 240*sizeof(uint8_t));
 
     //encode with golay 24,12 and load into m17_l1g

@@ -19,7 +19,7 @@ void open_audio_input (Super * super)
   else if (super->opts.use_dibit_input == 1)
     super->opts.dibit_in = fopen (super->opts.dibit_input_file, "r");
   
-  //Might make an all-in-one SND file input open by passing a srtring to the input name for that?
+  //TCP Sourced SB16LE Network Sink
   else if (super->opts.use_tcp_input == 1)
   {
     super->opts.tcp_input_sock = 
@@ -34,6 +34,7 @@ void open_audio_input (Super * super)
     else exitflag = 1;
   }
 
+  //STDIN Sourced SB16LE Input
   else if (super->opts.use_stdin_input == 1)
   {
     stdin_snd_audio_source_open(super);
@@ -41,30 +42,30 @@ void open_audio_input (Super * super)
     super->opts.use_snd_input = 1;
   }
 
-  //NOTE: This is working well yet, needs work in demod
+  //.wav, .rrc (or other) Sourced SB16LE file based input
   else if (super->opts.snd_input_is_a_file == 1)
   {
     file_snd_audio_source_open(super);
     super->opts.use_snd_input = 1;
   }
 
-  //TODO: Test Setup OSS Input
+  //OSS "dev/dsp" Input
   else if (super->opts.use_oss_input == 1)
   {
     open_oss_input(super);
   }
 
+  //Pulse Audio Input
   #ifdef USE_PULSEAUDIO
   else if (super->opts.use_pa_input == 1)
   {
     open_pulse_audio_input (super);
-
   }
   #endif
 
 }
 
-//Including WAV files
+//Including WAV output files
 void open_audio_output (Super * super)
 {
 
@@ -74,6 +75,7 @@ void open_audio_output (Super * super)
   if (super->opts.use_wav_out_vx == 1)
     open_wav_out_vx(super);
 
+  //float symbol output file
   if (super->opts.use_float_symbol_output == 1)
     super->opts.float_symbol_out = fopen (super->opts.float_symbol_output_file, "w");
 
@@ -81,8 +83,6 @@ void open_audio_output (Super * super)
   if (super->opts.use_dibit_output == 1)
     super->opts.dibit_out = fopen (super->opts.dibit_output_file, "w");
 
-  //TODO: TEST if-elseif-elseif statements for these
-  //TODO: Test Setup OSS Output
   if (super->opts.use_oss_output == 1)
     open_oss_output(super);
 
@@ -90,7 +90,7 @@ void open_audio_output (Super * super)
     open_stdout_pipe(super);
 
   #ifdef USE_PULSEAUDIO
-  else //honestly, this else may not really be needed
+  else
   {
     if (super->opts.use_pa_output_rf == 1)
       open_pulse_audio_output_rf (super);
@@ -155,7 +155,7 @@ void cleanup_and_exit (Super * super)
   if (super->opts.rig_remote_sock)
     close (super->opts.rig_remote_sock);
 
-  fprintf (stderr, "\n");
+  fprintf (stderr, "\n\n");
   fprintf (stderr,"Exiting.\n");
 
   #ifdef USE_CURSES
@@ -187,7 +187,6 @@ void parse_input_option_string (Super * super, char * input)
     fprintf (stderr, "\n");
     fprintf (stderr, "Audio Input Device: TCP;");
     super->opts.use_tcp_input = 1;
-    //TODO: Full String Parse, if supplied (copy and paste from somewhere else)
   }
 
   else if ( (strncmp(input, "/dev/dsp", 8) == 0) )
@@ -377,9 +376,6 @@ void parse_udp_user_string (Super * super, char * input)
 
   char * curr;
 
-  //debug
-  // fprintf (stderr, "UDP INPUT STR: %s\n", input);
-
   curr = strtok(input, ":");
   if (curr != NULL)
     strncpy (super->opts.m17_hostname, curr, 1023);
@@ -391,9 +387,6 @@ void parse_udp_user_string (Super * super, char * input)
   {
     //read reflector module
     super->m17e.reflector_module = *curr; //straight assignment to convert char 'A' to number
-
-    //debug char to number
-    // fprintf (stderr, "%d:%d:%d; ", super->m17e.reflector_module, *curr, 'A');
 
     //check for capitalization
     if(super->m17e.reflector_module >= 'a' && super->m17e.reflector_module <= 'z')
@@ -415,8 +408,5 @@ void parse_udp_user_string (Super * super, char * input)
     fprintf (stderr, "Module: %c; ", super->m17e.reflector_module);
 
   fprintf (stderr, "\n");
-
-  //since it was enabled by the user, go ahead and turn it on here
-  // super->opts.m17_use_ip = 1; //no, could be for input or output
 
 }

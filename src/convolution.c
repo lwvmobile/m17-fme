@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
  * convolution.c
- * Project M17 - Convolutional Encoder and Viterbi Decoder(s)
+ * Project M17 - Convolutional Encoder and Convolutional / Viterbi Decoder(s)
  *
  * LWVMOBILE
  * 2024-05 Project M17 - Florida Man Edition
