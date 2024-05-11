@@ -101,7 +101,7 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
   // memset (trellis_buf, 0, sizeof(trellis_buf));
   // memset (m_data, 0, sizeof (m_data));
   // trellis_decode(trellis_buf, m17_depunc, 206);
-  // pack_bit_array_into_byte_array_asym(trellis_buf, m_data, 206); //Works!
+  // pack_bit_array_into_byte_array_asym(trellis_buf, m_data, 206);
 
   uint8_t pkt_packed[26];
   memset (pkt_packed, 0, sizeof(pkt_packed));

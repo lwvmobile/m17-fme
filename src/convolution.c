@@ -194,9 +194,11 @@ void convolution_init()
  */
 
 static const int PARITY[] = {0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1};
+static const int NTEST = 4;
+static const int NTESTC = 1 << NTEST;
 
 // trellis_1_2 encode: source is in bits, result in bits
-void trellis_encode(uint8_t result[], const uint8_t source[], int result_len, int reg)
+void trellis_encode(uint8_t * result, uint8_t * source, int result_len, int reg)
 {
 	for (int i=0; i<result_len; i+=2) {
 		reg = (reg << 1) | source[i>>1];
@@ -209,13 +211,11 @@ void trellis_encode(uint8_t result[], const uint8_t source[], int result_len, in
 // assumes that encoding was done with NTEST trailing zero bits
 // result_len should be set to the actual number of data bits
 // in the original unencoded message (excl. these trailing bits)
-void trellis_decode(uint8_t result[], const uint8_t source[], int result_len)
+void trellis_decode(uint8_t * result, uint8_t * source, int result_len)
 {
 	int reg = 0;
 	int min_d;
 	int min_bt;
-	static const int NTEST = 4;
-	static const int NTESTC = 1 << NTEST;
 	uint8_t bt[NTEST];
 	uint8_t tt[NTEST*2];
 	int dstats[4];
@@ -244,5 +244,5 @@ void trellis_decode(uint8_t result[], const uint8_t source[], int result_len)
 	}
 	
 	//debug output
-	fprintf (stderr, " stats\t%d; %d; %d; %d; ", dstats[0], dstats[1], dstats[2], dstats[3]);
+	fprintf (stderr, " stats: %03d; %03d; %03d; %03d; ", dstats[0], dstats[1], dstats[2], dstats[3]);
 }

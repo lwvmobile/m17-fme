@@ -496,8 +496,8 @@ void convolution_start ();
 void convolution_init ();
 
 //alternate viterbi (trellis) encoder and decoder
-void trellis_encode(uint8_t result[], const uint8_t source[], int result_len, int reg);
-void trellis_decode(uint8_t result[], const uint8_t source[], int result_len);
+void trellis_encode(uint8_t * result, uint8_t * source, int result_len, int reg);
+void trellis_decode(uint8_t * result, uint8_t * source, int result_len);
 
 //Golay 24_12 encoder and decoder
 void Golay_24_12_encode (unsigned char *origBits, unsigned char *encodedBits);
