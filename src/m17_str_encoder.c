@@ -159,7 +159,7 @@ void encode_str(Super * super)
   uint8_t lsf_count = 0; //rolling embedded LSF counter for sending substitution LSF embedded frames 
 
   uint8_t lsf_chunk[6][48]; //40 bit chunks of link information spread across 6 frames
-  uint8_t m17_lsf[240];    //the complete LSF
+  uint8_t m17_lsf[244];    //the complete LSF + 4 trailing bits
 
   memset (lsf_chunk, 0, sizeof(lsf_chunk));
   memset (m17_lsf, 0, sizeof(m17_lsf));

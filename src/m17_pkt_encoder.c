@@ -96,7 +96,7 @@ void encode_pkt(Super * super)
   //NOTE: PKT mode does not seem to have an IP format specified by M17 standard,
   //so I will assume that you do not send PKT data over IP to a reflector
 
-  uint8_t m17_lsf[240];
+  uint8_t m17_lsf[244]; //the complete LSF + 4 trailing bits
   memset (m17_lsf, 0, sizeof(m17_lsf));
 
   //Setup LSF Variables, these are not sent in chunks like with voice
