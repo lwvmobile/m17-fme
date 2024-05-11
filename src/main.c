@@ -29,6 +29,7 @@ void usage ()
   printf ("  or:  m17-fme -h           Show Help\n");
   printf ("\n");
   printf ("Display Options:\n");
+  printf ("\n");
   printf ("  -N            Use NCurses Terminal\n");
   printf ("                 m17-fme -N 2> log.txt \n");
   printf ("  -v <num>      Payload Verbosity Level\n");
@@ -84,6 +85,7 @@ void usage ()
   printf ("                (can be combined with Loopback or RFA output)\n");
   printf ("  -L            Enable Internal Encoder Loopback Decoder (must be used with pulsevx output)\n");
   printf ("  -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder\n");
+  printf ("\n");
   printf ("Encoder Input Strings:\n");
   printf ("\n");
   printf ("  -M <str>      Set M17 CAN:SRC:DST \n");
@@ -99,12 +101,14 @@ void usage ()
   printf ("  -x            Encode Inverted Polarity on RF Output\n");
   printf ("\n");
   printf ("Decoder Options:\n");
+  printf ("\n");
   printf ("  -r            Enable RFA Demodulator and Decoding of Stream and Packet Data\n");
   printf ("  -x            Expect Inverted Polarity on RF Input\n");
   printf ("  -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 \n");
-  printf ("  -p <file>     Per Call decoded voice wav file saving into current directory ./M17WAV folder\n");
+  printf ("  -p            Per Call decoded voice wav file saving into current directory ./M17WAV folder\n");
   printf ("\n");
   printf ("Encryption Options:\n");
+  printf ("\n");
   printf ("                (NOTE: Encoder and Decoder share same values here)\n");
   printf ("  -e <hex>      Enter Scrambler Key Value (up to 24-bit / 6 Hex Character)\n");
   printf ("                (example: -e ABCDEF)\n");
@@ -115,13 +119,15 @@ void usage ()
   printf ("                (Limiting significant key value to first 32 characters to maintain compatibility)\n");
   printf ("\n");
   printf ("Debug Options:\n");
+  printf ("\n");
   printf ("  -1            Generate Random One Time Use 24-bit Scrambler Key \n");
-  printf ("  -2            Disable RRC Filter on RF Audio Encoding / Decoding. \n");
-  printf ("  -3            Generate Random One Time Use 24-bit Scrambler Key. \n");
+  printf ("  -2            Generate Random One Time Use 256-bit AES Key. \n");
+  printf ("  -3            Generate Random One Time Use 256-bit AES Key. \n");
   printf ("  -4            Permit Data Decoding on CRC Failure (not recommended). \n");
   printf ("  -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). \n");
   printf ("  -8            Disable High Pass Filter on CODEC2 Output. \n");
-  printf ("  -9            Enable RRC Filter on RF Audio Encoding / Decoding. \n");
+  printf ("  -9            Enable  RRC Filter on RF Audio Encoding / Decoding. \n");
+  printf ("  -0            Disable RRC Filter on RF Audio Encoding / Decoding. \n");
   printf ("\n");
   printf ("Quick Examples:\n");
   printf ("\n");
@@ -201,7 +207,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "123456789c:d:e:f:hi:mno:prs:t:uv:w:xA:C:E:F:INLM:PR:S:TU:VX")) != -1)
+  while ((c = getopt (argc, argv, "1234567890c:d:e:f:hi:mno:prs:t:uv:w:xA:C:E:F:INLM:PR:S:TU:VX")) != -1)
   {
 
     i++;
@@ -221,14 +227,8 @@ int main (int argc, char **argv)
         fprintf (stderr, "\n");
         break;
 
-      //disable RRC Filter
-      case '2':
-        super.opts.disable_rrc_filter = 1;
-        fprintf (stderr, "Disable RRC Filter on RF Audio Encoding / Decoding. \n");
-        break;
-
       //generate one time randomized AES key
-      case '3':
+      case '2':
         super.enc.A1 = ((uint64_t)rand() << 32ULL) + rand();
         super.enc.A2 = ((uint64_t)rand() << 32ULL) + rand();
         super.enc.A3 = ((uint64_t)rand() << 32ULL) + rand();
@@ -264,6 +264,12 @@ int main (int argc, char **argv)
       case '9':
         super.opts.disable_rrc_filter = 0;
         fprintf (stderr, "Enable RRC Filter on RF Audio Encoding / Decoding. \n");
+        break;
+
+      //disable RRC Filter
+      case '0':
+        super.opts.disable_rrc_filter = 1;
+        fprintf (stderr, "Disable RRC Filter on RF Audio Encoding / Decoding. \n");
         break;
 
       //just leave these here until I wrap up and get back to the 'cookie cutter' project
