@@ -353,6 +353,12 @@ void print_ncurses_call_info (Super * super)
     printw ("UDP/IP Frame Decoder");
   else printw ("RF Stream and Packet Decoder"); //not sure what to put here, if anything
 
+  if (super->opts.payload_verbosity)
+    printw ("; Payload Verbosity: %d", super->opts.payload_verbosity);
+
+  if (super->opts.demod_verbosity)
+    printw ("; Demod Verbosity: %d", super->opts.demod_verbosity);
+
   if (!super->opts.use_m17_rfa_decoder && !super->opts.use_m17_ipf_decoder)
   {
     printw ("\n");

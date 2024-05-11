@@ -94,6 +94,12 @@ void input_ncurses_terminal (Super * super, int c)
       else super->opts.ncurses_show_scope = 0;
       break;
 
+    //'Z' key, cycle demod verbosity
+    case 90:
+      if (super->opts.demod_verbosity <= 4) super->opts.demod_verbosity++;
+      else super->opts.demod_verbosity = 0;
+      break;
+
     //'\' key, toggle TX
     case 92:
       if (super->m17e.str_encoder_tx == 0) super->m17e.str_encoder_tx = 1;
@@ -157,6 +163,12 @@ void input_ncurses_terminal (Super * super, int c)
       else super->opts.inverted_signal = 0;
       super->m17d.dt = 4; //fake for carrier reset
       no_carrier_sync (super); //reset demod
+      break;
+
+    //'z' key, toggle payload verbosity
+    case 122:
+      if (super->opts.payload_verbosity == 0) super->opts.payload_verbosity = 1;
+      else super->opts.payload_verbosity = 0;
       break;
 
     //Manual Gain Controls (keep seperate)
