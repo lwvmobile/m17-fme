@@ -193,9 +193,11 @@ void init_super (Super * super)
   super->demod.input_level = 0.0f;
   //end init_demod_state
 
-  //init_m17d_state (Decoder)
-  super->m17d.src = 0;
+  //init m17d (Decoder)
   super->m17d.dst = 0;
+  super->m17d.src = 0;
+  sprintf (super->m17d.dst_csd_str, "%s", "         ");
+  sprintf (super->m17d.src_csd_str, "%s", "         ");
   super->m17d.can = -1;
 
   memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
@@ -204,43 +206,57 @@ void init_super (Super * super)
   super->m17d.enc_et = 0;
   super->m17d.enc_st = 0;
   super->m17d.enc_mute = 0;
-  sprintf (super->m17d.dst_csd_str, "%s", "         ");
-  sprintf (super->m17d.src_csd_str, "%s", "         ");
   
+  //'A', single letter reflector module A-Z, 0x41 is A
   super->m17d.reflector_module = 0;
 
-  //PKT specific storage and counters
-  memset (super->m17d.pkt, 0, sizeof(super->m17d.pkt));
-  super->m17d.pbc_ptr = 0;
-
-  memset  (super->m17d.raw, 0, sizeof(super->m17d.raw));
+  //User Supplied Input Strings / Decoded Strings
+  sprintf (super->m17d.user, "%s", "");
+  sprintf (super->m17d.srcs, "%s", "N0CALL");
+  sprintf (super->m17d.dsts, "%s", "ALL");
   sprintf (super->m17d.sms, "%s", "Any Encoded or Decoded SMS Text Messages Appear Here.");
   sprintf (super->m17d.dat, "%s", "Any Encoded or Decoded GNSS POS Messages Appear Here.");
   sprintf (super->m17d.arb, "%s", "Any Encoded or Decoded 1600 Arb Messages Appear Here.");
 
+  //PKT specific storage and counters
+  memset (super->m17d.pkt, 0, sizeof(super->m17d.pkt));
+  super->m17d.pbc_ptr = 0;
+  memset  (super->m17d.raw, 0, sizeof(super->m17d.raw));
+
+  //Stream Voice Mode (UNUSED on decoder)
+  super->m17d.str_encoder_tx  = 0;
+  super->m17d.str_encoder_eot = 0;
+  super->m17d.str_encoder_vox = 0;
+
+  //Call History
   for (int i = 0; i < 10; i++)
     sprintf (super->m17d.callhistory[i], "%s", "");
+
+  //LSF Backup Copy
+  memset (super->m17d.lsf_bkp, 0, 240*sizeof(uint8_t));
 
   #ifdef USE_CODEC2
   super->m17d.codec2_3200 = codec2_create(CODEC2_MODE_3200);
   super->m17d.codec2_1600 = codec2_create(CODEC2_MODE_1600);
   #endif
-  //end init_m17d_state (Decoder)
+  //end init m17d (Decoder)
 
-  //init_m17e_state (Encoder)
-  super->m17e.src = 0;
+  //init m17e (Encoder)
   super->m17e.dst = 0;
+  super->m17e.src = 0;
+  sprintf (super->m17e.dst_csd_str, "%s", "         ");
+  sprintf (super->m17e.src_csd_str, "%s", "         ");
   super->m17e.can = 7;
 
+  memset(super->m17e.lsf, 0, sizeof(super->m17d.lsf));
+  memset(super->m17e.meta, 0, sizeof(super->m17d.meta));
+  super->m17e.dt = 15;
   super->m17e.enc_et = 0;
   super->m17e.enc_st = 0;
+  super->m17e.enc_mute = 0;
+
   //'A', single letter reflector module A-Z, 0x41 is A
   super->m17e.reflector_module = 0x41;
-
-  #ifdef USE_CODEC2
-  super->m17e.codec2_3200 = codec2_create(CODEC2_MODE_3200);
-  super->m17e.codec2_1600 = codec2_create(CODEC2_MODE_1600);
-  #endif
 
   //User Supplied Input Strings
   sprintf (super->m17e.user, "%s", "");
@@ -248,16 +264,30 @@ void init_super (Super * super)
   sprintf (super->m17e.dsts, "%s", "ALL");
   sprintf (super->m17e.sms, "%s", "");
   sprintf (super->m17e.dat, "%s", "");
-  sprintf (super->m17e.arb, "%s", "Up To 48 UTF-8 Characters of Text Can Appear Here.");
+  sprintf (super->m17e.arb, "%s", ""); //Up To 48 UTF-8 Characters of Text Can Appear Here.
+
+  //PKT specific storage and counters (UNUSED on Encoder)
+  memset (super->m17e.pkt, 0, sizeof(super->m17e.pkt));
+  super->m17e.pbc_ptr = 0;
+  memset  (super->m17e.raw, 0, sizeof(super->m17e.raw));
 
   //Stream Voice Mode
-  super->m17e.str_encoder_tx = 1;
+  super->m17e.str_encoder_tx  = 1;
   super->m17e.str_encoder_eot = 0;
   super->m17e.str_encoder_vox = 0;
 
+  //Call History (UNUSED on Encoder)
+  for (int i = 0; i < 10; i++)
+    sprintf (super->m17e.callhistory[i], "%s", "");
+
   //LSF Backup Copy
   memset (super->m17e.lsf_bkp, 0, 240*sizeof(uint8_t));
-  //end init_m17e_state (Encoder)
+
+  #ifdef USE_CODEC2
+  super->m17e.codec2_3200 = codec2_create(CODEC2_MODE_3200);
+  super->m17e.codec2_1600 = codec2_create(CODEC2_MODE_1600);
+  #endif
+  //end init m17e (Encoder)
 
   //init_wav_state
   super->wav.wav_out_rf = NULL;

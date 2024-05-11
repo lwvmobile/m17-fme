@@ -227,56 +227,24 @@ typedef struct
 
 } demod_state;
 
-//M17 Encoder and Decoder States
+//M17 Encoder and Decoder Struct
 typedef struct
 {
-  unsigned long long int src;
-  unsigned long long int dst;
-  int16_t can;
+  //NOTE: Not all values will be utilized on encoder or decoder
+  unsigned long long int dst; //dst as a 48 bit value
+  unsigned long long int src; //src as a 48 bit value
+  char dst_csd_str[50]; //dst call sign data as a string
+  char src_csd_str[50]; //src call sign data as a string
+  int16_t can;      //channel access number
 
   uint8_t lsf[240]; //bitwise lsf
   uint8_t meta[16]; //packed meta
-  uint8_t dt;
-  uint8_t enc_et; //encryption type
-  uint8_t enc_st; //encryption sub-type
+  uint8_t dt;       //stream or packet data type
+  uint8_t enc_et;   //encryption type
+  uint8_t enc_st;   //encryption sub-type
   uint8_t enc_mute; //enc, muted audio out
-  char dst_csd_str[50];
-  char src_csd_str[50];
 
-  uint8_t reflector_module;
-
-  //PKT specific storage and counters
-  uint8_t pkt[850]; //bytewise packet
-  uint8_t pbc_ptr; //internal packet block counter
-
-  uint8_t raw[850]; //raw data from PDU that isn't SMS, etc
-  char sms[800]; //decoded sms text string from pkt decoder
-  char dat[800]; //decoded other data type from pkt encoder
-  char arb[800]; //decoded stream arbitrary data on 1600
-
-  char callhistory[10][500]; //condensed call history as a string
-
-  #ifdef USE_CODEC2
-  struct CODEC2 *codec2_3200;
-  struct CODEC2 *codec2_1600;
-  #endif
-
-} m17_decoder_state;
-
-typedef struct
-{
-  unsigned long long int src;
-  unsigned long long int dst;
-  int16_t can;
-
-  uint8_t enc_et; //encryption type
-  uint8_t enc_st; //encryption sub-type
-  uint8_t reflector_module;
-
-  #ifdef USE_CODEC2
-  struct CODEC2 *codec2_3200;
-  struct CODEC2 *codec2_1600;
-  #endif
+  uint8_t reflector_module; //IP Frame reflector module
 
   //User Supplied Input Strings
   char user[50]; //user supplied m17 src and dst call sign data
@@ -286,15 +254,28 @@ typedef struct
   char dat[800]; //user supplied other data type for pkt encoder
   char arb[800]; //user supplied arbitrary data on 1600
 
+  //PKT specific storage and counters
+  uint8_t pkt[850]; //bytewise packet
+  uint8_t pbc_ptr;  //internal packet block counter
+  uint8_t raw[850]; //raw data from PDU that isn't SMS, etc
+
   //Stream Voice Mode
   uint8_t str_encoder_tx;  //flag if transmit on or off
   uint8_t str_encoder_eot; //flag if transmit off and send EOT
   uint8_t str_encoder_vox; //flag if use vox mode
 
+  //Call History
+  char callhistory[10][500];
+
   //LSF Backup Copy
   uint8_t lsf_bkp[240];
 
-} m17_encoder_state;
+  #ifdef USE_CODEC2
+  struct CODEC2 *codec2_3200;
+  struct CODEC2 *codec2_1600;
+  #endif
+
+} M17;
 
 //Pulse Audio Options and States
 typedef struct
@@ -389,8 +370,8 @@ typedef struct
 {
   config_opts opts;
   pa_state pa;
-  m17_decoder_state m17d;
-  m17_encoder_state m17e;
+  M17 m17d;
+  M17 m17e;
   demod_state demod;
   wav_state wav;
   snd_src_input snd_src_in;
