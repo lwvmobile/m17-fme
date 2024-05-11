@@ -114,18 +114,9 @@ uint16_t convolution_decode(uint8_t s0, uint8_t s1)
 
   ++m_dp;
 
-  //backwards?
-  // tmp = previous_metrics;
-  // previous_metrics = current_metrics;
-  // current_metrics = tmp;
-
   tmp = current_metrics;
   current_metrics = previous_metrics;
   previous_metrics = tmp;
-
-  //debug metrics
-  // for(i = 0; i < 16; i++)
-  //   fprintf (stderr, "\n OLD[%02d]: %05d; NEW[%02d]: %05d; ", i, previous_metrics[i], i, current_metrics[i]);
 
   //what was the lowest metric
   uint32_t cost = previous_metrics[0];
@@ -162,7 +153,7 @@ void convolution_chainback(unsigned char* out, unsigned int nBits)
     if(previous_metrics[i] < cost)
       cost = (uint32_t)previous_metrics[i];
   }
-  fprintf (stderr, " cost: %05d; ", cost);
+  // fprintf (stderr, " cost: %05d; ", cost);
 }
 
 void convolution_start()
@@ -201,7 +192,7 @@ void convolution_init()
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
- 
+
 static const int PARITY[] = {0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1};
 
 // trellis_1_2 encode: source is in bits, result in bits
