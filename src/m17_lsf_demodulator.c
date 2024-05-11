@@ -98,7 +98,11 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
   memset (trellis_buf, 0, sizeof(trellis_buf));
   memset (temp, 0, sizeof (temp));
   memset (m_data, 0, sizeof (m_data));
+  uint16_t metric = 0; UNUSED(metric);
 
+  //test viterbi with all zeroes and all ones
+  // memset (m17_depunc, 0, sizeof(m17_depunc));
+  // memset (m17_depunc, 1, sizeof(m17_depunc));
   for (i = 0; i < 488; i++)
     temp[i] = m17_depunc[i] << 1; 
 
@@ -108,23 +112,19 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
     s0 = temp[(2*i)];
     s1 = temp[(2*i)+1];
 
-    convolution_decode(s0, s1);
+    metric += convolution_decode(s0, s1);
   }
 
   convolution_chainback(m_data, 240);
 
-  //244/8 = 30, last 4 (244-248) are trailing zeroes
-  for(i = 0; i < 30; i++)
-  {
-    trellis_buf[(i*8)+0] = (m_data[i] >> 7) & 1;
-    trellis_buf[(i*8)+1] = (m_data[i] >> 6) & 1;
-    trellis_buf[(i*8)+2] = (m_data[i] >> 5) & 1;
-    trellis_buf[(i*8)+3] = (m_data[i] >> 4) & 1;
-    trellis_buf[(i*8)+4] = (m_data[i] >> 3) & 1;
-    trellis_buf[(i*8)+5] = (m_data[i] >> 2) & 1;
-    trellis_buf[(i*8)+6] = (m_data[i] >> 1) & 1;
-    trellis_buf[(i*8)+7] = (m_data[i] >> 0) & 1;
-  }
+  unpack_byte_array_into_bit_array(m_data, trellis_buf, 30);
+  //test running other viterbi / trellis decoder
+  // memset (trellis_buf, 0, sizeof(trellis_buf));
+  // memset (m_data, 0, sizeof (m_data));
+  // trellis_decode(trellis_buf, m17_depunc, 240);
+
+  //debug view metric out of convolutional decoder
+  // fprintf (stderr, " lsf metric: %05d; ", metric); //144 and 17616
 
   memset (super->m17d.lsf, 0, sizeof(super->m17d.lsf));
   memcpy (super->m17d.lsf, trellis_buf, 240);

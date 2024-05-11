@@ -490,10 +490,14 @@ void upsacale_and_rrc_output_filter (int * output_symbols, float * mem, short * 
 
 //convolutional encoder and decoder (viterbi)
 void simple_conv_encoder (uint8_t * input, uint8_t * output, int len);
-void convolution_decode (uint8_t s0, uint8_t s1);
+uint16_t convolution_decode (uint8_t s0, uint8_t s1);
 void convolution_chainback (unsigned char* out, unsigned int nBits);
 void convolution_start ();
 void convolution_init ();
+
+//alternate viterbi (trellis) encoder and decoder
+void trellis_encode(uint8_t result[], const uint8_t source[], int result_len, int reg);
+void trellis_decode(uint8_t result[], const uint8_t source[], int result_len);
 
 //Golay 24_12 encoder and decoder
 void Golay_24_12_encode (unsigned char *origBits, unsigned char *encodedBits);
