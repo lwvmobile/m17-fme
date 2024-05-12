@@ -81,3 +81,40 @@ void convert_dibit_array_into_binary_array (uint8_t * input, uint8_t * output, i
     output[(i*2)+1] = (input[i] >> 1) & 1;
   }
 }
+
+//input is user string of hex chars, output is uint8_t byte array, return value is len
+uint16_t convert_string_into_array (char * input, uint8_t * output)
+{
+  //since we want this as octets, get strlen value, then divide by two
+  uint16_t len = strlen((const char*)input);
+  
+  //if zero is returned, just do two
+  if (len == 0) len = 2;
+
+  //if odd number, then user didn't pass complete octets, but just add one to len value to make it even
+  if (len&1) len++;
+
+  //divide by two to get octet len
+  len /= 2;
+
+  char octet_char[3];
+  octet_char[2] = 0;
+  uint16_t i = 0;
+  uint16_t k = 0;
+
+  //debug
+  // fprintf (stderr, "\n String Len: %d; String Octets:", len);
+  for (i = 0; i < len; i++) //<=
+  {
+    strncpy (octet_char, input+k, 2);
+    octet_char[2] = 0;
+    sscanf (octet_char, "%hhX", &output[i]);
+
+    //debug
+    // fprintf (stderr, " (%s)", octet_char);
+    // fprintf (stderr, " %02X", output[i]);
+    k += 2;
+  }
+
+  return len;
+}

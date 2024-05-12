@@ -426,7 +426,6 @@ void parse_udp_user_string (Super * super, char * input)
 }
 
 //convert a user string into a uint8_t array for raw packet encoding
-//todo: make a version of this for any string to uint8_t array (like AES keys)
 void parse_raw_user_string (Super * super, char * input)
 {
   //since we want this as octets, get strlen value, then divide by two
@@ -443,18 +442,18 @@ void parse_raw_user_string (Super * super, char * input)
 
   //sanity check, maximum strlen should not exceed 771 for a full encode
   if (len > 771) len = 771;
-
-  char octet_char[3];
-  octet_char[2] = 0;
-
-  //debug
-  fprintf (stderr, "\n Raw Len: %d; Raw Octets:", len);
   
   super->m17e.raw[0]  = 1;      //flag as 1 so the encoder will know to parse the data here and not on SMS 
   super->m17e.raw_len = len+1; //assign plus one to add terminating zero byte for CRC fix;
 
-  uint8_t k = 0;
-  for (uint16_t i = 0; i <= len; i++)
+  char octet_char[3];
+  octet_char[2] = 0;
+  uint16_t k = 0;
+  uint16_t i = 0;
+
+  //debug
+  fprintf (stderr, "\n Raw Len: %d; Raw Octets:", len);
+  for (i = 0; i <= len; i++)
   {
     strncpy (octet_char, input+k, 2);
     octet_char[2] = 0;
@@ -464,5 +463,5 @@ void parse_raw_user_string (Super * super, char * input)
     // fprintf (stderr, " (%s)", octet_char);
     fprintf (stderr, " %02X", super->m17e.raw[i+1]);
     k += 2;
-  } 
+  }
 }
