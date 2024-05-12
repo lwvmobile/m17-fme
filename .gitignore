@@ -6,6 +6,8 @@ build
 *.csv
 examples
 *.bin
+*.sym
+*.wav
 *.ans
 *.patch
 *.zip
