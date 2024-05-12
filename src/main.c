@@ -96,8 +96,8 @@ void usage ()
   printf ("                (example: -S 'Hello World! This is a text message') \n");
   printf ("  -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.\n");
   printf ("                (example: -A 'Hello World! This is arbitrary data on 1600') \n");
-  printf ("  -R <str>      Enter RAW Data for Packet Data Encoder (TODO: Not Implemented Yet).\n");
-  printf ("                (example: -R 'however this ends up getting in here, update this line') \n");
+  printf ("  -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets.\n");
+  printf ("                (example: -R 010203040506070809) \n");
   printf ("  -x            Encode Inverted Polarity on RF Output\n");
   printf ("\n");
   printf ("Decoder Options:\n");
@@ -441,10 +441,9 @@ int main (int argc, char **argv)
         fprintf (stderr, "Project M17 Packet Encoder. \n");
         break;
 
-      //Specify M17 PKT Encoder Raw Encoded Data Packet (truncates at 772)
+      //Specify M17 PKT Encoder Raw Encoded Data Packet
       case 'R':
-        strncpy(super.m17e.dat, optarg, 772);
-        super.m17e.dat[772] = '\0';
+        parse_raw_user_string (&super, optarg);
         break;
 
       //Specify M17 PKT Encoder SMS Message (truncates at 772)

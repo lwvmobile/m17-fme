@@ -257,7 +257,7 @@ typedef struct
   //PKT specific storage and counters
   uint8_t pkt[850]; //bytewise packet
   uint8_t pbc_ptr;  //internal packet block counter
-  uint8_t raw[850]; //raw data from PDU that isn't SMS, etc
+  uint8_t raw[850]; //raw data from PDU that isn't SMS or UTF-8
 
   //Stream Voice Mode
   uint8_t str_encoder_tx;  //flag if transmit on or off
@@ -391,6 +391,7 @@ void parse_input_option_string (Super * super, char * input);
 void parse_output_option_string (Super * super, char * output);
 void parse_m17_user_string (Super * super, char * input);
 void parse_udp_user_string (Super * super, char * input);
+void parse_raw_user_string (Super * super, char * input);
 
 //NCurses Terminal
 #ifdef USE_CURSES

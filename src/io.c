@@ -424,3 +424,45 @@ void parse_udp_user_string (Super * super, char * input)
   fprintf (stderr, "\n");
 
 }
+
+//convert a user string into a uint8_t array for raw packet encoding (WIP)
+//todo: make a version of this for any string to uint8_t array
+void parse_raw_user_string (Super * super, char * input)
+{
+  //since we want this as octets, get strlen value, then divide by two
+  uint16_t len = strlen((const char*)optarg);
+
+  //debug
+  fprintf (stderr, "\n Str Len: %d; ", len);
+  
+  //if zero is returned, just do two
+  if (len == 0) len = 2;
+
+  //if odd number, then user didn't pass complete octets, but just add one to len value to make it even
+  if (len&1) len++;
+
+  //divide by two to get octet len
+  len /= 2;
+
+  //truncate to 771, or full allotted amount for PKT Data
+  if (len > 771) len = 771;
+
+  char octet_char[3];
+  octet_char[2] = 0;
+
+  //debug
+  fprintf (stderr, " Octet Len: %d; Octets:", len);
+  super->m17e.raw[0] = len+1; //assign plus one to add terminating zero byte for CRC fix;
+
+  uint8_t k = 0;
+  for (uint16_t i = 0; i <= len; i++)
+  {
+    strncpy (octet_char, input+k, 2);
+    octet_char[2] = 0;
+    super->m17e.raw[i+1] = atoi (octet_char);
+
+    //debug
+    fprintf (stderr, " %02X", super->m17e.raw[i]);
+    k += 2;
+  } 
+}

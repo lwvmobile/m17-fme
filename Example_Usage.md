@@ -116,8 +116,8 @@ Encoder Input Strings:
                 (example: -S 'Hello World! This is a text message')
   -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.
                 (example: -A 'Hello World! This is arbitrary data on 1600')
-  -R <str>      Enter RAW Data for Packet Data Encoder (TODO: Not Working Yet).
-                (example: -R 'however this ends up getting in here, update this line')
+  -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets.
+                (example: -R 010203040506070809)
   -x            Encode Inverted Polarity on RF Output
 
 Decoder Options:
@@ -128,6 +128,7 @@ Decoder Options:
   -p            Per Call decoded voice wav file saving into current directory ./M17WAV folder
 
 Encryption Options:
+
                 (NOTE: Encoder and Decoder share same values here)
   -e <hex>      Enter Scrambler Key Value (up to 24-bit / 6 Hex Character)
                 (example: -e ABCDEF)

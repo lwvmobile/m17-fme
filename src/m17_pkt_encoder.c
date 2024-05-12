@@ -72,11 +72,8 @@ void encode_pkt(Super * super)
     protocol = 5; //SMS Protocol
     sprintf (text, "%s", super->m17e.sms);
   }
-  else if (super->m17e.dat[0] != 0) //WIP
-  {
-    protocol = super->m17e.dat[0]-0x30; //test this for accuracy
-    sprintf (text, "%s", super->m17e.dat+1); //make sure this works for sprintf
-  }
+  else if (super->m17e.raw[0] != 0)
+    protocol = super->m17e.raw[1];
 
   //if special values, then assign them
   if (strcmp (d40, "BROADCAST") == 0)
@@ -267,25 +264,28 @@ void encode_pkt(Super * super)
   }
   //end UTF-8 Encoding
   else //if not SMS, then straight assignment
-  { //TODO: Fix this properly so that it actually works
-    fprintf (stderr, "\n D%02X:\n      ", protocol);
-    for (i = 0; i < tlen; i++)
+  {
+    fprintf (stderr, "\n Protocol: %02X;", protocol);
+    fprintf (stderr, "\n Octets:");
+    tlen = super->m17e.raw[0];
+    for (i = 1; i <= tlen; i++)
     {
-      cbyte = atoi(&text[ptr])&0xFF;
-      fprintf (stderr, "%02X", cbyte);
-
+      fprintf (stderr, " %02X", super->m17e.raw[i]);
       for (j = 0; j < 8; j++)
-        m17_p1_full[k++] = (cbyte >> (7-j)) & 1;
+        m17_p1_full[k++] = (super->m17e.raw[i] >> (7-j)) & 1;
+
+      //break before incrementing ptr again so CRC is calculated correctly
+      if (i == tlen) break;
 
       ptr++;
 
       //add line break to keep it under 80 columns
       if ( (i%71) == 0 && i != 0)
-        fprintf (stderr, "\n      ");
+        fprintf (stderr, "\n        ");
     }
+
     fprintf (stderr, "\n");
   }
-
 
   //calculate blocks, pad, and last values for pbc
   block = (ptr / 25) + 1;
