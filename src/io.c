@@ -430,7 +430,7 @@ void parse_udp_user_string (Super * super, char * input)
 void parse_raw_user_string (Super * super, char * input)
 {
   //since we want this as octets, get strlen value, then divide by two
-  uint16_t len = strlen((const char*)optarg);
+  uint16_t len = strlen((const char*)input);
 
   //debug
   fprintf (stderr, "\n Str Len: %d; ", len);
@@ -459,10 +459,11 @@ void parse_raw_user_string (Super * super, char * input)
   {
     strncpy (octet_char, input+k, 2);
     octet_char[2] = 0;
-    super->m17e.raw[i+1] = atoi (octet_char);
+    sscanf (octet_char, "%hhX", &super->m17e.raw[i+1]);
 
     //debug
-    fprintf (stderr, " %02X", super->m17e.raw[i]);
+    // fprintf (stderr, " (%s)", octet_char);
+    fprintf (stderr, " %02X", super->m17e.raw[i+1]);
     k += 2;
   } 
 }

@@ -240,7 +240,8 @@ void encode_pkt(Super * super)
   // fprintf (stderr, " STRLEN: %d; ", tlen);
 
   //Convert a string text message into UTF-8 octets and load into full if using SMS protocol
-  if (protocol == 5)
+  // if (protocol == 5)
+  if (super->m17e.sms[0] != 0) //this method allows users to encode RAW data as SMS as well
   {
     fprintf (stderr, "\n SMS: ");
     for (i = 0; i < tlen; i++)
