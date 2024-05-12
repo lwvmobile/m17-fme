@@ -65,7 +65,7 @@ void encode_pkt(Super * super)
   if (super->m17e.dsts[0] != 0)
     sprintf (d40, "%s", super->m17e.dsts);
 
-  //SMS Message OR Other/Raw Encoded Data Format
+  //SMS Message OR Raw Encoded Data Format
   uint8_t protocol  = 5;
   if (super->m17e.sms[0] != 0)
   {
@@ -238,9 +238,34 @@ void encode_pkt(Super * super)
 
   //debug tlen value
   // fprintf (stderr, " STRLEN: %d; ", tlen);
+  
+  //if user passed a raw data string
+  if (super->m17e.raw[0] != 0)
+  {
+    fprintf (stderr, "\n Protocol: %02X;", protocol);
+    fprintf (stderr, "\n Octets:");
+    tlen = (int)super->m17e.raw[0];
+    for (i = 1; i <= tlen; i++)
+    {
+      fprintf (stderr, " %02X", super->m17e.raw[i]);
+      for (j = 0; j < 8; j++)
+        m17_p1_full[k++] = (super->m17e.raw[i] >> (7-j)) & 1;
+
+      //break before incrementing ptr again so CRC is calculated correctly
+      if (i == tlen) break;
+
+      ptr++;
+
+      //add line break to keep it under 80 columns
+      if ( (i%71) == 0 && i != 0)
+        fprintf (stderr, "\n        ");
+    }
+
+    fprintf (stderr, "\n");
+  }
 
   //Convert a string text message into UTF-8 octets and load into full if using SMS protocol
-  if (super->m17e.sms[0] != 0) //check to see if user passed an SMS text message string first
+  else //if (protocol == 5) //send an SMS message instead (default text or user supplied sms string)
   {
     fprintf (stderr, "\n SMS: ");
     for (i = 0; i < tlen; i++)
@@ -263,52 +288,6 @@ void encode_pkt(Super * super)
     fprintf (stderr, "\n");
   }
   //end UTF-8 Encoding
-  else if (super->m17e.raw[0] != 0)//if not SMS, then straight raw data assignment, if user passed raw string
-  {
-    fprintf (stderr, "\n Protocol: %02X;", protocol);
-    fprintf (stderr, "\n Octets:");
-    tlen = super->m17e.raw[0];
-    for (i = 1; i <= tlen; i++)
-    {
-      fprintf (stderr, " %02X", super->m17e.raw[i]);
-      for (j = 0; j < 8; j++)
-        m17_p1_full[k++] = (super->m17e.raw[i] >> (7-j)) & 1;
-
-      //break before incrementing ptr again so CRC is calculated correctly
-      if (i == tlen) break;
-
-      ptr++;
-
-      //add line break to keep it under 80 columns
-      if ( (i%71) == 0 && i != 0)
-        fprintf (stderr, "\n        ");
-    }
-
-    fprintf (stderr, "\n");
-  }
-
-  else if (protocol == 5) //fall back to default SMS packet output if no string passed for SMS or RAW
-  {
-    fprintf (stderr, "\n SMS: ");
-    for (i = 0; i < tlen; i++)
-    {
-      cbyte = (uint8_t)text[ptr];
-      fprintf (stderr, "%c", cbyte);
-
-      for (j = 0; j < 8; j++)
-        m17_p1_full[k++] = (cbyte >> (7-j)) & 1;
-
-      if (cbyte == 0) break; //if terminator reached
-
-      ptr++; //increment pointer
-      
-
-      //add line break to keep it under 80 columns
-      if ( (i%71) == 0 && i != 0)
-        fprintf (stderr, "\n      ");
-    }
-    fprintf (stderr, "\n");
-  }
 
   //calculate blocks, pad, and last values for pbc
   block = (ptr / 25) + 1;

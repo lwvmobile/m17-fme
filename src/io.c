@@ -452,6 +452,7 @@ void parse_raw_user_string (Super * super, char * input)
 
   //debug
   fprintf (stderr, " Octet Len: %d; Octets:", len);
+  //problem alert! this is only uint8_t, so max raw data string can only be 255 in len, find a solution.
   super->m17e.raw[0] = len+1; //assign plus one to add terminating zero byte for CRC fix;
 
   uint8_t k = 0;
