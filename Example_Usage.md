@@ -125,7 +125,7 @@ Decoder Options:
   -r            Enable RFA Demodulator and Decoding of Stream and Packet Data
   -x            Expect Inverted Polarity on RF Input
   -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 
-  -p <file>     Per Call decoded voice wav file saving into current directory ./M17WAV folder
+  -p            Per Call decoded voice wav file saving into current directory ./M17WAV folder
 
 Encryption Options:
                 (NOTE: Encoder and Decoder share same values here)
