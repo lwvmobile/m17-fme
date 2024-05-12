@@ -240,8 +240,7 @@ void encode_pkt(Super * super)
   // fprintf (stderr, " STRLEN: %d; ", tlen);
 
   //Convert a string text message into UTF-8 octets and load into full if using SMS protocol
-  // if (protocol == 5)
-  if (super->m17e.sms[0] != 0) //this method allows users to encode RAW data as SMS as well
+  if (super->m17e.sms[0] != 0) //check to see if user passed an SMS text message string first
   {
     fprintf (stderr, "\n SMS: ");
     for (i = 0; i < tlen; i++)
@@ -264,7 +263,7 @@ void encode_pkt(Super * super)
     fprintf (stderr, "\n");
   }
   //end UTF-8 Encoding
-  else //if not SMS, then straight assignment
+  else if (super->m17e.raw[0] != 0)//if not SMS, then straight raw data assignment, if user passed raw string
   {
     fprintf (stderr, "\n Protocol: %02X;", protocol);
     fprintf (stderr, "\n Octets:");
@@ -285,6 +284,29 @@ void encode_pkt(Super * super)
         fprintf (stderr, "\n        ");
     }
 
+    fprintf (stderr, "\n");
+  }
+
+  else if (protocol == 5) //fall back to default SMS packet output if no string passed for SMS or RAW
+  {
+    fprintf (stderr, "\n SMS: ");
+    for (i = 0; i < tlen; i++)
+    {
+      cbyte = (uint8_t)text[ptr];
+      fprintf (stderr, "%c", cbyte);
+
+      for (j = 0; j < 8; j++)
+        m17_p1_full[k++] = (cbyte >> (7-j)) & 1;
+
+      if (cbyte == 0) break; //if terminator reached
+
+      ptr++; //increment pointer
+      
+
+      //add line break to keep it under 80 columns
+      if ( (i%71) == 0 && i != 0)
+        fprintf (stderr, "\n      ");
+    }
     fprintf (stderr, "\n");
   }
 
