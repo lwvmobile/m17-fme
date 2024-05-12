@@ -105,6 +105,7 @@ Encoder Options:
                 (can be combined with Loopback or RFA output)
   -L            Enable Internal Encoder Loopback Decoder (must be used with pulsevx output)
   -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder
+
 Encoder Input Strings:
 
   -M <str>      Set M17 CAN:SRC:DST 
@@ -120,6 +121,7 @@ Encoder Input Strings:
   -x            Encode Inverted Polarity on RF Output
 
 Decoder Options:
+
   -r            Enable RFA Demodulator and Decoding of Stream and Packet Data
   -x            Expect Inverted Polarity on RF Input
   -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 
@@ -136,13 +138,14 @@ Encryption Options:
                 (Limiting significant key value to first 32 characters to maintain compatibility)
 
 Debug Options:
+
   -1            Generate Random One Time Use 24-bit Scrambler Key 
-  -2            Disable RRC Filter on RF Audio Encoding / Decoding. 
-  -3            Generate Random One Time Use 24-bit Scrambler Key. 
+  -2            Generate Random One Time Use 256-bit AES Key. 
   -4            Permit Data Decoding on CRC Failure (not recommended). 
   -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). 
   -8            Disable High Pass Filter on CODEC2 Output. 
-  -9            Enable RRC Filter on RF Audio Encoding / Decoding. 
+  -9            Enable  RRC Filter on RF Audio Encoding / Decoding. 
+  -0            Disable RRC Filter on RF Audio Encoding / Decoding.
 
 Quick Examples:
 
