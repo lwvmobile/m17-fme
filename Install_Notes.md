@@ -82,6 +82,7 @@ cd m17-fme
 mkdir build
 cd build
 cmake ..
+#cmake -DOTAKD=OFF #turn off 'over the air key delivery' packets and embedded link
 make
 sudo make install
 ```
