@@ -425,15 +425,12 @@ void parse_udp_user_string (Super * super, char * input)
 
 }
 
-//convert a user string into a uint8_t array for raw packet encoding (WIP)
-//todo: make a version of this for any string to uint8_t array
+//convert a user string into a uint8_t array for raw packet encoding
+//todo: make a version of this for any string to uint8_t array (like AES keys)
 void parse_raw_user_string (Super * super, char * input)
 {
   //since we want this as octets, get strlen value, then divide by two
   uint16_t len = strlen((const char*)input);
-
-  //debug
-  fprintf (stderr, "\n Str Len: %d; ", len);
   
   //if zero is returned, just do two
   if (len == 0) len = 2;
@@ -444,16 +441,17 @@ void parse_raw_user_string (Super * super, char * input)
   //divide by two to get octet len
   len /= 2;
 
-  //truncate to 771, or full allotted amount for PKT Data
+  //sanity check, maximum strlen should not exceed 771 for a full encode
   if (len > 771) len = 771;
 
   char octet_char[3];
   octet_char[2] = 0;
 
   //debug
-  fprintf (stderr, " Octet Len: %d; Octets:", len);
-  //problem alert! this is only uint8_t, so max raw data string can only be 255 in len, find a solution.
-  super->m17e.raw[0] = len+1; //assign plus one to add terminating zero byte for CRC fix;
+  fprintf (stderr, "\n Raw Len: %d; Raw Octets:", len);
+  
+  super->m17e.raw[0]  = 1;      //flag as 1 so the encoder will know to parse the data here and not on SMS 
+  super->m17e.raw_len = len+1; //assign plus one to add terminating zero byte for CRC fix;
 
   uint8_t k = 0;
   for (uint16_t i = 0; i <= len; i++)

@@ -258,6 +258,7 @@ typedef struct
   uint8_t pkt[850]; //bytewise packet
   uint8_t pbc_ptr;  //internal packet block counter
   uint8_t raw[850]; //raw data from PDU that isn't SMS or UTF-8
+  uint16_t raw_len; //legnth of raw hex user data for PKT encoder
 
   //Stream Voice Mode
   uint8_t str_encoder_tx;  //flag if transmit on or off

@@ -244,7 +244,7 @@ void encode_pkt(Super * super)
   {
     fprintf (stderr, "\n Protocol: %02X;", protocol);
     fprintf (stderr, "\n Octets:");
-    tlen = (int)super->m17e.raw[0];
+    tlen = (int)super->m17e.raw_len;
     for (i = 1; i <= tlen; i++)
     {
       fprintf (stderr, " %02X", super->m17e.raw[i]);
