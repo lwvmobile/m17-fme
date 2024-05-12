@@ -122,7 +122,6 @@ void usage ()
   printf ("\n");
   printf ("  -1            Generate Random One Time Use 24-bit Scrambler Key \n");
   printf ("  -2            Generate Random One Time Use 256-bit AES Key. \n");
-  printf ("  -3            Generate Random One Time Use 256-bit AES Key. \n");
   printf ("  -4            Permit Data Decoding on CRC Failure (not recommended). \n");
   printf ("  -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). \n");
   printf ("  -8            Disable High Pass Filter on CODEC2 Output. \n");
