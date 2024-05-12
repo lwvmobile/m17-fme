@@ -207,7 +207,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1234567890c:d:e:f:hi:mno:prs:t:uv:w:xA:C:E:F:INLM:PR:S:TU:VX")) != -1)
+  while ((c = getopt (argc, argv, "1234567890c:d:e:f:hi:mno:prs:t:uv:w:xA:C:E:F:INLM:PR:S:TU:VW:X")) != -1)
   {
 
     i++;
@@ -471,6 +471,14 @@ int main (int argc, char **argv)
       case 'V':
         super.opts.use_m17_str_encoder = 1;
         fprintf (stderr, "Project M17 Stream Voice Encoder. \n");
+        break;
+
+      //Specify RF Audio Output Wav File
+      case 'W':
+        super.opts.use_wav_out_rf = 1;
+        strncpy(super.wav.wav_out_file_rf, optarg, 1023);
+        super.wav.wav_out_file_rf[1024] = '\0';
+        fprintf (stderr, "RF Audio Wav File: %s \n", super.wav.wav_out_file_rf);
         break;
 
       case 'X':
