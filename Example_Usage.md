@@ -3,6 +3,8 @@
 
 ## Using M17-FME with M17-FME (Standalone)
 
+### Simple Examples
+
 The simplest method of using M17-FME is to use it as an encoder, and activate the enternal loopback decoder to encode a bitstream, and then feed the encoded bitstram back into the decoder. The loopback method currently only supports Voice Stream encoding. This can be done with the following command.
 
 ```
@@ -15,9 +17,73 @@ Similarly, A quick simple test to have m17-fme encode and modulate packet data a
 m17-fme -P -o - | m17-fme -i - -r
 ```
 
-More example usage can be found in m17-fme -h (which can be seen down below at the bottom of this file).
+### RF Modulated and Demodulated Voice and Data
+
+Using the example below, you can create a voice stream encoding session which will listen to voice input 'pulsevx', output rf modulated audio to output sink 'pulserf', and create a float symbol output file capable of being replayed by multiple M17 related software packages (M17_Implementations, M17-FME, others). Furthermore, Ncurses Terminal is enabled, and the console output is routed to a log file m17encoder.txt. The -V (capitalized V) is used to enable the Voice Stream encoder.
+
+```
+m17-fme -i pulsevx -o pulserf -V -F float.sym -N 2> m17encoder.txt
+```
+
+The modulated RF audio output can in turn, be demodulated and decoded with the following command. The -r option is used to enable the RF Audio Demodulator.
+
+```
+m17-fme -i pulserf -o pulsevx -r -N 2> m17decoder.txt
+```
+
+Packet Data can likewise be encoded and modulated for the above decoder to decode by using the following command. Note the use the -P (capitalized P) for Packet Encoder, and the -S followed by the SMS Text Message, which must be in quotations.
+
+```
+m17-fme -o pulserf -P -F float.sym -S "this is a simple SMS text message sent over M17 Packet Data."
+```
 
 Please see [Audio Plumbing](https://github.com/lwvmobile/m17-fme/blob/main/Audio_Plumbing.md "Audio Plumbing") for general help with audio plumbing (routing from A to B).
+
+### IP Frame Voice and Data
+
+Using setups similar to above, or extra switches in conjunction with above examples, IP Frame output can be added to any RF Audio Encoding Session, or used exlusively. For example, we can quickly add the -I option to the Voice Stream encoder option above to enable IP Frame output to the default host and port (localhost:17000). Users can specify a custom hostname and port for encoding and decoding using the -U option, `-U 192.168.7.5:17001` noting both an encoding and decoding session must both have the same argument to be able to send and receive.
+
+Here is an example of using IP Frame with Voice Stream Encoding, setting a custom port to 17001, setting custom M17 User Can to 6, SRC to M17-FME, and DST to ALL (broadcast 0xFFFFFFFFFFFF) and setting a 24-bit scrambler key of value 0x123456.
+
+Encode:
+
+```
+m17-fme -i pulsevx -V -I -U localhost:17001 -M 6:M17-FME:ALL -e 123456 -N 2> m17encoder.txt
+```
+
+Decode:
+
+```
+m17-fme -o pulsevx -u -U localhost:17001 -M 6:M17-FME:ALL -e 123456 -N 2> m17decoder.txt
+```
+
+Other acceptable methods of input and output for udp are using the -i and -o options udp such that `-i upp` or `-i udp:localhost:17001`, see full usage below for more.
+
+### Complex Example
+
+This is a complex setup example such that the encoder will encode Voice Stream and modulate it into RF Audio, send IP Frames to 127.0.0.1:17002, use AES encrytion with key specified, and so on.
+
+Encode:
+
+```
+m17-fme -i pulsevx -o pulserf -V -I -U 127.0.0.1:17002 -E '1234567890ABCDEF 1234567890ABCDEF 1234567890ABCDEF 1234567890ABCDEF' -N 2> m17encoder.txt
+```
+
+With AES and Scrambler keys, M17-FME utilizes a homebrew method called OTAKD which will deliver the encryption keys and type to listeners (this can be disabled at compile time), the end user can specify keys if they wish, or just allow them to arrive from OTAKD during encoding. Note the omission of the AES key on the IP Frame decoder, the OTAKD packet and Embedded Link Data will alert the decoder to the key used and configure it appropriately.
+
+Decode(IP):
+
+```
+m17-fme -i udp:127.0.0.1:17002 -o pulsevx -N 2> m17decoder.txt
+```
+
+Decode(RF):
+
+```
+m17-fme -i pulserf -o pulsevx -r -E '1234567890ABCDEF 1234567890ABCDEF 1234567890ABCDEF 1234567890ABCDEF' -N 2> m17decoder.txt
+```
+
+NOTE: Packet Data can be sent and recieved over IP Frame just as it is encoded and decoded using RF Audio, but this is not currently an M17 Specification, and is internal to M17-FME. 
 
 ## Using M17-FME with M17_Implementations
 
