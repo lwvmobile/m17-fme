@@ -27,6 +27,11 @@ void input_ncurses_terminal (Super * super, int c)
         super->enc.scrambler_key = rand() & 0xFFFFFF;
         super->enc.enc_type = 1;
         pn_sequence_generator(super); //generate pN Sequence
+        if (super->opts.internal_loopback_decoder)
+        {
+          super->m17d.enc_et = 1;
+          super->m17d.enc_st = 2;
+        }
       }
       break;
 
@@ -40,6 +45,11 @@ void input_ncurses_terminal (Super * super, int c)
         super->enc.A4 = ((uint64_t)rand() << 32ULL) + rand();
         super->enc.enc_type = 2;
         aes_key_loader(super);
+        if (super->opts.internal_loopback_decoder)
+        {
+          super->m17d.enc_et = 2;
+          super->m17d.enc_st = 0;
+        }
       }
       break;
 
@@ -79,7 +89,14 @@ void input_ncurses_terminal (Super * super, int c)
           super->enc.aes_key_is_loaded = 0;
           memset (super->enc.aes_key, 0, 64*sizeof(uint8_t));
         }
+
         sprintf (super->m17d.sms, "%s", "Encryption Key Cleared;");
+        
+        if (super->opts.internal_loopback_decoder)
+        {
+          super->m17d.enc_et = 0;
+          super->m17d.enc_st = 0;
+        }
       }
       break;
 
@@ -133,6 +150,12 @@ void input_ncurses_terminal (Super * super, int c)
           super->enc.scrambler_key = 0;
 
         sprintf (super->m17d.sms, "%s", "Encryption Key Cleared;");
+
+        if (super->opts.internal_loopback_decoder)
+        {
+          super->m17d.enc_et = 0;
+          super->m17d.enc_st = 0;
+        }
       }
       break;
 

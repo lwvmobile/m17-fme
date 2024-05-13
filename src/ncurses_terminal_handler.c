@@ -436,7 +436,7 @@ void print_ncurses_call_info (Super * super)
       printw( ("Key: %X; "), super->enc.scrambler_key);
 
     if (super->opts.use_m17_str_encoder && !super->m17e.str_encoder_tx)
-      printw (" (e) Disable SCR;");
+      printw ("Disable SCR(e);");
 
     if (super->demod.in_sync == 1)
       attron(COLOR_PAIR(2));
@@ -459,7 +459,7 @@ void print_ncurses_call_info (Super * super)
       printw ("%02X", super->m17d.meta[i]);
 
     if (super->opts.use_m17_str_encoder && !super->m17e.str_encoder_tx)
-      printw (" (E) Disable AES;");
+      printw (" Disable AES(E);");
 
     if (super->demod.in_sync == 1)
       attron(COLOR_PAIR(2));
@@ -480,8 +480,8 @@ void print_ncurses_call_info (Super * super)
     printw ("Clear; ");
     if (super->opts.use_m17_str_encoder && !super->m17e.str_encoder_tx)
     {
-      printw ("(1) Random SCR Key; ");
-      printw ("(2) Random AES Key; ");
+      printw ("Random SCR Key(1); ");
+      printw ("Random AES Key(2); ");
     }
   }
 
