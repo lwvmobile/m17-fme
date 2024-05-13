@@ -22,7 +22,7 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'1' key, Generate 1 time use Scrambler Key (24-bit)
     case 49:
-      if (super->opts.use_m17_str_encoder == 1)
+      if (super->opts.use_m17_str_encoder == 1 && !super->m17e.str_encoder_tx)
       {
         super->enc.scrambler_key = rand() & 0xFFFFFF;
         super->enc.enc_type = 1;
@@ -30,9 +30,9 @@ void input_ncurses_terminal (Super * super, int c)
       }
       break;
 
-    //'3' key, key, Generate 1 time use AES Key (256-bit)
-    case 51:
-      if (super->opts.use_m17_str_encoder == 1)
+    //'2' key, key, Generate 1 time use AES Key (256-bit)
+    case 50:
+      if (super->opts.use_m17_str_encoder == 1 && !super->m17e.str_encoder_tx)
       {
         super->enc.A1 = ((uint64_t)rand() << 32ULL) + rand();
         super->enc.A2 = ((uint64_t)rand() << 32ULL) + rand();
@@ -73,6 +73,13 @@ void input_ncurses_terminal (Super * super, int c)
       {
         if (super->enc.enc_type == 0) super->enc.enc_type = 2;
         else super->enc.enc_type = 0;
+
+        if (super->enc.aes_key_is_loaded == 1)
+        {
+          super->enc.aes_key_is_loaded = 0;
+          memset (super->enc.aes_key, 0, 64*sizeof(uint8_t));
+        }
+        sprintf (super->m17d.sms, "%s", "Encryption Key Cleared;");
       }
       break;
 
@@ -121,6 +128,11 @@ void input_ncurses_terminal (Super * super, int c)
       {
         if (super->enc.enc_type == 0) super->enc.enc_type = 1;
         else super->enc.enc_type = 0;
+
+        if (super->enc.scrambler_key != 0)
+          super->enc.scrambler_key = 0;
+
+        sprintf (super->m17d.sms, "%s", "Encryption Key Cleared;");
       }
       break;
 
