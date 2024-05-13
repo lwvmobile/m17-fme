@@ -2,7 +2,7 @@
 #
 cdir=$(pwd)
 clear
-printf "Project M17: Florida Man Edition - Auto Installer For Debian / Ubuntu / Mint based Distros\n
+printf "M17 Project: Florida Man Edition - Auto Installer For Debian / Ubuntu / Mint based Distros\n
 This will install the required and recommended packages, clone, build, and install M17-FME\n.
 This has been tested on Linux Mint 21.3 Veronica and Ubuntu (insert ver here).\n
 A full system upgrade is recommended if before installing new dependencies\n

@@ -1,5 +1,5 @@
 
-# M17 - Florida Man Edition
+# M17 Project - Florida Man Edition
 
 ## Using M17-FME with M17-FME (Standalone)
 

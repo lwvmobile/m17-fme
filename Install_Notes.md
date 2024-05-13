@@ -1,5 +1,5 @@
 
-# M17 - Florida Man Edition
+# M17 Project - Florida Man Edition
 
 ## Auto Install Scripts
 

@@ -1,7 +1,7 @@
 #! /bin/bash
 #
 clear
-printf "Project M17 - Florida Man Edition
+printf "M17 Project - Florida Man Edition
 Automatic Git Pull and Rebuild\n\n"
 sleep 1
 ##Open your clone folder##

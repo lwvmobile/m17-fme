@@ -2,7 +2,7 @@
 #
 cdir=$(pwd)
 clear
-printf "Project M17: Florida Man Edition - Auto Installer For Red Hat, Fedora, RHEL based Distros.\n
+printf "M17 Project: Florida Man Edition - Auto Installer For Red Hat, Fedora, RHEL based Distros.\n
 This will install the required and recommended packages, clone, build, and install M17-FME\n.
 This has been tested on (Insert Latest Fedora Version Here).\n
 A full system upgrade is recommended if before installing new dependencies\n
