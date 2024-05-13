@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * m17_lsf_demodulator.c
- * Project M17 - Link Setup Frame Demodulation and Debug
+ * M17 Project - Link Setup Frame Demodulation and Debug
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

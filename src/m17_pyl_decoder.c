@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * m17_pyl_decoder.c
- * Project M17 - Payload Codec2 and Arbitrary Data Handling
+ * M17 Project - Payload Codec2 and Arbitrary Data Handling
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

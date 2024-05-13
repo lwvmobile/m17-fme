@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * io.c
- * Project M17 - Input and Output Open and Close Functions
+ * M17 Project - Input and Output Open and Close Functions
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

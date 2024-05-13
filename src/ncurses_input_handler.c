@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * ncurses_input_handler.c
- * Project M17 - Ncurses Keystroke Input Handling
+ * M17 Project - Ncurses Keystroke Input Handling
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 

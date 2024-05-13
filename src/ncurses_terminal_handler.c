@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * ncurses_terminal_handler.c
- * Project M17 - Ncurses Terminal Open, Close, and Print
+ * M17 Project - Ncurses Terminal Open, Close, and Print
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 //have at least one thing in a file available if the entire thing is wrapped in an ifdef
@@ -117,7 +117,7 @@ void print_ncurses_banner (Super * super)
   if (super->opts.ncurses_show_banner == 0)
   {
     printw ("-------------------------------------------------------------------------------\n");
-    printw ("| Project M17: Florida Man Edition - Build: %s - Session: %04X\n", GIT_TAG, super->opts.random_number);
+    printw ("| M17 Project: Florida Man Edition - Build: %s - Session: %04X\n", GIT_TAG, super->opts.random_number);
     printw ("---------------(C)-------------------------------------------------------------\n");
   }
   else

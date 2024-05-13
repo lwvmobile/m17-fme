@@ -1,15 +1,15 @@
 /*-------------------------------------------------------------------------------
  * m17_str_encoder.c
- * Project M17 - Stream Voice Encoder
+ * M17 Project - Stream Voice Encoder
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"
 #include "m17.h"
 
-//encode and create audio of a Project M17 Stream signal
+//encode and create audio of a M17 Project Stream signal
 void encode_str(Super * super)
 {
   float mem[81];

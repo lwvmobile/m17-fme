@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * net_tcp.c
- * Project M17 - Network Functions for TCP
+ * M17 Project - Network Functions for TCP
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

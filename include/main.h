@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * main.h
- * Project M17 - Florida Man Edition
+ * M17 Project - Florida Man Edition
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #ifndef MAIN_H

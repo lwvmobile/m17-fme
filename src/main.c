@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * main.c
- * Project M17 - Florida Man Edition
+ * M17 Project - Florida Man Edition
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #define _MAIN
@@ -348,7 +348,7 @@ int main (int argc, char **argv)
       //enable the RF Audio Demodulator
       case 'r':
         super.opts.use_m17_rfa_decoder = 1;
-        fprintf (stderr, "Project M17 RF Audio Frame Demodulator. \n");
+        fprintf (stderr, "M17 Project RF Audio Frame Demodulator. \n");
         break;
 
       //input quelch level (for vox input)
@@ -360,7 +360,7 @@ int main (int argc, char **argv)
       //Enable UDP IP Frame Input
       case 'u':
         super.opts.use_m17_ipf_decoder = 1;
-        fprintf (stderr, "Project M17 Encoder UDP IP Frame Receiver Enabled. \n");
+        fprintf (stderr, "M17 Project Encoder UDP IP Frame Receiver Enabled. \n");
         break;
 
       case 'v':
@@ -421,7 +421,7 @@ int main (int argc, char **argv)
       //Enable IP Frame Output (with default localhost:17000)
       case 'I':
         super.opts.m17_use_ip = 1;
-        fprintf (stderr, "Project M17 Encoder IP Frame Enabled. \n");
+        fprintf (stderr, "M17 Project Encoder IP Frame Enabled. \n");
         break;
 
       case 'L':
@@ -438,7 +438,7 @@ int main (int argc, char **argv)
       //Enable the PKT Encoder
       case 'P':
         super.opts.use_m17_pkt_encoder = 1;
-        fprintf (stderr, "Project M17 Packet Encoder. \n");
+        fprintf (stderr, "M17 Project Packet Encoder. \n");
         break;
 
       //Specify M17 PKT Encoder Raw Encoded Data Packet
@@ -456,7 +456,7 @@ int main (int argc, char **argv)
       //Run the test pattern generator
       case 'T':
         super.opts.use_m17_tst_encoder = 1;
-        fprintf (stderr, "Project M17 Test Pattern Generator. \n");
+        fprintf (stderr, "M17 Project Test Pattern Generator. \n");
         break;
 
       //Specify M17 UDP Frame String Format, i.e., 'localhost:17000' or 'mycustomhost.xyz:17001'
@@ -468,7 +468,7 @@ int main (int argc, char **argv)
       //Enable the Stream Voice Encoder
       case 'V':
         super.opts.use_m17_str_encoder = 1;
-        fprintf (stderr, "Project M17 Stream Voice Encoder. \n");
+        fprintf (stderr, "M17 Project Stream Voice Encoder. \n");
         break;
 
       //Specify RF Audio Output Wav File

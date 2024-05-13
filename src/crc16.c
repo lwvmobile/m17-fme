@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * crc16.c
- * Project M17 - CRC16 Checksum
+ * M17 Project - CRC16 Checksum
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * pulse.c
- * Project M17 - Pulse Audio Handler
+ * M17 Project - Pulse Audio Handler
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

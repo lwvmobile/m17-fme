@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * m17_ipf_decoder.c
- * Project M17 - IP Frame Receiver and Decoding
+ * M17 Project - IP Frame Receiver and Decoding
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

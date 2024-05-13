@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * time.c
- * Project M17 - Time and Date Functions
+ * M17 Project - Time and Date Functions
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

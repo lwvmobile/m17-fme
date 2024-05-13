@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * init_super.c
- * Project M17 - Super (Nested) Structure Element Initialization
+ * M17 Project - Super (Nested) Structure Element Initialization
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

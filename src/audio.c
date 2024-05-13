@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * audio.c
- * Project M17 - Audio Related Functions
+ * M17 Project - Audio Related Functions
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

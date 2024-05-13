@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * wav.c
- * Project M17 - Wav File Handling
+ * M17 Project - Wav File Handling
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

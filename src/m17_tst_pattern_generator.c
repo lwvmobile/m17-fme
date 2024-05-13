@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * m17_test_pattern_generator.c
- * Project M17 - Test Pattern Sine Wave Generator
+ * M17 Project - Test Pattern Sine Wave Generator
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

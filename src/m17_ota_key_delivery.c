@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * m17_ota_key_delivery.c
- * Project M17 - Over the Air Key Delivery Format Encoding
+ * M17 Project - Over the Air Key Delivery Format Encoding
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

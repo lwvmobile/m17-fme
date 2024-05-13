@@ -1,12 +1,12 @@
 /*-------------------------------------------------------------------------------
  * aes.c         Tiny(er) AES
- * Project M17 - AES128/192/256 Block Output For Keystream Application
+ * M17 Project - AES128/192/256 Block Output For Keystream Application
  *
  * Modified Tiny AES code for more variable nk/nr/nb values, all in one file
  * https://github.com/kokke/tiny-AES-c (unlicense license, see bottom)
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

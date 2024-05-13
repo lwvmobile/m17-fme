@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * m17_csd_decoder.c
- * Project M17 - Callsign Data Decoder
+ * M17 Project - Callsign Data Decoder
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

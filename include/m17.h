@@ -1,13 +1,13 @@
 /*-------------------------------------------------------------------------------
  * m17.h
- * Project M17 - Common Static Arrays for M17 functions
+ * M17 Project - Common Static Arrays for M17 functions
  *
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
-//Project M17 Frame Sync Patterns
+//M17 Project Frame Sync Patterns
 #define LSF_SYNC_BURST 0x55F7
 #define BRT_SYNC_BURST 0xDF55
 #define STR_SYNC_BURST 0xFF5D

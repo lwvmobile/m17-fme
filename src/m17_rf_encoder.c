@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * m17_rf_encoder.c
- * Project M17 - RF Audio Encoder
+ * M17 Project - RF Audio Encoder
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

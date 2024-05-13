@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * oss.c
- * Project M17 - Hot Garbage Audio Handling
+ * M17 Project - Hot Garbage Audio Handling
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

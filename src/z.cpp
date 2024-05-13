@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * z.cpp
- * Project M17 - Test File for CPP Code
+ * M17 Project - Test File for CPP Code
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

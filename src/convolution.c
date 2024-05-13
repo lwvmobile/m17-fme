@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * convolution.c
- * Project M17 - Convolutional Encoder and Convolutional / Viterbi Decoder(s)
+ * M17 Project - Convolutional Encoder and Convolutional / Viterbi Decoder(s)
  *
  * LWVMOBILE
- * 2024-05 Project M17 - Florida Man Edition
+ * 2024-05 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"
