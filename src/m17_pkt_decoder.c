@@ -24,7 +24,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   else if (protocol == 4) fprintf (stderr, " IPv4;");
   else if (protocol == 5) fprintf (stderr, " SMS;");
   else if (protocol == 6) fprintf (stderr, " Winlink;");
-  else if (protocol == 9) fprintf (stderr, " OTA Key Delivery;");
+  else if (protocol == 9) fprintf (stderr, " OTA Key Delivery;"); //m17-fme non standard packet data
   else if (protocol == 90)fprintf (stderr, " Meta Text Data;"); //internal format only from meta
   else if (protocol == 91)fprintf (stderr, " Meta GNSS Position Data;"); //internal format only from meta
   else if (protocol == 92)fprintf (stderr, " Meta Extended CSD;"); //internal format only from meta
@@ -40,8 +40,8 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
       fprintf (stderr, "%c", input[i]);
 
       //add line break to keep it under 80 columns
-      if ( (i%71) == 0 && i != 0)
-        fprintf (stderr, "\n      ");
+      // if ( (i%71) == 0 && i != 0)
+      //   fprintf (stderr, "\n      ");
     }
 
     //make a better string out of it instead

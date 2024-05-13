@@ -131,7 +131,7 @@ typedef struct
   //Misc Options to organize later
   uint8_t m17_str_encoder_dt;
   uint8_t disable_rrc_filter;
-  uint8_t monitor_encode_internally;
+  uint8_t internal_loopback_decoder;
   uint8_t allow_crc_failure;
   uint8_t use_hpfilter_dig;
   uint8_t inverted_signal;

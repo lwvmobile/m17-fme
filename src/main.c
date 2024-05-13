@@ -250,7 +250,7 @@ int main (int argc, char **argv)
         super.opts.use_pa_output_vx = 1;
         super.opts.m17_use_ip = 1;
         super.opts.use_m17_str_encoder = 1;
-        super.opts.monitor_encode_internally = 1;
+        super.opts.internal_loopback_decoder = 1;
         break;
 
       //Disable HPF on Digital Output
@@ -425,7 +425,7 @@ int main (int argc, char **argv)
         break;
 
       case 'L':
-        super.opts.monitor_encode_internally = 1;
+        super.opts.internal_loopback_decoder = 1;
         fprintf (stderr, "Internal Encoder Loopback to Decoder. \n");
         break;
 

@@ -336,7 +336,7 @@ void encode_str(Super * super)
     }
 
     //if not decoding internally, assign values for ncurses display
-    if (super->opts.monitor_encode_internally == 0)
+    if (super->opts.internal_loopback_decoder == 0)
     {
       sprintf (super->m17d.src_csd_str, "%s", s40);
       sprintf (super->m17d.dst_csd_str, "%s", d40);
@@ -593,7 +593,7 @@ void encode_str(Super * super)
         #endif
 
         fprintf (stderr, "\n M17 LSF    (ENCODER): ");
-        if (super->opts.monitor_encode_internally == 1)
+        if (super->opts.internal_loopback_decoder == 1)
           demod_lsf(super, m17_lsfs, 1);
         else fprintf (stderr, " To Audio Out;");
 
@@ -611,7 +611,7 @@ void encode_str(Super * super)
       }
 
       fprintf (stderr, "\n M17 Stream (ENCODER): ");
-      if (super->opts.monitor_encode_internally == 1)
+      if (super->opts.internal_loopback_decoder == 1)
         demod_str(super, m17_t4s, 1);
       else fprintf (stderr, " To Audio Out;");
 
@@ -878,7 +878,7 @@ void encode_str(Super * super)
       if (eot && !eot_out)
       {
         fprintf (stderr, "\n M17 Stream (ENCODER): ");
-        if (super->opts.monitor_encode_internally == 1)
+        if (super->opts.internal_loopback_decoder == 1)
           demod_str(super, m17_t4s, 1);
         else fprintf (stderr, " To Audio Out;");
 

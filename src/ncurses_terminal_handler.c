@@ -163,7 +163,7 @@ void print_ncurses_config (Super * super)
   else if (super->opts.use_oss_input)
   {
     printw ("OSS  Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
-    if      (super->opts.monitor_encode_internally) printw ("Voice Input;      ");
+    if      (super->opts.internal_loopback_decoder) printw ("Voice Input;      ");
     else if (super->opts.use_m17_pkt_encoder)       printw ("Voice Input;      ");
     else if (super->opts.use_m17_str_encoder)       printw ("Voice Input;      ");
     else if (super->opts.use_m17_brt_encoder)       printw ("Voice Input;      ");
@@ -203,7 +203,7 @@ void print_ncurses_config (Super * super)
   if (super->opts.use_oss_output)
   {
     printw ("OSS Output:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
-    if      (super->opts.monitor_encode_internally) printw ("Loopback Decoder; ");
+    if      (super->opts.internal_loopback_decoder) printw ("Loopback Decoder; ");
     else if (super->opts.use_m17_pkt_encoder)       printw ("RF Output;        ");
     else if (super->opts.use_m17_str_encoder)       printw ("RF Output;        ");
     else if (super->opts.use_m17_brt_encoder)       printw ("RF Output;        ");
@@ -314,7 +314,7 @@ void print_ncurses_levels (Super * super)
     printw ("\n");
   }
 
-  if (super->opts.use_m17_rfa_decoder || super->opts.monitor_encode_internally)
+  if (super->opts.use_m17_rfa_decoder || super->opts.internal_loopback_decoder)
   {
     printw ("| Voice Output: %3.0f%% (-|+) ", super->opts.output_gain_vx * 100);
     if (super->opts.use_hpfilter_dig == 1)

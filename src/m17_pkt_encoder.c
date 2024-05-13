@@ -282,8 +282,8 @@ void encode_pkt(Super * super)
       
 
       //add line break to keep it under 80 columns
-      if ( (i%71) == 0 && i != 0)
-        fprintf (stderr, "\n      ");
+      // if ( (i%71) == 0 && i != 0)
+      //   fprintf (stderr, "\n      ");
     }
     fprintf (stderr, "\n");
   }
