@@ -3,7 +3,7 @@
 
 ## Auto Install Scripts
 
-M17-FME has auto install scripts for Debian/Ubuntu/Mint based distros, Red Hat/Fedora/RHEL based distors, and for Arch based distros. Simply downloading and running these scripts will download all dependencies and install for you.
+M17-FME has auto install scripts for Debian/Ubuntu/Mint based distros, Red Hat/Fedora/RHEL based distros, and for Arch based distros. Simply downloading and running these scripts will download all dependencies and install for you.
 
 Debian/Ubuntu/Mint/Raspberry Pi OS
 ```
@@ -23,7 +23,7 @@ wget https://raw.githubusercontent.com/lwvmobile/m17-fme/main/download-and-insta
 sh download-and-install-arch.sh
 ```
 
-## How to Build (Maunual Install)
+## How to Build (Manual Install)
 
 ### Dependencies
 
@@ -82,7 +82,7 @@ cd m17-fme
 mkdir build
 cd build
 cmake ..
-#cmake -DOTAKD=OFF #turn off 'over the air key delivery' packets and embedded link
+#cmake -DOTAKD=OFF .. #turn off 'over the air key delivery' packets and embedded link
 make
 sudo make install
 ```
