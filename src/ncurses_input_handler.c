@@ -20,6 +20,12 @@ void input_ncurses_terminal (Super * super, int c)
   switch (c)
   {
 
+    //escape character (from arrow keys, read buffered input and ignore)
+    case '\033':
+      getch(); //[
+      getch(); //A,B,C,D, etc
+      break;
+
     //'1' key, Generate 1 time use Scrambler Key (24-bit)
     case 49:
       if (super->opts.use_m17_str_encoder == 1 && !super->m17e.str_encoder_tx)
