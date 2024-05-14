@@ -47,7 +47,7 @@ void hpfilter_d(Super * super, short * input, int len)
 }
 
 //10x Upscale and RRC filtering lifted from M17_Implementations / libM17
-void upsacale_and_rrc_output_filter (int * output_symbols, float * mem, short * baseband)
+void upscale_and_rrc_output_filter (int * output_symbols, float * mem, short * baseband)
 {
   int i = 0; int j = 0; int k = 0; int x = 0;
   float mac = 0.0f;

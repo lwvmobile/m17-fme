@@ -488,7 +488,7 @@ void hpfilter_d (Super * super, short * input, int len);
 
 //RRC Input and Output Filtering
 short rrc_input_filter(float * mem, short sample);
-void upsacale_and_rrc_output_filter (int * output_symbols, float * mem, short * baseband);
+void upscale_and_rrc_output_filter (int * output_symbols, float * mem, short * baseband);
 
 //convolutional encoder and decoder (viterbi)
 void simple_conv_encoder (uint8_t * input, uint8_t * output, int len);

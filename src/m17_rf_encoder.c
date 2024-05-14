@@ -154,7 +154,7 @@ void encode_rfa (Super * super, uint8_t * input, float * mem, int type)
 
   //version w/ filtering lifted from M17_Implementations / libM17
   else if (super->opts.disable_rrc_filter == 0)
-    upsacale_and_rrc_output_filter (output_symbols, mem, baseband);
+    upscale_and_rrc_output_filter (output_symbols, mem, baseband);
 
   //Apply Gain to Output
   output_gain_rf (super, baseband, 1920);
