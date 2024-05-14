@@ -9,7 +9,7 @@
 #include "main.h"
 #include "m17.h"
 
-void fsk4_framesync (Super * super)
+void framesync (Super * super)
 {
   //sync type
   int type = -1;

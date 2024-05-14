@@ -531,7 +531,7 @@ int main (int argc, char **argv)
       #endif
 
       //look for framesync
-      fsk4_framesync (&super);
+      framesync (&super);
 
       //extra verbosity debug info dump
       if (super.opts.payload_verbosity >= 3)

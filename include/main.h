@@ -510,7 +510,7 @@ void Golay_24_12_init ();
 uint16_t crc16 (const uint8_t *in, const uint16_t len);
 
 //demodulation and sync functions
-void  fsk4_framesync (Super * super);
+void  framesync (Super * super);
 float demodulate_and_return_float_symbol (Super * super);
 void  buffer_refresh_min_max_center (Super * super);
 short basic_sample_selector (Super * super, short * samples);
