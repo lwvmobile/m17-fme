@@ -38,12 +38,11 @@ NOTE: Encodng and Decoding of Packet Data over IP Frames has not been standardiz
 
 M17-FME supports both the encryption and decryption of Voice Stream using AES and Scrambler modes per specification. The official stance from M17-FME is that encryption should be used as a tool, and in the context of M17-FME, it is available as a learning tool. When using encryption mode, M17-FME will craft and send your encryption key and encryption type as both a Packet, and embedded into Link Setup Data periodically in the clear. "Over the Air Key Delivery" or "OTAKD" was devised as a method to both allow and learn form the use of encryption, but to also freely and openly provide the encryption key to others to use while decoding. This 'format' is NOT per M17 specification, but is a method devised internally to allow the use of encryption while sharing the key for others. OTAKD can be disabled by compiling M17-FME with the `cmake -DOTAKD=OFF ..` cmake option.
 
+### How to Use
 
 Please see [Example Usage](https://github.com/lwvmobile/m17-fme/blob/main/Example_Usage.md "Example Usage") for a complete set of use case scenarios and configuration.
 
 ### How to Build
 
 Please see [Install Notes](https://github.com/lwvmobile/m17-fme/blob/main/Install_Notes.md "Install Notes") for information on cloning and compiling M17-FME.
-
-## License
 
