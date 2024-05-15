@@ -541,6 +541,10 @@ void push_call_history (Super * super)
     }
   }
 
+  //other misc special events
+  if (super->m17d.dt == 4) sprintf (event_string, " Demodulator Reset; Polarity Change, RRC Filtering Change, or Debug Carrier Reset Event;");
+  else if (super->m17d.dt > 6) sprintf (event_string, " Unknown Error Event (Synchronization Error?);");
+
   //send last call history to event_log_writer
   event_log_writer (super, event_string, 255);
 

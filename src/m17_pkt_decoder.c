@@ -29,7 +29,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   else if (protocol == 91)fprintf (stderr, " Meta GNSS Position Data;"); //internal format only from meta
   else if (protocol == 92)fprintf (stderr, " Meta Extended CSD;"); //internal format only from meta
   else if (protocol == 99)fprintf (stderr, " 1600 Arbitrary Data;"); //internal format only from 1600
-  else fprintf (stderr, " Res: %02X;", protocol);
+  else                    fprintf (stderr, " Res %02X;", protocol); //any received but unknown protocol type
 
   //simple UTF-8 SMS Decoder
   if (protocol == 5)
@@ -90,7 +90,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
         fprintf (stderr, "\n");
         aes_key_loader (super);
       }
-      else if (ssn == 4) //complete key over PACKET DATA or IPFrame Delivery
+      else if (ssn == 4) //complete key over PACKET DATA or IP Frame Delivery
       {
         super->enc.A1 = (unsigned long long int)convert_bits_into_output(bits+00+00+00, 64);
         super->enc.A2 = (unsigned long long int)convert_bits_into_output(bits+64+00+00, 64);
