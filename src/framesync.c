@@ -189,7 +189,7 @@ float demodulate_and_return_float_symbol(Super * super)
 
     else if (!super->opts.disable_symbol_timing)
     {
-      //sample as average of center 3 samples
+      //sample as average of 4 center samples
       sample = average_sample_calc(samples);
 
       //look at timing, set correction value
@@ -234,15 +234,15 @@ float demodulate_and_return_float_symbol(Super * super)
   return float_symbol;
 }
 
-//return average of three center samples
+//return average of four center samples
 short average_sample_calc(short * samples)
 {
   uint8_t i;
   float average = 0.0f;
-  for (i = 4; i < 7; i++) //4,5,6 (TODO: Test 3,4,5)
+  for (i = 3; i < 7; i++) //3,4,5,6
     average += (float)samples[i];
 
-  average /= 3.0f;
+  average /= 4.0f;
 
   return (short)average;
 }
