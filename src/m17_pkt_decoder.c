@@ -223,7 +223,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     memcpy (super->m17d.raw, input+1, len);
 
     //send RAW data (as string) to event_log_writer
-    char event_string[900]; sprintf (event_string, "%s", " ");
+    char event_string[2400]; sprintf (event_string, "%s", " "); //31*25*3 plus a little extra
     char in[3];
     for (i = 1; i < len; i++)
     {
