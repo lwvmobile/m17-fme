@@ -124,6 +124,7 @@ void usage ()
   printf ("  -2            Generate Random One Time Use 256-bit AES Key. \n");
   printf ("  -4            Permit Data Decoding on CRC Failure (not recommended). \n");
   printf ("  -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). \n");
+  printf ("  -7            Disable Symbol Timing Correction. \n");
   printf ("  -8            Disable High Pass Filter on CODEC2 Output. \n");
   printf ("  -9            Enable  RRC Filter on RF Audio Encoding / Decoding. \n");
   printf ("  -0            Disable RRC Filter on RF Audio Encoding / Decoding. \n");
@@ -251,6 +252,12 @@ int main (int argc, char **argv)
         super.opts.m17_use_ip = 1;
         super.opts.use_m17_str_encoder = 1;
         super.opts.internal_loopback_decoder = 1;
+        break;
+
+      //Disable Symbol Timing Correction
+      case '7':
+        super.opts.disable_symbol_timing = 1;
+        fprintf (stderr, "Disable Symbol Timing Correction.\n");
         break;
 
       //Disable HPF on Digital Output

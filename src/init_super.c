@@ -76,6 +76,7 @@ void init_super (Super * super)
   super->opts.disable_rrc_filter = 1; //Disabled until working properly with clock recovery
   super->opts.internal_loopback_decoder = 0;
   super->opts.allow_crc_failure = 0; //allow decode attempts, even if CRC16 fails checksum
+  super->opts.disable_symbol_timing = 0; //disable corrective symbol timing (debug)
   super->opts.use_hpfilter_dig = 1;
   super->opts.inverted_signal = 0;
   srand(time(NULL)); //seed a random number for below

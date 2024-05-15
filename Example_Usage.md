@@ -226,6 +226,7 @@ Debug Options:
   -2            Generate Random One Time Use 256-bit AES Key. 
   -4            Permit Data Decoding on CRC Failure (not recommended). 
   -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). 
+  -7            Disable Symbol Timing Correction.
   -8            Disable High Pass Filter on CODEC2 Output. 
   -9            Enable  RRC Filter on RF Audio Encoding / Decoding. 
   -0            Disable RRC Filter on RF Audio Encoding / Decoding.

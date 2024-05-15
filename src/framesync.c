@@ -178,18 +178,27 @@ float demodulate_and_return_float_symbol(Super * super)
     //calculate min/lmid/center/umid/max vs buffer of last 192 samples
     buffer_refresh_min_max_center(super);
 
-    //sample as average of center 3 samples (4, 5, 6)
-    sample = average_sample_calc(samples);
+    if (super->opts.disable_symbol_timing)
+    {
+      // select the best sample based on distance
+      sample = basic_sample_selector(super, samples);
 
-    //select the best sample based on distance
-    // sample = basic_sample_selector(super, samples);
+      //look at timing (but no corrective value assignment)
+      timing(super, samples);
+    }
+
+    else if (!super->opts.disable_symbol_timing)
+    {
+      //sample as average of center 3 samples
+      sample = average_sample_calc(samples);
+
+      //look at timing, set correction value
+      super->demod.fsk4_timing_correction = 
+        timing(super, samples);
+    } 
 
     //slice float_symbol from provided sample
     float_symbol = float_symbol_slicer(super, sample);
-
-    //look at timing, set correction value
-    super->demod.fsk4_timing_correction =
-      timing(super, samples);
     
   }
 
@@ -249,7 +258,7 @@ int timing (Super * super, short * samples)
   float this_symbol = 0.0f;
 
   if (super->opts.demod_verbosity > 1)
-    fprintf (stderr, "\n Timing: ");
+    fprintf (stderr, "\n Symbol Edge Timing: ");
 
   sprintf (super->demod.fsk4_timing_string, "Symbol Edge Timing: | ");
 

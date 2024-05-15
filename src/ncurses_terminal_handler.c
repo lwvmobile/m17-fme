@@ -264,11 +264,16 @@ void print_ncurses_scope (Super * super)
     //symbol edges
     printw ("\n| %s", super->demod.fsk4_timing_string);
 
-    //corrective value 
-    if (super->demod.fsk4_timing_correction < 0)
-      printw ( " Off: %02d;", super->demod.fsk4_timing_correction);
-    else
-      printw ( " Off: +%d;", super->demod.fsk4_timing_correction);
+    //corrective value
+    if (!super->opts.disable_symbol_timing)
+    {
+      if (super->demod.fsk4_timing_correction < 0)
+        printw ( " Off: %02d;", super->demod.fsk4_timing_correction);
+      else
+        printw ( " Off: +%d;", super->demod.fsk4_timing_correction);
+    }
+    else if (super->opts.disable_symbol_timing)
+      printw ( " Off: DIS;"); //disabled
 
     printw (" Sync Symbol Distance: %2.0f", super->demod.sync_distance);
     

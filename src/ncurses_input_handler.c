@@ -65,6 +65,14 @@ void input_ncurses_terminal (Super * super, int c)
       no_carrier_sync (super); //reset demod
       break;
 
+    //'7' key, Toggle Symbol Timing
+    case 55:
+      if (super->opts.disable_symbol_timing == 0) super->opts.disable_symbol_timing = 1;
+      else super->opts.disable_symbol_timing = 0;
+      super->m17d.dt = 4; //fake for carrier reset
+      no_carrier_sync (super); //reset demod
+      break;
+
     //'A' key, Toggle Audio Level Display
     case 65:
       if (super->opts.ncurses_show_audio == 0) super->opts.ncurses_show_audio = 1;

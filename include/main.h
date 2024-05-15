@@ -133,6 +133,7 @@ typedef struct
   uint8_t disable_rrc_filter;
   uint8_t internal_loopback_decoder;
   uint8_t allow_crc_failure;
+  uint8_t disable_symbol_timing;
   uint8_t use_hpfilter_dig;
   uint8_t inverted_signal;
   uint16_t random_number;
