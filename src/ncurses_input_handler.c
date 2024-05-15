@@ -179,6 +179,12 @@ void input_ncurses_terminal (Super * super, int c)
       else super->opts.use_hpfilter_dig = 0;
       break;
 
+    //'m' key, Toggle Analog / Raw Signal Monitor (when no sync)
+    case 109:
+      if (super->opts.use_raw_audio_monitor == 0) super->opts.use_raw_audio_monitor = 1;
+      else super->opts.use_raw_audio_monitor = 0;
+      break;
+
     //'q' key, Quit
     case 113:
       exitflag = 1;

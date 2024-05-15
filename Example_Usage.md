@@ -206,6 +206,7 @@ Decoder Options:
 
   -r            Enable RFA Demodulator and Decoding of Stream and Packet Data
   -x            Expect Inverted Polarity on RF Input
+  -m            Enable Analog / Raw Input Signal Monitor on RF Input (when no sync)
   -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 
   -p            Per Call decoded voice wav file saving into current directory ./M17WAV folder
 
@@ -267,6 +268,7 @@ Quick Examples:
 // Modulation and Demodulation
 'r' key, Toggle RRC Input / Output Filtering
 'x' key, Toggle Inversion
+'m' key, Toggle Analog / Raw Signal Monitor (when no sync)
 
 // Audio Levels
 '/' key, decrement voice input gain by 1%

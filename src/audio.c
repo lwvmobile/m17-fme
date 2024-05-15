@@ -27,6 +27,9 @@ short get_short_audio_input_sample (Super * super)
   else if (super->opts.use_oss_input == 1)
     sample = oss_input_read(super);
 
+  //contribute sample to raw audio monitor for playback if enabled
+  raw_audio_monitor (super, sample);
+
   return sample;
 }
 
@@ -92,4 +95,40 @@ void output_gain_vx (Super * super, short * input, int len)
   int i;
   for (i = 0; i < len; i++)
     input[i] *= super->opts.output_gain_vx;
+}
+
+void raw_audio_monitor (Super * super, short sample)
+{
+  //add sample to the raw audio buffer
+  super->demod.raw_audio_buffer[super->demod.raw_audio_buffer_ptr++] = sample;
+
+  //if buffer is at saturation, playback and discharge buffer
+  if (super->demod.raw_audio_buffer_ptr >= 960)
+  {
+
+    //playback buffered samples, if raw audio monitor is enabled and no sync
+    if (super->opts.use_raw_audio_monitor && !super->demod.in_sync)
+    {
+      //Pulse Audio Playback
+      #ifdef USE_PULSEAUDIO
+      if (super->pa.pa_output_vx_is_open == 1)
+        pulse_audio_output_vx(super, super->demod.raw_audio_buffer, 960);
+      #else
+      if (super->pa.pa_output_vx_is_open == 1) {}
+      #endif
+
+      //OSS
+      else if (super->opts.oss_output_device)
+        oss_output_write(super, super->demod.raw_audio_buffer, 960);
+
+      //STDOUT
+      else if (super->opts.stdout_pipe)
+        write_stdout_pipe(super, super->demod.raw_audio_buffer, 960);
+
+    }
+
+    //discharge samples and reset pointer
+    memset (super->demod.raw_audio_buffer, 0, 960*sizeof(short));
+    super->demod.raw_audio_buffer_ptr = 0;
+  }
 }

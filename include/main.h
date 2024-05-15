@@ -134,6 +134,7 @@ typedef struct
   uint8_t internal_loopback_decoder;
   uint8_t allow_crc_failure;
   uint8_t disable_symbol_timing;
+  uint8_t use_raw_audio_monitor;
   uint8_t use_hpfilter_dig;
   uint8_t inverted_signal;
   uint16_t random_number;
@@ -201,6 +202,11 @@ typedef struct
 
   float   float_symbol_buffer[256];
   uint8_t float_symbol_buffer_ptr;
+
+  //this buffer is different from the sample buffer, as opposed to being a ring buffer,
+  //this will be filled and discharged every 960 samples for raw audio signal monitor
+  short    raw_audio_buffer[960];
+  uint16_t raw_audio_buffer_ptr;
 
   //frame sync
   float sync_symbols[8];
@@ -486,6 +492,7 @@ void cleanup_and_exit (Super * super);
 //Audio Manipulation and Filters
 long int raw_rms (int16_t *samples, int len, int step);
 void upsample_6x (short input, short * output);
+void raw_audio_monitor (Super * super, short sample);
 void HPFilter_Init (HPFilter *filter, float cutoffFreqHz, float sampleTimeS);
 float HPFilter_Update (HPFilter *filter, float v_in);
 void hpfilter_d (Super * super, short * input, int len);

@@ -335,8 +335,11 @@ void print_ncurses_levels (Super * super)
   {
     printw ("| Voice Output: %3.0f%% (-|+) ", super->opts.output_gain_vx * 100);
     if (super->opts.use_hpfilter_dig == 1)
-      printw (" HPF(h);");
-    else printw ("!HPF(h);");
+      printw (" HPF(h); ");
+    else printw ("!HPF(h); ");
+    if (super->opts.use_raw_audio_monitor)
+      printw ( " Analog Monitor(m);");
+    else printw ( "!Analog Monitor(m);");
     printw ("\n");
   }
   printw ("-------------------------------------------------------------------------------\n");

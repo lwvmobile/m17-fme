@@ -104,6 +104,7 @@ void usage ()
   printf ("\n");
   printf ("  -r            Enable RFA Demodulator and Decoding of Stream and Packet Data\n");
   printf ("  -x            Expect Inverted Polarity on RF Input\n");
+  printf ("  -m            Enable Analog / Raw Input Signal Monitor on RF Input (when no sync)\n");
   printf ("  -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 \n");
   printf ("  -p            Per Call decoded voice wav file saving into current directory ./M17WAV folder\n");
   printf ("\n");
@@ -335,10 +336,10 @@ int main (int argc, char **argv)
         super.opts.input_handler_string[2047] = '\0';
         break;
 
-      //Read Output String to be parsed
-      case 'o':
-        strncpy(super.opts.output_handler_string, optarg, 2047);
-        super.opts.output_handler_string[2047] = '\0';
+      //Enable Raw Audio Input Monitor
+      case 'm':
+        super.opts.use_raw_audio_monitor = 1;
+        fprintf (stderr, "Enable Analog/Input Signal Monitor (when no sync) \n");
         break;
 
       //enable the ncurses terminal, if available
@@ -350,6 +351,12 @@ int main (int argc, char **argv)
         #else
         fprintf (stderr, "Ncurses Support Not Compiled. \n");
         #endif
+        break;
+
+      //Read Output String to be parsed
+      case 'o':
+        strncpy(super.opts.output_handler_string, optarg, 2047);
+        super.opts.output_handler_string[2047] = '\0';
         break;
 
       //enable the RF Audio Demodulator
