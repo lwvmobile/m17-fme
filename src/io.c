@@ -116,6 +116,10 @@ void cleanup_and_exit (Super * super)
   // Signal that everything should shutdown.
   exitflag = 1;
 
+  //go to no_carrier_state and push call history, event writer, etc
+  if (super->demod.in_sync)
+    no_carrier_sync(super);
+
   #ifdef USE_PULSEAUDIO
   if (super->pa.pa_input_is_open)
     close_pulse_audio_input(super);
