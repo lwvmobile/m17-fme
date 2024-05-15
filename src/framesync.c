@@ -460,9 +460,9 @@ void no_carrier_sync (Super * super)
   memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
   memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
   super->m17d.dt = 15;
-  // super->m17d.enc_et = 0;
-  // super->m17d.enc_st = 0;
-  // super->m17d.enc_mute = 0;
+  super->m17d.enc_et = 0;
+  super->m17d.enc_st = 0;
+  super->m17d.enc_mute = 0;
   sprintf (super->m17d.dst_csd_str, "%s", "         ");
   sprintf (super->m17d.src_csd_str, "%s", "         ");
 

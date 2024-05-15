@@ -79,6 +79,9 @@ void setup_percall_filename (Super * super)
 
   free (datestr); free(timestr);
 
+  //send per call to event_log_writer
+  event_log_writer (super, super->wav.wav_out_file_pc, 253);
+
   open_wav_out_pc(super);
 }
 
@@ -107,6 +110,9 @@ void close_wav_out_pc (Super * super)
   //copy filename back for ncurses display
   memcpy(super->wav.wav_out_file_pc, newfilename, 1023);
   super->wav.wav_out_file_pc[1023] = 0;
+
+  //send per call to event_log_writer
+  event_log_writer (super, super->wav.wav_out_file_pc, 254);
 }
 
 void write_wav_out_rf (Super * super, short * out, size_t nsam)

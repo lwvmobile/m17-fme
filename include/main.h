@@ -602,7 +602,7 @@ void decode_ipf (Super * super);
 
 //Call History and Event Log
 void push_call_history (Super * super);
-void event_log_writer  (Super * super, char * event_string, uint8_t type);
+void event_log_writer  (Super * super, char * event_string, uint8_t protocol);
 
 //Encryption and Decryption
 void pn_sequence_generator (Super * super);

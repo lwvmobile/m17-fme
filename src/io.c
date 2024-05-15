@@ -506,14 +506,49 @@ void push_call_history (Super * super)
     memcpy (super->m17d.callhistory[i], super->m17d.callhistory[i+1], 500*sizeof(char));
   sprintf (super->m17d.callhistory[9], "%s %s CAN: %02d; SRC: %s; DST: %s; %s;", datestr, timestr, super->m17d.can, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
 
+  //make a version without the timestamp, but include other info
+  char event_string[500]; char key[75]; sprintf(key, "%s", "");
+  sprintf (event_string, " CAN: %02d; SRC: %s; DST: %s; %s;", super->m17d.can, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
+
+  if (super->m17d.enc_et == 0)
+    strcat (event_string, " Clear");
+
+  if (super->m17d.enc_et == 1)
+  {
+    strcat (event_string, " Scrambler");
+
+    if (super->m17d.enc_st == 0)
+      strcat (event_string, " 8-bit");
+    if (super->m17d.enc_st == 1)
+      strcat (event_string, " 16-bit");
+    if (super->m17d.enc_st == 2)
+      strcat (event_string, " 24-bit");
+
+    if (super->enc.scrambler_key)
+    {
+      sprintf (key, " Key: %06X;", super->enc.scrambler_key);
+      strcat (event_string, key);
+    }
+  }
+    
+  if (super->m17d.enc_et == 2)
+  {
+    strcat (event_string, " AES");
+    if (super->enc.aes_key_is_loaded)
+    {
+      sprintf (key, " Key: %016llX %016llX %016llX %016llX;", super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
+      strcat (event_string, key);
+    }
+  }
+
   //send last call history to event_log_writer
-  event_log_writer (super, super->m17d.callhistory[9], 0);
+  event_log_writer (super, event_string, 255);
 
   free (timestr); free (datestr);
 }
 
 //write events, like last call from call history, GNSS, text messages, etc to a log file, if enabled
-void event_log_writer (Super * super, char * event_string, uint8_t type)
+void event_log_writer (Super * super, char * event_string, uint8_t protocol)
 {
   //datestr and timestr are used if event is type 1 (does not already include a timestamp in its string)
   char * timestr  = get_time_n(super->demod.current_time);
@@ -522,9 +557,58 @@ void event_log_writer (Super * super, char * event_string, uint8_t type)
   //only if the log file is open
   if (super->opts.event_log)
   {
-    if (type == 0) //timestamp is included on call string
-      fprintf (super->opts.event_log, "%s\n", event_string);
-    else fprintf (super->opts.event_log, "%s_%s %s\n", datestr, timestr, event_string);
+    //write date and time
+    fprintf (super->opts.event_log, "%s_%s ", datestr, timestr);
+
+    //add type of event by protocol (mirrors pkt decoder, plus special numbers for call history, per call, etc)
+    if (protocol == 255)
+      fprintf (super->opts.event_log, "Call History: ");
+
+    else if (protocol == 254)
+      fprintf (super->opts.event_log, "Per Call Wav Closed: ");
+
+    else if (protocol == 253)
+      fprintf (super->opts.event_log, "Per Call Wav Opened: ");
+
+    else if (protocol == 0)
+      fprintf (super->opts.event_log, "RAW: ");
+
+    else if (protocol == 1)
+      fprintf (super->opts.event_log, "AX.25: ");
+
+    else if (protocol == 2)
+      fprintf (super->opts.event_log, "APRS: ");
+
+    else if (protocol == 3)
+      fprintf (super->opts.event_log, "6LoWPAN: ");
+
+    else if (protocol == 4)
+      fprintf (super->opts.event_log, "IPv4: ");
+
+    else if (protocol == 5)
+      fprintf (super->opts.event_log, "SMS: ");
+
+    else if (protocol == 6)
+      fprintf (super->opts.event_log, "Winlink: ");
+
+    else if (protocol == 9)
+      fprintf (super->opts.event_log, "OTAKD: ");
+
+    else if (protocol == 90)
+      fprintf (super->opts.event_log, "Meta Text Data: ");
+
+    else if (protocol == 91)
+      fprintf (super->opts.event_log, "Meta GNSS: ");
+
+    else if (protocol == 92)
+      fprintf (super->opts.event_log, "Meta Extended CSD: ");
+
+    else if (protocol == 99)
+      fprintf (super->opts.event_log, "1600 Arbitrary Data: ");
+
+    else fprintf (super->opts.event_log, "Unknown Event Protocol %02X: ", protocol);
+
+    fprintf (super->opts.event_log, "%s\n", event_string);
     fflush (super->opts.event_log); //flush event so its immediately available without having to close the file
   }
 
