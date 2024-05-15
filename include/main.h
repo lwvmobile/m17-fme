@@ -202,9 +202,12 @@ typedef struct
   uint8_t float_symbol_buffer_ptr;
 
   //frame sync
-  float   sync_symbols[8];
+  float sync_symbols[8];
+  float sync_distance;
   int fsk4_samples_per_symbol;
   int fsk4_sample_center;
+  int fsk4_timing_correction;
+  char fsk4_timing_string[50];
 
   //fsk4 symbol levels
   float fsk4_center;
@@ -516,6 +519,10 @@ void  buffer_refresh_min_max_center (Super * super);
 short basic_sample_selector (Super * super, short * samples);
 void  no_carrier_sync (Super * super);
 
+//fsk4 timing
+int   timing (Super * super, short * samples);
+short average_sample_calc(short * samples);
+
 //slice and dice symbols and dibits
 uint8_t convert_float_symbol_to_dibit_and_store (Super * super, float float_symbol);
 float   float_symbol_slicer(Super * super, short sample);
@@ -527,7 +534,7 @@ uint8_t get_dibit (Super * super);
 //based off of lib17 math https://github.com/M17-Project/libm17
 float eucl_norm (float* in1, int8_t* in2, uint8_t n);
 void  push_float_buffer (float * last, float symbol);
-int   dist_and_sync (float * last);
+int   dist_and_sync (Super * super, float * last);
 
 //frame sync information and debug prints
 void print_frame_sync_pattern (Super * super, int type);

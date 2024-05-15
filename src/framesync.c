@@ -27,7 +27,7 @@ void framesync (Super * super)
 
     //push the float symbol to the buffer and check for sync patterns
     push_float_buffer(super->demod.sync_symbols, float_symbol);
-    type = dist_and_sync(super->demod.sync_symbols);
+    type = dist_and_sync(super, super->demod.sync_symbols);
 
     //print sync information and update
     if (type != -1)
@@ -65,27 +65,31 @@ void push_float_buffer (float * last, float symbol)
 
 //Euclidean Norm Distance on Multiple Frame Sync Types,
 //Return Value is Frame Sync Type (LSF, STR, PKT, BRT)
-int dist_and_sync(float * last)
+int dist_and_sync(Super * super, float * last)
 {
 
   float dist = 99.0f; //euclidean distance
 
   //LSF
+  super->demod.sync_distance = 
   dist = eucl_norm(last, lsf_sync_symbols, 8);
   if (dist < 2.0f) return 1;
   dist = 99.0f; //reset
 
   //STR
+  super->demod.sync_distance = 
   dist = eucl_norm(last, str_sync_symbols, 8);
   if (dist < 2.0f) return 2;
   dist = 99.0f; //reset
 
   //PKT
+  super->demod.sync_distance = 
   dist = eucl_norm(last, pkt_sync_symbols, 8);
   if (dist < 2.0f) return 3;
   dist = 99.0f; //reset
 
   //BRT
+  super->demod.sync_distance = 
   dist = eucl_norm(last, brt_sync_symbols, 8);
   if (dist < 2.0f) return 4;
   dist = 99.0f; //reset
@@ -156,17 +160,37 @@ float demodulate_and_return_float_symbol(Super * super)
       //store locally for inspection inspection
       samples[i] = sample;
 
+      //make adjustments to timing here
+      if (super->demod.fsk4_timing_correction > 0)
+      {
+        i--;
+        super->demod.fsk4_timing_correction--;
+      }
+      else if (super->demod.fsk4_timing_correction < 0)
+      {
+        i++;
+        samples[i] = sample;
+        super->demod.fsk4_timing_correction++;
+      }
+
     }
 
     //calculate min/lmid/center/umid/max vs buffer of last 192 samples
     buffer_refresh_min_max_center(super);
 
+    //sample as average of center 3 samples (4, 5, 6)
+    sample = average_sample_calc(samples);
+
     //select the best sample based on distance
-    sample = basic_sample_selector(super, samples);
+    // sample = basic_sample_selector(super, samples);
 
     //slice float_symbol from provided sample
     float_symbol = float_symbol_slicer(super, sample);
 
+    //look at timing, set correction value
+    super->demod.fsk4_timing_correction =
+      timing(super, samples);
+    
   }
 
   //store float symbol
@@ -179,7 +203,7 @@ float demodulate_and_return_float_symbol(Super * super)
   if (super->opts.float_symbol_out)
     fwrite(&float_symbol, sizeof(float), 1, super->opts.float_symbol_out); //sizeof(float) is 4 (usually)
 
-  //save dibits to DSD-FME compatible "symbol" capture bin file format
+  //save dibits to DSD-FME compatible dibit "symbol" capture bin file format
   if (super->opts.dibit_out) //use -C output.bin to use this format for output
   {
     dibit = digitize_symbol_to_dibit(float_symbol);
@@ -199,6 +223,109 @@ float demodulate_and_return_float_symbol(Super * super)
 
   //return dibit value
   return float_symbol;
+}
+
+//return average of three center samples
+short average_sample_calc(short * samples)
+{
+  uint8_t i;
+  float average = 0.0f;
+  for (i = 4; i < 7; i++) //4,5,6 (TODO: Test 3,4,5)
+    average += (float)samples[i];
+
+  average /= 3.0f;
+
+  return (short)average;
+}
+
+//evaluate 10 samples gathered and determine where the transition edges are
+int timing (Super * super, short * samples)
+{
+
+  int i;
+  int transition_idx = 0;
+  int transition_num = 0;
+  float last_symbol = super->demod.float_symbol_buffer[super->demod.float_symbol_buffer_ptr-1];
+  float this_symbol = 0.0f;
+
+  if (super->opts.demod_verbosity > 1)
+    fprintf (stderr, "\n Timing: ");
+
+  sprintf (super->demod.fsk4_timing_string, "Symbol Edge Timing: | ");
+
+  for (i = 0; i < 10; i++)
+  {
+    this_symbol = float_symbol_slicer(super, samples[i]);
+    if (this_symbol == 0.0f) //sample is 0 (nothing on input), and symbol is 0.0f
+    {
+      if (super->opts.demod_verbosity > 1)
+        fprintf (stderr, "0");
+
+      strcat (super->demod.fsk4_timing_string, "0");
+    }
+    else if (this_symbol == last_symbol) //no transition, or zero crossing
+    {
+      if (super->opts.demod_verbosity > 1)
+        fprintf (stderr, "-");
+      strcat (super->demod.fsk4_timing_string, "-");
+    }
+    else if (this_symbol != last_symbol)
+    {
+      if (!transition_idx)  //if initial transition not set
+        transition_idx = i; //set initial transition
+      transition_num++;     //number of transitions observed (flips)
+
+      if (this_symbol > last_symbol)
+      {
+        if (super->opts.demod_verbosity > 1)
+        {
+          fprintf (stderr, "/"); //upward
+        }
+        strcat (super->demod.fsk4_timing_string, "/"); //upward
+      }
+
+      else if (this_symbol < last_symbol)
+      {
+        if (super->opts.demod_verbosity > 1)
+        {
+          fprintf (stderr, "\\"); //downward
+        }
+        strcat (super->demod.fsk4_timing_string, "\\"); //downward
+      }
+
+      last_symbol = this_symbol;
+
+    }
+  }
+
+  if (super->opts.demod_verbosity > 1)
+    fprintf (stderr, "; Initial Transition: %02d; Number of Transitions: %02d;", transition_idx, transition_num);
+
+  if (super->opts.demod_verbosity > 1)
+    fprintf (stderr, "; Last Symbol: %2.0f; This Symbol: %2.0f;", last_symbol, this_symbol); //look at samples when zero crossing (same symbol repeated)
+
+  if (super->opts.demod_verbosity > 1)
+  {
+    fprintf (stderr, "\n Samples:");
+    for (i = 0; i < 10; i++)
+    {
+      if (samples[i] > 0)
+        fprintf (stderr, " +%05d;", samples[i]);
+      else fprintf (stderr, " %06d;", samples[i]);
+    }
+  }
+
+  strcat (super->demod.fsk4_timing_string, " |");
+
+  if (this_symbol != 0.0f && super->demod.in_sync == 0)
+  {
+    if      (  transition_num == 0     ) return +0;
+    else if ( (transition_idx - 5) > 0 ) return -1;
+    else if ( (transition_idx - 5) < 0 ) return +1;
+  }
+
+  return +0;
+
 }
 
 //crude selection procedure to determine what the optimal sample value is
@@ -234,6 +361,17 @@ short basic_sample_selector(Super * super, short * samples)
 
   if (super->opts.demod_verbosity >= 2)
   {
+    fprintf (stderr, "\n Samples:");
+    for (i = 0; i < 10; i++)
+    {
+      if (samples[i] > 0)
+        fprintf (stderr, " +%05d;", samples[i]);
+      else fprintf (stderr, " %06d;", samples[i]);
+    }
+  }
+
+  if (super->opts.demod_verbosity >= 2)
+  {
     fprintf (stderr, "\nDIFF:");
     for (i = 0; i < 9; i++)
       fprintf (stderr, " %6.0f;", difference[i]);
@@ -246,6 +384,11 @@ short basic_sample_selector(Super * super, short * samples)
 float float_symbol_slicer(Super * super, short sample)
 {
   float float_symbol = 0.0f;
+
+  //return 0.0f, if a zero sample (nothing on input)
+  if (sample == 0)
+    return float_symbol;
+
   if (super->opts.inverted_signal == 0)
   {
     if (sample < super->demod.fsk4_lmid)
@@ -293,6 +436,7 @@ void no_carrier_sync (Super * super)
 
   //frame sync
   memset (super->demod.sync_symbols, 0, 8*sizeof(float));
+  super->demod.sync_distance = 8.0f;
 
   //reset buffers here
   memset (super->demod.float_symbol_buffer, 0.0f, 256*sizeof(float));  

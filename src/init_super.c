@@ -171,8 +171,11 @@ void init_super (Super * super)
 
   //frame sync and timing recovery
   memset (super->demod.sync_symbols, 0, 8*sizeof(float));
+  super->demod.sync_distance = 8.0f;
   super->demod.fsk4_samples_per_symbol = 10;
   super->demod.fsk4_sample_center = 4;
+  super->demod.fsk4_timing_correction = 0;
+  sprintf (super->demod.fsk4_timing_string, "Symbol Edge Timing: |            |");
 
   //fsk4 symbol levels
   super->demod.fsk4_center = 0.0f;

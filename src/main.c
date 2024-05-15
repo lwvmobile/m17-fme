@@ -292,6 +292,11 @@ int main (int argc, char **argv)
 
       //set demodulator verbosity levels
       case 'd':
+        super.opts.ncurses_show_banner = 0;
+        super.opts.ncurses_show_io = 0;
+        super.opts.ncurses_show_audio = 1;
+        super.opts.ncurses_show_history = 0;
+        super.opts.ncurses_show_scope = 1; //show, even if arg is -d 0
         super.opts.demod_verbosity = atoi(optarg);
         fprintf (stderr, "Demodulator Verbosity: %d; \n", super.opts.demod_verbosity);
         break;

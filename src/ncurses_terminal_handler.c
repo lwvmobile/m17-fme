@@ -260,6 +260,18 @@ void print_ncurses_scope (Super * super)
     printw ("In: %2.0f%%; +3.0: %5.0f; +1.0: %5.0f; -1.0: %6.0f; -3: %6.0f; Center: %4.0f; ",
         super->demod.input_level, super->demod.fsk4_max, super->demod.fsk4_umid,
         super->demod.fsk4_lmid, super->demod.fsk4_min, super->demod.fsk4_center);
+
+    //symbol edges
+    printw ("\n| %s", super->demod.fsk4_timing_string);
+
+    //corrective value 
+    if (super->demod.fsk4_timing_correction < 0)
+      printw ( " Off: %02d;", super->demod.fsk4_timing_correction);
+    else
+      printw ( " Off: +%d;", super->demod.fsk4_timing_correction);
+
+    printw (" Sync Symbol Distance: %2.0f", super->demod.sync_distance);
+    
   }
 
   printw ("\n");
