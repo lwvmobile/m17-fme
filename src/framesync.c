@@ -592,7 +592,7 @@ void print_debug_information(Super * super)
 
 void print_frame_sync_pattern(Super * super, int type)
 {
-  char * timestr = getTimeN(super->demod.current_time);
+  char * timestr = get_time_n(super->demod.current_time);
   char * syncstr = get_sync_type_string(type);
   fprintf (stderr, "\n");
   if (super->opts.demod_verbosity >= 1)
@@ -614,8 +614,8 @@ void push_call_history (Super * super)
   else if (super->m17d.dt == 6) sprintf (dt, "IPF CONN");
   else                          sprintf (dt, "UNK TYPE");
 
-  char * timestr  = getTimeN(super->demod.current_time);
-  char * datestr  = getDateN(super->demod.current_time);
+  char * timestr  = get_time_n(super->demod.current_time);
+  char * datestr  = get_date_n(super->demod.current_time);
   for (uint8_t i = 0; i < 9; i++)
     memcpy (super->m17d.callhistory[i], super->m17d.callhistory[i+1], 500*sizeof(char));
   sprintf (super->m17d.callhistory[9], "%s %s CAN: %02d; SRC: %s; DST: %s; %s;", datestr, timestr, super->m17d.can, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);

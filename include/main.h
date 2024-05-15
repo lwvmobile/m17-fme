@@ -554,12 +554,10 @@ void write_stdout_pipe (Super * super, short * out, size_t nsam);
 bool stdin_snd_audio_source_open (Super * super);
 
 //Time and Date Functions
-char * getTime();
-char * getTimeC();
-char * getTimeN(time_t t);
-char * getDate();
-char * getDateH();
-char * getDateN(time_t t);
+char * get_time();
+char * get_time_n(time_t t);
+char * get_date();
+char * get_date_n(time_t t);
 
 //misc utility functions
 uint64_t convert_bits_into_output (uint8_t * input, int len);

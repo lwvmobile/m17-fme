@@ -11,7 +11,7 @@
 //WARNING: time(NULL) is an expensive lag causing call when we need low latency (unknown reason)
 
 //get HHmmss timestamp no colon (file operations)
-char * getTime()
+char * get_time()
 {
   char * curr = calloc(7, sizeof(char));
   time_t t = time(NULL);
@@ -20,18 +20,8 @@ char * getTime()
   return curr;
 }
 
-//get HH:mm:ss timestamp with colon (Sync/Console Display)
-char * getTimeC()
-{
-  char * curr = calloc(9, sizeof(char));
-  time_t t = time(NULL);
-  struct tm * ptm = localtime(& t);
-  sprintf(curr, "%02d:%02d:%02d", ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
-  return curr;
-}
-
-//get HH:mm:ss timestamp with colon (Ncurses Call History)
-char * getTimeN(time_t t)
+//get HH:mm:ss timestamp with colon (display / console output)
+char * get_time_n(time_t t)
 {
   char * curr = calloc(9, sizeof(char));
   struct tm * ptm = localtime(& t);
@@ -40,7 +30,7 @@ char * getTimeN(time_t t)
 }
 
 //get YYYYMMDD without hyphen (file operations)
-char * getDate()
+char * get_date()
 {
   char * curr = calloc(25, sizeof(char));
   time_t t = time(NULL);
@@ -49,18 +39,8 @@ char * getDate()
   return curr;
 }
 
-//get YYYY-MM-DD with hyphen (Sync/Console Display)
-char * getDateH()
-{
-  char * curr = calloc(27, sizeof(char));
-  time_t t = time(NULL);
-  struct tm * ptm = localtime(& t);
-  sprintf(curr, "%04d-%02d-%02d", ptm->tm_year+1900, ptm->tm_mon+1, ptm->tm_mday);
-  return curr;
-}
-
-//get YYYY-MM-DD with hyphen (Ncurses Call History)
-char * getDateN(time_t t)
+//get YYYY-MM-DD with hyphen (display / console output)
+char * get_date_n(time_t t)
 {
   char * curr = calloc(27, sizeof(char));
   struct tm * ptm = localtime(& t);

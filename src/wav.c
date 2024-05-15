@@ -56,8 +56,8 @@ void open_wav_out_pc (Super * super)
 void setup_percall_filename (Super * super)
 {
   int i;
-  char * datestr = getDate();
-  char * timestr = getTime();
+  char * datestr = get_date();
+  char * timestr = get_time();
 
   //make a local copy that can be parsed to remove any spaces
   char src_csd[10]; memset (src_csd, 0, 10*sizeof(char));
