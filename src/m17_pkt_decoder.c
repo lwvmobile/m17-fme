@@ -197,8 +197,8 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     event_log_writer (super, super->m17d.dat, protocol);
 
   }
-  //Any Other Text Based
-  else if (protocol >= 90)
+  //1600 Arbitrary Data
+  else if (protocol == 99)
   {
     fprintf (stderr, " ");
     for (i = 1; i < len; i++)
@@ -211,7 +211,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     //send ARB data to event_log_writer
     event_log_writer (super, super->m17d.arb, protocol);
   }
-  //Any Other Raw Data as Hex
+  //Any Other Raw or Unknown Data Protocol as Hex
   else
   {
     fprintf (stderr, " ");
