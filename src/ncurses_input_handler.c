@@ -26,7 +26,7 @@ void input_ncurses_terminal (Super * super, int c)
       getch(); //A,B,C,D, etc
       break;
 
-    //'1' key, Generate 1 time use Scrambler Key (24-bit)
+    //'1' key, Generate Random Scrambler Key (24-bit)
     case 49:
       if (super->opts.use_m17_str_encoder == 1 && !super->m17e.str_encoder_tx)
       {
@@ -41,7 +41,7 @@ void input_ncurses_terminal (Super * super, int c)
       }
       break;
 
-    //'2' key, key, Generate 1 time use AES Key (256-bit)
+    //'2' key, Generate Random AES Key (256-bit)
     case 50:
       if (super->opts.use_m17_str_encoder == 1 && !super->m17e.str_encoder_tx)
       {
@@ -79,7 +79,7 @@ void input_ncurses_terminal (Super * super, int c)
       else super->opts.ncurses_show_audio = 0;
       break;
 
-    //'C' key, show banner or compact mode (Capital C)
+    //'C' key, Toggle Banner (Capital C)
     case 67:
       if (super->opts.ncurses_show_banner == 0) super->opts.ncurses_show_banner = 1;
       else super->opts.ncurses_show_banner = 0;
@@ -114,7 +114,7 @@ void input_ncurses_terminal (Super * super, int c)
       }
       break;
 
-    //'H' key, show history
+    //'H' key, Toggle Show Call History
     case 72:
       if (super->opts.ncurses_show_history == 0) super->opts.ncurses_show_history = 1;
       else super->opts.ncurses_show_history = 0;
@@ -132,13 +132,13 @@ void input_ncurses_terminal (Super * super, int c)
       else super->opts.ncurses_show_scope = 0;
       break;
 
-    //'Z' key, cycle demod verbosity
+    //'Z' key, Cycle Demodulator Verbosity
     case 90:
       if (super->opts.demod_verbosity <= 4) super->opts.demod_verbosity++;
       else super->opts.demod_verbosity = 0;
       break;
 
-    //'\' key, toggle TX
+    //'\' key, Toggle TX
     case 92:
       if (super->m17e.str_encoder_tx == 0) super->m17e.str_encoder_tx = 1;
       else super->m17e.str_encoder_tx = 0;
@@ -173,18 +173,18 @@ void input_ncurses_terminal (Super * super, int c)
       }
       break;
 
-    //'h' key, toggle high pass filter on CODEC2 Output
+    //'h' key, Toggle High Pass Filter on CODEC2 Output
     case 104:
       if (super->opts.use_hpfilter_dig == 0) super->opts.use_hpfilter_dig = 1;
       else super->opts.use_hpfilter_dig = 0;
       break;
 
-    //q key, quit
+    //'q' key, Quit
     case 113:
       exitflag = 1;
       break;
 
-    //'r' key, toggle RRC Input / Output Filtering
+    //'r' key, Toggle RRC Input / Output Filtering
     case 114:
       if (super->opts.disable_rrc_filter == 0) super->opts.disable_rrc_filter = 1;
       else super->opts.disable_rrc_filter = 0;
@@ -192,7 +192,7 @@ void input_ncurses_terminal (Super * super, int c)
       no_carrier_sync (super); //reset demod
       break;
 
-    //'v' key, toggle vox
+    //'v' key, Toggle Vox Mode
     case 118:
       if (super->m17e.str_encoder_vox == 0) super->m17e.str_encoder_vox = 1;
       else
@@ -206,7 +206,7 @@ void input_ncurses_terminal (Super * super, int c)
       }
       break;
 
-    //'x' key, toggle inversion
+    //'x' key, Toggle Inversion
     case 120:
       if (super->opts.inverted_signal == 0) super->opts.inverted_signal = 1;
       else super->opts.inverted_signal = 0;
@@ -214,7 +214,7 @@ void input_ncurses_terminal (Super * super, int c)
       no_carrier_sync (super); //reset demod
       break;
 
-    //'z' key, toggle payload verbosity
+    //'z' key, Toggle Payload Verbosity
     case 122:
       if (super->opts.payload_verbosity == 0) super->opts.payload_verbosity = 1;
       else super->opts.payload_verbosity = 0;

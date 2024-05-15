@@ -253,3 +253,58 @@ Quick Examples:
  m17-fme -i udp:127.0.0.1:17001 -N 2> m17decoder.txt 
 
 ```
+
+### Ncurses Keyboard Shortcuts
+
+```
+
+// Voice Stream Functionality
+'\' key, Toggle TX Voice Encoder (when not Vox)
+'v' key, Toggle Vox Mode Voice Encoder
+'h' key, Toggle High Pass Filter on CODEC2 Output
+'q' key, Quit
+
+// Modulation and Demodulation
+'r' key, Toggle RRC Input / Output Filtering
+'x' key, Toggle Inversion
+
+// Audio Levels
+'/' key, decrement voice input gain by 1%
+'*' key, increment voice input gain by 1%
+
+'-' key, decrement voice output gain by 1%
+'+' key, increment voice output gain by 1%
+
+'[' key, decrement rf input gain by 1%
+']' key, increment rf input gain by 1%
+
+'{' key, decrement rf output gain by 1%
+'}' key, increment rf output gain by 1%
+
+'<' key, decrement input squelch by 10
+'>' key, increment input squelch by 10
+
+// Encryption
+'1' key, Generate Random Scrambler Key (24-bit)
+'2' key, Generate Random AES Key (256-bit)
+'E' key, Toggle AES Encryption (only when not TX, and a key is loaded)
+'e' key, Toggle Scrambler Encryption (only when not TX, and a key is loaded)
+
+// Ncurses Displays
+'C' key, Toggle Banner (Capital C)
+'I' key, Toggle Input Output Display
+'A' key, Toggle Audio Level Display
+'S' key, Toggle Symbol Scope Display
+'D' key, Toggle Encode / Decode Display
+'H' key, Toggle Show Call History
+'c' key, Reset Call History (lower c)
+
+// Terminal/Log Verbosity Levels
+'Z' key, Cycle Demodulator Verbosity (1-5)
+'z' key, Toggle Payload Verbosity (On/Off)
+
+// Debug Toggles
+'4' key, simulate no_carrier_sync (reset states)
+'7' key, Toggle Symbol Timing
+
+```
