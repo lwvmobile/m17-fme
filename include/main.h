@@ -149,10 +149,10 @@ typedef struct
   float output_gain_vx;
 
   //Input and Output Files
-  int use_float_symbol_output;
-  int use_float_symbol_input;
-  int use_dibit_input;
-  int use_dibit_output;
+  uint8_t use_float_symbol_output;
+  uint8_t use_float_symbol_input;
+  uint8_t use_dibit_input;
+  uint8_t use_dibit_output;
   char float_symbol_output_file[1024];
   char float_symbol_input_file[1024];
   char dibit_input_file[1024];
@@ -161,6 +161,11 @@ typedef struct
   FILE * float_symbol_in;
   FILE * dibit_in;
   FILE * dibit_out;
+
+  //Event Log
+  uint8_t use_event_log;
+  char event_log_file[1024];
+  FILE * event_log;
 
   //UDP for IP frame output
   uint8_t m17_use_ip;   //if enabled, open UDP and broadcast IP frame
@@ -595,8 +600,9 @@ void demod_str (Super * super, uint8_t * input, int debug);
 void prepare_str (Super * super, uint8_t * input);
 void decode_ipf (Super * super);
 
-//Call History
+//Call History and Event Log
 void push_call_history (Super * super);
+void event_log_writer  (Super * super, char * event_string, uint8_t type);
 
 //Encryption and Decryption
 void pn_sequence_generator (Super * super);

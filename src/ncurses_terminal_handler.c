@@ -230,7 +230,8 @@ void print_ncurses_config (Super * super)
   if (super->opts.m17_udp_sock && !super->opts.use_m17_ipf_decoder)
     printw ("\n| UDP IP Frame Output: %s:%d; Reflector Module: %c", super->opts.m17_hostname, super->opts.m17_portno, super->m17e.reflector_module);
 
-  
+  if (super->opts.event_log)
+    printw ("\n| Event Log: %s", super->opts.event_log_file);
 
   printw ("\n");
   printw ("-------------------------------------------------------------------------------\n");

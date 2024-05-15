@@ -47,6 +47,10 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     //make a better string out of it instead
     sprintf (super->m17d.sms, "%s", "");
     memcpy (super->m17d.sms, input+1, len);
+
+    //send SMS Text Message to event_log_writer
+    event_log_writer (super, super->m17d.sms, 1);
+
   }
   #ifdef OTA_KEY_DELIVERY
   //OTA Key Delivery Format
@@ -65,6 +69,9 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
       fprintf (stderr, "\n");
       pn_sequence_generator (super);
       sprintf (super->m17d.sms, "OTAKD Scrambler Key: %X;", super->enc.scrambler_key);
+
+      //send OTAKD Scrambler to event_log_writer
+      event_log_writer (super, super->m17d.sms, 1);
     }
     if (type == 2)
     {
@@ -93,6 +100,9 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
         sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX",
                  super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
         aes_key_loader (super);
+
+        //send OTAKD AES to event_log_writer
+        event_log_writer (super, super->m17d.sms, 1);
       }
     }
   }
@@ -125,7 +135,10 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     }
 
     //
-    sprintf (super->m17d.dat, "Original SRC: %s; Reflector: %s;", cf1, cf2);
+    sprintf (super->m17d.dat, "Extended CSD - Original SRC: %s; Reflector: %s;", cf1, cf2);
+    
+    //send Extended CSD to event_log_writer
+    event_log_writer (super, super->m17d.dat, 1);
 
   }
   //GNSS Positioning
@@ -180,6 +193,9 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     sprintf (super->m17d.dat, " Lat: %d.%05d %s; Lon: %d.%05d %s; Alt: %d; Spd: %d; Ber: %d; St: %s;", 
       lat_deg_int, lat_deg_dec*65535, ns, lon_deg_int, lon_deg_dec*65535, ew, altitude*1500, speed, bearing, st);
 
+    //send GNSS data to event_log_writer
+    event_log_writer (super, super->m17d.dat, 1);
+
   }
   //Any Other Text Based
   else if (protocol >= 90)
@@ -191,6 +207,9 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     //make a better string out of it instead
     sprintf (super->m17d.arb, "%s", "");
     memcpy (super->m17d.arb, input+1, len);
+
+    //send ARB data to event_log_writer
+    event_log_writer (super, super->m17d.arb, 1);
   }
   //Any Other Raw Data as Hex
   else
@@ -202,6 +221,16 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     //copy out
     memset (super->m17d.raw, 0, sizeof(super->m17d.raw));
     memcpy (super->m17d.raw, input+1, len);
+
+    //send RAW data (as string) to event_log_writer
+    char event_string[900]; sprintf (event_string, "%s", "Raw Data: ");
+    char in[3];
+    for (i = 1; i < len; i++)
+    {
+      sprintf (in, "%02X", input[i]);
+      strcat (event_string, in);
+    }
+    event_log_writer (super, event_string, 1);
   }
 
   //quell defined but not used warnings from m17.h

@@ -620,7 +620,27 @@ void push_call_history (Super * super)
     memcpy (super->m17d.callhistory[i], super->m17d.callhistory[i+1], 500*sizeof(char));
   sprintf (super->m17d.callhistory[9], "%s %s CAN: %02d; SRC: %s; DST: %s; %s;", datestr, timestr, super->m17d.can, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
 
-  //TODO: Implement an event log / write events to a file, such as the call history string and any PKT messages
+  //send last call history to event_log_writer
+  event_log_writer (super, super->m17d.callhistory[9], 0);
+
+  free (timestr); free (datestr);
+}
+
+//write events, like last call from call history, GNSS, text messages, etc to a log file, if enabled
+void event_log_writer (Super * super, char * event_string, uint8_t type)
+{
+  //datestr and timestr are used if event is type 1 (does not already include a timestamp in its string)
+  char * timestr  = get_time_n(super->demod.current_time);
+  char * datestr  = get_date_n(super->demod.current_time);
+
+  //only if the log file is open
+  if (super->opts.event_log)
+  {
+    if (type == 0) //timestamp is included on call string
+      fprintf (super->opts.event_log, "%s\n", event_string);
+    else fprintf (super->opts.event_log, "%s_%s %s\n", datestr, timestr, event_string);
+    fflush (super->opts.event_log); //flush event so its immediately available without having to close the file
+  }
 
   free (timestr); free (datestr);
 }

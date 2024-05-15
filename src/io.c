@@ -65,9 +65,19 @@ void open_audio_input (Super * super)
 
 }
 
-//Including WAV output files
+//audio devices and output files (wav, bin, float, event log)
 void open_audio_output (Super * super)
 {
+
+  //event log
+  if (super->opts.use_event_log == 1)
+  {
+    char * timestr  = get_time();
+    char * datestr  = get_date();
+    sprintf (super->opts.event_log_file, "%s_%s_m17fme_eventlog.txt", datestr, timestr);
+    super->opts.event_log = fopen (super->opts.event_log_file, "a");
+    free (timestr); free (datestr);
+  }
 
   //wav and misc output files
   if (super->opts.use_wav_out_rf == 1)
@@ -126,6 +136,10 @@ void cleanup_and_exit (Super * super)
   //close per call wav file, if opened
   if (super->wav.wav_out_pc)
     close_wav_out_pc (super);
+
+  //close event log, if opened
+  if (super->opts.event_log)
+    fclose (super->opts.event_log);
 
   #ifdef USE_CODEC2
   codec2_destroy(super->m17d.codec2_1600);

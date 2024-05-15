@@ -106,6 +106,11 @@ void init_super (Super * super)
   super->opts.dibit_in = NULL;
   super->opts.dibit_out = NULL;
 
+  //Event Log
+  super->opts.use_event_log = 0;
+  sprintf (super->opts.event_log_file, "eventlog.txt");
+  super->opts.event_log = NULL;
+
   //UDP for IP frame input or output
   super->opts.m17_use_ip = 0;
   super->opts.m17_portno = 17000;
