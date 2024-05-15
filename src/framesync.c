@@ -183,8 +183,8 @@ float demodulate_and_return_float_symbol(Super * super)
       // select the best sample based on distance
       sample = basic_sample_selector(super, samples);
 
-      //look at timing (but no corrective value assignment)
-      timing(super, samples);
+      //look at symbol timing (but no corrective value assignment)
+      symbol_timing(super, samples);
     }
 
     else if (!super->opts.disable_symbol_timing)
@@ -192,9 +192,9 @@ float demodulate_and_return_float_symbol(Super * super)
       //sample as average of 4 center samples
       sample = average_sample_calc(samples);
 
-      //look at timing, set correction value
+      //look at symbol timing, set correction value
       super->demod.fsk4_timing_correction = 
-        timing(super, samples);
+        symbol_timing(super, samples);
     } 
 
     //slice float_symbol from provided sample
@@ -248,7 +248,7 @@ short average_sample_calc(short * samples)
 }
 
 //evaluate 10 samples gathered and determine where the transition edges are
-int timing (Super * super, short * samples)
+int symbol_timing (Super * super, short * samples)
 {
 
   int i;
@@ -257,7 +257,7 @@ int timing (Super * super, short * samples)
   float last_symbol = super->demod.float_symbol_buffer[super->demod.float_symbol_buffer_ptr-1];
   float this_symbol = 0.0f;
 
-  if (super->opts.demod_verbosity > 1)
+  if (super->opts.demod_verbosity >= 3)
     fprintf (stderr, "\n Symbol Edge Timing: ");
 
   sprintf (super->demod.fsk4_timing_string, "Symbol Edge Timing: | ");
@@ -267,14 +267,14 @@ int timing (Super * super, short * samples)
     this_symbol = float_symbol_slicer(super, samples[i]);
     if (this_symbol == 0.0f) //sample is 0 (nothing on input), and symbol is 0.0f
     {
-      if (super->opts.demod_verbosity > 1)
+      if (super->opts.demod_verbosity >= 3)
         fprintf (stderr, "0");
 
       strcat (super->demod.fsk4_timing_string, "0");
     }
     else if (this_symbol == last_symbol) //no transition, or zero crossing
     {
-      if (super->opts.demod_verbosity > 1)
+      if (super->opts.demod_verbosity >= 3)
         fprintf (stderr, "-");
       strcat (super->demod.fsk4_timing_string, "-");
     }
@@ -286,7 +286,7 @@ int timing (Super * super, short * samples)
 
       if (this_symbol > last_symbol)
       {
-        if (super->opts.demod_verbosity > 1)
+        if (super->opts.demod_verbosity >= 3)
         {
           fprintf (stderr, "/"); //upward
         }
@@ -295,7 +295,7 @@ int timing (Super * super, short * samples)
 
       else if (this_symbol < last_symbol)
       {
-        if (super->opts.demod_verbosity > 1)
+        if (super->opts.demod_verbosity >= 3)
         {
           fprintf (stderr, "\\"); //downward
         }
@@ -307,13 +307,13 @@ int timing (Super * super, short * samples)
     }
   }
 
-  if (super->opts.demod_verbosity > 1)
+  if (super->opts.demod_verbosity >= 3)
     fprintf (stderr, "; Initial Transition: %02d; Number of Transitions: %02d;", transition_idx, transition_num);
 
-  if (super->opts.demod_verbosity > 1)
+  if (super->opts.demod_verbosity >= 3)
     fprintf (stderr, "; Last Symbol: %2.0f; This Symbol: %2.0f;", last_symbol, this_symbol); //look at samples when zero crossing (same symbol repeated)
 
-  if (super->opts.demod_verbosity > 1)
+  if (super->opts.demod_verbosity >= 3)
   {
     fprintf (stderr, "\n Samples:");
     for (i = 0; i < 10; i++)

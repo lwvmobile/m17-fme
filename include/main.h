@@ -520,8 +520,8 @@ void  buffer_refresh_min_max_center (Super * super);
 short basic_sample_selector (Super * super, short * samples);
 void  no_carrier_sync (Super * super);
 
-//fsk4 timing
-int   timing (Super * super, short * samples);
+//fsk4 symbol timing
+int   symbol_timing (Super * super, short * samples);
 short average_sample_calc(short * samples);
 
 //slice and dice symbols and dibits
