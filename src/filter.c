@@ -78,10 +78,10 @@ void upscale_and_rrc_output_filter (int * output_symbols, float * mem, short * b
 short rrc_input_filter(float * mem, short sample)
 {
   int i = 0;
-	int len = 81;
+	int len = 79;
   float sum = 0.0f;
   float out = 0.0f;
-	float gain = sqrtf(10.0f);
+	float gain = 10.0f;
 
   //push memory
   for (i = 0; i < (len-1); i++)
@@ -89,7 +89,7 @@ short rrc_input_filter(float * mem, short sample)
   mem[len-1] = (float)sample;
 
   for (i = 0; i < len; i++)
-    sum += m17_rrc[i] * mem[i];
+    sum += m17_input_rrc[i] * mem[i];
 
   out = sum / gain;
 
