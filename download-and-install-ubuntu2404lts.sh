@@ -2,17 +2,17 @@
 #
 cdir=$(pwd)
 clear
-printf "M17 Project: Florida Man Edition - Auto Installer For Red Hat, Fedora, RHEL based Distros.
+printf "M17 Project: Florida Man Edition - Auto Installer For Debian / Ubuntu / Mint based Distros.
 This will install the required and recommended packages, clone, build, and install M17-FME.
-This has been tested on Fedora Workstation 40.
+This has been tested on Ubuntu 24.04 LTS.
 A full system upgrade is recommended if before installing new dependencies
 Please confirm that you wish to preceed by entering y below.\n\n"
 read -p "Do you wish to proceed? y/N " ANSWER
 ANSWER=$(printf "$ANSWER"|tr '[:upper:]' '[:lower:]')
 if [ "$ANSWER" = "y" ]; then
-  
-  sudo dnf update 
-  sudo dnf install libsndfile-devel pulseaudio-libs-devel pulseaudio-utils cmake git ncurses ncurses-devel gcc wget pavucontrol gcc-c++ codec2-devel
+
+  sudo apt update
+  sudo apt install cmake make build-essential git wget libsndfile1-dev libcodec2-dev libncurses-dev libncurses6 libpulse-dev pavucontrol socat
 
   git clone https://github.com/lwvmobile/m17-fme.git
   cd m17-fme

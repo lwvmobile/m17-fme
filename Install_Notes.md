@@ -5,9 +5,15 @@
 
 M17-FME has auto install scripts for Debian/Ubuntu/Mint based distros, Red Hat/Fedora/RHEL based distros, and for Arch based distros. Simply downloading and running these scripts will download all dependencies and install for you.
 
-Debian/Ubuntu/Mint/Raspberry Pi OS
+Debian / Ubuntu (22.04 LTS) / Mint 21 / Raspberry Pi OS
 ```
 wget https://raw.githubusercontent.com/lwvmobile/m17-fme/main/download-and-install-deb.sh
+sh download-and-install-deb.sh
+```
+
+Ubuntu 24.04 LTS (and newer)
+```
+wget https://raw.githubusercontent.com/lwvmobile/m17-fme/main/download-and-install-ubuntu2404lts.sh
 sh download-and-install-deb.sh
 ```
 
@@ -29,7 +35,7 @@ sh download-and-install-arch.sh
 
 Install Dependencies. Although M17-FME can be built with only the most minimal dependencies to make it highly modular and also highly portable, it is highly recommended to install all dependencies if possible, or there will be no nicer features like Ncurses Terminal w/ KB shortcuts, pulse audio input and output, and no Codec2 Support (which if you want M17 voice, you need Codec2).
 
-Debian/Ubuntu/Mint/Raspberry Pi OS
+Debian / Ubuntu (22.04 LTS and lower) / Mint 21 / Raspberry Pi OS
 ```
 sudo apt update
 
@@ -42,6 +48,22 @@ sudo apt install cmake make build-essential git libsndfile1-dev
 optional:
 sudo apt install libcodec2-dev libncurses5 libncurses5-dev libncursesw5-dev libpulse-dev pavucontrol wget socat
 
+```
+
+
+Ubuntu 24.04 LTS (newer libncurses packages)
+
+```
+sudo apt update
+
+recommended:
+sudo apt install cmake make build-essential git wget libsndfile1-dev libcodec2-dev libncurses-dev libncurses6 libpulse-dev pavucontrol socat
+
+required:
+sudo apt install cmake make build-essential git libsndfile1-dev
+
+optional:
+sudo apt install libcodec2-dev libncurses-dev libncurses6 libpulse-dev pavucontrol wget socat
 ```
 
 Red Hat/Fedora/RHEL

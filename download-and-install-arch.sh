@@ -2,10 +2,10 @@
 #
 cdir=$(pwd)
 clear
-printf "M17 Project: Florida Man Edition - Auto Installer For Arch Linux Based Distros\n
-This will install the required and recommended packages, clone, build, and install M17-FME\n.
-This has been tested on Arch 2023.08.01 and Manjaro XFCE 22.1.3 Minimal.\n
-A full system upgrade is recommended if before installing new dependencies\n
+printf "M17 Project: Florida Man Edition - Auto Installer For Arch Linux Based Distros.
+This will install the required and recommended packages, clone, build, and install M17-FME.
+This has been tested on Manjaro XFCE 24.0.0 Wynsdey Minimal.
+A full system upgrade is recommended if before installing new dependencies.
 Please confirm that you wish to preceed by entering y below.\n\n"
 read -p "Do you wish to proceed? y/N " ANSWER
 ANSWER=$(printf "$ANSWER"|tr '[:upper:]' '[:lower:]')
@@ -25,7 +25,7 @@ if [ "$ANSWER" = "y" ]; then
   sudo make install
   sudo ldconfig
 
-  printf "Any issues, Please report to:\nhttps://github.com/lwvmobile/m17-fme/issues"
+  printf "Any issues, Please report to:\nhttps://github.com/lwvmobile/m17-fme/issues \n\n"
 
 else
   printf "Thank you, have a nice day!\n\n"
