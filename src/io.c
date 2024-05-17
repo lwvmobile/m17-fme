@@ -111,6 +111,16 @@ void open_audio_output (Super * super)
 
 }
 
+void open_stdout_pipe(Super * super)
+{
+  super->opts.stdout_pipe = fileno(stdout);
+}
+
+void write_stdout_pipe(Super * super, short * out, size_t nsam)
+{
+  write (super->opts.stdout_pipe, out, nsam*2);
+}
+
 void cleanup_and_exit (Super * super)
 {
   // Signal that everything should shutdown.
@@ -184,7 +194,7 @@ void cleanup_and_exit (Super * super)
     fprintf (stderr, "Packet Data      ERR: %05d;\n", super->error.pkt_crc_err);
     fprintf (stderr, "IP Frame         ERR: %05d;\n", super->error.ipf_crc_err);
     
-    //TODO: Implement Metric / Error rates on Viterbi / Conv decoer and BERT when done.
+    //TODO: Implement Metric / Error rates on Viterbi / Conv decoder and BERT when done.
     // fprintf (stderr, "BERT Frame       ERR: %05d;\n", super->error.bert_err);
     // fprintf (stderr, "Viterbi          ERR: %05d;\n", super->error.viterbi_err);
   }

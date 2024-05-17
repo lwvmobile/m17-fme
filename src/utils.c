@@ -8,16 +8,6 @@
 
 #include "main.h"
 
-void open_stdout_pipe(Super * super)
-{
-  super->opts.stdout_pipe = fileno(stdout);
-}
-
-void write_stdout_pipe(Super * super, short * out, size_t nsam)
-{
-  write (super->opts.stdout_pipe, out, nsam*2);
-}
-
 //input bit array, return output as up to a 64-bit value
 uint64_t convert_bits_into_output(uint8_t * input, int len)
 {

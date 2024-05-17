@@ -85,6 +85,7 @@ void usage ()
   printf ("                (can be combined with Loopback or RFA output)\n");
   printf ("  -L            Enable Internal Encoder Loopback Decoder (must be used with pulsevx output)\n");
   printf ("  -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder\n");
+  printf ("  -s            Input Squelch v RMS Level (Vox) on Stream Voice Encoder\n");
   printf ("\n");
   printf ("Encoder Input Strings:\n");
   printf ("\n");
@@ -240,7 +241,7 @@ int main (int argc, char **argv)
         fprintf (stderr, "\n");
         break;
 
-      //Allow CRC Failure to still be decoded (TS issue with OTA key on RFA failing)
+      //Allow CRC Failure to still be decoded
       case '4':
         super.opts.allow_crc_failure = 1;
         fprintf (stderr, "Allow CRC Failure.\n");
@@ -378,7 +379,7 @@ int main (int argc, char **argv)
         fprintf (stderr, "M17 Project RF Audio Frame Demodulator. \n");
         break;
 
-      //input quelch level (for vox input)
+      //input squelch level (for vox input)
       case 's':
         super.demod.input_sql = atoi(optarg);
         fprintf (stderr, "Input Squelch: %ld; \n", super.demod.input_sql);

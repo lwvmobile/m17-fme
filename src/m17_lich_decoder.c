@@ -8,7 +8,6 @@
 
 #include "main.h"
 
-// int decode_lich_contents(m17_decoder_state * m17d, uint8_t * lich_bits)
 int decode_lich_contents(Super * super, uint8_t * lich_bits)
 {
   int i, j, err;

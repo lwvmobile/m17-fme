@@ -156,7 +156,6 @@ void Golay_24_12_init()
     }
 }
 
-// Not very efficient but encode is used for unit testing only, I think this is wrong for M17
 void Golay_24_12_encode(unsigned char *origBits, unsigned char *encodedBits)
 {
   int i = 0, j = 0;
