@@ -15,6 +15,6 @@ Here are screenshots of a proper setup using pavucontrol, or "Pulse Audio Volume
 
 The general idea is that we want to route RF modulated audio into our M17_Sink and have our decoder listen to the same sink. Voice Input should always be from a microphone source and Voice Output should always be to Audio Hardware (speakers, headphones, etc).
 
-Note, that using the virtualsink.sh will create these sinks for us for the duration of your computers boot. If you reboot, they will not persist. Persistence can be performed to always have these sinks available, but you must do so at your own risk and own research, it is out of the scope of this tutorial to create persistent sinks.
+Note, that using the virtualsink.sh will create these sinks for us for the duration of your computers boot. If you reboot, they will not persist. Configuration files can be modified to always have these sinks available, or the `virtualsink.sh` script can be executed on login, but you must do so at your own risk and own research, it is out of the scope of this tutorial to create persistent sinks.
 
 In case of the usage of a headless environment and pavucontrol is not viable, you may use alternatives such as pulsemixer which is similar in functionality, just as a CLI tool and not a GUI tool.

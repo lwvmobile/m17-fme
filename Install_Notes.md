@@ -14,7 +14,7 @@ sh download-and-install-deb.sh
 Ubuntu 24.04 LTS (and newer)
 ```
 wget https://raw.githubusercontent.com/lwvmobile/m17-fme/main/download-and-install-ubuntu2404lts.sh
-sh download-and-install-deb.sh
+sh download-and-install-ubuntu2404lts.sh
 ```
 
 Red Hat/Fedora/RHEL

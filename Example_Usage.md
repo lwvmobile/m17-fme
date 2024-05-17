@@ -8,7 +8,7 @@
 The simplest method of using M17-FME is to use it as an encoder, and activate the enternal loopback decoder to encode a bitstream, and then feed the encoded bitstram back into the decoder. The loopback method currently only supports Voice Stream encoding. This can be done with the following command.
 
 ```
-m17-fme -i pulsevx -o pulsevx -V -N 2> m17encoder.txt
+m17-fme -i pulsevx -o pulsevx -V -L -N 2> m17encoder.txt
 ```
 
 Similarly, A quick simple test to have m17-fme encode and modulate packet data and send it back into itself to be decoded can be seen below. Note: When using the -P option to encode, and not specifying any data, the default SMS text message "Lorem Ipsum..." is encoded and sent.
@@ -187,6 +187,7 @@ Encoder Options:
                 (can be combined with Loopback or RFA output)
   -L            Enable Internal Encoder Loopback Decoder (must be used with pulsevx output)
   -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder
+  -s            Input Squelch v RMS Level (Vox) on Stream Voice Encoder
 
 Encoder Input Strings:
 
