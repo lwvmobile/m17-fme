@@ -58,7 +58,13 @@ void decode_lsf_contents(Super * super)
   if (lsf_et != 0) fprintf (stderr, "\n ENC:");
   if (lsf_et == 1)
   {
-    fprintf (stderr, " Scrambler Type: %d;", lsf_es);
+    fprintf (stderr, " Scrambler; Subtype: %d;", lsf_es);
+    if (lsf_es == 0)
+      fprintf (stderr, " (8-bit);");
+    else if (lsf_es == 1)
+      fprintf (stderr, " (16-bit);");
+    else if (lsf_es == 2)
+      fprintf (stderr, " (24-bit);");
     if (super->enc.scrambler_key != 0)
       fprintf (stderr, " Key: %X;", super->enc.scrambler_key);
   }
