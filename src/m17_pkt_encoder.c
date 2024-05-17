@@ -313,7 +313,8 @@ void encode_pkt(Super * super)
   for (i = 0; i < 25*31; i++)
   {
     m17_p1_packed[x] = (uint8_t)convert_bits_into_output(&m17_p1_full[i*8], 8);
-    if (m17_p1_packed[x] == 0) break; //stop at the termination byte
+    // if (m17_p1_packed[x] == 0) break; //stop at the termination byte (may/will not work correctly on raw data with 00 in it, or enc key if result is 00)
+    if (x == ptr+1) break; //stop after full read in based on ptr+1 value
     x++;
   }
 
