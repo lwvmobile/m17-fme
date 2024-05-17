@@ -513,6 +513,9 @@ void convolution_chainback (unsigned char* out, unsigned int nBits);
 void convolution_start ();
 void convolution_init ();
 
+//p1 predictive depuncture
+void p1_predictive_depuncture(Super * super, uint8_t * input, uint8_t * output);
+
 //alternate viterbi (trellis) encoder and decoder
 void trellis_encode(uint8_t * result, uint8_t * source, int result_len, int reg);
 void trellis_decode(uint8_t * result, uint8_t * source, int result_len);

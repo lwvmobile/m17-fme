@@ -14,8 +14,7 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
   //quell defined but not used warnings from m17.h
   stfu ();
 
-  int i, j, k, x;
-
+  int i, x;
   uint8_t dbuf[384];           //384-bit frame - 16-bit (8 symbol) sync pattern (184 dibits)
   uint8_t m17_int_bits[368];  //368 bits that are still interleaved
   uint8_t m17_rnd_bits[368]; //368 bits that are still scrambled (randomized)
@@ -57,37 +56,8 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
     m17_bits[i] = m17_int_bits[x];
   }
 
-  j = 0; k = 0; x = 0;
-
-  // P1 Depuncture
-  for (i = 0; i < 488; i++)
-  {
-    //assign any puncture as a 0
-    // if (p1[k++] == 1) m17_depunc[x++] = m17_bits[j++];
-    // else m17_depunc[x++] = 0;
-
-
-    //seems to be better if we use the last bit as an educated guess on what the next bit should be
-    //this pseudo logic is based purely on 0xFFFFFFFFFF as Broadcast, and all zeroes as the Meta(IV)
-
-    //DST, or META field
-    if (i < 48 || i > 96)
-    {
-      if (p1[k++] == 1) m17_depunc[x++] = m17_bits[j++];
-      else if (m17_depunc[x-2] == 1) m17_depunc[x++] = 1;
-      else m17_depunc[x++] = 0;
-    }
-    else //any other field
-    {
-      if (p1[k++] == 1) m17_depunc[x++] = m17_bits[j++];
-      else m17_depunc[x++] = 0;
-    }
-
-    
-
-    if (k == 61) k = 0; //61 -- should reset 8 times againt the array
-
-  }
+  //p1 depuncture
+  p1_predictive_depuncture (super, m17_bits, m17_depunc);
 
   //setup the convolutional decoder
   uint8_t temp[500];
@@ -100,9 +70,6 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
   memset (m_data, 0, sizeof (m_data));
   uint16_t metric = 0; UNUSED(metric);
 
-  //test viterbi with all zeroes and all ones
-  // memset (m17_depunc, 0, sizeof(m17_depunc));
-  // memset (m17_depunc, 1, sizeof(m17_depunc));
   for (i = 0; i < 488; i++)
     temp[i] = m17_depunc[i] << 1; 
 
@@ -118,6 +85,7 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
   convolution_chainback(m_data, 240);
 
   unpack_byte_array_into_bit_array(m_data, trellis_buf, 30);
+
   //test running other viterbi / trellis decoder
   // memset (trellis_buf, 0, sizeof(trellis_buf));
   // memset (m_data, 0, sizeof (m_data));
@@ -171,5 +139,167 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
   if (super->opts.use_ncurses_terminal == 1)
     print_ncurses_terminal(super);
   #endif
+
+}
+
+
+void p1_predictive_depuncture(Super * super, uint8_t * input, uint8_t * output)
+{
+
+  //NOTES: Even after a convolutional encode and puncture, we can still look at the raw data
+  //and more specifically, look at certain areas to determine if an encryption IV or META 
+  //is present, or if things like the DST field might be 0xFFFFFFFFFFFF
+
+  /* 
+    //SRC and DST 0xFFFFFFFFFFFF
+    M17 LSF Frame Sync (19:37:09): (approximate breaks in DST, SRC, and META)
+    Input: DE4924924925B6DB6DB6DB 6924924924925B0636 32A8 0000000000000000000000000000000000000000006B1077
+    DST: BROADCAST SRC:  UNKNOWN FFFFFFFFFFFF CAN: 7; Data Packet
+    LSF: FF FF FF FF FF FF FF FF FF FF FF FF 03 82 00
+          00 00 00 00 00 00 00 00 00 00 00 00 00 05 35
+          (CRC CHK) E: 0535; C: 0535;
+
+    //DST 0xFFFFFFFFFFFF
+    M17 LSF Frame Sync (19:43:02): 
+    Input: DE4924924925B6DB6D4C 00003B8796DE856E5836 32A8 00000000000000000000000000000000000000002A83696F
+    DST: BROADCAST SRC: N0CALL    CAN: 7; Data Packet
+    LSF: FF FF FF FF FF FF 00 00 4B 13 D1 06 03 82 00
+          00 00 00 00 00 00 00 00 00 00 00 00 00 80 E9
+          (CRC CHK) E: 80E9; C: 80E9;
+
+    //DST 0xFFFFFFFFFFFF and IV present
+        M17 LSF Frame Sync (19:46:43): 
+    Input:DE4924924925B6DB6D4C 00003B8796DE856E5836 5AD7 86B20A8204AC57A6D34B0ECC8A448D11F6BC50C2 470EB80F
+    LSF: FF FF FF FF FF FF 00 00 4B 13 D1 06 03 95 66
+          46 9A F8 31 CA 39 C3 6E B9 37 6E D1 89 9B 0D
+          (CRC CHK) E: 9B0D; C: 5108; CRC ERR
+
+
+  */
+
+  uint32_t broadcast = 0;
+  broadcast = (uint32_t)convert_bits_into_output(&input[0], 32);
+
+  //TODO: bit diff count comparison on the XOR of this field and 0xDE492492
+  if (broadcast != 0xDE492492) broadcast = 0;
+
+  uint32_t has_meta  = 0;
+  has_meta = (uint32_t)convert_bits_into_output(&input[240], 32);
+
+  //debug
+  // fprintf (stderr, " BC: %08X; META: %08X; ", broadcast, has_meta);
+
+  int i, j, k, x;
+
+  //debug, inspect input vs known good LSF frame values
+  // fprintf (stderr, "\n Input:");
+  // for (i = 0; i < 368/8; i++)
+  //   fprintf (stderr, "%02X", (uint8_t)convert_bits_into_output(&input[i*8], 8));
+
+  //predictive depuncture by fabricating a convolved bit array (or just leaving it as zeroes)
+  uint8_t fake_lsf[244]; //244 bits of a fabricated LSF frame
+  uint8_t fake_con[488]; //488 bits of a fabricated LSF frame after convolutional encode
+
+  memset (fake_lsf, 0, sizeof(fake_lsf));
+  memset (fake_con, 0, sizeof(fake_con));
+
+  //craft a partially filled fake_lsf array
+
+  //DST == BROADCAST (48-bits)
+  if (broadcast)
+  {
+    for (i = 0; i < 48; i++)
+      fake_lsf[i] = 1;
+  }
+
+  //Meta or IV field present
+  if (has_meta)
+  {
+    //if this is an IV, then we will mimic an IV by duplicating 
+    //one by the same standard as in the M17 Specifications and
+    //same code used by the m17_str_encoder
+
+    time_t ts = super->demod.current_time-1; //minus 1 may work better considering we usually send a 1 sec dead air space
+    srand(ts); //randomizer seed based on timestamp
+
+    //SID (run 2x rand to account for it)
+    rand(); rand();
+
+    //initialize a nonce
+    uint8_t nonce[14]; memset (nonce, 0, sizeof(nonce));
+    uint8_t   iv[112]; memset(iv, 0, sizeof(iv));
+
+    //32-bit LSB of the timestamp
+    nonce[0]  = (ts >> 24) & 0xFF;
+    nonce[1]  = (ts >> 16) & 0xFF;
+    nonce[2]  = (ts >> 8)  & 0xFF;
+    nonce[3]  = (ts >> 0)  & 0xFF;
+
+    //64-bit of rnd data
+    nonce[4]  = rand() & 0xFF;
+    nonce[5]  = rand() & 0xFF;
+    nonce[6]  = rand() & 0xFF;
+    nonce[7]  = rand() & 0xFF;
+    nonce[8]  = rand() & 0xFF;
+    nonce[9]  = rand() & 0xFF;
+    nonce[10] = rand() & 0xFF;
+    nonce[11] = rand() & 0xFF;
+
+    //The last two octets are the CTR_HIGH value (upper 16 bits of the frame number),
+    //but you would need to talk non-stop for over 20 minutes to roll it, so just using rnd
+    //also, using zeroes seems like it may be a security issue, so using rnd as a base
+    nonce[12] = rand() & 0xFF;
+    nonce[13] = rand() & 0xFF;
+
+    k = 0;
+    for (j = 0; j < 14; j++)
+    {
+      for (i = 0; i < 8; i++)
+        iv[k++] = (nonce[j] >> (7-i))&1;
+    }
+
+    for (i = 0; i < 112; i++) //may consider only loading the first 32-bit and not full value
+      fake_lsf[i+112] = iv[i];
+
+  }
+  
+  //Use the convolutional encoder to encode the fake LSF Frame
+  simple_conv_encoder (fake_lsf, fake_con, 244);
+
+  //reset counters
+  j = 0; k = 0; x = 0;
+
+  // P1 Depuncture
+  for (i = 0; i < 488; i++)
+  {
+
+    //DST == Broadcast (predictive)
+    if ( (i < 96) && broadcast)
+    {
+      if (p1[k++] == 1)
+        output[x++] = input[j++];
+      else output[x++] = fake_con[i];
+    }
+
+    //Meta / IV Field (predictive)
+    else if ( (i > 224) && (i < 456) && has_meta)
+    {
+      if (p1[k++] == 1)
+        output[x++] = input[j++];
+      else output[x++] = fake_con[i];
+    }
+
+    //observation of last bit (Old Method)
+    else
+    {
+      if (p1[k++] == 1) output[x++] = input[j++];
+      else if (output[x-2] == 1) output[x++] = 1;
+      else output[x++] = 0;
+    }
+
+    if (k == 61)
+      k = 0; //reset 8 times
+
+  }
 
 }
