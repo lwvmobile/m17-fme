@@ -548,7 +548,7 @@ void encode_pkt(Super * super)
 
   //debug
   if (use_ip == 1)
-    fprintf (stderr, " UDP IP Frame CRC: %04X; UDP RETURN: %d: X: %d; SENT: %d;", ip_crc, udp_return, x, x+34+3);
+    fprintf (stderr, "\n UDP IP Frame CRC: %04X; UDP RETURN: %d: X: %d; SENT: %d;", ip_crc, udp_return, x, x+34+3);
 
   //SEND EOTX to reflector
   if (use_ip == 1)

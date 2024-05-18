@@ -14,7 +14,7 @@ m17-fme -i pulsevx -o pulsevx -V -L -N 2> m17encoder.txt
 Similarly, A quick simple test to have m17-fme encode and modulate packet data and send it back into itself to be decoded can be seen below. Note: When using the -P option to encode, and not specifying any data, the default SMS text message "Lorem Ipsum..." is encoded and sent.
 
 ```
-m17-fme -P -o - | m17-fme -i - -r
+m17-fme -P -o - 2> /dev/null | m17-fme -i - -r
 ```
 
 ### RF Modulated and Demodulated Voice and Data
