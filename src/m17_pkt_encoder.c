@@ -150,6 +150,51 @@ void encode_pkt(Super * super)
 
   //TODO: Any extra meta fills (extended callsign, etc?)
 
+  //NONCE
+  time_t ts = time(NULL); //timestamp since epoch / "Unix Time"
+  srand(ts); //randomizer seed based on timestamp
+
+  //initialize a nonce (if AES ENC is used)
+  uint8_t nonce[14]; memset (nonce, 0, sizeof(nonce));
+  //32bit LSB of the timestamp
+  nonce[0]  = (ts >> 24) & 0xFF;
+  nonce[1]  = (ts >> 16) & 0xFF;
+  nonce[2]  = (ts >> 8)  & 0xFF;
+  nonce[3]  = (ts >> 0)  & 0xFF;
+  //64-bit of rnd data
+  nonce[4]  = rand() & 0xFF;
+  nonce[5]  = rand() & 0xFF;
+  nonce[6]  = rand() & 0xFF;
+  nonce[7]  = rand() & 0xFF;
+  nonce[8]  = rand() & 0xFF;
+  nonce[9]  = rand() & 0xFF;
+  nonce[10] = rand() & 0xFF;
+  nonce[11] = rand() & 0xFF;
+  //The last two octets are the CTR_HIGH value (upper 16 bits of the frame number),
+  //but you would need to talk non-stop for over 20 minutes to roll it, so just using rnd
+  //also, using zeroes seems like it may be a security issue, so using rnd as a base
+  nonce[12] = rand() & 0xFF;
+  nonce[13] = rand() & 0xFF;
+
+  //leaving disabled, but code is present now if we wish to run and convert ECB to IV mode
+  //NOTE: Currently, LSF frame decode on RF Audio Input is 50/50 with an IV present
+  //Another thing to consider, if we don't use the CTR (no LSN) then its technically not CTR mode
+
+  //load nonce into the IV field of the m17_lsf and mirror to m17e.meta for aes crypt function
+  // if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)
+  // {
+  //   k = 112;
+  //   for (j = 0; j < 14; j++)
+  //   {
+  //     for (i = 0; i < 8; i++)
+  //       m17_lsf[k++] = (nonce[j] >> (7-i))&1;
+  //   }
+
+  //   //copy nonce to meta for crypt function below
+  //   memcpy (super->m17e.meta, nonce, 14);
+  // }
+  //end load
+
   //pack and compute the CRC16 for LSF
   uint16_t crc_cmp = 0;
   uint8_t lsf_packed[30];
@@ -452,7 +497,7 @@ void encode_pkt(Super * super)
   }
 
   //randomize ID
-  srand(time(NULL));
+  srand(ts);
   sid[0] = rand() & 0xFF;
   sid[1] = rand() & 0xFF;
 
