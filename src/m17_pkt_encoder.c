@@ -100,8 +100,8 @@ void encode_pkt(Super * super)
   //but only once at start of PKT TX
   uint16_t lsf_ps   = 0; //packet or stream indicator bit
   uint16_t lsf_dt   = 1; //Data
-  uint16_t lsf_et   = 0; //encryption type
-  uint16_t lsf_es   = 0; //encryption sub-type
+  uint16_t lsf_et   = super->enc.enc_type;    //encryption type
+  uint16_t lsf_es   = super->enc.enc_subtype; //encryption sub-type
   uint16_t lsf_cn = can; //can value
   uint16_t lsf_rs   = 0; //reserved bits
 
@@ -307,6 +307,13 @@ void encode_pkt(Super * super)
   if (super->opts.payload_verbosity > 0)
     fprintf (stderr, "\n BLOCK: %02d; PAD: %02d; LST: %d; K: %04d; PTR: %04d;", block, pad, lst, k, ptr);
 
+  //apply encryption keystream to m17_p1_full at this point, after protocol byte, and prior to terminating byte and CRC
+  if (super->enc.enc_type == 1 && super->enc.scrambler_key)
+  {
+    for (i = 8; i < (k-8); i++) //k should be at the correct position here //k-9
+      m17_p1_full[i] ^= super->enc.scrambler_pn[i%768];
+  }
+
   //Calculate the CRC and attach it here
   x = 0;
   uint8_t m17_p1_packed[31*25]; memset (m17_p1_packed, 0, sizeof(m17_p1_packed));
@@ -455,6 +462,12 @@ void encode_pkt(Super * super)
 
   //NOTE: Fixed recvfrom limitation, MSG_WAITALL seems to be 256
   //manually inserted 1000 into recvfrom instead, max MPKT size should be 809.
+
+  //send the OTA key
+  #ifdef OTA_KEY_DELIVERY
+  if (super->enc.enc_type != 0)
+    encode_ota_key_delivery_pkt(super, use_ip, sid);
+  #endif
 
   //Send MPKT to reflector
   if (use_ip == 1)

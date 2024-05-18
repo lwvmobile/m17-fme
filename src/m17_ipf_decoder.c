@@ -278,6 +278,16 @@ void decode_ipf (Super * super)
       if (crc_ext == crc_cmp)
         decode_lsf_contents(super);
 
+      //apply keystream here if encrypted
+      if (super->m17d.enc_et == 1 && super->enc.scrambler_key)
+      {
+        uint8_t unpacked_pkt[6200]; memset (unpacked_pkt, 0, 6200*sizeof(uint8_t));
+        unpack_byte_array_into_bit_array(ip_frame+34, unpacked_pkt, err-34-3);
+        for (i = 8; i < (err*8); i++)
+          unpacked_pkt[i] ^= super->enc.scrambler_pn[i%768];
+        pack_bit_array_into_byte_array(unpacked_pkt, ip_frame+34, err-34-3);
+      }
+
       if (super->opts.payload_verbosity >= 1)
       {
         for (i = 0; i < err; i++)

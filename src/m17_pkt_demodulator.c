@@ -149,6 +149,16 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
     //error tracking
     if (crc_cmp != crc_ext) super->error.pkt_crc_err++;
 
+    //if encrypted (lsf indicated, and key available, decrypt the packet now)
+    if (super->m17d.enc_et == 1 && super->enc.scrambler_key)
+    {
+      uint8_t unpacked_pkt[6200]; memset (unpacked_pkt, 0, 6200*sizeof(uint8_t));
+      unpack_byte_array_into_bit_array(super->m17d.pkt, unpacked_pkt, total);
+      for (i = 8; i < (total*8); i++)
+        unpacked_pkt[i] ^= super->enc.scrambler_pn[i%768];
+      pack_bit_array_into_byte_array(unpacked_pkt, super->m17d.pkt, total);
+    }
+
     //decode completed packet
     if (crc_cmp == crc_ext)
       decode_pkt_contents(super, super->m17d.pkt, total);
