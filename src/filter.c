@@ -12,29 +12,29 @@
 void hpfilter_init(hpfilter *filter, float cutoffFreqHz, float sampleTimeS)
 {
 
-	float RC=0.0;
-	RC=1.0/(2*PI*cutoffFreqHz);
+  float RC=0.0;
+  RC=1.0/(2*PI*cutoffFreqHz);
 
-	filter->coef=RC/(sampleTimeS+RC);
+  filter->coef=RC/(sampleTimeS+RC);
 
-	filter->v_in[0]=0.0;
-	filter->v_in[1]=0.0;
+  filter->v_in[0]=0.0;
+  filter->v_in[1]=0.0;
 
-	filter->v_out[0]=0.0;
-	filter->v_out[1]=0.0;
+  filter->v_out[0]=0.0;
+  filter->v_out[1]=0.0;
 
 }
 
 float hpfilter_update(hpfilter *filter, float v_in)
 {
     
-	filter->v_in[1]=filter->v_in[0];
-	filter->v_in[0]=v_in;
+  filter->v_in[1]=filter->v_in[0];
+  filter->v_in[0]=v_in;
 
-	filter->v_out[1]=filter->v_out[0];
-	filter->v_out[0]=filter->coef * (filter->v_in[0] - filter->v_in[1]+filter->v_out[1]);
+  filter->v_out[1]=filter->v_out[0];
+  filter->v_out[0]=filter->coef * (filter->v_in[0] - filter->v_in[1]+filter->v_out[1]);
 
-	return (filter->v_out[0]);
+  return (filter->v_out[0]);
 
 }
 
@@ -45,7 +45,7 @@ void hpfilter_d(Super * super, short * input, int len)
 
   //apply filtering
   for (i = 0; i < len; i++)
-		input[i] = hpfilter_update(&super->hpf_d, input[i]);
+    input[i] = hpfilter_update(&super->hpf_d, input[i]);
 
   //boost gain by factor of 1.75f to compensate for audio level drop
   for (i = 0; i < len; i++)
