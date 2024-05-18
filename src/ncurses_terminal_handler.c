@@ -293,7 +293,7 @@ void print_ncurses_levels (Super * super)
   if (super->demod.in_sync)
     attron(COLOR_PAIR(1));
 
-  printw ("--Audio-Level-(A)--------------------------------------------------------------\n");
+  printw ("--Audio-Level--(A)-------------------------------------------------------------\n");
 
   if (super->opts.use_m17_rfa_decoder == 1)
   {

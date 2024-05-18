@@ -82,10 +82,9 @@ void usage ()
   printf ("  -V            Enable the Stream Voice Encoder\n");
   printf ("  -P            Enable the Packet Data  Encoder\n");
   printf ("  -I            Enable IP Frame Output with defaults (can be combined with Loopback or RFA output)\n");
-  printf ("                (can be combined with Loopback or RFA output)\n");
   printf ("  -L            Enable Internal Encoder Loopback Decoder (must be used with pulsevx output)\n");
   printf ("  -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder\n");
-  printf ("  -s            Input Squelch v RMS Level (Vox) on Stream Voice Encoder\n");
+  printf ("  -s <dec>      Input Squelch v RMS Level (Vox) on Stream Voice Encoder\n");
   printf ("\n");
   printf ("Encoder Input Strings:\n");
   printf ("\n");
