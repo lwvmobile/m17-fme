@@ -314,6 +314,34 @@ void encode_pkt(Super * super)
       m17_p1_full[i] ^= super->enc.scrambler_pn[i%768];
   }
 
+  else if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)
+  {
+    int klen = (k-8)/128; //NOTE: This will fall short by % value octets
+    int kmod = (k-8)%128; //This is how many bits we are short, so we need to account with a partial ks application
+
+    //debug
+    // fprintf (stderr, " AES KLEN: %d; KMOD: %d;", klen, kmod);
+
+    //NOTE: Without a proper IV, this is effectively turning AES-CTR into AES-ECB mode
+    //I should load a proper IV, but if the LSF fails, then we can't recover packets
+    //unlike voice, where we have a rolling embedded link data with an IV in it
+    //I may consider leaving this as ECB mode (less secure, but more secure than scrambler)
+
+    for (i = 0; i < klen; i++)
+      aes_ctr_str_payload_crypt (super->m17e.meta, super->enc.aes_key, m17_p1_full+(128*i)+8, 1);
+
+    //if there are leftovers (kmod), then run a keystream and partial application to left over bits
+    uint8_t aes_ks_bits[128]; memset(aes_ks_bits, 0, 128*sizeof(uint8_t));
+    int kmodstart = klen*128;
+    if (kmod != 0)
+    {
+      aes_ctr_str_payload_crypt (super->m17e.meta, super->enc.aes_key, aes_ks_bits, 1);
+      for (i = 0; i < kmod; i++)
+        m17_p1_full[i+kmodstart] ^= aes_ks_bits[i];
+    }
+
+  }
+
   //Calculate the CRC and attach it here
   x = 0;
   uint8_t m17_p1_packed[31*25]; memset (m17_p1_packed, 0, sizeof(m17_p1_packed));

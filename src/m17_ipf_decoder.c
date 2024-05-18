@@ -288,6 +288,36 @@ void decode_ipf (Super * super)
         pack_bit_array_into_byte_array(unpacked_pkt, ip_frame+34, err-34-3);
       }
 
+      else if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded)
+      {
+        int ret = err - 34 - 3;
+        int klen = (ret*8)/128; //NOTE: This will fall short by % value octets
+        int kmod = (ret*8)%128; //This is how many bits we are short, so we need to account with a partial ks application
+
+        //debug
+        // fprintf (stderr, " AES KLEN: %d; KMOD: %d;", klen, kmod);
+
+        //NOTE: Its pretty redundant to pack and unpack here and in the crypt function,
+        //but this is still quicker than writing a new function for only one use case
+        
+        uint8_t unpacked_pkt[6200]; memset (unpacked_pkt, 0, 6200*sizeof(uint8_t));
+        unpack_byte_array_into_bit_array(ip_frame+34, unpacked_pkt, ret);
+        for (i = 0; i < klen; i++)
+          aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, unpacked_pkt+(128*i)+8, 1);
+
+        //if there are leftovers (kmod), then run a keystream and partial application to left over bits
+        uint8_t aes_ks_bits[128]; memset(aes_ks_bits, 0, 128*sizeof(uint8_t));
+        int kmodstart = klen*128;
+        if (kmod != 0)
+        {
+          aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, aes_ks_bits, 1);
+          for (i = 0; i < kmod; i++)
+            unpacked_pkt[i+kmodstart] ^= aes_ks_bits[i];
+        }
+          
+        pack_bit_array_into_byte_array(unpacked_pkt, ip_frame+34, ret);
+      }
+
       if (super->opts.payload_verbosity >= 1)
       {
         for (i = 0; i < err; i++)

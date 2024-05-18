@@ -633,7 +633,7 @@ void aes_ctr_str_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, 
 
   //debug
   // fprintf (stderr, "\n  INPUT: ");
-  // for (i = 0; i < 16; i++)
+  // for (int i = 0; i < 16; i++)
   //   fprintf (stderr, "%02X", payload_bytes[i]);
 
   //pass to internal CTR handler for payload
@@ -641,7 +641,7 @@ void aes_ctr_str_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, 
 
   //debug
   // fprintf (stderr, "\n OUTPUT: ");
-  // for (i = 0; i < 16; i++)
+  // for (int i = 0; i < 16; i++)
   //   fprintf (stderr, "%02X", payload_bytes[i]);
 
   //unpack output bytes back to bits
