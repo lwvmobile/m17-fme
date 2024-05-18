@@ -209,7 +209,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1234567890c:d:e:f:hi:lmno:prs:t:uv:w:xA:C:E:F:INLM:PR:S:TU:VW:X")) != -1)
+  while ((c = getopt (argc, argv, "1234567890ac:d:e:f:hi:lmno:prs:t:uv:w:xA:C:E:F:INLM:PR:S:TU:VW:X")) != -1)
   {
 
     i++;
@@ -290,6 +290,14 @@ int main (int argc, char **argv)
       //   super.opts.b[1023] = '\0';
       //   fprintf (stderr,"B: %s\n", super.opts.b);
       //   break;
+
+      //List Pulse Audio Input and Output
+      case 'a':
+        #ifdef USE_PULSEAUDIO
+        pulse_list();
+        #endif
+        exit(0);
+        break;
 
       //Specify DSD-FME Dibit Capture Bin Input File Format (RF Encoded only)
       case 'c':

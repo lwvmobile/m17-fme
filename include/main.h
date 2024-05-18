@@ -38,6 +38,7 @@
 
 //Pulse Audio Support
 #ifdef USE_PULSEAUDIO
+#include <pulse/pulseaudio.h>
 #include <pulse/simple.h>
 #include <pulse/error.h>
 #include <pulse/introspect.h>
@@ -314,6 +315,17 @@ typedef struct
 
 } pa_state;
 
+#ifdef USE_PULSEAUDIO
+// Field list is here: http://0pointer.de/lennart/projects/pulseaudio/doxygen/structpa__sink__info.html
+typedef struct pa_devicelist
+{
+  uint8_t initialized;
+  char name[512];
+  uint32_t index;
+  char description[256];
+} pa_devicelist_t;
+#endif
+
 //WAV output files with sndfile
 typedef struct
 {
@@ -434,6 +446,13 @@ void  close_pulse_audio_output_vx (Super * super);
 short pa_input_read (Super * super);
 void  pulse_audio_output_rf (Super * super, short * out, size_t nsam);
 void  pulse_audio_output_vx (Super * super, short * out, size_t nsam);
+
+//pulse sources and sinks
+void pa_state_cb(pa_context *c, void *userdata);
+void pa_sinklist_cb(pa_context *c, const pa_sink_info *l, int eol, void *userdata);
+void pa_sourcelist_cb(pa_context *c, const pa_source_info *l, int eol, void *userdata);
+int pa_get_devicelist(pa_devicelist_t *input, pa_devicelist_t *output);
+int pulse_list();
 #endif
 
 //OSS Garbage Handling
