@@ -64,15 +64,6 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
   if (lich_counter == 0)
     super->enc.bit_counter_d = 0;
 
-  // if (err == 0 && lich_reserve != 0) fprintf(stderr, " LRS: %d", lich_reserve);
-
-  //This is not M17 standard, but use the LICH reserved bits to signal data type and CAN value
-  // if (err == 0 && opts->m17encoder == 1) //only use when using built in encoder
-  // {
-  //   state->m17_str_dt = lich_reserve & 0x3;
-  //   state->m17_can = (lich_reserve >> 2) & 0x7;
-  // }
-
   //transfer to storage
   for (i = 0; i < 40; i++)
     super->m17d.lsf[lich_counter*40+i] = lich_decoded[i];

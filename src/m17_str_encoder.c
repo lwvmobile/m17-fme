@@ -541,17 +541,6 @@ void encode_str(Super * super)
     lsf_chunk[lich_cnt][41] = (lich_cnt >> 1) & 1;
     lsf_chunk[lich_cnt][42] = (lich_cnt >> 0) & 1;
 
-    //This is not M17 standard, but use the LICH reserved bits to signal can and dt
-    // lsf_chunk[lich_cnt][43] = (lsf_cn >> 2) & 1;
-    // lsf_chunk[lich_cnt][44] = (lsf_cn >> 1) & 1;
-    // lsf_chunk[lich_cnt][45] = (lsf_cn >> 0) & 1;
-
-    // lsf_chunk[lich_cnt][46] = (lsf_dt >> 1) & 1;
-    // lsf_chunk[lich_cnt][47] = (lsf_dt >> 0) & 1;
-
-    //restore original LSF (keeping here will prevent this on IP Frames)
-    // memcpy (m17_lsf, super->m17e.lsf_bkp, 240*sizeof(uint8_t));
-
     //encode with golay 24,12 and load into m17_l1g
     golay_24_12_encode (lsf_chunk[lich_cnt]+00, m17_l1g+00);
     golay_24_12_encode (lsf_chunk[lich_cnt]+12, m17_l1g+24);
