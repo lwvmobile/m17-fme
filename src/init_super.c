@@ -331,7 +331,7 @@ void init_super (Super * super)
   //end snd_src_input snd_src_in
 
   //init HPF
-  HPFilter_Init (&super->hpf_d, 960, (float)1/(float)super->opts.input_sample_rate);
+  hpfilter_init (&super->hpf_d, 960, (float)1/(float)8000);
   //end HPF Init
 
   //init encryption items

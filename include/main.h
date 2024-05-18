@@ -341,7 +341,7 @@ typedef struct
   float v_out[2];
   float v_in[2];
 
-} HPFilter;
+} hpfilter;
 
 //encryption struct
 typedef struct
@@ -391,7 +391,7 @@ typedef struct
   demod_state demod;
   wav_state wav;
   snd_src_input snd_src_in;
-  HPFilter hpf_d;
+  hpfilter hpf_d;
   Encryption enc;
   Error error;
 } Super;
@@ -498,8 +498,8 @@ void cleanup_and_exit (Super * super);
 long int raw_rms (int16_t *samples, int len, int step);
 void upsample_6x (short input, short * output);
 void raw_audio_monitor (Super * super, short sample);
-void HPFilter_Init (HPFilter *filter, float cutoffFreqHz, float sampleTimeS);
-float HPFilter_Update (HPFilter *filter, float v_in);
+void hpfilter_init (hpfilter *filter, float cutoffFreqHz, float sampleTimeS);
+float hpfilter_update (hpfilter *filter, float v_in);
 void hpfilter_d (Super * super, short * input, int len);
 
 //RRC Input and Output Filtering

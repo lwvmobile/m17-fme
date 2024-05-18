@@ -9,7 +9,7 @@
 #include "main.h"
 #include "m17.h"
 
-void HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
+void hpfilter_init(hpfilter *filter, float cutoffFreqHz, float sampleTimeS)
 {
 
 	float RC=0.0;
@@ -25,7 +25,7 @@ void HPFilter_Init(HPFilter *filter, float cutoffFreqHz, float sampleTimeS)
 
 }
 
-float HPFilter_Update(HPFilter *filter, float v_in)
+float hpfilter_update(hpfilter *filter, float v_in)
 {
     
 	filter->v_in[1]=filter->v_in[0];
@@ -42,8 +42,14 @@ float HPFilter_Update(HPFilter *filter, float v_in)
 void hpfilter_d(Super * super, short * input, int len)
 {
   int i;
+
+  //apply filtering
   for (i = 0; i < len; i++)
-		input[i] = HPFilter_Update(&super->hpf_d, input[i]);
+		input[i] = hpfilter_update(&super->hpf_d, input[i]);
+
+  //boost gain by factor of 1.75f to compensate for audio level drop
+  for (i = 0; i < len; i++)
+    input[i] *= 1.75f;
 }
 
 //10x Upscale and RRC filtering lifted from M17_Implementations / libM17
