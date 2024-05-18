@@ -58,7 +58,7 @@ const unsigned char Golay_24_12_m_H[24*12] = {
 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 };
 
-void Golay_24_12_init()
+void golay_24_12_init()
 {
     int i1 = 0, i2 = 0, i3 = 0, ir = 0, ip = 0;
     int syndromeI = 0, syndromeIP = 0;
@@ -156,7 +156,7 @@ void Golay_24_12_init()
     }
 }
 
-void Golay_24_12_encode(unsigned char *origBits, unsigned char *encodedBits)
+void golay_24_12_encode(unsigned char *origBits, unsigned char *encodedBits)
 {
   int i = 0, j = 0;
   // memset(encodedBits, 0, 24);
@@ -169,7 +169,7 @@ void Golay_24_12_encode(unsigned char *origBits, unsigned char *encodedBits)
     encodedBits[i] %= 2;
 }
 
-bool Golay_24_12_decode(unsigned char *rxBits)
+bool golay_24_12_decode(unsigned char *rxBits)
 {
     unsigned int syndromeI = 0; // syndrome index
     int is = 0;

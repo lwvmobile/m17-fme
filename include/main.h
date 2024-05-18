@@ -521,9 +521,9 @@ void trellis_encode(uint8_t * result, uint8_t * source, int result_len, int reg)
 void trellis_decode(uint8_t * result, uint8_t * source, int result_len);
 
 //Golay 24_12 encoder and decoder
-void Golay_24_12_encode (unsigned char *origBits, unsigned char *encodedBits);
-bool Golay_24_12_decode (unsigned char *rxBits);
-void Golay_24_12_init ();
+void golay_24_12_encode (unsigned char *origBits, unsigned char *encodedBits);
+bool golay_24_12_decode (unsigned char *rxBits);
+void golay_24_12_init ();
 
 //CRC16
 uint16_t crc16 (const uint8_t *in, const uint16_t len);

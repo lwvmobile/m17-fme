@@ -553,10 +553,10 @@ void encode_str(Super * super)
     // memcpy (m17_lsf, super->m17e.lsf_bkp, 240*sizeof(uint8_t));
 
     //encode with golay 24,12 and load into m17_l1g
-    Golay_24_12_encode (lsf_chunk[lich_cnt]+00, m17_l1g+00);
-    Golay_24_12_encode (lsf_chunk[lich_cnt]+12, m17_l1g+24);
-    Golay_24_12_encode (lsf_chunk[lich_cnt]+24, m17_l1g+48);
-    Golay_24_12_encode (lsf_chunk[lich_cnt]+36, m17_l1g+72);
+    golay_24_12_encode (lsf_chunk[lich_cnt]+00, m17_l1g+00);
+    golay_24_12_encode (lsf_chunk[lich_cnt]+12, m17_l1g+24);
+    golay_24_12_encode (lsf_chunk[lich_cnt]+24, m17_l1g+48);
+    golay_24_12_encode (lsf_chunk[lich_cnt]+36, m17_l1g+72);
 
     //add lsf chunk to the combined frame
     for (i = 0; i < 96; i++)

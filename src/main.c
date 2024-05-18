@@ -167,7 +167,7 @@ int main (int argc, char **argv)
 
   //initialize convolutional decoder and golay
   convolution_init();
-  Golay_24_12_init();
+  golay_24_12_init();
 
   //set the exitflag to 0
   exitflag = 0;

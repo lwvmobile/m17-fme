@@ -37,7 +37,7 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
     for (j = 0; j < 24; j++)
       lich[i][j] = lich_bits[(i*24)+j];
 
-    g[i] = Golay_24_12_decode(lich[i]);
+    g[i] = golay_24_12_decode(lich[i]);
     if(g[i] == false)
     {
       //track errors
