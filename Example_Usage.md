@@ -140,16 +140,23 @@ Usage: m17-fme [options]    Start the Program
   or:  m17-fme -h           Show Help
 
 Display Options:
+
   -N            Use NCurses Terminal
                  m17-fme -N 2> log.txt 
   -v <num>      Payload Verbosity Level
   -d <num>      Demodulator Verbosity Level
 
+Device Options:
+
+  -a            List All Pulse Audio Input Sources and Output Sinks (devices).
+
 Input Options:
 
   -i <device>   Audio input device (default is pulserf)
                 pulserf for pulse audio RFA input 
+                pulserf:6 or pulserf:m17_sink2.monitor for pulse audio RFA input on m17_sink2 (see -a) 
                 pulsevx for pulse audio Voice / Mic input
+                pulsevx:2 or pulserf:alsa_input.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Mic input on device (see -a) 
                 - for STDIN input (specify encoder or decoder options below)
                 (Note: When using STDIN, Ncurses Keyboard Shortcuts Disabled)
                 (padsp wrapper required for OSS audio on Linux)
@@ -165,13 +172,15 @@ Output Options:
 
   -o <device>   Audio output device (default is pulsevx)
                 pulserf for pulse audio RFA output
+                pulserf:5 or pulserf:m17_sink2 for pulse audio RFA output on m17_sink2 (see -a) 
                 pulsevx for pulse audio Voice / Loopback output
+                pulsevx:1 or pulserf:alsa_output.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Loopback output on device (see -a) 
                 - for STDOUT output (specify encoder or decoder options below)
                 (Note: Don't use Ncurses Terminal w/ STDOUT enabled)
                 (padsp wrapper required for OSS audio on Linux)
                 /dev/dsp for OSS audio
                 (OSS Can only do either RF output, or VX output,
-                not both at the same time, specify encoder and decoder options below)
+                 not both at the same time, specify encoder and decoder options below)
                 udp for UDP Frame Output (default localhost:17000)
                 udp:192.168.7.8:17001 for M17 UDP/IP blaster output (Target Address and Port)
                 m17udp:192.168.7.8:17001 for M17 UDP/IP blaster output (Target Address and Port)
@@ -243,7 +252,7 @@ Quick Examples:
  m17-fme -i pulserf -o pulsevx -r -N 2> m17decoder.txt 
 
  Stream Voice Encoder with Mic Input (pulsevx) IP Frame Output Default Host and Port
- m17-fme -i pulsevx -o udp -I -V -N 2> m17encoder.txt 
+ m17-fme -i pulsevx -o udp -V -I -N 2> m17encoder.txt 
 
  IP Frame Decoder for Voice Stream and Packet Data Default Host and Port 
  m17-fme -i udp -u -o pulsevx -N 2> m17decoder.txt 

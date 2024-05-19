@@ -35,11 +35,17 @@ void usage ()
   printf ("  -v <num>      Payload Verbosity Level\n");
   printf ("  -d <num>      Demodulator Verbosity Level\n");
   printf ("\n");
+  printf ("Device Options:\n");
+  printf ("\n");
+  printf ("  -a            List All Pulse Audio Input Sources and Output Sinks (devices).\n");
+  printf ("\n");
   printf ("Input Options:\n");
   printf ("\n");
   printf ("  -i <device>   Audio input device (default is pulserf)\n");
   printf ("                pulserf for pulse audio RFA input \n");
+  printf ("                pulserf:6 or pulserf:m17_sink2.monitor for pulse audio RFA input on m17_sink2 (see -a) \n");
   printf ("                pulsevx for pulse audio Voice / Mic input\n");
+  printf ("                pulsevx:2 or pulserf:alsa_input.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Mic input on device (see -a) \n");
   printf ("                - for STDIN input (specify encoder or decoder options below)\n");
   printf ("                (Note: When using STDIN, Ncurses Keyboard Shortcuts Disabled)\n");
   #ifdef __CYGWIN__
@@ -59,7 +65,9 @@ void usage ()
   printf ("\n");
   printf ("  -o <device>   Audio output device (default is pulsevx)\n");
   printf ("                pulserf for pulse audio RFA output\n");
+  printf ("                pulserf:5 or pulserf:m17_sink2 for pulse audio RFA output on m17_sink2 (see -a) \n");
   printf ("                pulsevx for pulse audio Voice / Loopback output\n");
+  printf ("                pulsevx:1 or pulserf:alsa_output.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Loopback output on device (see -a) \n");
   printf ("                - for STDOUT output (specify encoder or decoder options below)\n");
   printf ("                (Note: Don't use Ncurses Terminal w/ STDOUT enabled)\n");
   #ifdef __CYGWIN__
@@ -140,8 +148,8 @@ void usage ()
   printf (" RF Demodulator for Stream Voice and Data Packet with Decoded Voice Output (pulsevx) \n");
   printf (" m17-fme -i pulserf -o pulsevx -r -N 2> m17decoder.txt \n");
   printf ("\n");
-  printf (" Stream Voice Encoder with Mic Input (pulsevx) IP Frame Output \n");
-  printf (" m17-fme -i pulsevx -o udp -V -N 2> m17encoder.txt \n");
+  printf (" Stream Voice Encoder with Mic Input (pulsevx) IP Frame Output Default Host and Port\n");
+  printf (" m17-fme -i pulsevx -o udp -V -I -N 2> m17encoder.txt \n");
   printf ("\n");
   printf (" IP Frame Decoder for Voice Stream and Packet Data Default Host and Port \n");
   printf (" m17-fme -i udp -u -o pulsevx -N 2> m17decoder.txt \n");
