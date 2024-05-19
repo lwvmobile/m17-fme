@@ -584,7 +584,7 @@ void encode_str(Super * super)
         fprintf (stderr, "\n M17 LSF    (ENCODER): ");
         if (super->opts.internal_loopback_decoder == 1)
           demod_lsf(super, m17_lsfs, 1);
-        else fprintf (stderr, " To Audio Out;");
+        else fprintf (stderr, " To Audio Out: %s", super->pa.pa_outrf_idx);
 
         //convert bit array into symbols and RF/Audio
         memset (nil, 0, sizeof(nil));
@@ -602,7 +602,7 @@ void encode_str(Super * super)
       fprintf (stderr, "\n M17 Stream (ENCODER): ");
       if (super->opts.internal_loopback_decoder == 1)
         demod_str(super, m17_t4s, 1);
-      else fprintf (stderr, " To Audio Out;");
+      else fprintf (stderr, " To Audio Out: %s", super->pa.pa_outrf_idx);
 
       //show UDP if active
       if (use_ip == 1 && lich_cnt != 5)
@@ -869,7 +869,7 @@ void encode_str(Super * super)
         fprintf (stderr, "\n M17 Stream (ENCODER): ");
         if (super->opts.internal_loopback_decoder == 1)
           demod_str(super, m17_t4s, 1);
-        else fprintf (stderr, " To Audio Out;");
+        else fprintf (stderr, " To Audio Out: %s", super->pa.pa_outrf_idx);
 
         //show UDP if active
         if (use_ip == 1 && lich_cnt != 5)

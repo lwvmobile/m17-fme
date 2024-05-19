@@ -431,8 +431,8 @@ void parse_pulse_input_string (Super * super, char * input)
   curr = strtok(input, ":");
   if (curr != NULL)
   {
-    strncpy (super->pa.pa_input_idx, curr, 49);
-    super->pa.pa_input_idx[49] = 0;
+    strncpy (super->pa.pa_input_idx, curr, 99);
+    super->pa.pa_input_idx[99] = 0;
     fprintf (stderr, "\n");
     fprintf (stderr, "Pulse Input Device: %s; ", super->pa.pa_input_idx);
   }
@@ -444,8 +444,8 @@ void parse_pulse_outrf_string (Super * super, char * input)
   curr = strtok(input, ":");
   if (curr != NULL)
   {
-    strncpy (super->pa.pa_outrf_idx, curr, 49);
-    super->pa.pa_outrf_idx[49] = 0;
+    strncpy (super->pa.pa_outrf_idx, curr, 99);
+    super->pa.pa_outrf_idx[99] = 0;
     fprintf (stderr, "\n");
     fprintf (stderr, "Pulse Output Device: %s; ", super->pa.pa_outrf_idx);
   }
@@ -457,8 +457,8 @@ void parse_pulse_outvx_string (Super * super, char * input)
   curr = strtok(input, ":");
   if (curr != NULL)
   {
-    strncpy (super->pa.pa_outvx_idx, curr, 49);
-    super->pa.pa_outvx_idx[49] = 0;
+    strncpy (super->pa.pa_outvx_idx, curr, 99);
+    super->pa.pa_outvx_idx[99] = 0;
     fprintf (stderr, "\n");
     fprintf (stderr, "Pulse Output Device: %s; ", super->pa.pa_outvx_idx);
   }
