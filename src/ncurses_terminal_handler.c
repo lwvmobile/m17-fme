@@ -155,10 +155,18 @@ void print_ncurses_config (Super * super)
 
   //Input Methods (Hardware)
   if (super->opts.use_pa_input && super->opts.use_m17_rfa_decoder)
+  {
     printw ("Pulse RFA    Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
-
+    if (super->pa.pa_input_idx[0] != 0)
+      printw ("D: %s;", super->pa.pa_input_idx);
+  }
+    
   else if (super->opts.use_pa_input && !super->opts.use_m17_rfa_decoder)
+  {
     printw ("Pulse Voice  Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+    if (super->pa.pa_input_idx[0] != 0)
+      printw ("D: %s;", super->pa.pa_input_idx);
+  }
 
   else if (super->opts.use_oss_input)
   {
@@ -195,11 +203,19 @@ void print_ncurses_config (Super * super)
 
   //Output Methods (Hardware)
   if (super->pa.pa_output_rf_is_open)
+  {
     printw ("Pulse RFA   Output:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+    if (super->pa.pa_outrf_idx[0] != 0)
+      printw ("D: %s;", super->pa.pa_outrf_idx);
+  }
 
   if (super->pa.pa_output_vx_is_open)
+  {
     printw ("Pulse Voice Output:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
-
+    if (super->pa.pa_outvx_idx[0] != 0)
+      printw ("D: %s;", super->pa.pa_outvx_idx);
+  }
+    
   if (super->opts.use_oss_output)
   {
     printw ("OSS Output:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
