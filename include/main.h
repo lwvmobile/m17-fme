@@ -313,6 +313,10 @@ typedef struct
   uint8_t pa_output_rf_is_open;
   uint8_t pa_output_vx_is_open;
 
+  char pa_input_idx[100];
+  char pa_outrf_idx[100];
+  char pa_outvx_idx[100];
+
 } pa_state;
 
 #ifdef USE_PULSEAUDIO
@@ -420,6 +424,9 @@ void parse_output_option_string (Super * super, char * output);
 void parse_m17_user_string (Super * super, char * input);
 void parse_udp_user_string (Super * super, char * input);
 void parse_raw_user_string (Super * super, char * input);
+void parse_pulse_input_string (Super * super, char * input);
+void parse_pulse_outrf_string (Super * super, char * input);
+void parse_pulse_outvx_string (Super * super, char * input);
 
 //NCurses Terminal
 #ifdef USE_CURSES

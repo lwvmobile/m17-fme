@@ -164,6 +164,10 @@ void init_super (Super * super)
   super->pa.pa_input_is_open = 0;
   super->pa.pa_output_rf_is_open = 0;
   super->pa.pa_output_vx_is_open = 0;
+
+  memset (super->pa.pa_input_idx, 0, 100*sizeof(char));
+  memset (super->pa.pa_outrf_idx, 0, 100*sizeof(char));
+  memset (super->pa.pa_outvx_idx, 0, 100*sizeof(char));
   //end init_pa_state
 
   //init_demod_state

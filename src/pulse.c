@@ -13,6 +13,10 @@
 int err; char session_name[50]; char app_name[10];
 void open_pulse_audio_input (Super * super)
 {
+  char * dev = NULL;
+  if (super->pa.pa_input_idx[0] != 0)
+    dev = super->pa.pa_input_idx;
+
   //differentiate input names so that the mixer will remember the input device used locally
   if (super->opts.use_m17_rfa_decoder == 1)
   {
@@ -24,7 +28,7 @@ void open_pulse_audio_input (Super * super)
     sprintf (session_name, "Voice Input %04X", super->opts.random_number);
     sprintf (app_name, "M17-FME2");
   }
-  super->pa.pa_input_device = pa_simple_new(NULL, app_name, PA_STREAM_RECORD, NULL, session_name, &super->pa.input, NULL, &super->pa.inputlt, &err);
+  super->pa.pa_input_device = pa_simple_new(NULL, app_name, PA_STREAM_RECORD, dev, session_name, &super->pa.input, NULL, &super->pa.inputlt, &err);
   super->pa.pa_input_is_open = 1;
   if (err != 0)
   {
@@ -38,8 +42,13 @@ void open_pulse_audio_input (Super * super)
 
 void open_pulse_audio_output_rf (Super * super)
 {
+
+  char * dev = NULL;
+  if (super->pa.pa_outrf_idx[0] != 0)
+    dev = super->pa.pa_outrf_idx;
+
   sprintf (session_name, "RF Output %04X", super->opts.random_number);
-  super->pa.pa_output_device_rf = pa_simple_new(NULL, "M17-FME3", PA_STREAM_PLAYBACK, NULL, session_name, &super->pa.output_rf, NULL, NULL, &err);
+  super->pa.pa_output_device_rf = pa_simple_new(NULL, "M17-FME3", PA_STREAM_PLAYBACK, dev, session_name, &super->pa.output_rf, NULL, NULL, &err);
   super->pa.pa_output_rf_is_open = 1;
   if (err != 0)
   {
@@ -53,8 +62,12 @@ void open_pulse_audio_output_rf (Super * super)
 
 void open_pulse_audio_output_vx (Super * super)
 {
+  char * dev = NULL;
+  if (super->pa.pa_outvx_idx[0] != 0)
+    dev = super->pa.pa_outvx_idx;
+
   sprintf (session_name, "Voice Output %04X", super->opts.random_number);
-  super->pa.pa_output_device_vx = pa_simple_new(NULL, "M17-FME4", PA_STREAM_PLAYBACK, NULL, session_name, &super->pa.output_vx, NULL, NULL, &err);
+  super->pa.pa_output_device_vx = pa_simple_new(NULL, "M17-FME4", PA_STREAM_PLAYBACK, dev, session_name, &super->pa.output_vx, NULL, NULL, &err);
   super->pa.pa_output_vx_is_open = 1;
   if (err != 0)
   {

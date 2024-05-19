@@ -275,16 +275,20 @@ void parse_input_option_string (Super * super, char * input)
     fprintf (stderr, "\n");
     if ( (strncmp(input, "pulserf", 7) == 0) )
     {
-      fprintf (stderr, "Audio  Input Device: Pulse RF Input;");
+      fprintf (stderr, "Audio Input Device: Pulse RF Input;");
       super->opts.use_m17_rfa_decoder = 1; //enable the RF decoder if puslerf is detected
     }
     else if ( (strncmp(input, "pulsevx", 7) == 0) )
-      fprintf (stderr, "Audio  Input Device: Pulse Mic Input;"); //default is for encoder voice
+      fprintf (stderr, "Audio Input Device: Pulse Mic Input;"); //default is for encoder voice
     else
     {
-      fprintf (stderr, "Audio  Input Device: Pulse RF Input;");
+      fprintf (stderr, "Audio Input Device: Pulse RF Input;");
       super->opts.use_m17_rfa_decoder = 1; //enable the RF decoder if puslerf is detected
     }
+
+    //string yeet
+    parse_pulse_input_string(super, input+7);
+
     super->opts.use_pa_input = 1;
   }
   #else
@@ -356,12 +360,20 @@ void parse_output_option_string (Super * super, char * output)
     else super->opts.use_pa_output_vx = 1;
 
     if (super->opts.use_pa_output_rf == 1)
+    {
       fprintf (stderr, "Audio Output Device: Pulse RF Output;");
 
+      //string yeet
+      parse_pulse_outrf_string(super, output+7);
+    }
+    
     else if (super->opts.use_pa_output_vx == 1)
     {
       super->opts.internal_loopback_decoder = 1; //may disable this later
       fprintf (stderr, "Audio Output Device: Pulse Voice Output;");
+
+      //string yeet
+      parse_pulse_outvx_string(super, output+7);
     }
 
     //should never get here hopefully
@@ -413,6 +425,44 @@ void parse_m17_user_string (Super * super, char * input)
   fprintf (stderr, "DST: %s; ", super->m17e.dsts);
 }
 
+void parse_pulse_input_string (Super * super, char * input)
+{
+  char * curr;
+  curr = strtok(input, ":");
+  if (curr != NULL)
+  {
+    strncpy (super->pa.pa_input_idx, curr, 49);
+    super->pa.pa_input_idx[49] = 0;
+    fprintf (stderr, "\n");
+    fprintf (stderr, "Pulse Input Device: %s; ", super->pa.pa_input_idx);
+  }
+}
+
+void parse_pulse_outrf_string (Super * super, char * input)
+{
+  char * curr;
+  curr = strtok(input, ":");
+  if (curr != NULL)
+  {
+    strncpy (super->pa.pa_outrf_idx, curr, 49);
+    super->pa.pa_outrf_idx[49] = 0;
+    fprintf (stderr, "\n");
+    fprintf (stderr, "Pulse Output Device: %s; ", super->pa.pa_outrf_idx);
+  }
+}
+
+void parse_pulse_outvx_string (Super * super, char * input)
+{
+  char * curr;
+  curr = strtok(input, ":");
+  if (curr != NULL)
+  {
+    strncpy (super->pa.pa_outvx_idx, curr, 49);
+    super->pa.pa_outvx_idx[49] = 0;
+    fprintf (stderr, "\n");
+    fprintf (stderr, "Pulse Output Device: %s; ", super->pa.pa_outvx_idx);
+  }
+}
 
 //may put this in the input parser instead, 
 //but also is needed for output, so this may be better
