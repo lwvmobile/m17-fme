@@ -8,6 +8,7 @@ sleep 1
 git pull
 sleep 2
 ##cd into your build folder##
+cd ..
 cd build
 cmake ..
 make -j $(nproc)

@@ -37,7 +37,7 @@ Packet Data can likewise be encoded and modulated for the above decoder to decod
 m17-fme -o pulserf -P -F float.sym -S "this is a simple SMS text message sent over M17 Packet Data."
 ```
 
-Please see [Audio Plumbing](https://github.com/lwvmobile/m17-fme/blob/main/Audio_Plumbing.md "Audio Plumbing") for general help with audio plumbing (routing from A to B).
+Please see [Audio Plumbing](https://github.com/lwvmobile/m17-fme/blob/main/docs/Audio_Plumbing.md "Audio Plumbing") for general help with audio plumbing (routing from A to B).
 
 ### IP Frame Voice and Data
 

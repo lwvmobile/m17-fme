@@ -9,9 +9,9 @@ You will first want to locate and run the virtualsink.sh script file via `sh vir
 
 Here are screenshots of a proper setup using pavucontrol, or "Pulse Audio Volume Control", having voice input from the encoder listening to your microphone, the RF Output going into the "M17_Sink" null-sink, and on the playback side, playing back voice to our speakers, with RF modulated audio being monitored on "M17-Sink" null-sink. You will find that session id values are available for easy matching.
 
-![Audio 1](https://github.com/lwvmobile/m17-fme/blob/main/pavucontrol_plumbing1.png)
+![Audio 1](https://github.com/lwvmobile/m17-fme/blob/main/docs/pavucontrol_plumbing1.png)
 
-![Audio 2](https://github.com/lwvmobile/m17-fme/blob/main/pavucontrol_plumbing2.png)
+![Audio 2](https://github.com/lwvmobile/m17-fme/blob/main/docs/pavucontrol_plumbing2.png)
 
 The general idea is that we want to route RF modulated audio into our M17_Sink and have our decoder listen to the same sink. Voice Input should always be from a microphone source and Voice Output should always be to Audio Hardware (speakers, headphones, etc).
 
