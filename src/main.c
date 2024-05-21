@@ -504,8 +504,8 @@ int main (int argc, char **argv)
 
       //Specify M17 UDP Frame String Format, i.e., 'localhost:17000' or 'mycustomhost.xyz:17001'
       case 'U':
-        strncpy(super.opts.m17_udp_input, optarg, 1024);
-        super.opts.m17_udp_input[1024] = '\0';
+        strncpy(super.opts.m17_udp_input, optarg, 1023);
+        super.opts.m17_udp_input[1023] = '\0';
         break;
 
       //Enable the Stream Voice Encoder
@@ -518,7 +518,7 @@ int main (int argc, char **argv)
       case 'W':
         super.opts.use_wav_out_rf = 1;
         strncpy(super.wav.wav_out_file_rf, optarg, 1023);
-        super.wav.wav_out_file_rf[1024] = '\0';
+        super.wav.wav_out_file_rf[1023] = '\0';
         fprintf (stderr, "RF Audio Wav File: %s \n", super.wav.wav_out_file_rf);
         break;
 
