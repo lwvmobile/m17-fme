@@ -4,9 +4,8 @@ clear
 printf "M17 Project - Florida Man Edition
 Automatic Git Pull and Rebuild\n\n"
 sleep 1
-##Open your clone folder##
+##pull latest from git
 git pull
-sleep 2
 ##cd into your build folder##
 cd ..
 cd build
