@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------------
- * m17_test_pattern_generator.c
+ * test_pattern_generator.c
  * M17 Project - Test Pattern Sine Wave Generator
  *
  * LWVMOBILE

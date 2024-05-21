@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
- * m17_rf_encoder.c
- * M17 Project - RF Audio Encoder
+ * rfa_modulator.c
+ * M17 Project - RF Audio Encoder / Modulator
  *
  * LWVMOBILE
  * 2024-05 M17 Project - Florida Man Edition
