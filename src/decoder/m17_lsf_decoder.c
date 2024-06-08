@@ -42,6 +42,14 @@ void decode_lsf_contents(Super * super)
   if (lsf_ps == 0) fprintf (stderr, " Packet");
   if (lsf_ps == 1) fprintf (stderr, " Stream");
 
+  //debug type, et, es on misc things from other sources
+  if (super->opts.payload_verbosity >= 1)
+  {
+    fprintf (stderr, " FT: %04X;", lsf_type);
+    fprintf (stderr, " ET: %0X;", lsf_et);
+    fprintf (stderr, " ES: %0X;", lsf_es);
+  }
+
   if (lsf_rs != 0)
   { 
     if (lsf_rs == 0x10)
@@ -87,14 +95,24 @@ void decode_lsf_contents(Super * super)
   for (i = 0; i < 14; i++)
     super->m17d.meta[i] = (uint8_t)convert_bits_into_output(&super->m17d.lsf[(i*8)+112], 8);
 
-  //Decode Meta Data when not AES IV (if available)
-  if (lsf_et != 2 && super->m17d.meta[0] != 0)
+  //using meta_sum in case some byte fields, particularly meta[0], are zero
+  uint32_t meta_sum = 0;
+  for (i = 0; i < 14; i++)
+    meta_sum += super->m17d.meta[i];
+
+  //Decode Meta Data when not ENC (if meta field is populated with something)
+  if (lsf_et == 0 && meta_sum != 0)
   {
     uint8_t meta[15]; meta[0] = lsf_es + 90; //add identifier for pkt decoder
-    for (i = 0; i < 14; i++) meta[i+1] = super->m17d.lsf[i];
+    for (i = 0; i < 14; i++)
+      meta[i+1] = super->m17d.meta[i];
     fprintf (stderr, "\n ");
     decode_pkt_contents (super, meta, 15); //decode META
   }
+
+  //if no Meta (debug)
+  // if (lsf_et == 0 && meta_sum == 0)
+  //   fprintf (stderr, " Meta Null; ");
   
   if (lsf_et == 2)
   {

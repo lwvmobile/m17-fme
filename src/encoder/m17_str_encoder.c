@@ -251,6 +251,9 @@ void encode_str(Super * super)
     for (i = 0; i < 112; i++)
       m17_lsf[i+112] = iv[i];
   }
+  //else if not ENC and Meta data provided, unpack Meta data into META Field (up to 112/8 = 14 octets or chars)
+  else if (lsf_et == 0 && super->m17e.raw[0] != 0)
+    unpack_byte_array_into_bit_array(super->m17e.raw+1, m17_lsf+112, 14);
 
   //pack and compute the CRC16 for LSF
   uint16_t crc_cmp = 0;
@@ -814,6 +817,9 @@ void encode_str(Super * super)
         for (i = 0; i < 112; i++)
           m17_lsf[i+112] = iv[i];
       }
+      //else if not ENC and Meta data provided, unpack Meta data into META Field (up to 112/8 = 14 octets or chars)
+      else if (lsf_et == 0 && super->m17e.raw[0] != 0)
+        unpack_byte_array_into_bit_array(super->m17e.raw+1, m17_lsf+112, 14);
       else //zero out the meta field (prevent bad meta data decodes on decoder side)
       {
         for (i = 0; i < 112; i++)

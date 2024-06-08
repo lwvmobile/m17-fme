@@ -156,19 +156,38 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     uint16_t bearing      = (input[12] << 8) + input[13];
     uint8_t  speed        = input[14];
 
+    //TESTING: Fake GNSS Location based on specific coordinates (30.32411315644497, -82.96444902305485)
+    // input[1] = 0x69; //reserved source M17-FME
+    // input[2] = 0x00; //fixed station
+    // input[3] = 0x1E; //30 dec N
+    // input[4] = 0x13; //324113156÷65535 (rounded) ~= 0x1351
+    // input[5] = 0x51;
+    // input[6] = 0x52; //82 decimal W (negative)
+    // input[7] = 0x39; //964449023÷65535 (rounded) ~= 0x397C
+    // input[8] = 0x7C;
+    // input[9] = 0x0A;  //0000 1010 (NW, invalid altitude, and valid bearing and speed)
+    // input[10] = 0x00; //altitude just using 0
+    // input[11] = 0x00; //altitude just using 0
+    // input[12] = 0x00; //90 degrees (due west)
+    // input[13] = 0x5A; //90 degrees (due west)
+    // input[14] = 0x45; //69 MPH
+
+    //User Input: -Z 0169001E135152397C0A0000005A45
+
     fprintf (stderr, "\n Latitude: %03d.%05d ", lat_deg_int, lat_deg_dec * 65535);
     if (indicators & 1) fprintf (stderr, "S;");
     else                fprintf (stderr, "N;");
     fprintf (stderr, " Longitude: %03d.%05d ", lon_deg_int, lon_deg_dec * 65535);
     if (indicators & 2) fprintf (stderr, "W;");
     else                fprintf (stderr, "E;");
-    if (indicators & 4) fprintf (stderr, "Altitude: %d;", altitude + 1500);
-    if (indicators & 8) fprintf (stderr, "Speed: %d MPH;", speed);
-    if (indicators & 8) fprintf (stderr, "Bearing: %d Degrees;", bearing);
+    if (indicators & 4) fprintf (stderr, " Altitude: %d;", altitude + 1500);
+    if (indicators & 8) fprintf (stderr, " Speed: %d MPH;", speed);
+    if (indicators & 8) fprintf (stderr, " Bearing: %d Degrees;", bearing);
 
     if      (data_source == 0) fprintf (stderr, " M17 Client;");
     else if (data_source == 1) fprintf (stderr, " OpenRTX;");
-    else if (data_source == 0xFF) fprintf (stderr, " Other;");
+    else if (data_source == 0x69) fprintf (stderr, " FME Data Source;");
+    else if (data_source == 0xFF) fprintf (stderr, " Other Data Source;");
     else fprintf (stderr, " Reserved Data Source: %02X;", data_source);
 
     if      (station_type == 0) fprintf (stderr, " Fixed Station;");
@@ -189,16 +208,16 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     else if (station_type == 2) sprintf (st, "HH");
     else                        sprintf (st, "%02X;", station_type);
 
-    //TODO: Encode some raw data as GNSS and test this
-    sprintf (super->m17d.dat, " Lat: %d.%05d %s; Lon: %d.%05d %s; Alt: %d; Spd: %d; Ber: %d; St: %s;", 
-      lat_deg_int, lat_deg_dec*65535, ns, lon_deg_int, lon_deg_dec*65535, ew, altitude*1500, speed, bearing, st);
+    //Test with User Input: -Z 0169001E135152397C0A0000005A45
+    sprintf (super->m17d.dat, "Lat: %d.%05d %s; Lon: %d.%05d %s; Alt: %d; Spd: %d; Ber: %d; St: %s;",
+      lat_deg_int, lat_deg_dec*65535, ns, lon_deg_int, lon_deg_dec*65535, ew, altitude+1500, speed, bearing, st);
 
     //send GNSS data to event_log_writer
     event_log_writer (super, super->m17d.dat, protocol);
 
   }
-  //1600 Arbitrary Data
-  else if (protocol == 99)
+  //1600 Arbitrary Data, or META Text Message
+  else if (protocol == 90 || protocol == 99)
   {
     fprintf (stderr, " ");
     for (i = 1; i < len; i++)

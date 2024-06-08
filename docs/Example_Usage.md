@@ -131,6 +131,14 @@ See the samples folder for the 8k1_voice.wav file.
 sox 8k1_voice.wav -t raw - |  ./m17-mod -S N0CALL -D N0CALL -r -v -K FFFFFFFFFFFFFFFFAAAAAAAAAAAAAAAACCCCCCCCCCCCCCCCEEEEEEEEEEEEEEEE | m17-fme -i - -r -o pulsevx -E "FFFFFFFFFFFFFFFF AAAAAAAAAAAAAAAA"
 ```
 
+## Using M17-FME with gr-m17
+
+m17-fme can be used with some of the gr-m17 test tools by modifying or creating a File Sink with input type 'float' in GNU Radio Companion. In this example, a float File Sink node has been created in m17_loopback.grc, and connected to the output of the M17 Encoder. 
+
+![gr-m17](https://github.com/lwvmobile/m17-fme/blob/main/docs/gr-m17_float_symbol_filesink.png)
+
+After this file has been created and populated with float symbols from the example, the example can be stopped, and much like reading float symbol data from other compatible projects, the float data can be read in by using `m17-fme -r -f ~/float.sym`
+
 ## Full Usage
 
 This is the current usage (subject to change), verbatim, from m17-fme -h option:
@@ -196,6 +204,7 @@ Encoder Options:
   -L            Enable Internal Encoder Loopback Decoder (must be used with pulsevx output)
   -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder
   -s <dec>      Input Squelch v RMS Level (Vox) on Stream Voice Encoder
+  -x            Modulate Inverted Polarity on RF Output
 
 Encoder Input Strings:
 
@@ -204,17 +213,22 @@ Encoder Input Strings:
   -U <str>      Set UDP/IP Frame HOST:PORT:MODULE 
                 (example: -U 127.0.0.1:17001:B) 
   -S <str>      Enter SMS Message (up to 772 UTF-8 characters) for Packet Data Encoder
-                (example: -S 'Hello World! This is a text message')
+                (example: -S 'Hello World! This is a text message') 
   -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.
-                (example: -A 'Hello World! This is arbitrary data on 1600')
+                (example: -A 'Hello World! This is arbitrary data on 1600') 
   -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets.
-                (example: -R 010203040506070809)
-  -x            Encode Inverted Polarity on RF Output
+                (example: -R 010203040506070809) 
+
+                (NOTE: Using Meta Fields is not compatible with Using Encryption!)
+  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 14 UTF-8 characters);
+                (example: -Y 'Hello World MT') for Meta Text 
+  -Z <hex>      Enter META Data for Stream Voice Encoder as Hex Octets (1 Meta Type Octet + 14 Hex Octets Max);
+                (example: -Z 0169001E135152397C0A0000005A45) for Meta GNSS Position @ Wally World 
 
 Decoder Options:
 
   -r            Enable RFA Demodulator and Decoding of Stream and Packet Data
-  -x            Expect Inverted Polarity on RF Input
+  -x            Demodulate Inverted Polarity on RF Input
   -m            Enable Analog / Raw Input Signal Monitor on RF Input (when no sync)
   -l            Enable Event Log File: date_time_m17fme_eventlog.txt
   -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 
@@ -237,10 +251,10 @@ Debug Options:
   -2            Generate Random One Time Use 256-bit AES Key. 
   -4            Permit Data Decoding on CRC Failure (not recommended). 
   -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). 
-  -7            Disable Symbol Timing Correction.
+  -7            Disable Symbol Timing Correction. 
   -8            Disable High Pass Filter on CODEC2 Output. 
   -9            Enable  RRC Filter on RF Audio Encoding / Decoding. 
-  -0            Disable RRC Filter on RF Audio Encoding / Decoding.
+  -0            Disable RRC Filter on RF Audio Encoding / Decoding. 
 
 Quick Examples:
 

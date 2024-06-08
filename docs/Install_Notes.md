@@ -11,7 +11,7 @@ wget https://raw.githubusercontent.com/lwvmobile/m17-fme/main/scripts/download-a
 sh download-and-install-deb.sh
 ```
 
-Ubuntu 24.04 LTS (and newer)
+Debian 12 / Ubuntu 24.04 LTS (and newer)
 ```
 wget https://raw.githubusercontent.com/lwvmobile/m17-fme/main/scripts/download-and-install-ubuntu2404lts.sh
 sh download-and-install-ubuntu2404lts.sh
@@ -51,7 +51,7 @@ sudo apt install libcodec2-dev libncurses5 libncurses5-dev libncursesw5-dev libp
 ```
 
 
-Ubuntu 24.04 LTS (newer libncurses packages)
+Debian 12 / Ubuntu 24.04 LTS (newer libncurses packages)
 
 ```
 sudo apt update

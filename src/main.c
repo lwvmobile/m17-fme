@@ -93,6 +93,7 @@ void usage ()
   printf ("  -L            Enable Internal Encoder Loopback Decoder (must be used with pulsevx output)\n");
   printf ("  -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder\n");
   printf ("  -s <dec>      Input Squelch v RMS Level (Vox) on Stream Voice Encoder\n");
+  printf ("  -x            Modulate Inverted Polarity on RF Output\n");
   printf ("\n");
   printf ("Encoder Input Strings:\n");
   printf ("\n");
@@ -106,12 +107,17 @@ void usage ()
   printf ("                (example: -A 'Hello World! This is arbitrary data on 1600') \n");
   printf ("  -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets.\n");
   printf ("                (example: -R 010203040506070809) \n");
-  printf ("  -x            Encode Inverted Polarity on RF Output\n");
+  printf ("\n");
+  printf ("                (NOTE: Using Meta Fields is not compatible with Using Encryption!) \n");
+  printf ("  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 14 UTF-8 characters);\n");
+  printf ("                (example: -Y 'Hello World MT') for Meta Text \n");
+  printf ("  -Z <hex>      Enter META Data for Stream Voice Encoder as Hex Octets (1 Meta Type Octet + 14 Hex Octets Max);\n");
+  printf ("                (example: -Z 0169001E135152397C0A0000005A45) for Meta GNSS Position @ Wally World \n");
   printf ("\n");
   printf ("Decoder Options:\n");
   printf ("\n");
   printf ("  -r            Enable RFA Demodulator and Decoding of Stream and Packet Data\n");
-  printf ("  -x            Expect Inverted Polarity on RF Input\n");
+  printf ("  -x            Demodulate Inverted Polarity on RF Input\n");
   printf ("  -m            Enable Analog / Raw Input Signal Monitor on RF Input (when no sync)\n");
   printf ("  -l            Enable Event Log File: date_time_m17fme_eventlog.txt\n");
   printf ("  -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 \n");
@@ -217,7 +223,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1234567890ac:d:e:f:hi:lmno:prs:t:uv:w:xA:C:E:F:INLM:PR:S:TU:VW:X")) != -1)
+  while ((c = getopt (argc, argv, "1234567890ac:d:e:f:hi:lmno:prs:t:uv:w:xA:C:E:F:INLM:PR:S:TU:VW:XY:Z:")) != -1)
   {
 
     i++;
@@ -287,17 +293,6 @@ int main (int argc, char **argv)
         super.opts.disable_rrc_filter = 1;
         fprintf (stderr, "Disable RRC Filter on RF Audio Encoding / Decoding. \n");
         break;
-
-      //just leave these here until I wrap up and get back to the 'cookie cutter' project
-      // case 'a':
-      //   super.opts.a = 1;
-      //   break;
-
-      // case 'b':
-      //   strncpy(super.opts.b, optarg, 1023);
-      //   super.opts.b[1023] = '\0';
-      //   fprintf (stderr,"B: %s\n", super.opts.b);
-      //   break;
 
       //List Pulse Audio Input and Output
       case 'a':
@@ -525,6 +520,16 @@ int main (int argc, char **argv)
       case 'X':
         super.m17e.str_encoder_vox = 1;
         fprintf (stderr, "Stream Voice Encoder TX on Vox. \n");
+        break;
+
+      //Specify M17 STR Encoder UTF-8 Meta Text Message
+      case 'Y':
+        parse_meta_txt_string (&super, optarg);
+        break;
+
+      //Specify M17 STR Encoder Raw Encoded Meta Data
+      case 'Z':
+        parse_meta_raw_string (&super, optarg);
         break;
 
     }

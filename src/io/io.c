@@ -547,6 +547,72 @@ void parse_raw_user_string (Super * super, char * input)
   }
 }
 
+//convert a raw user string into a uint8_t array for raw meta encoding (Note: Encryption use overrides the use of this in the Meta Data Field)
+void parse_meta_raw_string (Super * super, char * input)
+{
+  //since we want this as octets, get strlen value, then divide by two
+  uint16_t len = strlen((const char*)input);
+  
+  //if zero is returned, just do two
+  if (len == 0) len = 2;
+
+  //if odd number, then user didn't pass complete octets, but just add one to len value to make it even
+  if (len&1) len++;
+
+  //divide by two to get octet len
+  len /= 2;
+
+  //sanity check, maximum strlen should not exceed 15 for type + META
+  if (len > 15) len = 15;
+  
+  super->m17e.raw[0] = 1; //flag as 1 so the encoder will know to parse the data here
+
+  char octet_char[3];
+  octet_char[2] = 0;
+  uint16_t k = 0;
+  uint16_t i = 0;
+
+  //The “Encryption SubType” bits in the Stream Type field indicate what extended data is stored in the META field.
+  //set the 'type', corresponds with lsf_st when not encrypted
+  uint8_t type = 0;
+  strncpy (octet_char, input+k, 2);
+  octet_char[2] = 0;
+  sscanf (octet_char, "%hhX", &type);
+  super->enc.enc_subtype = type;
+  k += 2;
+
+  //debug
+  fprintf (stderr, "Meta Len: %d; Meta Type: %02X; Meta Octets:", len, type);
+  for (i = 0; i < len; i++)
+  {
+    strncpy (octet_char, input+k, 2);
+    octet_char[2] = 0;
+    sscanf (octet_char, "%hhX", &super->m17e.raw[i+1]);
+
+    fprintf (stderr, " %02X", super->m17e.raw[i+1]);
+    k += 2;
+  }
+  fprintf (stderr, "\n");
+
+}
+
+//convert a text string into a uint8_t array for text meta encoding (Note: Encryption use overrides the use of this in the Meta Data Field)
+void parse_meta_txt_string (Super * super, char * input)
+{
+  int i = 0;
+  char txt[16]; memset (txt, 0, 16*sizeof(char));
+  strncpy(txt, input, 14);
+  super->m17e.raw[0] = 1;
+  for (i = 0; i < 15; i++)
+    super->m17e.raw[i+1] = (uint8_t)txt[i];
+  memcpy (super->m17d.raw, super->m17e.raw, 15);
+  super->enc.enc_subtype = 0; //Meta Text
+
+  //debug
+  fprintf (stderr, "Meta Len: %d; Meta Type: %02X; Meta Text: %s; \n", 14, super->enc.enc_subtype, txt);
+
+}
+
 void push_call_history (Super * super)
 {
 
