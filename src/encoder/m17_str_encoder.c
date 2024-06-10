@@ -253,7 +253,19 @@ void encode_str(Super * super)
   }
   //else if not ENC and Meta data provided, unpack Meta data into META Field (up to 112/8 = 14 octets or chars)
   else if (lsf_et == 0 && super->m17e.raw[0] != 0)
+  {
     unpack_byte_array_into_bit_array(super->m17e.raw+1, m17_lsf+112, 14);
+
+    //Decode Meta Data Once For Ncurses Display if not loopback
+    if (super->opts.internal_loopback_decoder == 0)
+    {
+      uint8_t meta_data[16]; memset (meta_data, 0, sizeof(meta_data));
+      meta_data[0] = lsf_es+90;
+      memcpy (meta_data+1, super->m17e.raw+1, 14);
+      fprintf (stderr, "\n ");
+      decode_pkt_contents (super, meta_data, 15); //decode META
+    }
+  }
 
   //pack and compute the CRC16 for LSF
   uint16_t crc_cmp = 0;

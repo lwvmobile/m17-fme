@@ -184,7 +184,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
 
     //User Input: -Z 0169001E135152397C0A0000005A45
 
-    fprintf (stderr, "\n Latitude: %03d.%05d ", lat_deg_int, lat_deg_dec * 65535);
+    fprintf (stderr, "\n Latitude: %02d.%05d ", lat_deg_int, lat_deg_dec * 65535);
     if (indicators & 1) fprintf (stderr, "S;");
     else                fprintf (stderr, "N;");
     fprintf (stderr, " Longitude: %03d.%05d ", lon_deg_int, lon_deg_dec * 65535);
