@@ -343,7 +343,7 @@ void encode_pkt(Super * super)
     block++;
     pad = (block * 25) - ptr - 4;
   }
-  lst = 23-pad; //pbc value for last block out
+  lst = 23-pad+2; //pbc value for last block out
 
   //sanity check block value
   // if (block > 31) block = 31;

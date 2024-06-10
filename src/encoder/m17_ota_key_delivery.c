@@ -235,16 +235,16 @@ void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
   if (enc_type == 1)
   {
     block =  1;
-    lst   =  6;
-    pad   = 19;
+    lst   =  6+2;
+    pad   = 19-2;
     stop  =  5;
     sprintf (super->m17d.sms, "OTAKD Scrambler Key: %X;", super->enc.scrambler_key);
   }
   else if (enc_type == 2)
   {
     block =  2;
-    lst   = 10;
-    pad   = 15;
+    lst   = 10+2;
+    pad   = 15-2;
     stop  = 35;
     sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX",
              super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);

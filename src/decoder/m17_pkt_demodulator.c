@@ -114,7 +114,7 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
   uint8_t eot = (pkt_packed[25] >> 7) & 1;
 
   int ptr = super->m17d.pbc_ptr*25;
-  int total = ptr + counter - 1;
+  int total = ptr + counter - 3; //-3 if changes to M17_Implementations are made
   int end = ptr + 25;
 
   //debug counter and eot value
