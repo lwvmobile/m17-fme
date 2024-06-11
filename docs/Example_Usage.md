@@ -133,7 +133,7 @@ sox 8k1_voice.wav -t raw - |  ./m17-mod -S N0CALL -D N0CALL -r -v -K FFFFFFFFFFF
 
 ## Using M17-FME with gr-m17
 
-m17-fme can be used with some of the gr-m17 test tools by modifying or creating a File Sink with input type 'float' in GNU Radio Companion. In this example, a float File Sink node has been created in m17_loopback.grc, and connected to the output of the M17 Encoder. 
+m17-fme can be used with some of the gr-m17 test tools by modifying or creating a File Sink with input type 'float' in GNU Radio Companion. In this example, a float File Sink node has been created in m17_loopback.grc with the file `float.sym` saved to the home directory, and connected to the output of the M17 Encoder. A terminal has been opened and the output from gr-m17 read in with m17-fme with the command: `m17-fme -r -f ~/float.sym`
 
 ![gr-m17](https://github.com/lwvmobile/m17-fme/blob/main/docs/gr-m17_float_symbol_filesink.png)
 
