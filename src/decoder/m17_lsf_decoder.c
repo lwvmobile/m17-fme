@@ -83,7 +83,8 @@ void decode_lsf_contents(Super * super)
   super->m17d.enc_st = lsf_es;
 
   //use lli and llabs instead (disabled due to m17-tools using truly random non-spec IV values)
-  // long long int tsn = (super->demod.current_time & 0xFFFFFFFF); //current LSB 32-bit value
+  // long long int epoch = 1577836800LL;                                     //Jan 1, 2020, 00:00:00 UTC
+  // long long int tsn = ( (super->demod.current_time-epoch) & 0xFFFFFFFF); //current LSB 32-bit value
   // long long int tsi = (uint32_t)convert_bits_into_output(&super->m17d.lsf[112], 32); //OTA LSB 32-bit value
   // long long int dif = llabs(tsn-tsi);
   // if (lsf_et == 2 && dif > 3600) fprintf (stderr, " \n Warning! Time Difference > %lld secs; Potential NONCE/IV Replay!\n", dif);

@@ -219,7 +219,8 @@ void p1_predictive_depuncture(Super * super, uint8_t * input, uint8_t * output)
     //one by the same standard as in the M17 Specifications and
     //same code used by the m17_str_encoder
 
-    time_t ts = super->demod.current_time-1; //minus 1 may work better considering we usually send a 1 sec dead air space
+    time_t epoch = 1577836800L;                           //Jan 1, 2020, 00:00:00 UTC
+    time_t ts = super->demod.current_time - epoch - 1L;  //timestamp since epoch
     srand(ts); //randomizer seed based on timestamp
 
     //SID (run 2x rand to account for it)

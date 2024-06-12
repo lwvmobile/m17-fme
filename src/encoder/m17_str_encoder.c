@@ -109,7 +109,8 @@ void encode_str(Super * super)
   uint16_t ip_crc = 0;
 
   //NONCE
-  time_t ts = time(NULL); //timestamp since epoch / "Unix Time"
+  time_t epoch = 1577836800L;      //Jan 1, 2020, 00:00:00 UTC
+  time_t ts = time(NULL) - epoch;  //timestamp since epoch
   srand(ts); //randomizer seed based on timestamp
 
   //Stream ID value
@@ -132,9 +133,7 @@ void encode_str(Super * super)
   nonce[9]  = rand() & 0xFF;
   nonce[10] = rand() & 0xFF;
   nonce[11] = rand() & 0xFF;
-  //The last two octets are the CTR_HIGH value (upper 16 bits of the frame number),
-  //but you would need to talk non-stop for over 20 minutes to roll it, so just using rnd
-  //also, using zeroes seems like it may be a security issue, so using rnd as a base
+  //Spec updated and removes the CTR_HIGH value
   nonce[12] = rand() & 0xFF;
   nonce[13] = rand() & 0xFF;
 
@@ -789,7 +788,7 @@ void encode_str(Super * super)
       lsf_count = 0;
 
       //update timestamp
-      ts = time(NULL);
+      ts = time(NULL) - epoch;
 
       //update randomizer seed and SID
       srand(ts); //randomizer seed based on time
