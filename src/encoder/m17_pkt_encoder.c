@@ -290,14 +290,11 @@ void encode_pkt(Super * super)
     fprintf (stderr, "\n Protocol: %02X;", protocol);
     fprintf (stderr, "\n Octets:");
     tlen = (int)super->m17e.raw_len;
-    for (i = 2; i <= tlen; i++)
+    for (i = 2; i < tlen; i++)
     {
       fprintf (stderr, " %02X", super->m17e.raw[i]);
       for (j = 0; j < 8; j++)
         m17_p1_full[k++] = (super->m17e.raw[i] >> (7-j)) & 1;
-
-      //break before incrementing ptr again so CRC is calculated correctly
-      if (i == tlen) break;
 
       ptr++;
 
@@ -344,6 +341,7 @@ void encode_pkt(Super * super)
     pad = (block * 25) - ptr - 4;
   }
   lst = 23-pad+2; //pbc value for last block out
+  if (super->m17e.raw[0] != 0) lst--; //trim lacking terminating byte if not SMS
 
   //sanity check block value
   // if (block > 31) block = 31;
@@ -407,7 +405,10 @@ void encode_pkt(Super * super)
   //   fprintf (stderr, "%02X", m17_p1_packed[i]);
   // fprintf (stderr, "\n");
 
-  crc_cmp = crc16(m17_p1_packed, x+1); //either x, or x+1?
+  if (super->m17e.raw[0] != 0)
+    crc_cmp = crc16(m17_p1_packed, x); //x, no terminating 0x00 byte on raw
+  else
+    crc_cmp = crc16(m17_p1_packed, x+1); //x+1 for terminating 0x00 byte inclusion
 
   //debug dump CRC (when pad is literally zero)
   if (super->opts.payload_verbosity > 0)
