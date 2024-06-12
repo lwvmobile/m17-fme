@@ -121,7 +121,7 @@ void usage ()
   printf ("  -m            Enable Analog / Raw Input Signal Monitor on RF Input (when no sync)\n");
   printf ("  -l            Enable Event Log File: date_time_m17fme_eventlog.txt\n");
   printf ("  -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 \n");
-  printf ("  -p            Per Call decoded voice wav file saving into current directory ./M17WAV folder\n");
+  printf ("  -p            Per Call decoded voice wav file saving into current directory ./m17wav folder\n");
   printf ("\n");
   printf ("Encryption Options:\n");
   printf ("\n");

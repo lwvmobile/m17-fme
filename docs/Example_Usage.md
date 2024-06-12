@@ -232,7 +232,7 @@ Decoder Options:
   -m            Enable Analog / Raw Input Signal Monitor on RF Input (when no sync)
   -l            Enable Event Log File: date_time_m17fme_eventlog.txt
   -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 
-  -p            Per Call decoded voice wav file saving into current directory ./M17WAV folder
+  -p            Per Call decoded voice wav file saving into current directory ./m17wav folder
 
 Encryption Options:
 

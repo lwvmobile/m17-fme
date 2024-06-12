@@ -71,7 +71,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
       sprintf (super->m17d.sms, "OTAKD Scrambler Key: %X;", super->enc.scrambler_key);
 
       //send OTAKD Scrambler to event_log_writer
-      event_log_writer (super, super->m17d.sms, protocol);
+      // event_log_writer (super, super->m17d.sms, protocol); //disabled, otherwise, spams the event log
     }
     if (type == 0x02)
     {

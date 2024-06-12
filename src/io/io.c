@@ -700,6 +700,9 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
     else if (protocol == 0xFD)
       fprintf (super->opts.event_log, "Per Call Wav Opened: ");
 
+    else if (protocol == 0xFC)
+      fprintf (super->opts.event_log, "Call History Cleared: ");
+
     else if (protocol == 0x00)
       fprintf (super->opts.event_log, "RAW: ");
 

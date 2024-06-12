@@ -151,6 +151,9 @@ void input_ncurses_terminal (Super * super, int c)
     case 99:
       for (int i = 0; i < 10; i++)
         sprintf (super->m17d.callhistory[i], "%s", "");
+
+      sprintf (super->m17d.sms, "%s", "Call History Cleared;");
+      event_log_writer (super, super->m17d.sms, 0xFC);
       break;
 
     //'e' key, Toggle Scrambler Encryption (only when not TX, and a key is loaded)

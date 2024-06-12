@@ -315,7 +315,7 @@ void init_super (Super * super)
   sprintf (super->wav.wav_out_file_rf, "%s", "m17_rf_wav.wav");
   sprintf (super->wav.wav_out_file_vx, "%s", "m17_vx_wav.wav");
   sprintf (super->wav.wav_out_file_pc, "%s", "");           //no initial filename
-  sprintf (super->wav.wav_file_direct, "%s", "./M17WAV");  //default wav file directory
+  sprintf (super->wav.wav_file_direct, "%s", "./m17wav");  //default wav file directory
   struct stat st = {0};
   if (stat(super->wav.wav_file_direct, &st) == -1)
   {
