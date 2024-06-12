@@ -739,7 +739,17 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
     else if (protocol == 0x89)
       fprintf (super->opts.event_log, "1600 Arbitrary Data: ");
 
-    else fprintf (super->opts.event_log, "Unknown Event Protocol %02X: ", protocol);
+    else if (protocol > 0xE0) //Internal Program Events (or packet data)
+      fprintf (super->opts.event_log, "Unknown Event Protocol %02X: ", protocol);
+
+    else if (protocol > 0x90) //Internal Meta Events +0x80
+      fprintf (super->opts.event_log, "Unknown Meta Protocol %02X: ", protocol);
+
+    else if (protocol > 0x0A) //Packet Events
+      fprintf (super->opts.event_log, "Unknown Packet Protocol %02X: ", protocol);
+
+    //generic catch all
+    else fprintf (super->opts.event_log, "Unknown Protocol %02X: ", protocol);
 
     fprintf (super->opts.event_log, "%s\n", event_string);
     fflush (super->opts.event_log); //flush event so its immediately available without having to close the file

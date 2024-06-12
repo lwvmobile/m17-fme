@@ -245,7 +245,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   else
   {
     fprintf (stderr, " ");
-    for (i = 1; i < len; i++)
+    for (i = 1; i <= len; i++)
       fprintf (stderr, "%02X", input[i]);
 
     //copy out
@@ -255,7 +255,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     //send RAW data (as string) to event_log_writer
     char event_string[2400]; sprintf (event_string, "%s", " "); //31*25*3 plus a little extra
     char in[3];
-    for (i = 1; i < len; i++)
+    for (i = 1; i <= len; i++)
     {
       sprintf (in, "%02X", input[i]);
       strcat (event_string, in);
