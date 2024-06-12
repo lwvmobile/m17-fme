@@ -37,7 +37,7 @@ void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
   int i, j, k, x; //basic utility counters
 
   //OTA Key Delivery Protocol
-  uint8_t protocol = 9;
+  uint8_t protocol = 0x09;
 
   //User Defined Variables
   uint8_t can = 7; //channel access number
@@ -459,7 +459,7 @@ void encode_ota_key_delivery_emb(Super * super, uint8_t * m17_lsf, uint8_t * lsf
       m17_lsf[96+i] = (lsf_fi >> (15-i)) & 1;
 
     //load protocol, enc type, and send sequence number
-    uint8_t protocol  = 9; //OTA Key Delivery Protocol
+    uint8_t protocol  = 0x09; //OTA Key Delivery Protocol
     uint8_t enc_type  = super->enc.enc_type;
     uint8_t enc_stype = super->enc.enc_subtype;
     uint8_t ssn = (*lsf_count%5) - 1; //mod 5

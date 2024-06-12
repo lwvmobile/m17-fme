@@ -106,7 +106,7 @@ void usage ()
   printf ("  -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.\n");
   printf ("                (example: -A 'Hello World! This is arbitrary data on 1600') \n");
   printf ("  -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets.\n");
-  printf ("                (example: -R 010203040506070809) \n");
+  printf ("                (example: -R 8169001E135152397C0A0000005A45) for Packet GNSS Position @ Wally World) \n");
   printf ("\n");
   printf ("                (NOTE: Using Meta Fields is not compatible with Using Encryption!) \n");
   printf ("  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 14 UTF-8 characters);\n");

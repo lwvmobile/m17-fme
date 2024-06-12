@@ -260,7 +260,7 @@ void encode_str(Super * super)
     if (super->opts.internal_loopback_decoder == 0)
     {
       uint8_t meta_data[16]; memset (meta_data, 0, sizeof(meta_data));
-      meta_data[0] = lsf_es+90;
+      meta_data[0] = lsf_es + 0x80; //flip MSB bit to signal META
       memcpy (meta_data+1, super->m17e.raw+1, 14);
       fprintf (stderr, "\n ");
       decode_pkt_contents (super, meta_data, 15); //decode META

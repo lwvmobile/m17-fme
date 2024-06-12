@@ -17,22 +17,22 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   //Decode the completed packet
   uint8_t protocol = input[0];
   fprintf (stderr, " Protocol:");
-  if      (protocol == 0) fprintf (stderr, " Raw;");
-  else if (protocol == 1) fprintf (stderr, " AX.25;");
-  else if (protocol == 2) fprintf (stderr, " APRS;");
-  else if (protocol == 3) fprintf (stderr, " 6LoWPAN;");
-  else if (protocol == 4) fprintf (stderr, " IPv4;");
-  else if (protocol == 5) fprintf (stderr, " SMS;");
-  else if (protocol == 6) fprintf (stderr, " Winlink;");
-  else if (protocol == 9) fprintf (stderr, " OTA Key Delivery;"); //m17-fme non standard packet data
-  else if (protocol == 90)fprintf (stderr, " Meta Text Data;"); //internal format only from meta
-  else if (protocol == 91)fprintf (stderr, " Meta GNSS Position Data;"); //internal format only from meta
-  else if (protocol == 92)fprintf (stderr, " Meta Extended CSD;"); //internal format only from meta
-  else if (protocol == 99)fprintf (stderr, " 1600 Arbitrary Data;"); //internal format only from 1600
-  else                    fprintf (stderr, " Res %02X;", protocol); //any received but unknown protocol type
+  if      (protocol == 0x00) fprintf (stderr, " Raw;");
+  else if (protocol == 0x01) fprintf (stderr, " AX.25;");
+  else if (protocol == 0x02) fprintf (stderr, " APRS;");
+  else if (protocol == 0x03) fprintf (stderr, " 6LoWPAN;");
+  else if (protocol == 0x04) fprintf (stderr, " IPv4;");
+  else if (protocol == 0x05) fprintf (stderr, " SMS;");
+  else if (protocol == 0x06) fprintf (stderr, " Winlink;");
+  else if (protocol == 0x09) fprintf (stderr, " OTA Key Delivery;"); //m17-fme non standard packet data
+  else if (protocol == 0x80) fprintf (stderr, " Meta Text Data;"); //internal format only from meta
+  else if (protocol == 0x81) fprintf (stderr, " Meta GNSS Position Data;"); //internal format only from meta
+  else if (protocol == 0x82) fprintf (stderr, " Meta Extended CSD;"); //internal format only from meta
+  else if (protocol == 0x89) fprintf (stderr, " 1600 Arbitrary Data;"); //internal format only from 1600
+  else                       fprintf (stderr, " Res/Unk: %02X;", protocol); //any received but unknown protocol type
 
   //simple UTF-8 SMS Decoder
-  if (protocol == 5)
+  if (protocol == 0x05)
   {
     fprintf (stderr, "\n SMS: ");
     for (i = 1; i < len; i++)
@@ -54,7 +54,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   }
   #ifdef OTA_KEY_DELIVERY
   //OTA Key Delivery Format
-  else if (protocol == 9)
+  else if (protocol == 0x09)
   {
     //get the encryption type and subtype from the first octet
     uint8_t bits[400]; memset (bits, 0, 400*sizeof(uint8_t));
@@ -73,7 +73,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
       //send OTAKD Scrambler to event_log_writer
       event_log_writer (super, super->m17d.sms, protocol);
     }
-    if (type == 2)
+    if (type == 0x02)
     {
       //sending full sized AES key over Embedded LSF OTAKD will require 4 embedded LSF frames
       if      (ssn == 0)
@@ -108,7 +108,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   }
   #endif
   //Extended Call Sign Data
-  else if (protocol == 92)
+  else if (protocol == 0x82)
   {
 
     //NOTE: If doing a shift addition like this, make sure ALL values have (unsigned long long int) in front of it, not just the ones that 'needed' it
@@ -152,7 +152,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
 
   }
   //GNSS Positioning
-  else if (protocol == 91)
+  else if (protocol == 0x81)
   {
     //Decode GNSS Elements
     uint8_t  data_source  = input[1];
@@ -182,7 +182,8 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     // input[13] = 0x5A; //90 degrees (due west)
     // input[14] = 0x45; //69 MPH
 
-    //User Input: -Z 0169001E135152397C0A0000005A45
+    //User Input: -Z 0169001E135152397C0A0000005A45 (Meta)
+    //User Input: -R 8169001E135152397C0A0000005A45 (Packet)
 
     fprintf (stderr, "\n Latitude: %02d.%05d ", lat_deg_int, lat_deg_dec * 65535);
     if (indicators & 1) fprintf (stderr, "S;");
@@ -227,7 +228,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
 
   }
   //1600 Arbitrary Data, or META Text Message
-  else if (protocol == 90 || protocol == 99)
+  else if (protocol == 0x80 || protocol == 0x89)
   {
     fprintf (stderr, " ");
     for (i = 1; i < len; i++)

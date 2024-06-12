@@ -534,7 +534,7 @@ void parse_raw_user_string (Super * super, char * input)
 
   //debug
   fprintf (stderr, "\n Raw Len: %d; Raw Octets:", len);
-  for (i = 0; i <= len; i++)
+  for (i = 0; i < len; i++)
   {
     strncpy (octet_char, input+k, 2);
     octet_char[2] = 0;
@@ -672,7 +672,7 @@ void push_call_history (Super * super)
   else if (super->m17d.dt > 6) sprintf (event_string, " Unknown Error Event (Synchronization Error?);");
 
   //send last call history to event_log_writer
-  event_log_writer (super, event_string, 255);
+  event_log_writer (super, event_string, 0xFF);
 
   free (timestr); free (datestr);
 }
@@ -690,50 +690,50 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
     //write date and time
     fprintf (super->opts.event_log, "%s_%s ", datestr, timestr);
 
-    //add type of event by protocol (mirrors pkt decoder, plus special numbers for call history, per call, etc)
-    if (protocol == 255)
+    //add type of event by protocol 0xF0 range is Internal Events, 0x80 range is META, 0x00 range is PKT
+    if (protocol == 0xFF)
       fprintf (super->opts.event_log, "Call History: ");
 
-    else if (protocol == 254)
+    else if (protocol == 0xFE)
       fprintf (super->opts.event_log, "Per Call Wav Closed: ");
 
-    else if (protocol == 253)
+    else if (protocol == 0xFD)
       fprintf (super->opts.event_log, "Per Call Wav Opened: ");
 
-    else if (protocol == 0)
+    else if (protocol == 0x00)
       fprintf (super->opts.event_log, "RAW: ");
 
-    else if (protocol == 1)
+    else if (protocol == 0x01)
       fprintf (super->opts.event_log, "AX.25: ");
 
-    else if (protocol == 2)
+    else if (protocol == 0x02)
       fprintf (super->opts.event_log, "APRS: ");
 
-    else if (protocol == 3)
+    else if (protocol == 0x03)
       fprintf (super->opts.event_log, "6LoWPAN: ");
 
-    else if (protocol == 4)
+    else if (protocol == 0x04)
       fprintf (super->opts.event_log, "IPv4: ");
 
-    else if (protocol == 5)
+    else if (protocol == 0x05)
       fprintf (super->opts.event_log, "SMS: ");
 
-    else if (protocol == 6)
+    else if (protocol == 0x06)
       fprintf (super->opts.event_log, "Winlink: ");
 
-    else if (protocol == 9)
+    else if (protocol == 0x09)
       fprintf (super->opts.event_log, "OTAKD: ");
 
-    else if (protocol == 90)
+    else if (protocol == 0x80)
       fprintf (super->opts.event_log, "Meta Text Data: ");
 
-    else if (protocol == 91)
+    else if (protocol == 0x81)
       fprintf (super->opts.event_log, "Meta GNSS: ");
 
-    else if (protocol == 92)
+    else if (protocol == 0x82)
       fprintf (super->opts.event_log, "Meta Extended CSD: ");
 
-    else if (protocol == 99)
+    else if (protocol == 0x89)
       fprintf (super->opts.event_log, "1600 Arbitrary Data: ");
 
     else fprintf (super->opts.event_log, "Unknown Event Protocol %02X: ", protocol);

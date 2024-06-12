@@ -66,10 +66,10 @@ void encode_pkt(Super * super)
     sprintf (d40, "%s", super->m17e.dsts);
 
   //SMS Message OR Raw Encoded Data Format
-  uint8_t protocol  = 5;
+  uint8_t protocol  = 0x05;
   if (super->m17e.sms[0] != 0)
   {
-    protocol = 5; //SMS Protocol
+    protocol = 0x05; //SMS Protocol
     sprintf (text, "%s", super->m17e.sms);
   }
   else if (super->m17e.raw[0] != 0)
@@ -290,7 +290,7 @@ void encode_pkt(Super * super)
     fprintf (stderr, "\n Protocol: %02X;", protocol);
     fprintf (stderr, "\n Octets:");
     tlen = (int)super->m17e.raw_len;
-    for (i = 1; i <= tlen; i++)
+    for (i = 2; i <= tlen; i++)
     {
       fprintf (stderr, " %02X", super->m17e.raw[i]);
       for (j = 0; j < 8; j++)
@@ -310,7 +310,7 @@ void encode_pkt(Super * super)
   }
 
   //Convert a string text message into UTF-8 octets and load into full if using SMS protocol
-  else //if (protocol == 5) //send an SMS message instead (default text or user supplied sms string)
+  else //if (protocol == 0x05) //send an SMS message instead (default text or user supplied sms string)
   {
     fprintf (stderr, "\n SMS: ");
     for (i = 0; i < tlen; i++)

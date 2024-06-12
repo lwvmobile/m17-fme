@@ -103,7 +103,7 @@ void decode_lsf_contents(Super * super)
   //Decode Meta Data when not ENC (if meta field is populated with something)
   if (lsf_et == 0 && meta_sum != 0)
   {
-    uint8_t meta[15]; meta[0] = lsf_es + 90; //add identifier for pkt decoder
+    uint8_t meta[15]; meta[0] = lsf_es + 0x80; //add identifier for pkt decoder
     for (i = 0; i < 14; i++)
       meta[i+1] = super->m17d.meta[i];
     fprintf (stderr, "\n ");

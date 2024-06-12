@@ -183,7 +183,7 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
     if (lich_cnt == 5)
     {
       //6 x 8 octets, plus one protocol octet
-      uint8_t adata[49]; adata[0] = 99;
+      uint8_t adata[49]; adata[0] = 0x89;
       pack_bit_array_into_byte_array (super->m17d.raw, adata+1, 48);
       fprintf (stderr, "\n"); //linebreak
       decode_pkt_contents (super, adata, 48); //decode Arbitrary Data as UTF-8
