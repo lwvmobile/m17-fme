@@ -227,18 +227,32 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     event_log_writer (super, super->m17d.dat, protocol);
 
   }
-  //1600 Arbitrary Data, or META Text Message
+  //META Text Message, or 1600 Arbitrary Data
+  //TODO: Seperate these two so we can assemble a completed Meta Text Message properly
   else if (protocol == 0x80 || protocol == 0x89)
   {
     fprintf (stderr, " ");
-    for (i = 1; i < len; i++)
-      fprintf (stderr, "%c", input[i]);
+
+    if (protocol == 0x80) //Meta
+    { 
+      //show Control Byte Len and Segment Values on Meta Text
+      fprintf (stderr, "%d/%d; ", (input[1] >> 4), input[1] & 0xF);
+      for (i = 2; i < len; i++)
+        fprintf (stderr, "%c", input[i]);
+    }
+    else
+    {
+      for (i = 1; i < len; i++)
+        fprintf (stderr, "%c", input[i]);
+    }
 
     //make a better string out of it instead
     sprintf (super->m17d.arb, "%s", "");
-    memcpy (super->m17d.arb, input+1, len);
+    if (protocol == 0x80) //Meta Text with the control byte
+      memcpy (super->m17d.arb, input+2, len); //skip over control byte
+    else memcpy (super->m17d.arb, input+1, len);
 
-    //send ARB data to event_log_writer
+    //send to event_log_writer
     event_log_writer (super, super->m17d.arb, protocol);
   }
   //Any Other Raw or Unknown Data Protocol as Hex

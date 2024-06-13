@@ -599,17 +599,30 @@ void parse_meta_raw_string (Super * super, char * input)
 //convert a text string into a uint8_t array for text meta encoding (Note: Encryption use overrides the use of this in the Meta Data Field)
 void parse_meta_txt_string (Super * super, char * input)
 {
+  //TODO: Fix this so we can do a full 52-byte Meta Text Message (see pages 37-38 for details)
   int i = 0;
   char txt[16]; memset (txt, 0, 16*sizeof(char));
-  strncpy(txt, input, 14);
-  super->m17e.raw[0] = 1;
-  for (i = 0; i < 15; i++)
-    super->m17e.raw[i+1] = (uint8_t)txt[i];
+  strncpy(txt, input, 13);
+  super->m17e.raw[0] = 0x01; //signal something is loaded in here for the encoder
+  super->m17e.raw[1] = 0x11; //control byte; len of 1, segment 1
+
+  //load 13 utf-8 characters / bytes from input
+  for (i = 0; i < 14; i++)
+    super->m17e.raw[i+2] = (uint8_t)txt[i];
+
+  //spec says if Meta text is shorter than full amount, to fill with 0x20 spaces and not 0x00
+  for (i = 2; i < 15; i++)
+  {
+    if (super->m17e.raw[i] == 0x00)
+      super->m17e.raw[i] = 0x20; 
+  }
+
+  //copy to m17d.raw for ncurses display during tx
   memcpy (super->m17d.raw, super->m17e.raw, 15);
   super->enc.enc_subtype = 0; //Meta Text
 
   //debug
-  fprintf (stderr, "Meta Len: %d; Meta Type: %02X; Meta Text: %s; \n", 14, super->enc.enc_subtype, txt);
+  fprintf (stderr, "Meta Len: %d; Meta Type: %02X; Meta Text: %s; \n", 14, super->enc.enc_subtype, super->m17e.raw+2);
 
 }
 

@@ -220,8 +220,8 @@ Encoder Input Strings:
                 (example: -R 8169001E135152397C0A0000005A45) for Packet GNSS Position @ Wally World) 
 
                 (NOTE: Using Meta Fields is not compatible with Using Encryption!)
-  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 14 UTF-8 characters);
-                (example: -Y 'Hello World MT') for Meta Text 
+  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 13 UTF-8 characters, single segment only);
+                (example: -Y 'Hello World!!') for Meta Text 
   -Z <hex>      Enter META Data for Stream Voice Encoder as Hex Octets (1 Meta Type Octet + 14 Hex Octets Max);
                 (example: -Z 0169001E135152397C0A0000005A45) for Meta GNSS Position @ Wally World 
 

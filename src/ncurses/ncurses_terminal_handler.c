@@ -571,7 +571,7 @@ void print_ncurses_call_info (Super * super)
   printw ("\n");
   printw ("| ");
   printw ("POS: ");
-  printw ("%s", shortstr); //TODO: need hex print on these, store a len value
+  printw ("%s", shortstr);
 
   memcpy (shortstr, super->m17d.arb, 71);
   printw ("\n");

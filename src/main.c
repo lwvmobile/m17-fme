@@ -109,8 +109,8 @@ void usage ()
   printf ("                (example: -R 8169001E135152397C0A0000005A45) for Packet GNSS Position @ Wally World) \n");
   printf ("\n");
   printf ("                (NOTE: Using Meta Fields is not compatible with Using Encryption!) \n");
-  printf ("  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 14 UTF-8 characters);\n");
-  printf ("                (example: -Y 'Hello World MT') for Meta Text \n");
+  printf ("  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 13 UTF-8 characters, single segment only);\n");
+  printf ("                (example: -Y 'Hello World!!') for Meta Text \n");
   printf ("  -Z <hex>      Enter META Data for Stream Voice Encoder as Hex Octets (1 Meta Type Octet + 14 Hex Octets Max);\n");
   printf ("                (example: -Z 0169001E135152397C0A0000005A45) for Meta GNSS Position @ Wally World \n");
   printf ("\n");
