@@ -114,12 +114,19 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
   uint8_t eot = (pkt_packed[25] >> 7) & 1;
 
   int ptr = super->m17d.pbc_ptr*25;
+
+  //sanity check to we don't go out of bounds on memcpy and total (core dump)
+  if (ptr > 825) ptr = 825;
+  if (ptr < 0)   ptr = 0;
+  if (ptr == 0 && eot == 1) ptr = 3; //this is from a bad decode, and caused a core dump on total being a negative value
+
   int total = ptr + counter - 3; //-3 if changes to M17_Implementations are made
   int end = ptr + 25;
 
   //debug counter and eot value
   if (!eot) fprintf (stderr, " CNT: %02d; PBC: %02d; EOT: %d;", super->m17d.pbc_ptr, counter, eot);
   else fprintf (stderr, " CNT: %02d; LST: %02d; EOT: %d;", super->m17d.pbc_ptr, counter, eot);
+  // fprintf (stderr, " PTR: %d; Total: %d; ", ptr, total);
 
   //debug view metric out of convolutional decoder
   // fprintf (stderr, " pkt metric: %05d; ", metric); //126 and 13020
