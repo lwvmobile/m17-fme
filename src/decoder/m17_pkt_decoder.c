@@ -65,8 +65,19 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     }
 
     //make a better string out of it instead
+    memset (super->m17d.sms, 0, 800*sizeof(char));
     sprintf (super->m17d.sms, "%s", "");
     memcpy (super->m17d.sms, input+1, len);
+
+    //if eastern langauge encoded as UTF-8 (i.e., Japanese with 3-byte encoding, will need to manually terminate string, 
+    //depending on 'len' value and number of characters, print or ncurses display may have stale or trailing garbage
+    //glyphs especially if following an OTAKD message or SMS where the preceeding SMS text is longer than the new SMS
+
+    //m17-fme -o pulserf -2 -P -S 日本語
+    super->m17d.sms[len-1] = '\0';
+    super->m17d.sms[len+0] = '\0';
+    super->m17d.sms[len+1] = '\0';
+    super->m17d.sms[len+2] = '\0';
 
     //send SMS Text Message to event_log_writer
     event_log_writer (super, super->m17d.sms, protocol);
