@@ -361,9 +361,6 @@ void encode_pkt(Super * super)
     int klen = (k-8)/128; //NOTE: This will fall short by % value octets
     int kmod = (k-8)%128; //This is how many bits we are short, so we need to account with a partial ks application
 
-    //debug
-    // fprintf (stderr, " AES KLEN: %d; KMOD: %d;", klen, kmod);
-
     //NOTE: Without a proper IV, this is effectively turning AES-CTR into AES-ECB mode
     //I should load a proper IV, but if the LSF fails, then we can't recover packets
     //unlike voice, where we have a rolling embedded link data with an IV in it
@@ -375,6 +372,13 @@ void encode_pkt(Super * super)
     //if there are leftovers (kmod), then run a keystream and partial application to left over bits
     uint8_t aes_ks_bits[128]; memset(aes_ks_bits, 0, 128*sizeof(uint8_t));
     int kmodstart = klen*128;
+    
+    //set to 8 IF kmodstart == 0 so we don't encrypt the protocol byte on short single block packets
+    if (kmodstart == 0) kmodstart = 8;
+
+    //debug
+    // fprintf (stderr, " AES KLEN: %d; KMOD: %d; KMODSTART: %d; ", klen, kmod, kmodstart);
+
     if (kmod != 0)
     {
       aes_ctr_str_payload_crypt (super->m17e.meta, super->enc.aes_key, aes_ks_bits, 1);

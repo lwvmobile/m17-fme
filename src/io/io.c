@@ -533,7 +533,7 @@ void parse_raw_user_string (Super * super, char * input)
   uint16_t i = 0;
 
   //debug
-  fprintf (stderr, "\n Raw Len: %d; Raw Octets:", len);
+  // fprintf (stderr, "\n Raw Len: %d; Raw Octets:", len);
   for (i = 0; i < len; i++)
   {
     strncpy (octet_char, input+k, 2);
@@ -542,9 +542,10 @@ void parse_raw_user_string (Super * super, char * input)
 
     //debug
     // fprintf (stderr, " (%s)", octet_char);
-    fprintf (stderr, " %02X", super->m17e.raw[i+1]);
+    // fprintf (stderr, " %02X", super->m17e.raw[i+1]);
     k += 2;
   }
+  // fprintf (stderr, "\n");
 }
 
 //convert a raw user string into a uint8_t array for raw meta encoding (Note: Encryption use overrides the use of this in the Meta Data Field)

@@ -13,6 +13,8 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
 {
   
   int i;
+  char event_string[2400];
+  sprintf (event_string, "%s", " ");
 
   //Decode the completed packet
   uint8_t protocol = input[0];
@@ -30,6 +32,24 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   else if (protocol == 0x82) fprintf (stderr, " Meta Extended CSD;"); //internal format only from meta
   else if (protocol == 0x89) fprintf (stderr, " 1600 Arbitrary Data;"); //internal format only from 1600
   else                       fprintf (stderr, " Res/Unk: %02X;", protocol); //any received but unknown protocol type
+
+  //check for encryption, if encrypted but no decryption key loaded, then skip decode and report as encrypted
+  if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded == 0)
+  {
+    fprintf (stderr, " *Encrypted*");
+    sprintf (event_string,    "Encrypted Packet Data");
+    sprintf (super->m17d.sms, "Encrypted Packet Data");
+    event_log_writer (super, event_string, protocol);
+    goto PKT_END;
+  }
+  else if (super->m17d.enc_et == 1 && super->enc.scrambler_key == 0)
+  {
+    fprintf (stderr, " *Encrypted*");
+    sprintf (event_string,    "Encrypted Packet Data");
+    sprintf (super->m17d.sms, "Encrypted Packet Data");
+    event_log_writer (super, event_string, protocol);
+    goto PKT_END;
+  }
 
   //simple UTF-8 SMS Decoder
   if (protocol == 0x05)
@@ -267,7 +287,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     memcpy (super->m17d.raw, input+1, len);
 
     //send RAW data (as string) to event_log_writer
-    char event_string[2400]; sprintf (event_string, "%s", " "); //31*25*3 plus a little extra
+    
     char in[3];
     for (i = 1; i <= len; i++)
     {
@@ -279,5 +299,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
 
   //quell defined but not used warnings from m17.h
   stfu ();
+
+  PKT_END: ; //do nothing
 
 }

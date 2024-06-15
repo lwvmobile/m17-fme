@@ -178,6 +178,10 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
       //if there are leftovers (kmod), then run a keystream and partial application to left over bits
       uint8_t aes_ks_bits[128]; memset(aes_ks_bits, 0, 128*sizeof(uint8_t));
       int kmodstart = klen*128;
+
+      //set to 8 IF kmodstart == 0 so we don't try to decrypt the protocol byte on short single block packets
+      if (kmodstart == 0) kmodstart = 8;
+
       if (kmod != 0)
       {
         aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, aes_ks_bits, 1);
