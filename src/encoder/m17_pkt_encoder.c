@@ -105,6 +105,12 @@ void encode_pkt(Super * super)
   uint16_t lsf_cn = can; //can value
   uint16_t lsf_rs   = 0; //reserved bits
 
+  if (lsf_et == 1)
+  {
+    scrambler_key_init (super, 1);
+    lsf_es = super->enc.enc_subtype; //encryption sub-type
+  }
+
   //compose the 16-bit frame information from the above sub elements
   uint16_t lsf_fi = 0;
   lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
@@ -352,8 +358,23 @@ void encode_pkt(Super * super)
   //apply encryption keystream to m17_p1_full at this point, after protocol byte, and prior to terminating byte and CRC
   if (super->enc.enc_type == 1 && super->enc.scrambler_key)
   {
+    //mew method
+    super->enc.scrambler_seed_e = scrambler_sequence_generator(super, 1);
+    int z = 0;
     for (i = 8; i < (k-8); i++) //k should be at the correct position here //k-9
-      m17_p1_full[i] ^= super->enc.scrambler_pn[i%768];
+    {
+      m17_p1_full[i] ^= super->enc.scrambler_pn[z++];
+      if (z == 128)
+      {
+        super->enc.scrambler_seed_e = scrambler_sequence_generator(super, 1);
+        z = 0;
+      }
+    }
+      
+
+    //old method
+    // for (i = 8; i < (k-8); i++) //k should be at the correct position here //k-9
+    //   m17_p1_full[i] ^= super->enc.scrambler_pn[i%768]; //I think this could have been an issue previously
   }
 
   else if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)

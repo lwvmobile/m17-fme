@@ -369,9 +369,16 @@ typedef struct
 
   //Scrambler 8/16/24 Bit LFSR pN Sequence
   uint32_t scrambler_key;     //8, 16, or 24-bit Scrambler Key as a Hexidecimal Number
-  uint8_t  scrambler_pn[768]; //bit-wise pN sequence (keystream) of a Scrambler LFSR (6 * 128 bit payloads)
-  uint16_t bit_counter_d;     //bit counter to index a keystream pN sequence during application (decoding)
-  uint16_t bit_counter_e;     //bit counter to index a keystream pN sequence during application (encoding)
+  uint8_t  scrambler_pn[128]; //bit-wise pN sequence (keystream) of a Scrambler LFSR (6 * 128 bit payloads)
+
+  uint16_t scrambler_fn_d;    //frame number internal to scrambler to check for mismatch on local fn
+  uint16_t scrambler_fn_e;    //frame number internal to scrambler to check for mismatch on local fn
+
+  int8_t scrambler_subtype_d; //subtye set to -1 to check if this has already been set to hard value
+  int8_t scrambler_subtype_e; //subtye set to -1 to check if this has already been set to hard value
+
+  uint32_t scrambler_seed_d;  //current value of perpetual scrambler seed
+  uint32_t scrambler_seed_e;  //current value of perpetual scrambler seed
 
   //AES 128/192/256
   uint8_t aes_key_is_loaded; //flag whether or not an aes key has been loaded
@@ -636,7 +643,9 @@ void push_call_history (Super * super);
 void event_log_writer  (Super * super, char * event_string, uint8_t protocol);
 
 //Encryption and Decryption
-void pn_sequence_generator (Super * super);
+void scrambler_key_init (Super * super, int de);
+uint32_t scrambler_seed_calculation(int8_t subtype, uint32_t key, int fn);
+uint32_t scrambler_sequence_generator (Super * super, int de);
 void aes_ctr_str_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int type);
 void aes_key_loader (Super * super);
 

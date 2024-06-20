@@ -16,17 +16,20 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   unsigned char voice1[8];
   unsigned char voice2[8];
 
-  //sanity check, just in case this value isn't reset upstream (IPF decoder or LICH decoder)
-  if (super->enc.bit_counter_d >= 767)
-    super->enc.bit_counter_d = 0;
-
   //apply keystream pN sequence here if scrambler enc and key is available
   //note: bit_counter is now seperate for encoding and decoding (internal loopback fix)
   if (super->m17d.enc_et == 1 && super->enc.scrambler_key != 0)
   {
     mute = 0;
+    //NOTE: Below condition does not gaurantee perfect reception if marginal or bad signal and FN value is misaligned randomly with SEED value
+    //but if we constantly recalculate a seed, the higher the FN sequence, the higher the probability of LAG incurring on slower devices
+    if (super->enc.scrambler_fn_d != 0 && super->enc.scrambler_seed_d == super->enc.scrambler_key) //if the seed is currently the key value, but the fn value is not zero
+    {
+      super->enc.scrambler_seed_d = scrambler_seed_calculation(super->m17d.enc_st, super->enc.scrambler_key, super->enc.scrambler_fn_d);
+    }
+    super->enc.scrambler_seed_d = scrambler_sequence_generator(super, 0);
     for (i = 0; i < 128; i++)
-      payload[i] ^= super->enc.scrambler_pn[super->enc.bit_counter_d++];
+      payload[i] ^= super->enc.scrambler_pn[i];
   }
   //generate AES Keystream and apply it to payload if AES enc and key is available
   else if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded)

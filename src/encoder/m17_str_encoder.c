@@ -172,6 +172,12 @@ void encode_str(Super * super)
   uint16_t lsf_cn = can;                    //can value
   uint16_t lsf_rs = 0;                      //reserved bits
 
+  if (lsf_et == 1)
+  {
+    scrambler_key_init (super, 1);
+    lsf_es = super->enc.enc_subtype; //encryption sub-type
+  }
+
   //compose the 16-bit frame information from the above sub elements
   uint16_t lsf_fi = 0;
   lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
@@ -459,12 +465,9 @@ void encode_str(Super * super)
     //Scrambler
     if (super->enc.enc_type == 1 && super->enc.scrambler_key != 0)
     {
-      //sanity check, this SHOULD never happen in the encoder, but just in case
-      if (super->enc.bit_counter_e >= 767)
-        super->enc.bit_counter_e = 0;
-
+      super->enc.scrambler_seed_e = scrambler_sequence_generator(super, 1);
       for (i = 0; i < 128; i++)
-        m17_v1[i+16] ^= super->enc.scrambler_pn[super->enc.bit_counter_e++];
+        m17_v1[i+16] ^= super->enc.scrambler_pn[i];
     }
 
     //AES-CTR
@@ -703,7 +706,6 @@ void encode_str(Super * super)
       if (lich_cnt == 6)
       {
         lich_cnt = 0;
-        super->enc.bit_counter_e = 0;
         lsf_count++;
       }
 
@@ -784,7 +786,6 @@ void encode_str(Super * super)
       lich_cnt = 0;
       fsn = 0;
       super->demod.in_sync = 0;
-      super->enc.bit_counter_e = 0;
       lsf_count = 0;
 
       //update timestamp
@@ -827,6 +828,11 @@ void encode_str(Super * super)
       {
         for (i = 0; i < 112; i++)
           m17_lsf[i+112] = iv[i];
+      }
+      //Scrambler
+      else if (lsf_et == 1)
+      {
+        super->enc.scrambler_seed_e = super->enc.scrambler_key; //reset seed value
       }
       //else if not ENC and Meta data provided, unpack Meta data into META Field (up to 112/8 = 14 octets or chars)
       else if (lsf_et == 0 && super->m17e.raw[0] != 0)

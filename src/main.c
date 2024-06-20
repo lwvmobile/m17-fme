@@ -239,7 +239,7 @@ int main (int argc, char **argv)
       case '1':
         super.enc.scrambler_key = rand() & 0xFFFFFF;
         super.enc.enc_type = 1;
-        pn_sequence_generator(&super); //generate pN Sequence
+        // pn_sequence_generator(&super); //generate pN Sequence
         fprintf (stderr, "\n");
         break;
 
@@ -329,7 +329,7 @@ int main (int argc, char **argv)
         if (super.enc.scrambler_key != 0)
         {
           super.enc.enc_type = 1;
-          pn_sequence_generator(&super); //generate pN Sequence
+          // pn_sequence_generator(&super); //generate pN Sequence
         }
         fprintf (stderr, "\n");
         break;

@@ -34,7 +34,8 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   else                       fprintf (stderr, " Res/Unk: %02X;", protocol); //any received but unknown protocol type
 
   //check for encryption, if encrypted but no decryption key loaded, then skip decode and report as encrypted
-  if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded == 0)
+  if (protocol == 0x09) {} //allow OTAKD passthrough (not encrypted ever)
+  else if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded == 0)
   {
     fprintf (stderr, " *Encrypted*");
     sprintf (event_string,    "Encrypted Packet Data");
@@ -94,11 +95,12 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     uint8_t stype = (input[1] >> 4) & 0x3; //enc sub-type
     uint8_t ssn   = (input[1] >> 0) & 0xF; //send sequence number
     fprintf (stderr, "\n Encryption Type: %d; Subtype: %d; Send Sequence Number: %d;", type, stype, ssn);
-    if (type == 1)
+    if (type == 0x01)
     {
       super->enc.scrambler_key = (uint32_t)convert_bits_into_output(bits, 24);
       fprintf (stderr, "\n");
-      pn_sequence_generator (super);
+      scrambler_key_init(super, 0);
+      super->enc.scrambler_seed_d = super->enc.scrambler_key; //NOTE: This will constantly retrigger the SEED calc in pyl_decoder
       sprintf (super->m17d.sms, "OTAKD Scrambler Key: %X;", super->enc.scrambler_key);
 
       //send OTAKD Scrambler to event_log_writer

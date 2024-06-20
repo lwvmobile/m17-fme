@@ -343,9 +343,17 @@ void init_super (Super * super)
   super->enc.enc_subtype = 0;
 
   super->enc.scrambler_key = 0;
-  memset (super->enc.scrambler_pn, 0, 768*sizeof(uint8_t));
-  super->enc.bit_counter_d = 0;
-  super->enc.bit_counter_e = 0;
+  memset (super->enc.scrambler_pn, 0, 128*sizeof(uint8_t));
+
+  super->enc.scrambler_fn_d = 0;
+  super->enc.scrambler_fn_e = 0;
+
+  //subtype for scrambler is initted at -1, so we know whether or not to run subtype
+  super->enc.scrambler_subtype_d = -1;
+  super->enc.scrambler_subtype_e = -1;
+
+  super->enc.scrambler_seed_d = 0;
+  super->enc.scrambler_seed_e = 0;
 
   super->enc.aes_key_is_loaded = 0;
   super->enc.A1 = 0;

@@ -466,6 +466,10 @@ void no_carrier_sync (Super * super)
   sprintf (super->m17d.dst_csd_str, "%s", "         ");
   sprintf (super->m17d.src_csd_str, "%s", "         ");
 
+  //reset scrambler fn value and seed value
+  super->enc.scrambler_fn_d = 0;
+  super->enc.scrambler_seed_d = super->enc.scrambler_key;
+
   // memset (super->m17d.raw, 0, sizeof(super->m17d.raw));
   // sprintf (super->m17d.sms, "%s", "");
   // sprintf (super->m17d.dat, "%s", "");

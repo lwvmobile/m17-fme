@@ -8,33 +8,107 @@
 
 #include "main.h"
 
+//scrambler seed calculation (only run this IF fn != 0 AND local fn != scrambler_fn_d)
+uint32_t scrambler_seed_calculation(int8_t subtype, uint32_t key, int fn)
+{
+  int i;
+  uint32_t lfsr, bit;
+
+  lfsr = key; bit = 0;
+  for (i = 0; i < 128*fn; i++)
+  {
+    //get feedback bit with specified taps, depending on the subtype
+    if (subtype == 0)
+      bit = (lfsr >> 7) ^ (lfsr >> 5) ^ (lfsr >> 4) ^ (lfsr >> 3);
+    else if (subtype == 1)
+      bit = (lfsr >> 15) ^ (lfsr >> 14) ^ (lfsr >> 12) ^ (lfsr >> 3);
+    else if (subtype == 2)
+      bit = (lfsr >> 23) ^ (lfsr >> 22) ^ (lfsr >> 21) ^ (lfsr >> 16);
+    else bit = 0; //should never get here, but just in case
+    
+    bit &= 1; //truncate bit to 1 bit
+    lfsr = (lfsr << 1) | bit; //shift LFSR left once and OR bit onto LFSR's LSB
+    lfsr &= 0xFFFFFF; //truncate lfsr to 24-bit
+
+  }
+
+  //debug
+  fprintf (stderr, "\nScrambler Key: 0x%06X; Seed: 0x%06X; Subtype: %02d; FN: %05d; ", key, lfsr, subtype, fn);
+
+  return lfsr;
+}
+
+//scrambler key init
+void scrambler_key_init (Super * super, int de)
+{
+  int8_t scrambler_subtype = 0;
+  uint32_t key = 0;
+  if (de)
+  {
+    scrambler_subtype = super->enc.scrambler_subtype_e;
+    key = super->enc.scrambler_key;
+    super->enc.scrambler_seed_e = key;
+  } 
+  else 
+  {
+    scrambler_subtype = super->enc.scrambler_subtype_d;
+    key = super->enc.scrambler_key;
+    super->enc.scrambler_seed_d = key;
+  }
+
+  if (scrambler_subtype == -1)
+  {
+    if      (key > 0      && key <= 0xFF)     scrambler_subtype = 0; // 8-bit key
+    else if (key > 0xFF   && key <= 0xFFFF)   scrambler_subtype = 1; //16-bit key
+    else if (key > 0xFFFF && key <= 0xFFFFFF) scrambler_subtype = 2; //24-bit key
+    else                                      scrambler_subtype = 0; // 8-bit key (default)
+  }
+
+  if (de)
+    super->enc.scrambler_subtype_e = scrambler_subtype;
+  else super->enc.scrambler_subtype_d = scrambler_subtype;
+
+  //set type and subtype, mirror to m17e -- move to a key loading type function instead
+  super->enc.enc_type = 1;
+  super->enc.enc_subtype = scrambler_subtype;
+
+  super->m17e.enc_et = 1;
+  super->m17e.enc_st = scrambler_subtype;
+
+  fprintf (stderr, "Scrambler Key: 0x%06X; Subtype: %02d;", key, scrambler_subtype);
+
+}
+
 //scrambler pn sequence generation
-void pn_sequence_generator (Super * super)
+uint32_t scrambler_sequence_generator (Super * super, int de)
 {
   int i = 0;
   uint32_t lfsr, bit;
-  uint8_t subtype = 0;
-  lfsr = super->enc.scrambler_key;
+  uint8_t subtype;
 
-  if      (lfsr > 0 && lfsr <= 0xFF)          subtype = 0; // 8-bit key
-  else if (lfsr > 0xFF && lfsr <= 0xFFFF)     subtype = 1; //16-bit key
-  else if (lfsr > 0xFFFF && lfsr <= 0xFFFFFF) subtype = 2; //24-bit key
-  else                                        subtype = 0; // 8-bit key (default)
+  //set seed and subtype based on if we are encoding, or decoding right now
+  if (de)
+  {
+    lfsr = super->enc.scrambler_seed_e;
+    subtype = super->m17e.enc_st;
+  }
+    
+  else
+  {
+    lfsr = super->enc.scrambler_seed_d;
+    subtype = super->m17d.enc_st;
+  }
 
-  //set type and subtype, mirror to m17e
-  super->enc.enc_type = 1;
-  super->enc.enc_subtype = subtype;
+  //debug
+  // fprintf (stderr, "\nScrambler Key: 0x%06X; Seed: 0x%06X; Subtype: %02d;", super->enc.scrambler_key, lfsr, subtype);
 
-  super->m17e.enc_et = 1;
-  super->m17e.enc_st = subtype;
-
-  fprintf (stderr, " Scrambler Key: %X; Subtype: %d;", lfsr, subtype);
-  if (super->opts.demod_verbosity > 2) fprintf (stderr, "\n pN: ");
+  if (super->opts.demod_verbosity > 2)
+    fprintf (stderr, "\n pN: ");
   
   //run pN sequence with taps specified
-  for (i = 0; i < 128*6; i++)
+  for (i = 0; i < 128; i++)
   {
-    //get feedback bit with specidifed taps, depending on the subtype
+    //get feedback bit with specified taps, depending on the subtype
     if (subtype == 0)
       bit = (lfsr >> 7) ^ (lfsr >> 5) ^ (lfsr >> 4) ^ (lfsr >> 3);
     else if (subtype == 1)
@@ -45,8 +119,8 @@ void pn_sequence_generator (Super * super)
     
     bit &= 1; //truncate bit to 1 bit (required since I didn't do it above)
     lfsr = (lfsr << 1) | bit; //shift LFSR left once and OR bit onto LFSR's LSB
-    lfsr &= 0xFFFFFF; //trancate lfsr to 24-bit (really doesn't matter)
-    super->enc.scrambler_pn[i] = lfsr & 1;
+    lfsr &= 0xFFFFFF; //truncate lfsr to 24-bit (really doesn't matter)
+    super->enc.scrambler_pn[i] = bit;
 
     //debug
     if (super->opts.demod_verbosity > 2)
@@ -59,6 +133,16 @@ void pn_sequence_generator (Super * super)
 
   if (super->opts.demod_verbosity > 2)
     fprintf (stderr, "\n");
+
+  //debug vs m17-coder-sym
+  // uint8_t scr_bytes[16]; memset (scr_bytes, 0, 16*sizeof(uint8_t));
+  // pack_bit_array_into_byte_array(super->enc.scrambler_pn, scr_bytes, 16);
+  // fprintf (stderr, "\n pN: ");
+  // for (i = 0; i < 16; i++)
+  //     fprintf (stderr, " %02X", scr_bytes[i]);
+  // fprintf (stderr, "\n");
+
+  return lfsr;
 }
 
 //load an AES key based on user argument

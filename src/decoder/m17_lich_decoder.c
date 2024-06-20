@@ -61,8 +61,8 @@ int decode_lich_contents(Super * super, uint8_t * lich_bits)
   else fprintf (stderr, "LICH G24 ERR");
 
   //reset enc bit counter on each 0
-  if (lich_counter == 0)
-    super->enc.bit_counter_d = 0;
+  // if (lich_counter == 0)
+  //   super->enc.bit_counter_d = 0;
 
   //transfer to storage
   for (i = 0; i < 40; i++)

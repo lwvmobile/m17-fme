@@ -472,6 +472,13 @@ void print_ncurses_call_info (Super * super)
     if (super->enc.scrambler_key != 0)
       printw( ("Key: %X; "), super->enc.scrambler_key);
 
+    //may disable seed display if it gets too annoying later on
+    if (super->opts.use_m17_str_encoder && super->m17e.str_encoder_tx)
+      printw("Seed: %06X", super->enc.scrambler_seed_e);
+
+    else if (!super->opts.use_m17_str_encoder)
+      printw("Seed: %06X", super->enc.scrambler_seed_d);
+
     if (super->opts.use_m17_str_encoder && !super->m17e.str_encoder_tx)
       printw ("Disable SCR(e);");
 

@@ -151,6 +151,11 @@ void prepare_str(Super * super, uint8_t * input)
   end = trellis_buf[0];
   fn = (uint16_t)convert_bits_into_output(&trellis_buf[1], 15);
 
+  //for scrambler seed calculation, if required (late entry)
+  super->enc.scrambler_fn_d = fn;
+  if (fn == 0)
+    super->enc.scrambler_seed_d = super->enc.scrambler_key;
+
   //insert fn bits into meta 14 and meta 15 for Initialization Vector
   super->m17d.meta[14] = (uint8_t)convert_bits_into_output(&trellis_buf[1], 7);
   super->m17d.meta[15] = (uint8_t)convert_bits_into_output(&trellis_buf[8], 8);

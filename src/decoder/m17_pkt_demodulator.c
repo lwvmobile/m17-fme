@@ -164,8 +164,25 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
     {
       uint8_t unpacked_pkt[6200]; memset (unpacked_pkt, 0, 6200*sizeof(uint8_t));
       unpack_byte_array_into_bit_array(super->m17d.pkt, unpacked_pkt, total);
+
+      //new method
+      super->enc.scrambler_seed_d = super->enc.scrambler_key; //reset seed to key value
+      super->enc.scrambler_seed_d = scrambler_sequence_generator(super, 0);
+      int z = 0;
       for (i = 8; i < (total*8); i++)
-        unpacked_pkt[i] ^= super->enc.scrambler_pn[i%768];
+      {
+        unpacked_pkt[i] ^= super->enc.scrambler_pn[z++];
+        if (z == 128)
+        {
+          super->enc.scrambler_seed_d = scrambler_sequence_generator(super, 0);
+          z = 0;
+        }
+      }
+
+      //old method
+      // for (i = 8; i < (total*8); i++)
+      //   unpacked_pkt[i] ^= super->enc.scrambler_pn[i%768];
+      
       pack_bit_array_into_byte_array(unpacked_pkt, super->m17d.pkt, total);
     }
 

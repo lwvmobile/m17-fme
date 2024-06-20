@@ -89,9 +89,10 @@ void decode_ipf (Super * super)
       uint16_t fn = (uint16_t)convert_bits_into_output(&ip_bits[273], 15);
       uint8_t eot = ip_bits[272];
 
-      //reset pN bit_counter based on fn value
-      if( (fn%6) == 0 )
-        super->enc.bit_counter_d = 0;
+      //for scrambler seed calculation
+      super->enc.scrambler_fn_d = fn;
+      if (fn == 0)
+        super->enc.scrambler_seed_d = super->enc.scrambler_key;
 
       //update IV CTR from FN
       super->m17d.meta[14] = (uint16_t)convert_bits_into_output(&ip_bits[273], 7);
@@ -283,8 +284,26 @@ void decode_ipf (Super * super)
       {
         uint8_t unpacked_pkt[6200]; memset (unpacked_pkt, 0, 6200*sizeof(uint8_t));
         unpack_byte_array_into_bit_array(ip_frame+34, unpacked_pkt, err-34-3);
+
+        //new method
+        super->enc.scrambler_seed_d = super->enc.scrambler_key; //reset seed to key value
+        super->enc.scrambler_seed_d = scrambler_sequence_generator(super, 0);
+        int z = 0;
         for (i = 8; i < (err*8); i++)
-          unpacked_pkt[i] ^= super->enc.scrambler_pn[i%768];
+        {
+          unpacked_pkt[i] ^= super->enc.scrambler_pn[z++];
+          if (z == 128)
+          {
+            super->enc.scrambler_seed_d = scrambler_sequence_generator(super, 0);
+            z = 0;
+          }
+        }
+
+        //old method
+        // for (i = 8; i < (err*8); i++)
+        //   unpacked_pkt[i] ^= super->enc.scrambler_pn[i%768];
+
+
         pack_bit_array_into_byte_array(unpacked_pkt, ip_frame+34, err-34-3);
       }
 

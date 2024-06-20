@@ -32,7 +32,8 @@ void input_ncurses_terminal (Super * super, int c)
       {
         super->enc.scrambler_key = rand() & 0xFFFFFF;
         super->enc.enc_type = 1;
-        pn_sequence_generator(super); //generate pN Sequence
+        scrambler_key_init(super, 1);
+        super->enc.scrambler_seed_e = super->enc.scrambler_key;
         if (super->opts.internal_loopback_decoder)
         {
           super->m17d.enc_et = 1;
@@ -161,7 +162,11 @@ void input_ncurses_terminal (Super * super, int c)
       if (super->m17e.str_encoder_tx == 0 && super->enc.scrambler_key != 0)
       {
         if (super->enc.enc_type == 0) super->enc.enc_type = 1;
-        else super->enc.enc_type = 0;
+        else
+        {
+          super->enc.enc_type = 0;
+          super->enc.enc_subtype = 0; //may consider using a meta subtype value instead
+        }
 
         if (super->enc.scrambler_key != 0)
           super->enc.scrambler_key = 0;
