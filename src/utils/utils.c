@@ -72,6 +72,24 @@ void convert_dibit_array_into_binary_array (uint8_t * input, uint8_t * output, i
   }
 }
 
+//left shift an input array of len x bytes one to the left (MSB-wards)
+void left_shift_byte_array (uint8_t * input, uint8_t * output, int len)
+{
+  int i;
+  output[len-1] = input[0]; //swing MSB position to LSB (byte) position
+  for (i = 1; i < len; i++) //left shift other bytes one towards MSB
+    output[i-1] = input[i];
+}
+
+//right shift an input array of len x bytes one to the right (LSB-wards)
+void right_shift_byte_array (uint8_t * input, uint8_t * output, int len)
+{
+  int i;
+  output[0] = input[len-1]; //swing LSB position to MSB (byte) position
+  for (i = 1; i < len; i++) //right shift other bytes one towards MSB
+    output[i] = input[i-1];
+}
+
 //input is user string of hex chars, output is uint8_t byte array, return value is len
 uint16_t convert_string_into_array (char * input, uint8_t * output)
 {

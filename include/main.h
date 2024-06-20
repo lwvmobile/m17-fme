@@ -243,6 +243,18 @@ typedef struct
 
 } demod_state;
 
+//ECDSA
+typedef struct
+{
+  uint8_t public_key[32];
+  uint8_t private_key[32];
+  uint8_t curr_stream_pyl[16];
+  uint8_t last_stream_pyl[16];
+  uint8_t signature[16];
+  uint8_t secp256r1[512];
+  uint8_t keys_loaded;
+} ECDSA;
+
 //M17 Encoder and Decoder Struct
 typedef struct
 {
@@ -291,6 +303,9 @@ typedef struct
   struct CODEC2 *codec2_3200;
   struct CODEC2 *codec2_1600;
   #endif
+
+  //ECDSA
+  ECDSA ecdsa;
 
 } M17;
 
@@ -608,6 +623,8 @@ void pack_bit_array_into_byte_array (uint8_t * input, uint8_t * output, int len)
 void pack_bit_array_into_byte_array_asym (uint8_t * input, uint8_t * output, int len);
 void unpack_byte_array_into_bit_array (uint8_t * input, uint8_t * output, int len);
 void convert_dibit_array_into_binary_array (uint8_t * input, uint8_t * output, int len);
+void left_shift_byte_array (uint8_t * input, uint8_t * output, int len);
+void right_shift_byte_array (uint8_t * input, uint8_t * output, int len);
 uint16_t convert_string_into_array (char * input, uint8_t * output);
 
 //M17 Frame Encoders
@@ -648,6 +665,10 @@ uint32_t scrambler_seed_calculation(int8_t subtype, uint32_t key, int fn);
 uint32_t scrambler_sequence_generator (Super * super, int de);
 void aes_ctr_str_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int type);
 void aes_key_loader (Super * super);
+
+//ECDSA
+void ecdsa_key_loader (Super * super);
+void ecdsa_signature_calculation (Super * super, uint8_t * input, uint8_t * output);
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus

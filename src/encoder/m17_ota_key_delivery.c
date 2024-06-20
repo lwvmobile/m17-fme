@@ -452,7 +452,7 @@ void encode_ota_key_delivery_emb(Super * super, uint8_t * m17_lsf, uint8_t * lsf
       m17_lsf[i] = 0;
 
     //only manipulate the reserved bits in this portion, ignore the rest
-    uint16_t lsf_rs = 0x11; //reserved bits (0x11 signals embedded LSF for OTAKD)
+    uint16_t lsf_rs = 0x12; //reserved bits (0x12 signals embedded LSF for OTAKD)
     uint16_t lsf_fi = 0;
     lsf_fi = (lsf_rs << 11);
     for (i = 0; i < 5; i++)

@@ -257,6 +257,16 @@ void init_super (Super * super)
   super->m17d.codec2_3200 = codec2_create(CODEC2_MODE_3200);
   super->m17d.codec2_1600 = codec2_create(CODEC2_MODE_1600);
   #endif
+
+  //ECDSA
+  memset (super->m17d.ecdsa.public_key, 0, 32*sizeof(uint8_t));
+  memset (super->m17d.ecdsa.private_key, 0, 32*sizeof(uint8_t));
+  memset (super->m17d.ecdsa.curr_stream_pyl, 0, 16*sizeof(uint8_t));
+  memset (super->m17d.ecdsa.last_stream_pyl, 0, 16*sizeof(uint8_t));
+  memset (super->m17d.ecdsa.signature, 0, 16*sizeof(uint8_t));
+  memset (super->m17d.ecdsa.secp256r1, 0, 512*sizeof(uint8_t));
+  super->m17d.ecdsa.keys_loaded = 0;
+
   //end init m17d (Decoder)
 
   //init m17e (Encoder)
@@ -306,6 +316,16 @@ void init_super (Super * super)
   super->m17e.codec2_3200 = codec2_create(CODEC2_MODE_3200);
   super->m17e.codec2_1600 = codec2_create(CODEC2_MODE_1600);
   #endif
+
+  //ECDSA
+  memset (super->m17e.ecdsa.public_key, 0, 32*sizeof(uint8_t));
+  memset (super->m17e.ecdsa.private_key, 0, 32*sizeof(uint8_t));
+  memset (super->m17e.ecdsa.curr_stream_pyl, 0, 16*sizeof(uint8_t));
+  memset (super->m17e.ecdsa.last_stream_pyl, 0, 16*sizeof(uint8_t));
+  memset (super->m17e.ecdsa.signature, 0, 16*sizeof(uint8_t));
+  memset (super->m17d.ecdsa.secp256r1, 0, 512*sizeof(uint8_t));
+  super->m17e.ecdsa.keys_loaded = 0;
+
   //end init m17e (Encoder)
 
   //init_wav_state
