@@ -54,10 +54,14 @@ void decode_lsf_contents(Super * super)
   { 
     if (lsf_rs == 0x10)
       fprintf (stderr, " OTAKD Data Packet;");
-    else if (lsf_rs == 0x11)
+    else if (lsf_rs == 0x12)
     {
       fprintf (stderr, " OTAKD Embedded LSF;\n");
       goto LSF_END;
+    }
+    else if (lsf_rs & 0x1)
+    {
+      fprintf (stderr, " ECDSA;");
     }
     else
      fprintf (stderr, " RES: %02X;", lsf_rs);
@@ -137,7 +141,7 @@ void decode_lsf_contents(Super * super)
     setup_percall_filename(super);
 
   LSF_END:
-  if (lsf_rs == 0x11)
+  if (lsf_rs == 0x12)
   {
     uint8_t otakd[16];
     pack_bit_array_into_byte_array(super->m17d.lsf+112, otakd, 16);
