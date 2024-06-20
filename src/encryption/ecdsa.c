@@ -28,15 +28,80 @@ If the stream is signed, the last 4 frames should have frame numbers equal to 0x
 The contents of the last 4 frames is the signature. It is calculated with the stream digest and user's private key over secp256r1 curve - 512-bit long vector.
 */
 
-//input is byte array from rolling xor and left shift calculations,
-//output is bit array for last stream frame payload
-void ecdsa_signature_calculation (Super * super, uint8_t * input, uint8_t * output)
+void ecdsa_curve_init(Super * super)
 {
+  #ifdef USE_UECC
+  super->m17d.ecdsa.curve = uECC_secp256r1();
+  super->m17e.ecdsa.curve = uECC_secp256r1();
+  #else
   UNUSED(super);
-  UNUSED(input); UNUSED(output);
+  #endif
+}
 
-  //do calculation
+//decoder side
+void ecdsa_signature_verification (Super * super)
+{
 
-  //unpack back to bits
-  unpack_byte_array_into_bit_array(input, output, 16);
+  #ifdef USE_UECC
+
+  //pointers
+  uint8_t * pub_key;
+  uint8_t * digest;
+  uint8_t * sig;
+  uECC_Curve curve;
+
+  //set pointers to correct items
+  pub_key = super->m17d.ecdsa.public_key;
+  digest  = super->m17d.ecdsa.last_stream_pyl;
+  sig     = super->m17d.ecdsa.signature;
+  curve   = super->m17d.ecdsa.curve;
+
+  //run verification
+  int valid = 0;
+  valid = uECC_verify(pub_key, digest, 16*sizeof(uint8_t), sig, curve);
+
+  if (valid) fprintf (stderr, " Signature Valid;");
+  else fprintf (stderr, " Signature Invalid;");
+
+  #else
+  UNUSED(super);
+  #endif
+}
+
+//encoder side
+void ecdsa_signature_signing (Super * super)
+{
+
+  #ifdef USE_UECC
+
+  //pointers
+  uint8_t * priv_key;
+  uint8_t * digest;
+  uint8_t * sig;
+  uECC_Curve curve;
+
+  //set pointers to correct items
+  priv_key = super->m17e.ecdsa.public_key;
+  digest   = super->m17e.ecdsa.last_stream_pyl;
+  sig      = super->m17e.ecdsa.signature;
+  curve    = super->m17e.ecdsa.curve;
+
+  //run signing
+  int valid = 0;
+  valid = uECC_sign(priv_key, digest, 16*sizeof(uint8_t), sig, curve);
+
+  if (valid) fprintf (stderr, " Signature Success; \n");
+  else fprintf (stderr, " Signature Failure; \n");
+
+  fprintf (stderr, " Signature:");
+  for (int i = 0; i < 64; i++)
+  {
+    if ( (i != 0) && ((i%16) == 0) )
+      fprintf (stderr, "\n           ");
+    fprintf (stderr, " %02X", sig[i]);
+  }
+
+  #else
+  UNUSED(super);
+  #endif
 }

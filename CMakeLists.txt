@@ -57,6 +57,17 @@ FILE(GLOB HEADERS include/*.h include/*.hpp)
 configure_file("src/git_ver.c.in" "${CMAKE_CURRENT_BINARY_DIR}/git_ver.c" @ONLY)
 list(APPEND SRCS "${CMAKE_CURRENT_BINARY_DIR}/git_ver.c")
 
+# Look and see if micro-ecc is available, if so, then the append to SRCS and HEADERS
+find_file(UECC NAMES uECC.h PATHS src/micro-ecc/)
+if ( EXISTS ${UECC} )
+    list(APPEND SRCS "src/micro-ecc/uECC.c")
+    list(APPEND HEADERS "src/micro-ecc/uECC.h") #needed?
+    add_definitions(-DUSE_UECC)
+    message ("-- micro-ecc found")
+else()
+    message ("-- micro-ecc not found")
+endif()
+
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
 ADD_EXECUTABLE(m17-fme ${SRCS} ${HEADERS})

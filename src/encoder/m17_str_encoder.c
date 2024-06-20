@@ -536,8 +536,8 @@ void encode_str(Super * super)
       m17_v1[i+1] = ( (uint8_t)(fsn >> (14-i)) ) &1;
 
     //ECDSA
-    if (eot && super->m17e.ecdsa.keys_loaded) //if EOT, then replace last stream payload with signature bits
-      ecdsa_signature_calculation(super, super->m17e.ecdsa.last_stream_pyl, m17_v1+16);
+    if (eot && super->m17e.ecdsa.keys_loaded) //if EOT, then calculate signature (Placement? and WIP)
+      ecdsa_signature_signing(super);
 
     //Use the convolutional encoder to encode the voice / data stream
     simple_conv_encoder (m17_v1, m17_v1c, 148);

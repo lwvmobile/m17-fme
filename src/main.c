@@ -179,9 +179,10 @@ int main (int argc, char **argv)
   Super super;
   init_super(&super);
 
-  //initialize convolutional decoder and golay
+  //initialize convolutional decoder, golay, ecdsa, etc
   convolution_init();
   golay_24_12_init();
+  ecdsa_curve_init(&super);
 
   //set the exitflag to 0
   exitflag = 0;

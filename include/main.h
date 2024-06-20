@@ -63,6 +63,10 @@
 #include <ncurses.h>
 #endif
 
+#ifdef USE_UECC
+#include "../src/micro-ecc/uECC.h"
+#endif
+
 //signal handling exitflag
 extern volatile uint8_t exitflag;
 
@@ -251,8 +255,10 @@ typedef struct
   uint8_t curr_stream_pyl[16];
   uint8_t last_stream_pyl[16];
   uint8_t signature[64];
-  uint8_t secp256r1[512];
   uint8_t keys_loaded;
+  #ifdef USE_UECC
+  const struct uECC_Curve_t * curve;
+  #endif
 } ECDSA;
 
 //M17 Encoder and Decoder Struct
@@ -668,7 +674,9 @@ void aes_key_loader (Super * super);
 
 //ECDSA
 void ecdsa_key_loader (Super * super);
-void ecdsa_signature_calculation (Super * super, uint8_t * input, uint8_t * output);
+void ecdsa_curve_init(Super * super);
+void ecdsa_signature_verification (Super * super);
+void ecdsa_signature_signing (Super * super);
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus
