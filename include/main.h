@@ -250,7 +250,7 @@ typedef struct
   uint8_t private_key[32];
   uint8_t curr_stream_pyl[16];
   uint8_t last_stream_pyl[16];
-  uint8_t signature[16];
+  uint8_t signature[64];
   uint8_t secp256r1[512];
   uint8_t keys_loaded;
 } ECDSA;

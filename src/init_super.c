@@ -263,7 +263,7 @@ void init_super (Super * super)
   memset (super->m17d.ecdsa.private_key, 0, 32*sizeof(uint8_t));
   memset (super->m17d.ecdsa.curr_stream_pyl, 0, 16*sizeof(uint8_t));
   memset (super->m17d.ecdsa.last_stream_pyl, 0, 16*sizeof(uint8_t));
-  memset (super->m17d.ecdsa.signature, 0, 16*sizeof(uint8_t));
+  memset (super->m17d.ecdsa.signature, 0, 32*sizeof(uint8_t));
   memset (super->m17d.ecdsa.secp256r1, 0, 512*sizeof(uint8_t));
   super->m17d.ecdsa.keys_loaded = 0;
 
@@ -322,7 +322,7 @@ void init_super (Super * super)
   memset (super->m17e.ecdsa.private_key, 0, 32*sizeof(uint8_t));
   memset (super->m17e.ecdsa.curr_stream_pyl, 0, 16*sizeof(uint8_t));
   memset (super->m17e.ecdsa.last_stream_pyl, 0, 16*sizeof(uint8_t));
-  memset (super->m17e.ecdsa.signature, 0, 16*sizeof(uint8_t));
+  memset (super->m17e.ecdsa.signature, 0, 32*sizeof(uint8_t));
   memset (super->m17d.ecdsa.secp256r1, 0, 512*sizeof(uint8_t));
   super->m17e.ecdsa.keys_loaded = 0;
 
