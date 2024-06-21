@@ -475,6 +475,11 @@ void no_carrier_sync (Super * super)
   // sprintf (super->m17d.dat, "%s", "");
   // sprintf (super->m17d.arb, "%s", "");
 
+  //ECDSA
+  memset (super->m17d.ecdsa.curr_stream_pyl, 0, 16*sizeof(uint8_t));
+  memset (super->m17d.ecdsa.last_stream_pyl, 0, 16*sizeof(uint8_t));
+  memset (super->m17d.ecdsa.signature, 0, 64*sizeof(uint8_t));
+
 }
 
 void buffer_refresh_min_max_center (Super * super)

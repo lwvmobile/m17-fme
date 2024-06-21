@@ -478,8 +478,9 @@ void encode_str(Super * super)
     The contents of the last 4 frames is the signature. It is calculated with the stream digest and user's private key over secp256r1 curve - 512-bit long vector.
     */
 
+
     uint8_t ecdsa_bytes[16]; memcpy(ecdsa_bytes, super->m17e.ecdsa.last_stream_pyl, 16*sizeof(uint8_t));
-    pack_bit_array_into_byte_array (m17_v1, super->m17e.ecdsa.curr_stream_pyl, 16);
+    pack_bit_array_into_byte_array (m17_v1+16, super->m17e.ecdsa.curr_stream_pyl, 16); //fix, needed +16 (starting position of voice)
     for (i = 0; i < 16; i++)
       ecdsa_bytes[i] ^= super->m17e.ecdsa.curr_stream_pyl[i];
     left_shift_byte_array(ecdsa_bytes, super->m17e.ecdsa.last_stream_pyl, 16);
@@ -740,7 +741,7 @@ void encode_str(Super * super)
 
       //increment frame sequency number, trunc to maximum value, roll nonce if needed
       fsn++;
-      if (fsn > 0x7FFF)
+      if (fsn > 0x7FFB) //changed from 0x7FFF to 0x7FFB to account for ECDSA frame numbers
       {
         fsn = 0;
         nonce[13]++;
@@ -967,7 +968,7 @@ void encode_str(Super * super)
       //flush the last 4 frames with attached ECDSA Signatures
       else if (eot && !eot_out && super->m17e.ecdsa.keys_loaded)
       {
-        
+
         encode_str_ecdsa(super, lich_cnt, mem, use_ip, udpport, can, st, sid, src, dst);
 
         memset (nil, 0, sizeof(nil));

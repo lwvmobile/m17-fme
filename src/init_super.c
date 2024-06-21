@@ -11,12 +11,6 @@
 //initialize configuration options
 void init_super (Super * super)
 {
-  //init_config_opts
-  super->opts.a = 0;
-  sprintf (super->opts.b, "%s", "initialize");
-  super->opts.c[0] = 0;
-  memset (super->opts.d, 0, sizeof(super->opts.d));
-
   //Ncurses Options
   super->opts.use_ncurses_terminal = 0;
   super->opts.ncurses_is_open = 0;
@@ -324,10 +318,13 @@ void init_super (Super * super)
   memset (super->m17e.ecdsa.signature, 0, 64*sizeof(uint8_t));
   super->m17e.ecdsa.keys_loaded = 0;
 
-  //debug ECDSA Signature Signing
+  //debug ECDSA Signature Signing (TODO: Testing with real valid keys)
   super->m17e.ecdsa.keys_loaded = 1;
   for (int i = 0; i < 32; i++)
     super->m17e.ecdsa.private_key[i] = 0x77;
+
+  for (int i = 0; i < 32; i++)
+    super->m17d.ecdsa.public_key[i] = 0x77;
 
   //end init m17e (Encoder)
 

@@ -73,11 +73,6 @@ extern volatile uint8_t exitflag;
 //General Options
 typedef struct
 {
-  //quick examples
-  uint8_t a;
-  char b[1024];
-  char c[1024];
-  uint8_t d[100];
 
   //Ncurses Options
   uint8_t use_ncurses_terminal;

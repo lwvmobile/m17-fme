@@ -67,7 +67,7 @@ void ecdsa_signature_signing (Super * super)
   uECC_Curve curve;
 
   //set pointers to correct items
-  priv_key = super->m17e.ecdsa.public_key;
+  priv_key = super->m17e.ecdsa.private_key;
   digest   = super->m17e.ecdsa.last_stream_pyl;
   sig      = super->m17e.ecdsa.signature;
   curve    = super->m17e.ecdsa.curve;

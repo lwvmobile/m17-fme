@@ -16,6 +16,9 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   unsigned char voice1[8];
   unsigned char voice2[8];
 
+  if (super->enc.scrambler_fn_d >= 0x7FFC)
+    goto SKIP_CRYPT;
+
   //apply keystream pN sequence here if scrambler enc and key is available
   //note: bit_counter is now seperate for encoding and decoding (internal loopback fix)
   if (super->m17d.enc_et == 1 && super->enc.scrambler_key != 0)
@@ -49,6 +52,58 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   {
     voice1[i] = (unsigned char)convert_bits_into_output(&payload[i*8+0], 8);
     voice2[i] = (unsigned char)convert_bits_into_output(&payload[i*8+64], 8);
+  }
+
+  SKIP_CRYPT:
+
+  //ECDSA pack and track
+  if (super->enc.scrambler_fn_d < 0x7FFC)
+  {
+    uint8_t ecdsa_bytes[16]; memcpy(ecdsa_bytes, super->m17d.ecdsa.last_stream_pyl, 16*sizeof(uint8_t));
+    pack_bit_array_into_byte_array (payload, super->m17d.ecdsa.curr_stream_pyl, 16);
+    for (i = 0; i < 16; i++)
+      ecdsa_bytes[i] ^= super->m17d.ecdsa.curr_stream_pyl[i];
+    left_shift_byte_array(ecdsa_bytes, super->m17d.ecdsa.last_stream_pyl, 16);
+  }
+  else
+  {
+    pack_bit_array_into_byte_array (payload, super->m17d.ecdsa.curr_stream_pyl, 16);
+  }
+  
+  //ECDSA Signature Verification
+  if (super->enc.scrambler_fn_d >= 0x7FFC) //cheating and reusing the scrambler fn value here
+  {
+
+    uint8_t ptr = super->enc.scrambler_fn_d-0x7FFC;
+    //ptr sanity
+    if (ptr > 3) ptr = 3;
+    memcpy(super->m17d.ecdsa.signature+(ptr*16),  super->m17d.ecdsa.curr_stream_pyl, 16);
+
+    //print payload
+    if (super->opts.payload_verbosity >= 1)
+    {
+      fprintf (stderr, "\n SIG %02d: ", ptr+1);
+      for (i = 0; i < 16; i++)
+        fprintf (stderr, "%02X", super->m17d.ecdsa.curr_stream_pyl[i]);
+    }
+    
+    if (super->enc.scrambler_fn_d == 0x7FFF)
+    {
+      // if (super->opts.payload_verbosity >= 1)
+      {
+        fprintf (stderr, "\n SIG XX: ");
+        for (i = 0; i < 64; i++)
+        {
+          if (i == 16 || i == 32 || i == 48)
+            fprintf (stderr, "\n         ");
+          fprintf (stderr, "%02X", super->m17d.ecdsa.signature[i]);
+        }
+      }
+      ecdsa_signature_verification(super);
+        
+    }
+
+    goto END_PAYLOAD;
   }
 
   if (super->opts.payload_verbosity >= 1)

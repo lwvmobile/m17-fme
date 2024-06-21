@@ -194,7 +194,7 @@ void encode_str_ecdsa(Super * super, uint8_t lich_cnt, float * mem, int use_ip, 
     else fprintf (stderr, " To Audio Out: %s", super->pa.pa_outrf_idx);
 
     //show UDP if active
-    // if (use_ip == 1 && lich_cnt != 5)
+    if (use_ip == 1 && lich_cnt != 5 && fsn != 0x7FFF)
       fprintf (stderr, " UDP: %s:%d", super->opts.m17_hostname, udpport);
 
     fprintf (stderr, " ECDSA;");
