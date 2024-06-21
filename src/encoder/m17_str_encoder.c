@@ -172,6 +172,9 @@ void encode_str(Super * super)
   uint16_t lsf_cn = can;                    //can value
   uint16_t lsf_rs = 0;                      //reserved bits
 
+  if (super->m17e.ecdsa.keys_loaded)
+    lsf_rs = lsf_rs | 1; //OR 1 onto LSB for ECDSA
+
   if (lsf_et == 1)
   {
     scrambler_key_init (super, 1);
@@ -529,15 +532,14 @@ void encode_str(Super * super)
     //set end of tx bit on the exitflag (sig, results not gauranteed) or toggle eot flag (always triggers)
     if (exitflag) eot = 1; //TODO: Change this to end? and then if no ecdsa, then allow it set to 1?
     if (super->m17e.str_encoder_eot) eot = 1;
-    m17_v1[0] = (uint8_t)eot; //set as first bit of the stream
+
+    if (!super->m17e.ecdsa.keys_loaded)
+      m17_v1[0] = (uint8_t)eot; //set as first bit of the stream
+    else m17_v1[0] = 0;
 
     //set current frame number as bits 1-15 of the v1 stream
     for (i = 0; i < 15; i++)
       m17_v1[i+1] = ( (uint8_t)(fsn >> (14-i)) ) &1;
-
-    //ECDSA
-    if (eot && super->m17e.ecdsa.keys_loaded) //if EOT, then calculate signature (Placement? and WIP)
-      ecdsa_signature_signing(super);
 
     //Use the convolutional encoder to encode the voice / data stream
     simple_conv_encoder (m17_v1, m17_v1c, 148);
@@ -809,10 +811,13 @@ void encode_str(Super * super)
       for (i = 52; i < 54; i++)
         m17_ip_packed[i] = (uint8_t)convert_bits_into_output(&m17_ip_frame[i*8], 8);
 
-      //reset 
-      lich_cnt = 0;
+      //reset
+      if (!super->m17e.ecdsa.keys_loaded)
+      {
+        lich_cnt = 0;
+        super->demod.in_sync = 0;
+      }
       fsn = 0;
-      super->demod.in_sync = 0;
       lsf_count = 0;
 
       //update timestamp
@@ -913,8 +918,8 @@ void encode_str(Super * super)
       for (i = 0; i < 368; i++)
         m17_lsfs[i] = (m17_lsfi[i] ^ m17_scramble[i]) & 1;
 
-      //flush the last frame with the eot bit on
-      if (eot && !eot_out)
+      //flush the last frame with the eot bit on, if not using ECDSA
+      if (eot && !eot_out && !super->m17e.ecdsa.keys_loaded)
       {
         fprintf (stderr, "\n M17 Stream (ENCODER): ");
         if (super->opts.internal_loopback_decoder == 1)
@@ -957,6 +962,33 @@ void encode_str(Super * super)
         eot = 0;
         eot_out = 1;
         super->m17e.str_encoder_eot = 0;
+      }
+
+      //flush the last 4 frames with attached ECDSA Signatures
+      else if (eot && !eot_out && super->m17e.ecdsa.keys_loaded)
+      {
+        
+        encode_str_ecdsa(super, lich_cnt, mem, use_ip, udpport, can, st, sid, src, dst);
+
+        memset (nil, 0, sizeof(nil));
+        encode_rfa (super, nil, mem, 55);    //EOT Marker
+
+        //send dead air with type 99
+        memset (nil, 0, sizeof(nil));
+        for (i = 0; i < 25; i++)
+          encode_rfa (super, nil, mem, 99);
+
+        //SEND EOTX to reflector
+        if (use_ip == 1)
+          udp_return = m17_socket_blaster (super, 10, eotx);
+
+        //reset indicators
+        eot = 0;
+        eot_out = 1;
+        super->m17e.str_encoder_eot = 0;
+        lich_cnt = 0;
+        super->demod.in_sync = 0;
+
       }
 
       //flag on when restarting the encoder
