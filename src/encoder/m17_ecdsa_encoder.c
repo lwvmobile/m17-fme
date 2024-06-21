@@ -62,7 +62,8 @@ void encode_str_ecdsa(Super * super, uint8_t lich_cnt, float * mem, int use_ip, 
   uint16_t lsf_cn = can;                    //can value
   uint16_t lsf_rs = 0;                      //reserved bits
 
-  lsf_rs = lsf_rs | 1; //OR 1 onto LSB for ECDSA
+  if (super->m17e.ecdsa.keys_loaded)
+    lsf_rs = lsf_rs | (uint8_t)0x10; //OR 0x10 for ECDSA
 
   //compose the 16-bit frame information from the above sub elements
   uint16_t lsf_fi = 0;
@@ -261,5 +262,10 @@ void encode_str_ecdsa(Super * super, uint8_t lich_cnt, float * mem, int use_ip, 
     fsn++;
 
   }
+
+  //reset ECSDA payloads
+  memset (super->m17e.ecdsa.curr_stream_pyl, 0, 16*sizeof(uint8_t));
+  memset (super->m17e.ecdsa.last_stream_pyl, 0, 16*sizeof(uint8_t));
+  memset (super->m17e.ecdsa.signature, 0, 64*sizeof(uint8_t));
 
 }

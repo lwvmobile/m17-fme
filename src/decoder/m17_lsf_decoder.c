@@ -48,26 +48,23 @@ void decode_lsf_contents(Super * super)
     fprintf (stderr, " FT: %04X;", lsf_type);
     fprintf (stderr, " ET: %0X;", lsf_et);
     fprintf (stderr, " ES: %0X;", lsf_es);
+    fprintf (stderr, " RES: %02X;", lsf_rs);
   }
 
   if (lsf_rs != 0)
   { 
-    if (lsf_rs == 0x10)
+
+    if ( (lsf_rs >> 4) == 1)
+      fprintf (stderr, " ECDSA;");
+
+    if (lsf_rs == 0x04) //will never be signalled with ECDSA (data packet)
       fprintf (stderr, " OTAKD Data Packet;");
-    else if (lsf_rs == 0x12 || lsf_rs == 0x13) //TODO: Clean this up later so we look at the LSB seperate from the rest
+
+    if ( (lsf_rs & 0xF) == 0x06)
     {
-      if (lsf_rs & 1)
-        fprintf (stderr, " ECDSA;");
       fprintf (stderr, " OTAKD Embedded LSF;\n");
-      fprintf (stderr, " RES: %02X;", lsf_rs); //debug
       goto LSF_END;
     }
-    else if (lsf_rs & 0x1)
-    {
-      fprintf (stderr, " ECDSA;");
-    }
-    else
-     fprintf (stderr, " RES: %02X;", lsf_rs);
   }
 
   if (lsf_et != 0) fprintf (stderr, "\n ENC:");
@@ -144,7 +141,7 @@ void decode_lsf_contents(Super * super)
     setup_percall_filename(super);
 
   LSF_END:
-  if (lsf_rs == 0x12 || lsf_rs == 0x13) //TODO: Clean this up later so we look at the LSB seperate from the rest
+  if ( (lsf_rs & 0xF) == 0x06)
   {
     uint8_t otakd[16];
     pack_bit_array_into_byte_array(super->m17d.lsf+112, otakd, 16);

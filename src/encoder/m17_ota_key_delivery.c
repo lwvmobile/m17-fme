@@ -76,7 +76,7 @@ void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
   uint16_t lsf_et    = 0; //encryption type
   uint16_t lsf_es    = 0; //encryption sub-type
   uint16_t lsf_cn  = can; //can value
-  uint16_t lsf_rs = 0x10; //reserved 0x10 is LSF for the PKT, not embedded LSF
+  uint16_t lsf_rs = 0x04; //reserved 0x04 is LSF for the PKT, not embedded LSF
 
   //compose the 16-bit frame information from the above sub elements
   uint16_t lsf_fi = 0;
@@ -452,9 +452,9 @@ void encode_ota_key_delivery_emb(Super * super, uint8_t * m17_lsf, uint8_t * lsf
       m17_lsf[i] = 0;
 
     //only manipulate the reserved bits in this portion, ignore the rest
-    uint16_t lsf_rs = 0x12; //reserved bits (0x12 signals embedded LSF for OTAKD)
+    uint16_t lsf_rs = 0x06; //reserved bits (0x06 signals embedded LSF for OTAKD)
     if (super->m17e.ecdsa.keys_loaded)
-      lsf_rs = lsf_rs | 1; //OR 1 onto LSB for ECDSA
+      lsf_rs = lsf_rs | (uint8_t)0x10; //OR 0x10 for ECDSA
     uint16_t lsf_fi = 0;
     lsf_fi = (lsf_rs << 11);
     for (i = 0; i < 5; i++)

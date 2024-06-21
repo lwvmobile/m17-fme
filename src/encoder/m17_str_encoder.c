@@ -173,7 +173,7 @@ void encode_str(Super * super)
   uint16_t lsf_rs = 0;                      //reserved bits
 
   if (super->m17e.ecdsa.keys_loaded)
-    lsf_rs = lsf_rs | 1; //OR 1 onto LSB for ECDSA
+    lsf_rs = lsf_rs | (uint8_t)0x10; //OR 0x10 for ECDSA
 
   if (lsf_et == 1)
   {
@@ -990,6 +990,11 @@ void encode_str(Super * super)
         super->demod.in_sync = 0;
 
       }
+
+      //reset ECSDA payloads until tx restart
+      memset (super->m17e.ecdsa.curr_stream_pyl, 0, 16*sizeof(uint8_t));
+      memset (super->m17e.ecdsa.last_stream_pyl, 0, 16*sizeof(uint8_t));
+      memset (super->m17e.ecdsa.signature, 0, 64*sizeof(uint8_t));
 
       //flag on when restarting the encoder
       new_lsf = 1;
