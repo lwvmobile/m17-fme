@@ -63,7 +63,7 @@ void encode_str_ecdsa(Super * super, uint8_t lich_cnt, float * mem, int use_ip, 
   uint16_t lsf_rs = 0;                      //reserved bits
 
   if (super->m17e.ecdsa.keys_loaded)
-    lsf_rs = lsf_rs | (uint8_t)0x10; //OR 0x10 for ECDSA
+    lsf_rs = lsf_rs | (uint8_t)0x1; //OR 0x01 for ECDSA
 
   //compose the 16-bit frame information from the above sub elements
   uint16_t lsf_fi = 0;

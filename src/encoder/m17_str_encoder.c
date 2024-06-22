@@ -173,7 +173,7 @@ void encode_str(Super * super)
   uint16_t lsf_rs = 0;                      //reserved bits
 
   if (super->m17e.ecdsa.keys_loaded)
-    lsf_rs = lsf_rs | (uint8_t)0x10; //OR 0x10 for ECDSA
+    lsf_rs = lsf_rs | (uint8_t)0x1; //OR 0x01 for ECDSA
 
   if (lsf_et == 1)
   {

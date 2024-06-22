@@ -54,13 +54,13 @@ void decode_lsf_contents(Super * super)
   if (lsf_rs != 0)
   { 
 
-    if ( (lsf_rs >> 4) == 1)
+    if (lsf_rs & 1)
       fprintf (stderr, " ECDSA;");
 
     if (lsf_rs == 0x04) //will never be signalled with ECDSA (data packet)
       fprintf (stderr, " OTAKD Data Packet;");
 
-    if ( (lsf_rs & 0xF) == 0x06)
+    if ( (lsf_rs & 0x7) == 0x06)
     {
       fprintf (stderr, " OTAKD Embedded LSF;\n");
       goto LSF_END;

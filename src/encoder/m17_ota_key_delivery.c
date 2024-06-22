@@ -454,7 +454,7 @@ void encode_ota_key_delivery_emb(Super * super, uint8_t * m17_lsf, uint8_t * lsf
     //only manipulate the reserved bits in this portion, ignore the rest
     uint16_t lsf_rs = 0x06; //reserved bits (0x06 signals embedded LSF for OTAKD)
     if (super->m17e.ecdsa.keys_loaded)
-      lsf_rs = lsf_rs | (uint8_t)0x10; //OR 0x10 for ECDSA
+      lsf_rs = lsf_rs | (uint8_t)0x1; //OR 0x01 for ECDSA
     uint16_t lsf_fi = 0;
     lsf_fi = (lsf_rs << 11);
     for (i = 0; i < 5; i++)
