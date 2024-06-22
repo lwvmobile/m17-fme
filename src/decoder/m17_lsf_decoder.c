@@ -57,10 +57,10 @@ void decode_lsf_contents(Super * super)
     if (lsf_rs & 1)
       fprintf (stderr, " ECDSA;");
 
-    if (lsf_rs == 0x04) //will never be signalled with ECDSA (data packet)
+    if ( (lsf_rs & 0x1E) == 0x04) //Currently no ECDSA n  data packets (don't give Woj any ideas)
       fprintf (stderr, " OTAKD Data Packet;");
 
-    if ( (lsf_rs & 0x7) == 0x06)
+    if ( (lsf_rs & 0x1E) == 0x06)
     {
       fprintf (stderr, " OTAKD Embedded LSF;\n");
       goto LSF_END;
@@ -141,7 +141,7 @@ void decode_lsf_contents(Super * super)
     setup_percall_filename(super);
 
   LSF_END:
-  if ( (lsf_rs & 0xF) == 0x06)
+  if ( (lsf_rs & 0x1E) == 0x06)
   {
     uint8_t otakd[16];
     pack_bit_array_into_byte_array(super->m17d.lsf+112, otakd, 16);
