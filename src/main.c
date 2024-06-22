@@ -94,6 +94,7 @@ void usage ()
   printf ("  -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder\n");
   printf ("  -s <dec>      Input Squelch v RMS Level (Vox) on Stream Voice Encoder\n");
   printf ("  -x            Modulate Inverted Polarity on RF Output\n");
+  printf ("  -K <file>     Load secp256r1 Private Key from file. (see example key: key/sig_pri_key.txt)\n");
   printf ("\n");
   printf ("Encoder Input Strings:\n");
   printf ("\n");
@@ -122,6 +123,7 @@ void usage ()
   printf ("  -l            Enable Event Log File: date_time_m17fme_eventlog.txt\n");
   printf ("  -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 \n");
   printf ("  -p            Per Call decoded voice wav file saving into current directory ./m17wav folder\n");
+  printf ("  -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)\n");
   printf ("\n");
   printf ("Encryption Options:\n");
   printf ("\n");
@@ -133,11 +135,13 @@ void usage ()
   printf ("                (example: -E '0520C1B0220AFBCA 16FB1330764B26EC')\n");
   printf ("                (NOTE: Due to bug in m17-tools handling of AES keys, all keys are run as AES-128)\n");
   printf ("                (Limiting significant key value to first 32 characters to maintain compatibility)\n");
+  printf ("  -J <file>     Load AES Key from file. (see example key: key/aes_key.txt)\n");
   printf ("\n");
   printf ("Debug Options:\n");
   printf ("\n");
   printf ("  -1            Generate Random One Time Use 24-bit Scrambler Key \n");
   printf ("  -2            Generate Random One Time Use 256-bit AES Key. \n");
+  printf ("  -3            Load Debug Keys For ECDSA Signatures. Enable Signature Encoding and Decoding.\n");
   printf ("  -4            Permit Data Decoding on CRC Failure (not recommended). \n");
   printf ("  -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). \n");
   printf ("  -7            Disable Symbol Timing Correction. \n");
@@ -174,6 +178,7 @@ int main (int argc, char **argv)
   extern char *optarg;
   char * pEnd;
   char string[1024]; memset (string, 0, 1024*sizeof(char));
+  char * source_str;
 
   //Nested "Super" Struct to make it easy to pass around tons of smaller structs
   Super super;
@@ -223,7 +228,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1234567890ac:d:e:f:hi:lmno:prs:t:uv:w:xA:C:E:F:INLM:PR:S:TU:VW:XY:Z:")) != -1)
+  while ((c = getopt (argc, argv, "1234567890ac:d:e:f:hi:k:lmno:prs:t:uv:w:xA:C:E:F:IJ:K:LM:NPR:S:TU:VW:XY:Z:")) != -1)
   {
 
     i++;
@@ -252,6 +257,11 @@ int main (int argc, char **argv)
         super.enc.enc_type = 2;
         aes_key_loader(&super);
         fprintf (stderr, "\n");
+        break;
+
+      case '3':
+        ecdsa_signature_debug_keys(&super);
+        // ecdsa_signature_debug_test();
         break;
 
       //Allow CRC Failure to still be decoded
@@ -346,6 +356,33 @@ int main (int argc, char **argv)
       case 'i':
         strncpy(super.opts.input_handler_string, optarg, 2047);
         super.opts.input_handler_string[2047] = '\0';
+        break;
+
+      //Specify ECDSA Public Key File (Decoder)
+      case 'k':
+        strncpy(super.opts.pub_key_file, optarg, 1023);
+        super.opts.pub_key_file[1023] = '\0';
+        fprintf (stderr, "ECDSA Public Key File: %s \n", super.opts.pub_key_file);
+        source_str = calloc(128, sizeof(char));
+        super.opts.pub_key = fopen(super.opts.pub_key_file, "r");
+        if (!super.opts.pub_key)
+            fprintf(stderr, "Failed to ECDSA Public Key file %s.\n", super.opts.pub_key_file);
+        else
+        {
+          fread(source_str, 1, 128, super.opts.pub_key);
+          fclose(super.opts.pub_key);
+        }
+        convert_string_into_array(source_str, super.m17d.ecdsa.public_key);
+        super.m17d.ecdsa.keys_loaded = 1;
+        fprintf (stderr, "Pub Key:");
+        for (int j = 0; j < 64; j++)
+        {
+          if (j == 16 || j == 32 || j == 48)
+            fprintf (stderr, "\n        ");
+          fprintf (stderr, " %02X", super.m17d.ecdsa.public_key[j]);
+        }
+        free(source_str);
+        source_str = NULL;
         break;
 
       //Enable Event Log 
@@ -462,6 +499,59 @@ int main (int argc, char **argv)
         fprintf (stderr, "M17 Project Encoder IP Frame Enabled. \n");
         break;
 
+      //Specify AES Key File
+      case 'J':
+        strncpy(super.opts.aes_key_file, optarg, 1023);
+        super.opts.aes_key_file[1023] = '\0';
+        fprintf (stderr, "AES Key File: %s \n", super.opts.aes_key_file);
+        source_str = calloc(128, sizeof(char));
+        super.opts.aes_key = fopen(super.opts.aes_key_file, "r");
+        if (!super.opts.aes_key)
+            fprintf(stderr, "Failed to load file %s.\n", super.opts.aes_key_file);
+        else
+        {
+          fread(source_str, 1, 64, super.opts.aes_key);
+          fclose(super.opts.aes_key);
+        }
+        convert_string_into_array(source_str, super.enc.aes_key);
+        super.enc.aes_key_is_loaded = 1;
+        fprintf (stderr, "AES Key:");
+        for (int j = 0; j < 32; j++)
+        {
+          if (j == 16) fprintf (stderr, "\n        ");
+          fprintf (stderr, " %02X", super.enc.aes_key[j]);
+        }
+        free(source_str);
+        source_str = NULL;
+        break;
+
+      //Specify ECDSA Private Key File (Encoder)
+      case 'K':
+        strncpy(super.opts.pri_key_file, optarg, 1023);
+        super.opts.pri_key_file[1023] = '\0';
+        fprintf (stderr, "ECDSA Private Key File: %s \n", super.opts.pri_key_file);
+        source_str = calloc(128, sizeof(char));
+        super.opts.pub_key = fopen(super.opts.pri_key_file, "r");
+        if (!super.opts.pub_key)
+            fprintf(stderr, "Failed to ECDSA Private Key file %s.\n", super.opts.pri_key_file);
+        else
+        {
+          fread(source_str, 1, 64, super.opts.pub_key);
+          fclose(super.opts.pub_key);
+        }
+        convert_string_into_array(source_str, super.m17e.ecdsa.private_key);
+        super.m17e.ecdsa.keys_loaded = 1;
+        fprintf (stderr, "Pri Key:");
+        for (int j = 0; j < 32; j++)
+        {
+          if (j == 16)
+            fprintf (stderr, "\n        ");
+          fprintf (stderr, " %02X", super.m17e.ecdsa.private_key[j]);
+        }
+        free(source_str);
+        source_str = NULL;
+        break;
+
       case 'L':
         super.opts.internal_loopback_decoder = 1;
         fprintf (stderr, "Internal Encoder Loopback to Decoder. \n");
@@ -538,8 +628,6 @@ int main (int argc, char **argv)
   //call signal handler so things like ctrl+c will allow us to gracefully close
   signal (SIGINT, handler);
   signal (SIGTERM, handler);
-
-  ecdsa_key_loader(&super); //test
 
   //set default starting state if no optargs parsed
   if (i == 0)

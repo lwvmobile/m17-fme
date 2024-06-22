@@ -205,6 +205,7 @@ Encoder Options:
   -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder
   -s <dec>      Input Squelch v RMS Level (Vox) on Stream Voice Encoder
   -x            Modulate Inverted Polarity on RF Output
+  -K <file>     Load secp256r1 Private Key from file. (see example key: key/sig_pri_key.txt)
 
 Encoder Input Strings:
 
@@ -233,6 +234,7 @@ Decoder Options:
   -l            Enable Event Log File: date_time_m17fme_eventlog.txt
   -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 
   -p            Per Call decoded voice wav file saving into current directory ./m17wav folder
+  -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)
 
 Encryption Options:
 
@@ -244,11 +246,13 @@ Encryption Options:
                 (example: -E '0520C1B0220AFBCA 16FB1330764B26EC')
                 (NOTE: Due to bug in m17-tools handling of AES keys, all keys are run as AES-128)
                 (Limiting significant key value to first 32 characters to maintain compatibility)
+  -J <file>     Load AES Key from file. (see example key: key/aes_key.txt)
 
 Debug Options:
 
   -1            Generate Random One Time Use 24-bit Scrambler Key 
   -2            Generate Random One Time Use 256-bit AES Key. 
+  -3            Load Debug Keys For ECDSA Signatures. Enable Signature Encoding and Decoding.
   -4            Permit Data Decoding on CRC Failure (not recommended). 
   -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). 
   -7            Disable Symbol Timing Correction. 

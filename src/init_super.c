@@ -100,6 +100,14 @@ void init_super (Super * super)
   super->opts.dibit_in = NULL;
   super->opts.dibit_out = NULL;
 
+  //Key Input Files
+  sprintf (super->opts.aes_key_file, "%s", "");
+  sprintf (super->opts.pri_key_file, "%s", "");
+  sprintf (super->opts.pub_key_file, "%s", "");
+  super->opts.aes_key = NULL;
+  super->opts.pri_key = NULL;
+  super->opts.pub_key = NULL;
+
   //Event Log
   super->opts.use_event_log = 0;
   sprintf (super->opts.event_log_file, "eventlog.txt");

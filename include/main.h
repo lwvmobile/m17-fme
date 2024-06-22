@@ -162,6 +162,14 @@ typedef struct
   FILE * dibit_in;
   FILE * dibit_out;
 
+  //Key Input Files
+  char aes_key_file[1024];
+  char pri_key_file[1024];
+  char pub_key_file[1024];
+  FILE * aes_key;
+  FILE * pri_key;
+  FILE * pub_key;
+
   //Event Log
   uint8_t use_event_log;
   char event_log_file[1024];
@@ -666,10 +674,10 @@ void aes_ctr_str_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, 
 void aes_key_loader (Super * super);
 
 //ECDSA
-void ecdsa_key_loader (Super * super);
 void ecdsa_signature_verification (Super * super);
 void ecdsa_signature_creation (Super * super);
-void ecdsa_sig_test();
+void ecdsa_signature_debug_keys (Super * super);
+void ecdsa_signature_debug_test();
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus
