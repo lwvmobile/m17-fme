@@ -16,6 +16,26 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   unsigned char voice1[8];
   unsigned char voice2[8];
 
+  //ECDSA pack and track (before decryption)
+  if (super->enc.scrambler_fn_d < 0x7FFC)
+  {
+    uint8_t ecdsa_bytes[16]; memcpy(ecdsa_bytes, super->m17d.ecdsa.last_stream_pyl, 16*sizeof(uint8_t));
+    pack_bit_array_into_byte_array (payload, super->m17d.ecdsa.curr_stream_pyl, 16);
+    for (i = 0; i < 16; i++)
+      ecdsa_bytes[i] ^= super->m17d.ecdsa.curr_stream_pyl[i];
+    left_shift_byte_array(ecdsa_bytes, super->m17d.ecdsa.last_stream_pyl, 16);
+
+    //debug
+    // fprintf (stderr, "\n IDG:");
+    // for (i = 0; i < 16; i++)
+    //   fprintf (stderr, "%02X", ecdsa_bytes[i]);
+  }
+  else
+  {
+    pack_bit_array_into_byte_array (payload, super->m17d.ecdsa.curr_stream_pyl, 16);
+  }
+
+  //if signature frames, then skip decryption
   if (super->enc.scrambler_fn_d >= 0x7FFC)
     goto SKIP_CRYPT;
 
@@ -55,25 +75,6 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   }
 
   SKIP_CRYPT:
-
-  //ECDSA pack and track
-  if (super->enc.scrambler_fn_d < 0x7FFC)
-  {
-    uint8_t ecdsa_bytes[16]; memcpy(ecdsa_bytes, super->m17d.ecdsa.last_stream_pyl, 16*sizeof(uint8_t));
-    pack_bit_array_into_byte_array (payload, super->m17d.ecdsa.curr_stream_pyl, 16);
-    for (i = 0; i < 16; i++)
-      ecdsa_bytes[i] ^= super->m17d.ecdsa.curr_stream_pyl[i];
-    left_shift_byte_array(ecdsa_bytes, super->m17d.ecdsa.last_stream_pyl, 16);
-
-    //debug
-    // fprintf (stderr, "\n IDG:");
-    // for (i = 0; i < 16; i++)
-    //   fprintf (stderr, "%02X", ecdsa_bytes[i]);
-  }
-  else
-  {
-    pack_bit_array_into_byte_array (payload, super->m17d.ecdsa.curr_stream_pyl, 16);
-  }
   
   //ECDSA Signature Verification
   if (super->enc.scrambler_fn_d >= 0x7FFC) //cheating and reusing the scrambler fn value here

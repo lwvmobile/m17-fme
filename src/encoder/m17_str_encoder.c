@@ -463,22 +463,6 @@ void encode_str(Super * super)
       m17_v1[i+16+64] = v2_bits[i];
     }
 
-    //ECDSA pack and track
-    if (super->m17e.str_encoder_tx == 1)
-    {
-      uint8_t ecdsa_bytes[16]; memcpy(ecdsa_bytes, super->m17e.ecdsa.last_stream_pyl, 16*sizeof(uint8_t));
-      pack_bit_array_into_byte_array (m17_v1+16, super->m17e.ecdsa.curr_stream_pyl, 16);
-      for (i = 0; i < 16; i++)
-        ecdsa_bytes[i] ^= super->m17e.ecdsa.curr_stream_pyl[i];
-      left_shift_byte_array(ecdsa_bytes, super->m17e.ecdsa.last_stream_pyl, 16);
-
-      //debug
-      // fprintf (stderr, "\n ODG:");
-      // for (i = 0; i < 16; i++)
-      //   fprintf (stderr, "%02X", ecdsa_bytes[i]);
-
-    }
-
     //Apply Encryption to Voice and/or Arbitrary Data if Key Available
 
     //Scrambler
@@ -498,6 +482,22 @@ void encode_str(Super * super)
     {
       v1_bits[i] = m17_v1[i+16];
       v2_bits[i] = m17_v1[i+16+64];
+    }
+
+    //ECDSA pack and track (after encryption)
+    if (super->m17e.str_encoder_tx == 1)
+    {
+      uint8_t ecdsa_bytes[16]; memcpy(ecdsa_bytes, super->m17e.ecdsa.last_stream_pyl, 16*sizeof(uint8_t));
+      pack_bit_array_into_byte_array (m17_v1+16, super->m17e.ecdsa.curr_stream_pyl, 16);
+      for (i = 0; i < 16; i++)
+        ecdsa_bytes[i] ^= super->m17e.ecdsa.curr_stream_pyl[i];
+      left_shift_byte_array(ecdsa_bytes, super->m17e.ecdsa.last_stream_pyl, 16);
+
+      //debug
+      // fprintf (stderr, "\n ODG:");
+      // for (i = 0; i < 16; i++)
+      //   fprintf (stderr, "%02X", ecdsa_bytes[i]);
+
     }
 
     //tally consecutive squelch hits based on RMS value, or reset
