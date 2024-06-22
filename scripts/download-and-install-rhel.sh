@@ -14,7 +14,7 @@ if [ "$ANSWER" = "y" ]; then
   sudo dnf update 
   sudo dnf install libsndfile-devel pulseaudio-libs-devel pulseaudio-utils cmake git ncurses ncurses-devel gcc wget pavucontrol gcc-c++ codec2-devel
 
-  git clone https://github.com/lwvmobile/m17-fme.git
+  git clone --recursive https://github.com/lwvmobile/m17-fme.git
   cd m17-fme
   mkdir build
   cd build

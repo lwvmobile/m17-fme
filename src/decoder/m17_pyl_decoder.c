@@ -104,9 +104,13 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
           fprintf (stderr, "%02X", super->m17d.ecdsa.signature[i]);
         }
       }
+      #ifdef USE_UECC
       if (super->m17d.ecdsa.keys_loaded == 1)
         ecdsa_signature_verification(super);
       else fprintf (stderr, " No Public Key Loaded;");
+      #else
+      fprintf (stderr, " uECC Support Not Compiled;");
+      #endif
         
     }
 

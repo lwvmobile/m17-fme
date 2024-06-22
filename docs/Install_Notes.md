@@ -99,7 +99,7 @@ sudo apt install codec2 ncurses libpulse pavucontrol wget socat
 ### Pull, Compile, and Install
 
 ```
-git clone https://github.com/lwvmobile/m17-fme.git
+git clone --recursive https://github.com/lwvmobile/m17-fme.git
 cd m17-fme
 mkdir build
 cd build

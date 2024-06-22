@@ -16,7 +16,7 @@ if [ "$ANSWER" = "y" ]; then
   sudo pacman -Syu 
   sudo pacman -S libpulse cmake ncurses codec2 base-devel libsndfile git wget
 
-  git clone https://github.com/lwvmobile/m17-fme.git
+  git clone --recursive https://github.com/lwvmobile/m17-fme.git
   cd m17-fme
   mkdir build
   cd build

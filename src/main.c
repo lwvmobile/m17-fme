@@ -260,8 +260,12 @@ int main (int argc, char **argv)
         break;
 
       case '3':
+        #ifdef USE_UECC
         ecdsa_signature_debug_keys(&super);
         // ecdsa_signature_debug_test();
+        #else
+        fprintf (stderr, " uECC Support Not Compiled;");
+        #endif
         break;
 
       //Allow CRC Failure to still be decoded
@@ -360,6 +364,7 @@ int main (int argc, char **argv)
 
       //Specify ECDSA Public Key File (Decoder)
       case 'k':
+        #ifdef USE_UECC
         strncpy(super.opts.pub_key_file, optarg, 1023);
         super.opts.pub_key_file[1023] = '\0';
         fprintf (stderr, "ECDSA Public Key File: %s \n", super.opts.pub_key_file);
@@ -381,8 +386,12 @@ int main (int argc, char **argv)
             fprintf (stderr, "\n        ");
           fprintf (stderr, " %02X", super.m17d.ecdsa.public_key[j]);
         }
+        fprintf (stderr, "\n");
         free(source_str);
         source_str = NULL;
+        #else
+        fprintf (stderr, " uECC Support Not Compiled;");
+        #endif
         break;
 
       //Enable Event Log 
@@ -513,20 +522,21 @@ int main (int argc, char **argv)
           fread(source_str, 1, 64, super.opts.aes_key);
           fclose(super.opts.aes_key);
         }
-        convert_string_into_array(source_str, super.enc.aes_key);
-        super.enc.aes_key_is_loaded = 1;
-        fprintf (stderr, "AES Key:");
-        for (int j = 0; j < 32; j++)
-        {
-          if (j == 16) fprintf (stderr, "\n        ");
-          fprintf (stderr, " %02X", super.enc.aes_key[j]);
-        }
+        uint8_t tmp_a[64]; memset(tmp_a, 0, 64*sizeof(uint8_t));
+        convert_string_into_array(source_str, tmp_a);
+        uint8_t tmp_b[256]; unpack_byte_array_into_bit_array(tmp_a, tmp_b, 64);
+        super.enc.A1 = (unsigned long long int)convert_bits_into_output(&tmp_b[0], 64);
+        super.enc.A2 = (unsigned long long int)convert_bits_into_output(&tmp_b[64], 64);
+        super.enc.A3 = (unsigned long long int)convert_bits_into_output(&tmp_b[128], 64);
+        super.enc.A4 = (unsigned long long int)convert_bits_into_output(&tmp_b[192], 64);
+        aes_key_loader(&super);
         free(source_str);
         source_str = NULL;
         break;
 
       //Specify ECDSA Private Key File (Encoder)
       case 'K':
+        #ifdef USE_UECC
         strncpy(super.opts.pri_key_file, optarg, 1023);
         super.opts.pri_key_file[1023] = '\0';
         fprintf (stderr, "ECDSA Private Key File: %s \n", super.opts.pri_key_file);
@@ -548,8 +558,12 @@ int main (int argc, char **argv)
             fprintf (stderr, "\n        ");
           fprintf (stderr, " %02X", super.m17e.ecdsa.private_key[j]);
         }
+        fprintf (stderr, "\n");
         free(source_str);
         source_str = NULL;
+        #else
+        fprintf (stderr, " uECC Support Not Compiled;");
+        #endif
         break;
 
       case 'L':
