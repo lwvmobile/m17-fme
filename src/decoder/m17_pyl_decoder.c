@@ -64,6 +64,11 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
     for (i = 0; i < 16; i++)
       ecdsa_bytes[i] ^= super->m17d.ecdsa.curr_stream_pyl[i];
     left_shift_byte_array(ecdsa_bytes, super->m17d.ecdsa.last_stream_pyl, 16);
+
+    //debug
+    // fprintf (stderr, "\n IDG:");
+    // for (i = 0; i < 16; i++)
+    //   fprintf (stderr, "%02X", ecdsa_bytes[i]);
   }
   else
   {
@@ -89,7 +94,7 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
     
     if (super->enc.scrambler_fn_d == 0x7FFF)
     {
-      // if (super->opts.payload_verbosity >= 1)
+      if (super->opts.payload_verbosity >= 1)
       {
         fprintf (stderr, "\n SIG XX: ");
         for (i = 0; i < 64; i++)

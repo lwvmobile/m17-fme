@@ -30,7 +30,7 @@ void encode_str_ecdsa(Super * super, uint8_t lich_cnt, float * mem, int use_ip, 
   //quell defined but not used warnings from m17.h
   stfu();
   
-  ecdsa_signature_signing(super);
+  ecdsa_signature_creation(super);
 
   //unpack signed payload into bits to be sent over payload
   uint8_t sig_bits[512]; memset(sig_bits, 0, 512*sizeof(uint8_t));
@@ -267,5 +267,10 @@ void encode_str_ecdsa(Super * super, uint8_t lich_cnt, float * mem, int use_ip, 
   memset (super->m17e.ecdsa.curr_stream_pyl, 0, 16*sizeof(uint8_t));
   memset (super->m17e.ecdsa.last_stream_pyl, 0, 16*sizeof(uint8_t));
   memset (super->m17e.ecdsa.signature, 0, 64*sizeof(uint8_t));
+
+  //reset decoder side as well for loopback decoder
+  memset (super->m17d.ecdsa.curr_stream_pyl, 0, 16*sizeof(uint8_t));
+  memset (super->m17d.ecdsa.last_stream_pyl, 0, 16*sizeof(uint8_t));
+  memset (super->m17d.ecdsa.signature, 0, 64*sizeof(uint8_t));
 
 }

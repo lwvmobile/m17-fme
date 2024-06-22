@@ -179,10 +179,9 @@ int main (int argc, char **argv)
   Super super;
   init_super(&super);
 
-  //initialize convolutional decoder, golay, ecdsa, etc
+  //initialize convolution, golay, etc
   convolution_init();
   golay_24_12_init();
-  ecdsa_curve_init(&super);
 
   //set the exitflag to 0
   exitflag = 0;
@@ -539,6 +538,8 @@ int main (int argc, char **argv)
   //call signal handler so things like ctrl+c will allow us to gracefully close
   signal (SIGINT, handler);
   signal (SIGTERM, handler);
+
+  ecdsa_key_loader(&super); //test
 
   //set default starting state if no optargs parsed
   if (i == 0)

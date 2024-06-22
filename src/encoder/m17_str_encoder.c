@@ -463,29 +463,21 @@ void encode_str(Super * super)
       m17_v1[i+16+64] = v2_bits[i];
     }
 
-    //ECDSA -- TODO: Consider sending a seperate superframe that does this?
-    /*
-    The last frame would be generated as follows:
-    1. At the start of the stream initialize an array of 16 bytes with all 0's
-    2. After each stream frame (starting with 0) XOR the array with payload and rotate it by 1 byte (let's say left)
-    3. Repeat until there's no more voice payload.
-    */
+    //ECDSA pack and track
+    if (super->m17e.str_encoder_tx == 1)
+    {
+      uint8_t ecdsa_bytes[16]; memcpy(ecdsa_bytes, super->m17e.ecdsa.last_stream_pyl, 16*sizeof(uint8_t));
+      pack_bit_array_into_byte_array (m17_v1+16, super->m17e.ecdsa.curr_stream_pyl, 16);
+      for (i = 0; i < 16; i++)
+        ecdsa_bytes[i] ^= super->m17e.ecdsa.curr_stream_pyl[i];
+      left_shift_byte_array(ecdsa_bytes, super->m17e.ecdsa.last_stream_pyl, 16);
 
-    /*
-    Use bit 11 of the TYPE field to indicate signed stream (1-signed, 0-unsigned).
-    The most significant bit of the frame counter of the last speech/data frame must not be set if the stream is signed.*
-    If the stream is signed, the last 4 frames should have frame numbers equal to 0x7FFC, 0x7FFD, 0x7FFE, 0xFFFF, with the last one having MSB set to 1 (stream end).*
-    The contents of the last 4 frames is the signature. It is calculated with the stream digest and user's private key over secp256r1 curve - 512-bit long vector.
-    */
+      //debug
+      // fprintf (stderr, "\n ODG:");
+      // for (i = 0; i < 16; i++)
+      //   fprintf (stderr, "%02X", ecdsa_bytes[i]);
 
-
-    uint8_t ecdsa_bytes[16]; memcpy(ecdsa_bytes, super->m17e.ecdsa.last_stream_pyl, 16*sizeof(uint8_t));
-    pack_bit_array_into_byte_array (m17_v1+16, super->m17e.ecdsa.curr_stream_pyl, 16); //fix, needed +16 (starting position of voice)
-    for (i = 0; i < 16; i++)
-      ecdsa_bytes[i] ^= super->m17e.ecdsa.curr_stream_pyl[i];
-    left_shift_byte_array(ecdsa_bytes, super->m17e.ecdsa.last_stream_pyl, 16);
-
-    //TODO: Write Debug Print Out for all of this
+    }
 
     //Apply Encryption to Voice and/or Arbitrary Data if Key Available
 
