@@ -566,10 +566,11 @@ void encode_str(Super * super)
     memcpy (super->m17e.lsf_bkp, m17_lsf, 240*sizeof(uint8_t));
 
     //prepare substitution LSF with embedded OTAKD segment in it
-    #ifdef OTA_KEY_DELIVERY
-    if (super->enc.enc_type != 0 && ((lsf_count%5) != 0) )
-      encode_ota_key_delivery_emb(super, m17_lsf, &lsf_count);
-    #endif
+    if (super->opts.use_otakd == 1)
+    {
+      if (super->enc.enc_type != 0 && ((lsf_count%5) != 0) )
+        encode_ota_key_delivery_emb(super, m17_lsf, &lsf_count);
+    }
 
     //load up the lsf chunk for this cnt
     for (i = 0; i < 40; i++)
@@ -615,10 +616,11 @@ void encode_str(Super * super)
       {
 
         //send the OTA key before LSF
-        #ifdef OTA_KEY_DELIVERY
-        if (super->enc.enc_type != 0)
-          encode_ota_key_delivery_pkt(super, use_ip, sid);
-        #endif
+        if (super->opts.use_otakd == 1)
+        {
+          if (super->enc.enc_type != 0)
+            encode_ota_key_delivery_pkt(super, use_ip, sid);
+        }
 
         fprintf (stderr, "\n M17 LSF    (ENCODER): ");
         if (super->opts.internal_loopback_decoder == 1)

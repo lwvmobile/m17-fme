@@ -562,10 +562,11 @@ void encode_pkt(Super * super)
   //manually inserted 1000 into recvfrom instead, max MPKT size should be 809.
 
   //send the OTA key
-  #ifdef OTA_KEY_DELIVERY
-  if (super->enc.enc_type != 0)
-    encode_ota_key_delivery_pkt(super, use_ip, sid);
-  #endif
+  if (super->opts.use_otakd == 1)
+  {
+    if (super->enc.enc_type != 0)
+      encode_ota_key_delivery_pkt(super, use_ip, sid);
+  }
 
   //Send MPKT to reflector
   if (use_ip == 1)

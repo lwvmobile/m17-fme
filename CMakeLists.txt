@@ -14,12 +14,12 @@ if (COLORS)
     add_definitions(-DPRETTY_COLORS) 
 endif ()
 
-#use cmake option -DOTAKD=OFF to disable OTA Key Delivery
-option(OTAKD
-    "Build with Over the Air Encryption Key Delivery" ON)
-if (OTAKD)
-    add_definitions(-DOTA_KEY_DELIVERY) 
-endif ()
+#use cmake option -DOTAKD=OFF to disable OTA Key Delivery (moved to user option)
+# option(OTAKD
+#     "Build with Over the Air Encryption Key Delivery" ON)
+# if (OTAKD)
+#     add_definitions(-DOTA_KEY_DELIVERY) 
+# endif ()
 
 include(git_revision)
 git_describe(GIT_TAG)

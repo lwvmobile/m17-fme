@@ -84,7 +84,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     event_log_writer (super, super->m17d.sms, protocol);
 
   }
-  #ifdef OTA_KEY_DELIVERY
+  
   //OTA Key Delivery Format
   else if (protocol == 0x09)
   {
@@ -139,7 +139,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
       }
     }
   }
-  #endif
+  
   //Extended Call Sign Data
   else if (protocol == 0x82)
   {

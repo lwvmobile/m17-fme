@@ -136,6 +136,7 @@ void usage ()
   printf ("                (NOTE: Due to bug in m17-tools handling of AES keys, all keys are run as AES-128)\n");
   printf ("                (Limiting significant key value to first 32 characters to maintain compatibility)\n");
   printf ("  -J <file>     Load AES Key from file. (see example key: key/aes_key.txt)\n");
+  printf ("  -O            Send OTA Key Delivery Packets and Embedded LSD\n");
   printf ("\n");
   printf ("Debug Options:\n");
   printf ("\n");
@@ -228,7 +229,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1234567890ac:d:e:f:hi:k:lmno:prs:t:uv:w:xA:C:E:F:IJ:K:LM:NPR:S:TU:VW:XY:Z:")) != -1)
+  while ((c = getopt (argc, argv, "1234567890ac:d:e:f:hi:k:lmno:prs:t:uv:w:xA:C:E:F:IJ:K:LM:NOPR:S:TU:VW:XY:Z:")) != -1)
   {
 
     i++;
@@ -575,6 +576,12 @@ int main (int argc, char **argv)
       case 'M':
         strncpy(super.m17e.user, optarg, 49);
         super.m17e.user[49] = '\0';
+        break;
+
+      //Encode and Send OTA Key Delivery Packets and Embedded LSD
+      case 'O':
+        super.opts.use_otakd = 1;
+        fprintf (stderr, "Send OTA Key Delivery Packets and Embedded LSD.\n");
         break;
 
       //Enable the PKT Encoder

@@ -80,6 +80,9 @@ void init_super (Super * super)
   super->opts.output_sample_rate = 48000;  //TODO: Make a function that reconfigures this and anything that is set from this
   super->opts.stdout_pipe = 0;
 
+  //key delivery
+  super->opts.use_otakd = 0; //send OTA Key Delivery Packets and Embedded LSD when encryption is used
+
   //Gain
   super->opts.input_gain_rf  = 1.0f;
   super->opts.input_gain_vx  = 1.0f;

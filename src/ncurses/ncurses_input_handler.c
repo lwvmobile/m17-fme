@@ -127,6 +127,12 @@ void input_ncurses_terminal (Super * super, int c)
       else super->opts.ncurses_show_io = 0;
       break;
 
+    //'O' key, Toggle OTA Key Delivery
+    case 79:
+      if (super->opts.use_otakd == 0) super->opts.use_otakd = 1;
+      else super->opts.use_otakd = 0;
+      break;
+
     //'S' key, Toggle Scope Display
     case 83:
       if (super->opts.ncurses_show_scope == 0) super->opts.ncurses_show_scope = 1;

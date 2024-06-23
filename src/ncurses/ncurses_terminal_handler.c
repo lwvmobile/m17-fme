@@ -406,13 +406,24 @@ void print_ncurses_call_info (Super * super)
       printw ("Voice Activated TX (VOX)");
       if (super->m17e.str_encoder_tx)
         printw (" !!!!!");
+      else
+        printw ("      ");
     }
     else
     {
       printw ("Press (\\) to Toggle TX");
       if (super->m17e.str_encoder_tx == 0)
-        printw (" (OFF)");
-      else printw (" ( ON)");
+        printw (" (OFF);");
+      else printw (" ( ON);");
+    }
+
+    if (super->enc.enc_type != 0)
+    {
+      if (super->opts.use_m17_str_encoder && !super->m17e.str_encoder_tx && super->opts.use_otakd)
+        printw (" Disable OTAKD(O);");
+
+      if (super->opts.use_m17_str_encoder && !super->m17e.str_encoder_tx && !super->opts.use_otakd)
+        printw (" Enable OTAKD(O);");
     }
   }
 
@@ -546,7 +557,7 @@ void print_ncurses_call_info (Super * super)
 
     for (int i = 0; i < 32; i++)
     {
-      if (i == 8 || i == 16 || i == 24) printw (" ");
+      // if (i == 8 || i == 16 || i == 24) printw (" "); //easier to copy and paste if disabled
       printw ("%02X", super->enc.aes_key[i]);
     }
 

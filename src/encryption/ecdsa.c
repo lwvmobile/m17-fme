@@ -124,9 +124,13 @@ void ecdsa_signature_verification (Super * super)
   if (valid) fprintf (stderr, " Signature Valid;");
   else fprintf (stderr, " Signature Invalid;");
 
-  #else
-  UNUSED(super);
   #endif
+
+  //reset payload after processing signature
+  memset (super->m17d.ecdsa.curr_stream_pyl, 0, 16*sizeof(uint8_t));
+  memset (super->m17d.ecdsa.last_stream_pyl, 0, 16*sizeof(uint8_t));
+  memset (super->m17d.ecdsa.signature, 0, 64*sizeof(uint8_t));
+
 }
 
 //encoder side

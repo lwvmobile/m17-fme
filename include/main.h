@@ -142,6 +142,9 @@ typedef struct
   int output_sample_rate;
   int stdout_pipe;
 
+  //key delivery
+  uint8_t use_otakd;
+
   //Gain
   float input_gain_rf;
   float input_gain_vx;

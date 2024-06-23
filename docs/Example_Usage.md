@@ -247,6 +247,7 @@ Encryption Options:
                 (NOTE: Due to bug in m17-tools handling of AES keys, all keys are run as AES-128)
                 (Limiting significant key value to first 32 characters to maintain compatibility)
   -J <file>     Load AES Key from file. (see example key: key/aes_key.txt)
+  -O            Send OTA Key Delivery Packets and Embedded LSD
 
 Debug Options:
 
@@ -319,6 +320,7 @@ Quick Examples:
 '2' key, Generate Random AES Key (256-bit)
 'E' key, Toggle AES Encryption (only when not TX, and a key is loaded)
 'e' key, Toggle Scrambler Encryption (only when not TX, and a key is loaded)
+'O' key, Toggle OTA Key Delivery (only when not TX, and a key is loaded)
 
 // Ncurses Displays
 'C' key, Toggle Banner (Capital C)
