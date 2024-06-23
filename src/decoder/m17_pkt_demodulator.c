@@ -200,7 +200,7 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
       uint8_t unpacked_pkt[6200]; memset (unpacked_pkt, 0, 6200*sizeof(uint8_t));
       unpack_byte_array_into_bit_array(super->m17d.pkt, unpacked_pkt, total);
       for (i = 0; i < klen; i++)
-        aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, unpacked_pkt+(128*i)+8, 1);
+        aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, unpacked_pkt+(128*i)+8, super->m17d.enc_st+1);
 
       //if there are leftovers (kmod), then run a keystream and partial application to left over bits
       uint8_t aes_ks_bits[128]; memset(aes_ks_bits, 0, 128*sizeof(uint8_t));
@@ -211,7 +211,7 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
 
       if (kmod != 0)
       {
-        aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, aes_ks_bits, 1);
+        aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, aes_ks_bits, super->m17d.enc_st+1);
         for (i = 0; i < kmod; i++)
           unpacked_pkt[i+kmodstart] ^= aes_ks_bits[i];
       }

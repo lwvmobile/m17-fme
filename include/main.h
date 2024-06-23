@@ -279,6 +279,7 @@ typedef struct
   uint8_t dt;       //stream or packet data type
   uint8_t enc_et;   //encryption type
   uint8_t enc_st;   //encryption sub-type
+  uint8_t met_st;   //meta 'sub-type' //TODO: Switch lsf_st values in str encoder using this, so we don't overwrite enc_st when user enables and disables enc and has meta data loaded as well
   uint8_t enc_mute; //enc, muted audio out
 
   uint8_t reflector_module; //IP Frame reflector module

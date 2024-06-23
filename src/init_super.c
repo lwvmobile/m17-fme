@@ -227,6 +227,7 @@ void init_super (Super * super)
   super->m17d.dt = 15;
   super->m17d.enc_et = 0;
   super->m17d.enc_st = 0;
+  super->m17d.met_st = 0;
   super->m17d.enc_mute = 0;
   
   //'A', single letter reflector module A-Z, 0x41 is A
@@ -285,6 +286,7 @@ void init_super (Super * super)
   super->m17e.dt = 15;
   super->m17e.enc_et = 0;
   super->m17e.enc_st = 0;
+  super->m17e.met_st = 0;
   super->m17e.enc_mute = 0;
 
   //'A', single letter reflector module A-Z, 0x41 is A

@@ -80,8 +80,30 @@ void decode_lsf_contents(Super * super)
     if (super->enc.scrambler_key != 0)
       fprintf (stderr, " Key: %X;", super->enc.scrambler_key);
   }
+
+  int keylen = 32;
   if (lsf_et == 2)
-    fprintf (stderr, " AES-CTR;");
+  {
+    fprintf (stderr, " AES");
+    if (lsf_es == 0)
+    { 
+      keylen = 16;
+      fprintf (stderr, " 128;");
+    }
+      
+    else if (lsf_es == 1)
+    {
+      keylen = 24;
+      fprintf (stderr, " 192;");
+    }
+      
+    else if (lsf_es == 2)
+    {
+      keylen = 32;
+      fprintf (stderr, " 256;");
+    }
+      
+  }
   
   super->m17d.enc_et = lsf_et;
   super->m17d.enc_st = lsf_es;
@@ -127,12 +149,13 @@ void decode_lsf_contents(Super * super)
 
     if (super->enc.aes_key_is_loaded)
     {
-      fprintf (stderr, "\n AES Key:");
-      for (int i = 0; i < 32; i++)
+      fprintf (stderr, "\n Key:");
+      for (i = 0; i < keylen; i++)
       {
-        if (i == 16) fprintf (stderr, "\n         ");
+        if (i == 16) fprintf (stderr, "\n     ");
         fprintf (stderr, " %02X", super->enc.aes_key[i]);
       }
+
     }
   }
 

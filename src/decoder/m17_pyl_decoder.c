@@ -39,6 +39,11 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   if (super->enc.scrambler_fn_d >= 0x7FFC)
     goto SKIP_CRYPT;
 
+  //if undetermined type, skip decoding payload at htis point
+  //note: we are only here to get the above ECDSA digest
+  if (super->m17d.dt == 15) //unset value (bad LSF frame)
+    goto END_PAYLOAD;
+
   //apply keystream pN sequence here if scrambler enc and key is available
   //note: bit_counter is now seperate for encoding and decoding (internal loopback fix)
   if (super->m17d.enc_et == 1 && super->enc.scrambler_key != 0)
@@ -58,7 +63,7 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   else if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded)
   {
     mute = 0;
-    aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, payload, 1);
+    aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, payload, super->m17d.enc_st+1);
   }
   else if (super->m17d.enc_et == 3)
   {

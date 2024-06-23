@@ -419,10 +419,10 @@ void print_ncurses_call_info (Super * super)
 
     if (super->enc.enc_type != 0)
     {
-      if (super->opts.use_m17_str_encoder && !super->m17e.str_encoder_tx && super->opts.use_otakd)
+      if (super->opts.use_m17_str_encoder && super->opts.use_otakd)
         printw (" Disable OTAKD(O);");
 
-      if (super->opts.use_m17_str_encoder && !super->m17e.str_encoder_tx && !super->opts.use_otakd)
+      if (super->opts.use_m17_str_encoder && !super->opts.use_otakd)
         printw (" Enable OTAKD(O);");
     }
   }
@@ -485,10 +485,10 @@ void print_ncurses_call_info (Super * super)
 
     //may disable seed display if it gets too annoying later on
     if (super->opts.use_m17_str_encoder && super->m17e.str_encoder_tx)
-      printw("Seed: %06X", super->enc.scrambler_seed_e);
+      printw("Seed: %06X; ", super->enc.scrambler_seed_e);
 
     else if (!super->opts.use_m17_str_encoder)
-      printw("Seed: %06X", super->enc.scrambler_seed_d);
+      printw("Seed: %06X; ", super->enc.scrambler_seed_d);
 
     if (super->opts.use_m17_str_encoder && !super->m17e.str_encoder_tx)
       printw ("Disable SCR(e);");
@@ -507,7 +507,15 @@ void print_ncurses_call_info (Super * super)
   }
   else if (super->m17d.enc_et == 2)
   {
-    printw ("AES-CTR IV: ");
+    printw ("AES-");
+    if (super->m17d.enc_st == 0)
+      printw("128 ");
+    if (super->m17d.enc_st == 1)
+      printw("192 ");
+    if (super->m17d.enc_st == 2)
+      printw("256 ");
+    
+    printw ("IV: ");
     
     //display packed meta as IV
     for (int i = 0; i < 16; i++)
@@ -555,11 +563,19 @@ void print_ncurses_call_info (Super * super)
       attron(COLOR_PAIR(1));
     else attron(COLOR_PAIR(6));
 
-    for (int i = 0; i < 32; i++)
-    {
-      // if (i == 8 || i == 16 || i == 24) printw (" "); //easier to copy and paste if disabled
+    int keylen = 32;
+    if (super->m17d.enc_st == 0)
+      keylen = 16;
+
+    if (super->m17d.enc_st == 1)
+      keylen = 24;
+   
+    if (super->m17d.enc_st == 2)
+      keylen = 32;
+
+    for (int i = 0; i < keylen; i++)
       printw ("%02X", super->enc.aes_key[i]);
-    }
+
 
     if (super->demod.in_sync == 1)
       attron(COLOR_PAIR(3));

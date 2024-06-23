@@ -246,8 +246,9 @@ void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
     lst   = 10+2;
     pad   = 15-2;
     stop  = 35;
-    sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX",
-             super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
+    // sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX",
+    //          super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
+    sprintf (super->m17d.sms, "OTAKD AES Key Delivery");
   }
   
   //debug position values

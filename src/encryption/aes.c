@@ -591,7 +591,9 @@ void aes_ctr_str_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, 
 {
   //NOTE: This has been tested and works with m17-tools aes crypt, noting m17-tools keylen is 
   //always 128 due to hard coded Nb Nk and Nr values in their source code, regardless
-  //of the user supplied key value len
+  //of the user supplied key value len -- Updated code to allow variable type now, and user
+  //will have to use a 128-bit key, noting that enc_st will (hopefully) make spec to show
+  //enc_st = 0 when AES-128, thus making this compatible though signalling while allowing AES256
 
   //NOTE: Wrote new utility functions for packing and unpacking bit arrays and byte arrays,
   //should be much easier now to encrypt packet data when I get around to it. I may still 

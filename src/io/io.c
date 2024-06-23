@@ -579,7 +579,7 @@ void parse_meta_raw_string (Super * super, char * input)
   strncpy (octet_char, input+k, 2);
   octet_char[2] = 0;
   sscanf (octet_char, "%hhX", &type);
-  super->enc.enc_subtype = type;
+  super->m17e.met_st = type;
   k += 2;
 
   //debug

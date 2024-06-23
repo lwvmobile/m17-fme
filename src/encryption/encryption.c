@@ -194,21 +194,68 @@ void aes_key_loader (Super * super)
     {
       super->enc.aes_key_is_loaded = 1;
       super->enc.enc_type = 2;
+      super->enc.enc_subtype = 0;
       super->m17e.enc_et = 2;
+      super->m17e.enc_st = 0;
       break;
     }
   }
 
+  //NOTE: Maintain 'compatibility' where-as m17-tools is using 128-bit AES,
+  //and signals enc_st as 0, so enc_st 0 will be AES 128 (unless Spec changes that)
+  int len = 32;
+
+  //evaluate len of inserted AES key to see what the subtype will be
+  if (super->enc.aes_key_is_loaded == 1)
+  {
+    uint64_t sum = 0; uint64_t tmp = 0;
+    for (i = 0; i < 16; i++)
+      tmp += super->enc.aes_key[i];
+    if (tmp != sum) //128
+    {
+      len = 16;
+      sum = tmp;
+      super->enc.enc_subtype = 0;
+      super->m17e.enc_st = 0;
+    }
+    for (i = 16; i < 24; i++)
+      tmp += super->enc.aes_key[i];
+    if (tmp != sum) //192
+    {
+      len = 24;
+      sum = tmp;
+      super->enc.enc_subtype = 1;
+      super->m17e.enc_st = 1;
+    }
+    for (i = 24; i < 32; i++)
+      tmp += super->enc.aes_key[i];
+    if (tmp != sum) //256
+    {
+      len = 32;
+      sum = tmp;
+      super->enc.enc_subtype = 2;
+      super->m17e.enc_st = 2;
+    }
+  }
+
+
   //print the loaded key for user confirmation
   if (super->enc.aes_key_is_loaded)
   {
-    fprintf (stderr, "AES Key:");
-    for (i = 0; i < 32; i++)
+    fprintf (stderr, "AES ");
+    if (super->m17e.enc_st == 0)
+      fprintf (stderr, "128 ");
+    if (super->m17e.enc_st == 1)
+      fprintf (stderr, "192 ");
+    if (super->m17e.enc_st == 2)
+      fprintf (stderr, "256 ");
+    fprintf (stderr, "Key:");
+    for (i = 0; i < len; i++)
     {
-      if (i == 16) fprintf (stderr, "\n        ");
+      if (i == 16) fprintf (stderr, "\n            ");
       fprintf (stderr, " %02X", super->enc.aes_key[i]);
     }
-    // fprintf (stderr, "\n");
+    fprintf (stderr, "\n");
   }
 
 }

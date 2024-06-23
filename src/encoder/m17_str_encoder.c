@@ -181,6 +181,10 @@ void encode_str(Super * super)
     lsf_es = super->enc.enc_subtype; //encryption sub-type
   }
 
+  //if not encrypted, and meta data available, set lsf_es to met_st instead
+  if (lsf_et == 0 && super->m17e.raw[0] != 0)
+    lsf_es = super->m17e.met_st;
+
   //compose the 16-bit frame information from the above sub elements
   uint16_t lsf_fi = 0;
   lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
@@ -338,6 +342,10 @@ void encode_str(Super * super)
     lsf_et = super->enc.enc_type;    //encryption type
     lsf_es = super->enc.enc_subtype; //encryption sub-type
 
+    //if not encrypted, and meta data available, set lsf_es to met_st instead
+    if (lsf_et == 0 && super->m17e.raw[0] != 0)
+      lsf_es = super->m17e.met_st;
+
     //compose the 16-bit frame information from the above sub elements
     lsf_fi = 0;
     lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
@@ -475,7 +483,7 @@ void encode_str(Super * super)
 
     //AES-CTR
     else if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)
-      aes_ctr_str_payload_crypt (meta, super->enc.aes_key, m17_v1+16, 1);
+      aes_ctr_str_payload_crypt (meta, super->enc.aes_key, m17_v1+16, super->enc.enc_subtype+1);
 
     //if using encryption(or not), copy back to v1 an v2 bits so the IPF paylaod is also properly ENC'd
     for (i = 0; i < 64; i++)

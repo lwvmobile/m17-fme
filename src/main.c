@@ -133,7 +133,6 @@ void usage ()
   printf ("  -E <hex str>  Enter AES Key Value (in single quote, space every 16 chars) \n");
   printf ("                (example: -E '0520C1B0220AFBCA 16FB1330764B26EC 5C34A197764C147A 15FBA7515ED8BCFC')\n");
   printf ("                (example: -E '0520C1B0220AFBCA 16FB1330764B26EC')\n");
-  printf ("                (NOTE: Due to bug in m17-tools handling of AES keys, all keys are run as AES-128)\n");
   printf ("                (Limiting significant key value to first 32 characters to maintain compatibility)\n");
   printf ("  -J <file>     Load AES Key from file. (see example key: key/aes_key.txt)\n");
   printf ("  -O            Send OTA Key Delivery Packets and Embedded LSD\n");
