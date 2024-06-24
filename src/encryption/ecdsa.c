@@ -8,6 +8,45 @@
 
 #include "main.h"
 
+void ecdsa_generate_random_keys(Super * super)
+{
+
+  #ifdef USE_UECC
+  srand(time(NULL));
+  int i; int ok = 0;
+
+  const struct uECC_Curve_t* curve = uECC_secp256r1();
+
+  //NOTE: It seems as is public and private key are reversed here, but I'm thinking our understanding of
+  //the public key and private key may be in error, and in fact, may be reverse in naming/convention?
+  //int uECC_make_key(uint8_t *public_key, uint8_t *private_key,uECC_Curve curve)
+  ok = uECC_make_key(super->m17d.ecdsa.public_key, super->m17e.ecdsa.private_key, curve);
+
+  fprintf (stderr, "\n");
+  fprintf (stderr, "Randomly Generated secp256r1 Signature Keys;");
+  fprintf (stderr, "\n");
+  fprintf (stderr, "Public Key: ");
+  for (i = 0; i < 64; i++)
+    fprintf (stderr, "%02X", super->m17d.ecdsa.public_key[i]);
+
+  fprintf (stderr, "\n");
+  fprintf (stderr, "Private Key: ");
+  for (i = 0; i < 32; i++)
+    fprintf (stderr, "%02X", super->m17e.ecdsa.private_key[i]);
+
+  if (ok)
+  {
+    super->m17e.ecdsa.keys_loaded = 1; //private key available
+    super->m17d.ecdsa.keys_loaded = 1; //public key available
+    // super->opts.use_otask = 1; //enable OTA Signature Key Delivery
+  }
+  
+  #else
+  UNUSED(super);
+  #endif
+
+}
+
 //ECDSA Debug Signature Test
 void ecdsa_signature_debug_test()
 {

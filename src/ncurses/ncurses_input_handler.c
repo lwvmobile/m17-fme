@@ -60,6 +60,11 @@ void input_ncurses_terminal (Super * super, int c)
       }
       break;
 
+    //'3' key, Generate Random Signature Keys
+    case 51:
+      ecdsa_generate_random_keys (super); //reset demod
+      break;
+
     //'4' key, simulate no_carrier_sync (reset states)
     case 52:
       super->m17d.dt = 4; //fake for carrier reset
@@ -127,10 +132,16 @@ void input_ncurses_terminal (Super * super, int c)
       else super->opts.ncurses_show_io = 0;
       break;
 
-    //'O' key, Toggle OTA Key Delivery
+    //'O' key, Toggle OTA Key Delivery (aes and scrambler)
     case 79:
       if (super->opts.use_otakd == 0) super->opts.use_otakd = 1;
       else super->opts.use_otakd = 0;
+      break;
+
+    //'P' key, Toggle OTA Key Delivery (signatures)
+    case 80:
+      if (super->opts.use_otask == 0) super->opts.use_otask = 1;
+      else super->opts.use_otask = 0;
       break;
 
     //'S' key, Toggle Scope Display

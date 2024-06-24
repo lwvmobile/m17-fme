@@ -627,15 +627,16 @@ void print_ncurses_call_info (Super * super)
 
     if (super->m17d.ecdsa.keys_loaded != 0)
     {
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->m17d.ecdsa.keys_loaded == 1)
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
         printw (" Send OTASK(p);");
 
       if (super->opts.use_m17_str_encoder && super->opts.use_otask)
-        printw (" Disable OTASK(O);");
+        printw (" Disable OTASK(P);");
 
       if (super->opts.use_m17_str_encoder && !super->opts.use_otask)
-        printw (" Enable OTASK(O);");
+        printw (" Enable OTASK(P);");
     }
+    else printw (" Random ECDSA(3);");
 
   }
 

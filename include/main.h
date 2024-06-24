@@ -683,6 +683,7 @@ void ecdsa_signature_verification (Super * super);
 void ecdsa_signature_creation (Super * super);
 void ecdsa_signature_debug_keys (Super * super);
 void ecdsa_signature_debug_test();
+void ecdsa_generate_random_keys(Super * super);
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus

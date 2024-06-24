@@ -142,7 +142,8 @@ void usage ()
   printf ("\n");
   printf ("  -1            Generate Random One Time Use 24-bit Scrambler Key \n");
   printf ("  -2            Generate Random One Time Use 256-bit AES Key. \n");
-  printf ("  -3            Load Debug Keys For ECDSA Signatures. Enable Signature Encoding and Decoding.\n");
+  printf ("  -3            Generate Random Keys For ECDSA Signatures. Enable Signing and Verification.\n");
+  printf ("  -5            Generate Random Keys For ECDSA Signatures, and exit.\n");
   printf ("  -4            Permit Data Decoding on CRC Failure (not recommended). \n");
   printf ("  -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). \n");
   printf ("  -7            Disable Symbol Timing Correction. \n");
@@ -262,8 +263,7 @@ int main (int argc, char **argv)
 
       case '3':
         #ifdef USE_UECC
-        ecdsa_signature_debug_keys(&super);
-        // ecdsa_signature_debug_test();
+        ecdsa_generate_random_keys(&super);
         #else
         fprintf (stderr, " uECC Support Not Compiled;");
         #endif
@@ -273,6 +273,15 @@ int main (int argc, char **argv)
       case '4':
         super.opts.allow_crc_failure = 1;
         fprintf (stderr, "Allow CRC Failure.\n");
+        break;
+
+      case '5':
+        #ifdef USE_UECC
+        ecdsa_generate_random_keys(&super);
+        #else
+        fprintf (stderr, " uECC Support Not Compiled;");
+        #endif
+        exitflag = 1;
         break;
 
       //Voice Open and Send Everything!
