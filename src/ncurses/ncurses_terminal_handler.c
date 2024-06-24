@@ -615,26 +615,26 @@ void print_ncurses_call_info (Super * super)
     printw ("OTA:");
     if (super->enc.enc_type != 0)
     {
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->enc.enc_type != 0)
-        printw (" Send OTAKD(o);");
-
       if (super->opts.use_m17_str_encoder && super->opts.use_otakd)
         printw (" Disable OTAKD(O);");
 
       if (super->opts.use_m17_str_encoder && !super->opts.use_otakd)
         printw (" Enable OTAKD(O);");
+      
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->enc.enc_type != 0)
+        printw (" Send OTAKD(o);");
     }
 
     if (super->m17d.ecdsa.keys_loaded != 0)
     {
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
-        printw (" Send OTASK(p);");
-
       if (super->opts.use_m17_str_encoder && super->opts.use_otask)
         printw (" Disable OTASK(P);");
 
       if (super->opts.use_m17_str_encoder && !super->opts.use_otask)
         printw (" Enable OTASK(P);");
+
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+        printw (" Send OTASK(p);");
     }
     else printw (" Random ECDSA(3);");
 

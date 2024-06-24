@@ -346,6 +346,9 @@ void encode_str(Super * super)
     if (lsf_et == 0 && super->m17e.raw[0] != 0)
       lsf_es = super->m17e.met_st;
 
+    if (super->m17e.ecdsa.keys_loaded)
+      lsf_rs = lsf_rs | (uint8_t)0x1; //OR 0x01 for ECDSA
+
     //compose the 16-bit frame information from the above sub elements
     lsf_fi = 0;
     lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
