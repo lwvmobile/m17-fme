@@ -197,7 +197,7 @@ void encode_str_ecdsa(Super * super, uint8_t lich_cnt, float * mem, int use_ip, 
     if (use_ip == 1 && lich_cnt != 5 && fsn != 0x7FFF)
       fprintf (stderr, " UDP: %s:%d", super->opts.m17_hostname, udpport);
 
-    fprintf (stderr, " ECDSA;");
+    fprintf (stderr, " Sending Signature (secp256r1);");
 
     //convert bit array into symbols and RF/Audio
     encode_rfa (super, m17_t4s, mem, 2);

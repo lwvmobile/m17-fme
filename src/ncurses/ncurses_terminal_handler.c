@@ -391,10 +391,10 @@ void print_ncurses_call_info (Super * super)
   else printw ("RF Stream and Packet Decoder"); //not sure what to put here, if anything
 
   if (super->opts.payload_verbosity)
-    printw ("; Payload Verbosity: %d", super->opts.payload_verbosity);
+    printw ("; Payload Verbosity: %d;", super->opts.payload_verbosity);
 
   if (super->opts.demod_verbosity)
-    printw ("; Demod Verbosity: %d", super->opts.demod_verbosity);
+    printw ("; Demod Verbosity: %d;", super->opts.demod_verbosity);
 
   if (!super->opts.use_m17_rfa_decoder && !super->opts.use_m17_ipf_decoder)
   {
@@ -471,19 +471,20 @@ void print_ncurses_call_info (Super * super)
 
   if (super->m17d.enc_et == 1)
   {
-    printw ("Scrambler Type: %d; ", super->m17d.enc_st);
-    if (super->enc.scrambler_key != 0)
-      printw( ("Key: %X; "), super->enc.scrambler_key);
+    printw ("Scrambler: ");
+    if (super->m17d.enc_st == 0)
+      printw("8-bit; ");
+    if (super->m17d.enc_st == 1)
+      printw("16-bit; ");
+    if (super->m17d.enc_st == 2)
+      printw("24-bit; ");
 
     //may disable seed display if it gets too annoying later on
-    if (super->opts.use_m17_str_encoder && super->m17e.str_encoder_tx)
+    if (super->opts.use_m17_str_encoder && super->m17e.str_encoder_tx && super->enc.scrambler_key)
       printw("Seed: %06X; ", super->enc.scrambler_seed_e);
 
-    else if (!super->opts.use_m17_str_encoder)
+    else if (!super->opts.use_m17_str_encoder && super->enc.scrambler_key)
       printw("Seed: %06X; ", super->enc.scrambler_seed_d);
-
-    if (super->opts.use_m17_str_encoder && !super->m17e.str_encoder_tx)
-      printw ("Disable SCR(e);");
 
     if (super->demod.in_sync == 1)
       attron(COLOR_PAIR(2));
@@ -513,9 +514,6 @@ void print_ncurses_call_info (Super * super)
     for (int i = 0; i < 16; i++)
       printw ("%02X", super->m17d.meta[i]);
 
-    if (super->opts.use_m17_str_encoder && !super->m17e.str_encoder_tx)
-      printw (" Disable AES(E);");
-
     if (super->demod.in_sync == 1)
       attron(COLOR_PAIR(2));
     else attron(COLOR_PAIR(6));
@@ -533,46 +531,44 @@ void print_ncurses_call_info (Super * super)
   else 
   {
     printw ("Clear; ");
-    if (super->opts.use_m17_str_encoder && !super->m17e.str_encoder_tx)
-    {
-      printw ("Random SCR Key(1); ");
-      printw ("Random AES Key(2); ");
-    }
+
   }
 
-  if (super->enc.aes_key_is_loaded)
+  //Too many color switches, but gotta pick the nits
+  if (super->demod.in_sync == 1)
+    attron(COLOR_PAIR(3));
+  else attron(COLOR_PAIR(6));
+
+  printw ("\n");
+  printw ("| ");
+  printw ("KEY: ");
+
+  if (super->demod.in_sync == 1)
+    attron(COLOR_PAIR(1));
+  else attron(COLOR_PAIR(6));
+
+  int keylen = 32;
+  
+  if (super->m17d.enc_st == 0)
+    keylen = 16;
+
+  if (super->m17d.enc_st == 1)
+    keylen = 24;
+  
+  if (super->m17d.enc_st == 2)
+    keylen = 32;
+
+  if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded)
   {
-    //Too many color switches, but gotta pick the nits
-    if (super->demod.in_sync == 1)
-      attron(COLOR_PAIR(3));
-    else attron(COLOR_PAIR(6));
-
-    printw ("\n");
-    printw ("| ");
-    printw ("KEY: ");
-
-    if (super->demod.in_sync == 1)
-      attron(COLOR_PAIR(1));
-    else attron(COLOR_PAIR(6));
-
-    int keylen = 32;
-    if (super->m17d.enc_st == 0)
-      keylen = 16;
-
-    if (super->m17d.enc_st == 1)
-      keylen = 24;
-   
-    if (super->m17d.enc_st == 2)
-      keylen = 32;
-
     for (int i = 0; i < keylen; i++)
       printw ("%02X", super->enc.aes_key[i]);
-
-
-    if (super->demod.in_sync == 1)
-      attron(COLOR_PAIR(3));
-    else attron(COLOR_PAIR(6));
   }
+  else if (super->m17d.enc_et == 1 && super->enc.scrambler_key != 0)
+    printw ("%X", super->enc.scrambler_key);
+
+  if (super->demod.in_sync == 1)
+    attron(COLOR_PAIR(3));
+  else attron(COLOR_PAIR(6));
 
   if (super->m17d.enc_et != 0)
   {
@@ -610,6 +606,11 @@ void print_ncurses_call_info (Super * super)
   //OTA Options for sending OTAKD and other things (for encoder)
   if (!super->opts.use_m17_rfa_decoder && !super->opts.use_m17_ipf_decoder)
   {
+
+    printw ("\n");
+    printw ("| ");
+    printw ("PKT:"); //TODO: Add Sending of SMS Packets by ncurses kb shortcut trigger?
+
     printw ("\n");
     printw ("| ");
     printw ("OTA:");
@@ -636,7 +637,23 @@ void print_ncurses_call_info (Super * super)
       if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
         printw (" Send OTASK(p);");
     }
-    else printw (" Random ECDSA(3);");
+
+    printw ("\n");
+    printw ("| ");
+    printw ("DBG:");
+
+    if (super->enc.enc_type == 0 && super->enc.aes_key_is_loaded == 0 && super->enc.scrambler_key == 0)
+    {
+      printw (" Random Scrambler(1);");
+      printw (" Random AES(2);");
+    }
+    else if (super->enc.scrambler_key)
+      printw (" Disable Scrambler(e);");
+    else if (super->enc.aes_key_is_loaded)
+      printw (" Disable AES(E);");
+    if (super->m17d.ecdsa.keys_loaded == 0)
+      printw (" Random Signature(3);");
+    else printw (" Disable Signature(5);");
 
   }
 

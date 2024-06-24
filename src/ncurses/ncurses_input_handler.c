@@ -51,11 +51,13 @@ void input_ncurses_terminal (Super * super, int c)
         super->enc.A3 = ((uint64_t)rand() << 32ULL) + rand();
         super->enc.A4 = ((uint64_t)rand() << 32ULL) + rand();
         super->enc.enc_type = 2;
+        super->enc.enc_subtype = 2; //256
+        super->m17e.enc_st = 2;     //256
         aes_key_loader(super);
         if (super->opts.internal_loopback_decoder)
         {
           super->m17d.enc_et = 2;
-          super->m17d.enc_st = 0;
+          super->m17d.enc_st = 2;
         }
       }
       break;
@@ -69,6 +71,12 @@ void input_ncurses_terminal (Super * super, int c)
     case 52:
       super->m17d.dt = 4; //fake for carrier reset
       no_carrier_sync (super); //reset demod
+      break;
+
+    //'5' key, Disable Signature
+    case 53:
+      super->m17e.ecdsa.keys_loaded = 0;
+      super->m17d.ecdsa.keys_loaded = 0;
       break;
 
     //'7' key, Toggle Symbol Timing
@@ -213,13 +221,23 @@ void input_ncurses_terminal (Super * super, int c)
     //'o' key, send one time OTAKD Packet RF, if not VOX or TX enabled
     case 111: //NOTE: Sending LSF for SID is not an issue, since this can't be sent over IP Frames from here
       if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->enc.enc_type != 0)
+      {
+        super->demod.in_sync = 1;
         encode_ota_key_delivery_pkt(super, 0, super->m17d.lsf, super->enc.enc_type, super->enc.enc_subtype);
+        super->demod.in_sync = 0;
+      }
+        
       break;
 
     //'p' key, send one time OTASK Packet RF, if not VOX or TX enabled
     case 112:
       if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->m17d.ecdsa.keys_loaded == 1)
+      {
+        super->demod.in_sync = 1;
         encode_ota_key_delivery_pkt(super, 0, super->m17d.lsf, 3, 0);
+        super->demod.in_sync = 0;
+      }
+        
       break;
 
     //'q' key, Quit

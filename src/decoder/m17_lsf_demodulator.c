@@ -237,14 +237,14 @@ void p1_predictive_depuncture(Super * super, uint8_t * input, uint8_t * output)
     nonce[3]  = (ts >> 0)  & 0xFF;
 
     //64-bit of rnd data
-    nonce[4]  = rand() & 0xFF;
-    nonce[5]  = rand() & 0xFF;
-    nonce[6]  = rand() & 0xFF;
-    nonce[7]  = rand() & 0xFF;
-    nonce[8]  = rand() & 0xFF;
-    nonce[9]  = rand() & 0xFF;
-    nonce[10] = rand() & 0xFF;
-    nonce[11] = rand() & 0xFF;
+    // nonce[4]  = rand() & 0xFF;
+    // nonce[5]  = rand() & 0xFF;
+    // nonce[6]  = rand() & 0xFF;
+    // nonce[7]  = rand() & 0xFF;
+    // nonce[8]  = rand() & 0xFF;
+    // nonce[9]  = rand() & 0xFF;
+    // nonce[10] = rand() & 0xFF;
+    // nonce[11] = rand() & 0xFF;
 
     //The last two octets are the CTR_HIGH value (upper 16 bits of the frame number),
     //but you would need to talk non-stop for over 20 minutes to roll it, so just using rnd
@@ -283,7 +283,7 @@ void p1_predictive_depuncture(Super * super, uint8_t * input, uint8_t * output)
     }
 
     //Meta / IV Field (predictive)
-    else if ( (i > 224) && (i < 456) && has_meta)
+    else if ( (i > 224) && (i < 224+64) && has_meta) //(i < 456)
     {
       if (p1[k++] == 1)
         output[x++] = input[j++];

@@ -55,7 +55,7 @@ void decode_lsf_contents(Super * super)
   { 
 
     if (lsf_rs & 1)
-      fprintf (stderr, " ECDSA;");
+      fprintf (stderr, " Signed (secp256r1);");
 
     if ( (lsf_rs & 0x1E) == 0x04) //Currently no ECDSA n  data packets (don't give Woj any ideas)
       fprintf (stderr, " OTAKD Data Packet;");

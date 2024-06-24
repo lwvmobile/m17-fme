@@ -75,6 +75,7 @@ void open_audio_output (Super * super)
     char * timestr  = get_time();
     char * datestr  = get_date();
     sprintf (super->opts.event_log_file, "%s_%s_m17fme_eventlog.txt", datestr, timestr);
+    // sprintf (super->opts.event_log_file, "m17fme_eventlog.txt"); //debug
     super->opts.event_log = fopen (super->opts.event_log_file, "a");
     free (timestr); free (datestr);
   }

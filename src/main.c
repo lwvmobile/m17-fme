@@ -142,8 +142,8 @@ void usage ()
   printf ("\n");
   printf ("  -1            Generate Random One Time Use 24-bit Scrambler Key \n");
   printf ("  -2            Generate Random One Time Use 256-bit AES Key. \n");
-  printf ("  -3            Generate Random Keys For ECDSA Signatures. Enable Signing and Verification.\n");
-  printf ("  -5            Generate Random Keys For ECDSA Signatures, and exit.\n");
+  printf ("  -3            Generate Random Keys For secp256r1 Signatures. Enable Signing and Verification.\n");
+  printf ("  -5            Generate Random Keys For secp256r1 Signatures, and exit.\n");
   printf ("  -4            Permit Data Decoding on CRC Failure (not recommended). \n");
   printf ("  -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). \n");
   printf ("  -7            Disable Symbol Timing Correction. \n");
@@ -377,11 +377,11 @@ int main (int argc, char **argv)
         #ifdef USE_UECC
         strncpy(super.opts.pub_key_file, optarg, 1023);
         super.opts.pub_key_file[1023] = '\0';
-        fprintf (stderr, "ECDSA Public Key File: %s \n", super.opts.pub_key_file);
+        fprintf (stderr, "secp256r1 Public Key File: %s \n", super.opts.pub_key_file);
         source_str = calloc(128, sizeof(char));
         super.opts.pub_key = fopen(super.opts.pub_key_file, "r");
         if (!super.opts.pub_key)
-            fprintf(stderr, "Failed to ECDSA Public Key file %s.\n", super.opts.pub_key_file);
+            fprintf(stderr, "Failed to secp256r1 Public Key file %s.\n", super.opts.pub_key_file);
         else
         {
           fread(source_str, 1, 128, super.opts.pub_key);
@@ -549,11 +549,11 @@ int main (int argc, char **argv)
         #ifdef USE_UECC
         strncpy(super.opts.pri_key_file, optarg, 1023);
         super.opts.pri_key_file[1023] = '\0';
-        fprintf (stderr, "ECDSA Private Key File: %s \n", super.opts.pri_key_file);
+        fprintf (stderr, "secp256r1 Private Key File: %s \n", super.opts.pri_key_file);
         source_str = calloc(128, sizeof(char));
         super.opts.pub_key = fopen(super.opts.pri_key_file, "r");
         if (!super.opts.pub_key)
-            fprintf(stderr, "Failed to ECDSA Private Key file %s.\n", super.opts.pri_key_file);
+            fprintf(stderr, "Failed to secp256r1 Private Key file %s.\n", super.opts.pri_key_file);
         else
         {
           fread(source_str, 1, 64, super.opts.pub_key);

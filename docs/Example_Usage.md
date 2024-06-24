@@ -254,9 +254,9 @@ Debug Options:
 
   -1            Generate Random One Time Use 24-bit Scrambler Key 
   -2            Generate Random One Time Use 256-bit AES Key. 
-  -3            Generate Random Keys For ECDSA Signatures. Enable Signing and Verification.
+  -3            Generate Random Keys For secp256r1 Signatures. Enable Signing and Verification.
   -4            Permit Data Decoding on CRC Failure (not recommended). 
-  -5            Generate Random Keys For ECDSA Signatures, and exit.
+  -5            Generate Random Keys For secp256r1 Signatures, and exit.
   -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). 
   -7            Disable Symbol Timing Correction. 
   -8            Disable High Pass Filter on CODEC2 Output. 

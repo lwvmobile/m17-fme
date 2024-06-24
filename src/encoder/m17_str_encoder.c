@@ -174,6 +174,7 @@ void encode_str(Super * super)
 
   if (super->m17e.ecdsa.keys_loaded)
     lsf_rs = lsf_rs | (uint8_t)0x1; //OR 0x01 for ECDSA
+  else lsf_rs = 0; //reset to zero
 
   if (lsf_et == 1)
   {
@@ -348,6 +349,7 @@ void encode_str(Super * super)
 
     if (super->m17e.ecdsa.keys_loaded)
       lsf_rs = lsf_rs | (uint8_t)0x1; //OR 0x01 for ECDSA
+    else lsf_rs = 0; //reset to zero
 
     //compose the 16-bit frame information from the above sub elements
     lsf_fi = 0;

@@ -118,8 +118,6 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
       else if (ssn == 3)
       {
         super->enc.A4 = (unsigned long long int)convert_bits_into_output(bits+00+00+00, 64);
-        // sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX",
-        //          super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
         sprintf (super->m17d.sms, "OTAKD AES Key Delivery");
         fprintf (stderr, "\n");
         aes_key_loader (super);
@@ -131,8 +129,6 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
         super->enc.A3 = (unsigned long long int)convert_bits_into_output(bits+64+64+00, 64);
         super->enc.A4 = (unsigned long long int)convert_bits_into_output(bits+64+64+64, 64);
         fprintf (stderr, "\n");
-        // sprintf (super->m17d.sms, "OTAKD AES Key: %016llX %016llX %016llX %016llX",
-        //          super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
         sprintf (super->m17d.sms, "OTAKD AES Key Delivery");
         aes_key_loader (super);
 
@@ -152,10 +148,10 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
           fprintf (stderr, "\n        ");
         fprintf (stderr, " %02X", super->m17d.ecdsa.public_key[j]);
       }
-      sprintf (super->m17d.sms, "OTASK Signature Public Key;");
+      sprintf (super->m17d.sms, "OTASK Signature Public Key Delivery;");
 
-      //send OTAKD Scrambler to event_log_writer
-      // event_log_writer (super, super->m17d.sms, protocol); //disabled, otherwise, spams the event log
+      //send OTASK to event_log_writer
+      event_log_writer (super, super->m17d.sms, protocol);
 
     }
  
