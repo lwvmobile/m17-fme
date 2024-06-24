@@ -623,11 +623,18 @@ void encode_str(Super * super)
       if (new_lsf == 1)
       {
 
-        //send the OTA key before LSF
+        //send the OTA key before LSF (AES and Scrambler)
         if (super->opts.use_otakd == 1)
         {
           if (super->enc.enc_type != 0)
-            encode_ota_key_delivery_pkt(super, use_ip, sid);
+            encode_ota_key_delivery_pkt(super, use_ip, sid, super->enc.enc_type, super->enc.enc_subtype);
+        }
+
+        //send the OTA key before LSF (Signature Public Key)
+        if (super->opts.use_otask == 1)
+        {
+          if (super->m17e.ecdsa.keys_loaded == 1)
+            encode_ota_key_delivery_pkt(super, use_ip, sid, 3, 0);
         }
 
         fprintf (stderr, "\n M17 LSF    (ENCODER): ");

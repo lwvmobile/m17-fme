@@ -417,14 +417,6 @@ void print_ncurses_call_info (Super * super)
       else printw (" ( ON);");
     }
 
-    if (super->enc.enc_type != 0)
-    {
-      if (super->opts.use_m17_str_encoder && super->opts.use_otakd)
-        printw (" Disable OTAKD(O);");
-
-      if (super->opts.use_m17_str_encoder && !super->opts.use_otakd)
-        printw (" Enable OTAKD(O);");
-    }
   }
 
   printw ("\n");
@@ -592,34 +584,72 @@ void print_ncurses_call_info (Super * super)
   //Display any Decoded Messages
 
   //take a truncated string, only display first 71 chars on Ncurses Terminal (see log for full messages)
-  char shortstr[76]; memset (shortstr, 0, 76*sizeof(char));
+  char shortstr[76]; sprintf (shortstr, "%s", "");
   memcpy (shortstr, super->m17d.sms, 71);
-  shortstr[72] = 0; //terminate string
+  shortstr[72] = '\0'; //terminate string
 
   printw ("\n");
   printw ("| ");
   printw ("SMS: ");
   printw ("%s", shortstr);
 
+  sprintf (shortstr, "%s", "");
   memcpy (shortstr, super->m17d.dat, 71);
   printw ("\n");
   printw ("| ");
   printw ("POS: ");
   printw ("%s", shortstr);
 
+  sprintf (shortstr, "%s", "");
   memcpy (shortstr, super->m17d.arb, 71);
   printw ("\n");
   printw ("| ");
   printw ("ARB: ");
   printw ("%s", shortstr);
 
-  //error tracking
-  printw ("\n");
-  printw ("| ");
-  printw ("ERR: ");
-  printw ("LSF: %05d; EMB: %05d; GLY: %05d; PKT: %05d; IPF: %05d; ", 
-    super->error.lsf_hdr_crc_err, super->error.lsf_emb_crc_err, 
-    super->error.golay_err, super->error.pkt_crc_err, super->error.ipf_crc_err);
+  //OTA Options for sending OTAKD and other things (for encoder)
+  if (!super->opts.use_m17_rfa_decoder && !super->opts.use_m17_ipf_decoder)
+  {
+    printw ("\n");
+    printw ("| ");
+    printw ("OTA:");
+    if (super->enc.enc_type != 0)
+    {
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->enc.enc_type != 0)
+        printw (" Send OTAKD(o);");
+
+      if (super->opts.use_m17_str_encoder && super->opts.use_otakd)
+        printw (" Disable OTAKD(O);");
+
+      if (super->opts.use_m17_str_encoder && !super->opts.use_otakd)
+        printw (" Enable OTAKD(O);");
+    }
+
+    if (super->m17d.ecdsa.keys_loaded != 0)
+    {
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->m17d.ecdsa.keys_loaded == 1)
+        printw (" Send OTASK(p);");
+
+      if (super->opts.use_m17_str_encoder && super->opts.use_otask)
+        printw (" Disable OTASK(O);");
+
+      if (super->opts.use_m17_str_encoder && !super->opts.use_otask)
+        printw (" Enable OTASK(O);");
+    }
+
+  }
+
+  //error tracking (for decoder)
+  else
+  {
+    
+    printw ("\n");
+    printw ("| ");
+    printw ("ERR: ");
+    printw ("LSF: %05d; EMB: %05d; GLY: %05d; PKT: %05d; IPF: %05d; ", 
+      super->error.lsf_hdr_crc_err, super->error.lsf_emb_crc_err, 
+      super->error.golay_err, super->error.pkt_crc_err, super->error.ipf_crc_err);
+  }
 
   printw ("\n");
   printw ("-------------------------------------------------------------------------------\n");

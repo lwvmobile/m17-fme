@@ -94,7 +94,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     uint8_t  type = (input[1] >> 6) & 0x3; //enc type
     uint8_t stype = (input[1] >> 4) & 0x3; //enc sub-type
     uint8_t ssn   = (input[1] >> 0) & 0xF; //send sequence number
-    fprintf (stderr, "\n Encryption Type: %d; Subtype: %d; Send Sequence Number: %d;", type, stype, ssn);
+    if (type != 0x03) fprintf (stderr, "\nEncryption Type: %d; Subtype: %d; Send Sequence Number: %d;", type, stype, ssn);
     if (type == 0x01)
     {
       super->enc.scrambler_key = (uint32_t)convert_bits_into_output(bits, 24);
@@ -106,7 +106,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
       //send OTAKD Scrambler to event_log_writer
       // event_log_writer (super, super->m17d.sms, protocol); //disabled, otherwise, spams the event log
     }
-    if (type == 0x02)
+    else if (type == 0x02)
     {
       //sending full sized AES key over Embedded LSF OTAKD will require 4 embedded LSF frames
       if      (ssn == 0)
@@ -140,6 +140,25 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
         event_log_writer (super, super->m17d.sms, protocol);
       }
     }
+    else if (type == 0x03)
+    {
+      memcpy (super->m17d.ecdsa.public_key, input+2, 64);
+      super->m17d.ecdsa.keys_loaded = 1;
+      fprintf (stderr, "\nOTASK Signature Public Key Delivery;");
+      fprintf (stderr, "\nPub Key:");
+      for (int j = 0; j < 64; j++)
+      {
+        if (j == 16 || j == 32 || j == 48)
+          fprintf (stderr, "\n        ");
+        fprintf (stderr, " %02X", super->m17d.ecdsa.public_key[j]);
+      }
+      sprintf (super->m17d.sms, "OTASK Signature Public Key;");
+
+      //send OTAKD Scrambler to event_log_writer
+      // event_log_writer (super, super->m17d.sms, protocol); //disabled, otherwise, spams the event log
+
+    }
+ 
   }
   
   //Extended Call Sign Data

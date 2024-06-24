@@ -561,11 +561,11 @@ void encode_pkt(Super * super)
   //NOTE: Fixed recvfrom limitation, MSG_WAITALL seems to be 256
   //manually inserted 1000 into recvfrom instead, max MPKT size should be 809.
 
-  //send the OTA key
+  //send the OTA key before LSF (AES and Scrambler)
   if (super->opts.use_otakd == 1)
   {
     if (super->enc.enc_type != 0)
-      encode_ota_key_delivery_pkt(super, use_ip, sid);
+      encode_ota_key_delivery_pkt(super, use_ip, sid, super->enc.enc_type, super->enc.enc_subtype);
   }
 
   //Send MPKT to reflector

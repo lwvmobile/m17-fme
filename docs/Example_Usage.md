@@ -247,7 +247,8 @@ Encryption Options:
                 (NOTE: Due to bug in m17-tools handling of AES keys, all keys are run as AES-128)
                 (Limiting significant key value to first 32 characters to maintain compatibility)
   -J <file>     Load AES Key from file. (see example key: key/aes_key.txt)
-  -O            Send OTA Key Delivery Packets and Embedded LSD
+  -O            Send OTA Key Delivery Packets and Embedded LSD for AES and Scrambler Keys
+  -Q            Send OTA Key Delivery Packets for Signature Public Keys
 
 Debug Options:
 

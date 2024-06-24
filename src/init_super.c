@@ -82,6 +82,7 @@ void init_super (Super * super)
 
   //key delivery
   super->opts.use_otakd = 0; //send OTA Key Delivery Packets and Embedded LSD when encryption is used
+  super->opts.use_otask = 0; //send OTA Key Delivery Packets for Signature Public Keys
 
   //Gain
   super->opts.input_gain_rf  = 1.0f;

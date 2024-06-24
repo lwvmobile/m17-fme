@@ -199,6 +199,18 @@ void input_ncurses_terminal (Super * super, int c)
       else super->opts.use_raw_audio_monitor = 0;
       break;
 
+    //'o' key, send one time OTAKD Packet RF, if not VOX or TX enabled
+    case 111: //NOTE: Sending LSF for SID is not an issue, since this can't be sent over IP Frames from here
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->enc.enc_type != 0)
+        encode_ota_key_delivery_pkt(super, 0, super->m17d.lsf, super->enc.enc_type, super->enc.enc_subtype);
+      break;
+
+    //'p' key, send one time OTASK Packet RF, if not VOX or TX enabled
+    case 112:
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->m17d.ecdsa.keys_loaded == 1)
+        encode_ota_key_delivery_pkt(super, 0, super->m17d.lsf, 3, 0);
+      break;
+
     //'q' key, Quit
     case 113:
       exitflag = 1;

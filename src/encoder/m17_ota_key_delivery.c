@@ -17,8 +17,10 @@
 //also works with some laws that require the publishing of enc if used on HAM bands since the
 //source code of HOW it is encrypted is plainly available AND the key is transmitted openly OTA.
 
+//NOTE: This format can also now be used to deliver ECDSA Signature Public Keys if desired.
+
 //this version will send a full LSF, then send a full Data Packet Set with the Complete Key
-void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
+void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint8_t enc_type, uint8_t enc_stype)
 {
 
   //quell defined but not used warnings from m17.h
@@ -182,8 +184,6 @@ void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
     m17_p1_full[k++] = (protocol >> (7-i)) & 1;
 
   //load enc type, and send sequence number
-  uint8_t  enc_type = super->enc.enc_type;
-  uint8_t enc_stype = super->enc.enc_subtype;
   uint8_t ssn = 4; //sending over a packet, so this will always be 4 (full message)
 
   //enc_type and ssn bits
@@ -206,14 +206,15 @@ void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
   //if AES key, load complete AES key now
   else if (enc_type == 2)
   {
-    for (i = 0; i < 64; i++)
-      m17_p1_full[k++] = (super->enc.A1 >> (63-i)) & 1;
-    for (i = 0; i < 64; i++)
-      m17_p1_full[k++] = (super->enc.A2 >> (63-i)) & 1;
-    for (i = 0; i < 64; i++)
-      m17_p1_full[k++] = (super->enc.A3 >> (63-i)) & 1;
-    for (i = 0; i < 64; i++)
-      m17_p1_full[k++] = (super->enc.A4 >> (63-i)) & 1;
+    unpack_byte_array_into_bit_array(super->enc.aes_key, m17_p1_full+16, 32);
+    k += 32*8;
+  }
+
+  //Signature Public Key
+  else if (enc_type == 3)
+  {
+    unpack_byte_array_into_bit_array(super->m17d.ecdsa.public_key, m17_p1_full+16, 64);
+    k += 64*8;
   }
 
   //zero fill terminating byte (for compatibility)
@@ -250,6 +251,14 @@ void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
     //          super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
     sprintf (super->m17d.sms, "OTAKD AES Key Delivery");
   }
+  else if (enc_type == 3)
+  {
+    block =  3;
+    lst   = 19;
+    pad   = 6;
+    stop  = 67;
+    sprintf (super->m17d.sms, "OTAKD Signature Public Key Delivery");
+  }
   
   //debug position values
   if (super->opts.payload_verbosity > 0)
@@ -265,9 +274,10 @@ void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
     x++;
   }
 
-  //hard set len for CRC16 for both types
-  if (enc_type == 2) crc_cmp = crc16(m17_p1_packed, 35);
-  else crc_cmp = crc16(m17_p1_packed, 6);
+  //hard set len for CRC16 on type
+  if      (enc_type == 1) crc_cmp = crc16(m17_p1_packed, 6);
+  else if (enc_type == 2) crc_cmp = crc16(m17_p1_packed, 35);
+  else if (enc_type == 3) crc_cmp = crc16(m17_p1_packed, 67);
 
   //debug dump CRC (when pad is literally zero)
   if (super->opts.payload_verbosity > 0)
@@ -342,7 +352,7 @@ void encode_ota_key_delivery_pkt(Super * super, int use_ip, uint8_t * sid)
   //only send once at the appropriate time when encoder is toggled on
   int new_lsf = 1;
 
-  //either 1 or 2 blocks for OTAKD
+  //
   for (start = 0; start < block; start++)
   {
     //send LSF frame once, if new encode session

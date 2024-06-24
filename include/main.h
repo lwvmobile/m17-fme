@@ -144,6 +144,7 @@ typedef struct
 
   //key delivery
   uint8_t use_otakd;
+  uint8_t use_otask;
 
   //Gain
   float input_gain_rf;
@@ -644,7 +645,7 @@ void encode_str (Super * super);
 void encode_str_ecdsa(Super * super, uint8_t lich_cnt, float * mem, int use_ip, int udpport, uint8_t can, uint8_t st, uint8_t * sid, unsigned long long int src, unsigned long long int dst);
 
 //Special Frame / Packet Encoders
-void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid);
+void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint8_t enc_type, uint8_t enc_stype);
 void encode_ota_key_delivery_emb(Super * super, uint8_t * m17_lsf, uint8_t * lsf_count);
 
 //test pattern generator
