@@ -253,6 +253,16 @@ void input_ncurses_terminal (Super * super, int c)
       no_carrier_sync (super); //reset demod
       break;
 
+    //'t' key, Send Loaded Text Message (disabled if raw/arb/meta data loaded)
+    case 116:
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->m17e.raw[0] == 0)
+      {
+        super->demod.in_sync = 1;
+        encode_pkt(super, 0);
+        super->demod.in_sync = 0;
+      }        
+      break;
+
     //'v' key, Toggle Vox Mode
     case 118:
       if (super->m17e.str_encoder_vox == 0) super->m17e.str_encoder_vox = 1;

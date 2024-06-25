@@ -723,7 +723,7 @@ int main (int argc, char **argv)
 
   //encode M17 Packet Data Frames
   if (super.opts.use_m17_pkt_encoder == 1)
-    encode_pkt(&super);
+    encode_pkt(&super, 1);
   
   //encode M17 Voice Stream Frames
   if (super.opts.use_m17_str_encoder == 1)

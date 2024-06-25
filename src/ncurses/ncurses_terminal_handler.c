@@ -609,7 +609,9 @@ void print_ncurses_call_info (Super * super)
 
     printw ("\n");
     printw ("| ");
-    printw ("PKT:"); //TODO: Add Sending of SMS Packets by ncurses kb shortcut trigger?
+    printw ("PKT:");
+    if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->m17e.raw[0] == 0)
+      printw (" Send SMS Text(t);");
 
     printw ("\n");
     printw ("| ");

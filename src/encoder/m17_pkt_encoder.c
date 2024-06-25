@@ -3,13 +3,14 @@
  * M17 Project - Packet Mode Encoder
  *
  * LWVMOBILE
- * 2024-05 M17 Project - Florida Man Edition
+ * 2024-06 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"
 #include "m17.h"
 
-void encode_pkt(Super * super)
+//mode 1, single use, mode 0, use with str encoder and ncurses terminal
+void encode_pkt(Super * super, int mode)
 {
 
   //quell defined but not used warnings from m17.h
@@ -458,9 +459,9 @@ void encode_pkt(Super * super)
   int use_ip = 0; //1 to enable IP Frame Broadcast over UDP
   uint8_t reflector_module = super->m17e.reflector_module;
 
-  //Open UDP port to default or user defined values, if enabled
+  //Open UDP port to default or user defined values, if enabled, and type 1 
   int sock_err = 0;
-  if (super->opts.m17_use_ip == 1)
+  if (super->opts.m17_use_ip == 1 && mode == 1)
   {
     //
     sock_err = udp_socket_connectM17(super);
@@ -472,6 +473,8 @@ void encode_pkt(Super * super)
     }
     else use_ip = 1;
   }
+  //should be connected if these conditions are met
+  else if (super->opts.m17_use_ip == 1 && super->opts.m17_udp_sock != 0 && mode == 0) use_ip = 1;
 
   //NOTE: IP Framing is not standard on M17 for PKT mode, but
   //I don't see any reason why we can't send them anyways, just
@@ -510,7 +513,7 @@ void encode_pkt(Super * super)
   }
 
   //SEND CONN to reflector
-  if (use_ip == 1)
+  if (use_ip == 1 && mode == 1)
     udp_return = m17_socket_blaster (super, 11, conn);
 
   //add MPKT header
@@ -558,14 +561,22 @@ void encode_pkt(Super * super)
     m17_ip_packed[i] = (uint8_t)convert_bits_into_output(&crc_bits[j*8], 8);
 
 
-  //NOTE: Fixed recvfrom limitation, MSG_WAITALL seems to be 256
-  //manually inserted 1000 into recvfrom instead, max MPKT size should be 809.
+  //NOTE: Sending Packets from Ncurses KB Shortcut with OTAKD enabled will
+  //also send the OTAKD data packet here (unintended but handy side effect)
+  //adding OTASK here as well so we can exploit this (make seperate ncurses kb?)
 
   //send the OTA key before LSF (AES and Scrambler)
   if (super->opts.use_otakd == 1)
   {
     if (super->enc.enc_type != 0)
       encode_ota_key_delivery_pkt(super, use_ip, sid, super->enc.enc_type, super->enc.enc_subtype);
+  }
+
+  //send the OTA key before LSF (Signature Public Key)
+  if (super->opts.use_otask == 1)
+  {
+    if (super->m17e.ecdsa.keys_loaded == 1)
+      encode_ota_key_delivery_pkt(super, use_ip, sid, 3, 0);
   }
 
   //Send MPKT to reflector
@@ -581,7 +592,7 @@ void encode_pkt(Super * super)
     udp_return = m17_socket_blaster (super, 10, eotx);
 
   //SEND DISC to reflector
-  if (use_ip == 1)
+  if (use_ip == 1 && mode == 1)
     udp_return = m17_socket_blaster (super, 10, disc);
 
   //flag to determine if we send a new LSF frame for new encode
@@ -692,8 +703,10 @@ void encode_pkt(Super * super)
       for (i = 0; i < 25; i++)
         encode_rfa (super, nil, mem, 99);
 
-      //shut it down
-      exitflag = 1;
+      //shut it down, if mode 1, or break loop if 0
+      if (mode == 1)
+        exitflag = 1;
+      else break;
     }
 
     //increment packet / byte counter

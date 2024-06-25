@@ -3,7 +3,7 @@
  * M17 Project - Over the Air Key Delivery Format Encoding
  *
  * LWVMOBILE
- * 2024-05 M17 Project - Florida Man Edition
+ * 2024-06 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"
