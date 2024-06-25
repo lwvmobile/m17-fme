@@ -296,6 +296,13 @@ Quick Examples:
 'h' key, Toggle High Pass Filter on CODEC2 Output
 'q' key, Quit
 
+// Packet Functionality
+'o' key, send OTAKD Encryption Key Delivery Packet over RF
+'p' key, send OTASK Signature Key Delivery Packet over RF
+'t' key, send SMS Data Packet over RF or IP
+  NOTE: if sending with 't' and OTAKD and/or OTASK are enabled, 
+  OTAKD and OTASK packets are also delivered via RF and IP
+
 // Modulation and Demodulation
 'r' key, Toggle RRC Input / Output Filtering
 'x' key, Toggle Inversion
@@ -317,12 +324,15 @@ Quick Examples:
 '<' key, decrement input squelch by 10
 '>' key, increment input squelch by 10
 
-// Encryption
+// Encryption and Signatures
 '1' key, Generate Random Scrambler Key (24-bit)
 '2' key, Generate Random AES Key (256-bit)
+'3' key, Generate Random Signature Key Pair and Enable Stream Signing
+'5' key, Disable Signature Stream Signing
 'E' key, Toggle AES Encryption (only when not TX, and a key is loaded)
 'e' key, Toggle Scrambler Encryption (only when not TX, and a key is loaded)
 'O' key, Toggle OTA Key Delivery (only when not TX, and a key is loaded)
+'P' key, Toggle OTA Signature Key Delivery (only when not TX, and a key is loaded)
 
 // Ncurses Displays
 'C' key, Toggle Banner (Capital C)
