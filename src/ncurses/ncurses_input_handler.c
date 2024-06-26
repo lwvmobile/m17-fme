@@ -14,8 +14,6 @@
 
 #ifdef USE_CURSES
 
-char label[50];
-
 //open a boxed window, display label, let user input string to be set to output_string value
 void entry_string_ncurses_terminal (char * label, char * output_string)
 {
@@ -40,6 +38,9 @@ void entry_string_ncurses_terminal (char * label, char * output_string)
 //keyboard shortcut key handler
 void input_ncurses_terminal (Super * super, int c)
 {
+
+  char label[50];
+  char inp_str[800];
 
   switch (c)
   {
@@ -296,6 +297,25 @@ void input_ncurses_terminal (Super * super, int c)
       }        
       break;
 
+    //'u' key, Enter RAW Packet (will zero out loaded SMS Message)
+    case 117:
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+      {
+        sprintf (super->m17e.sms, "%s", ""); //zero out any loaded SMS message
+        memset  (super->m17e.raw, 0, sizeof(super->m17e.raw)); //zero out any raw packet data
+        sprintf (label, " Enter Raw Packet:"); //set label to be displayed in the entry box window        
+        entry_string_ncurses_terminal(label, inp_str);
+        uint16_t len = parse_raw_user_string(super, inp_str);
+        if (super->m17e.raw[0]) //only send if there is a packet loaded, else do nothing
+        {
+          decode_pkt_contents(super, super->m17e.raw+1, len); //decode content locally for display
+          super->demod.in_sync = 1;
+          encode_pkt(super, 0);
+          super->demod.in_sync = 0;
+        }
+      }        
+      break;
+
     //'v' key, Toggle Vox Mode
     case 118:
       if (super->m17e.str_encoder_vox == 0) super->m17e.str_encoder_vox = 1;
@@ -308,6 +328,23 @@ void input_ncurses_terminal (Super * super, int c)
           super->m17e.str_encoder_eot = 1;
         }
       }
+      break;
+
+    //'w' key, Enter Arb Text Message
+    case 119:
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+      {
+        sprintf (super->m17e.arb, "%s", "");
+        sprintf (super->m17d.arb, "%s", "");
+        sprintf (label, " Enter Arb Text:"); //set label to be displayed in the entry box window
+        entry_string_ncurses_terminal(label, super->m17e.arb);
+        if (super->m17e.arb[0]) //only send if there is an arb text message loaded, else signal 3200 voice
+        {
+          super->opts.m17_str_encoder_dt = 3;
+          sprintf (super->m17d.arb, super->m17e.arb);
+        }
+        else super->opts.m17_str_encoder_dt = 2;
+      }        
       break;
 
     //'x' key, Toggle Inversion

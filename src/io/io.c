@@ -507,8 +507,8 @@ void parse_udp_user_string (Super * super, char * input)
 
 }
 
-//convert a user string into a uint8_t array for raw packet encoding
-void parse_raw_user_string (Super * super, char * input)
+//convert a user string into a uint8_t array for raw packet encoding, return len
+uint16_t parse_raw_user_string (Super * super, char * input)
 {
   //since we want this as octets, get strlen value, then divide by two
   uint16_t len = strlen((const char*)input);
@@ -547,6 +547,8 @@ void parse_raw_user_string (Super * super, char * input)
     k += 2;
   }
   // fprintf (stderr, "\n");
+
+  return len;
 }
 
 //convert a raw user string into a uint8_t array for raw meta encoding (Note: Encryption use overrides the use of this in the Meta Data Field)

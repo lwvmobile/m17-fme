@@ -23,7 +23,7 @@ void encode_str(Super * super)
   //set stream type value here so we can change 3200 or 1600 accordingly
   uint8_t st = 2; //stream type: 0 = res; 1 = data; 2 = voice(3200); 3 = voice(1600) + data;
   if (super->opts.m17_str_encoder_dt == 3) st = 3; //this is set to 3 IF -S user text string is called at CLI
-  else st = 2; //otherwise, just use 32066 voice
+  else st = 2; //otherwise, just use 3200 voice
 
   //IP Frame Things and User Variables for Reflectors, etc
   uint8_t nil[368]; //empty array to send to RF during Preamble, EOT Marker, or Dead Air
@@ -145,11 +145,15 @@ void encode_str(Super * super)
   else nsam = 160; //default to 160 if RES, even if we don't handle those
   #endif
 
-  short * samp1 = malloc (sizeof(short) * nsam);
-  short * samp2 = malloc (sizeof(short) * nsam);
+  //note: changed to always use the larger size, users can now
+  //load and toggle arb data, so that will cause a segfault if we 
+  //have a smaller malloc and then try to load more later
+  //same for the voice1 and voice2 arrays
+  short * samp1 = malloc (sizeof(short) * 320);
+  short * samp2 = malloc (sizeof(short) * 320);
 
-  short voice1[nsam]; //read in xxx ms of audio from input source
-  short voice2[nsam]; //read in xxx ms of audio from input source
+  short voice1[320]; //read in xxx ms of audio from input source
+  short voice2[320]; //read in xxx ms of audio from input source
   
   //frame sequence number and eot bit
   uint16_t fsn = 0;
@@ -350,6 +354,19 @@ void encode_str(Super * super)
     if (super->m17e.ecdsa.keys_loaded)
       lsf_rs = lsf_rs | (uint8_t)0x1; //OR 0x01 for ECDSA
     else lsf_rs = 0; //reset to zero
+
+
+    //this is set to 3 IF -A  arb user text string is called in ncurses
+    if (super->opts.m17_str_encoder_dt == 3)
+    {
+      lsf_dt = 3;
+      st = 3;
+    }
+    else //otherwise, just use 3200 voice
+    {
+      lsf_dt = 2;
+      st = 2;
+    }
 
     //compose the 16-bit frame information from the above sub elements
     lsf_fi = 0;
@@ -1026,6 +1043,14 @@ void encode_str(Super * super)
     #ifdef USE_CURSES
     if (super->opts.use_ncurses_terminal == 1)
       print_ncurses_terminal(super);
+    #endif
+
+    #ifdef USE_CODEC2
+    if      (st == 2)
+      nsam = codec2_samples_per_frame(super->m17e.codec2_3200);
+    else if (st == 3)
+      nsam = codec2_samples_per_frame(super->m17e.codec2_1600);
+    else nsam = 160; //default to 160 if RES, even if we don't handle those
     #endif
     
   }

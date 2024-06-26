@@ -296,12 +296,20 @@ Quick Examples:
 'h' key, Toggle High Pass Filter on CODEC2 Output
 'q' key, Quit
 
-// Packet Functionality
+// Packet and Data Functionality
 'o' key, send OTAKD Encryption Key Delivery Packet over RF
 'p' key, send OTASK Signature Key Delivery Packet over RF
-'t' key, send SMS Data Packet over RF or IP
-  NOTE: if sending with 't' and OTAKD and/or OTASK are enabled, 
+
+
+'t' key, enter and send SMS Text Message over RF or IP
+'u' key, enter and send Raw Data Packet over RF or IP
+'w' key, Load Arb Data as Text Message for Stream
+
+  NOTE: if sending with 't' or 'u' and OTAKD and/or OTASK are enabled, 
   OTAKD and OTASK packets are also delivered via RF and IP
+
+  NOTE: hitting 't', 'u', or 'w' and entering blank data will
+  zero out entered data/text, and will revert 1600+arb to 3200.
 
 // Modulation and Demodulation
 'r' key, Toggle RRC Input / Output Filtering

@@ -528,11 +528,8 @@ void print_ncurses_call_info (Super * super)
   }
   else if (super->m17d.enc_et == 3)
     printw (" Reserved Encryption Type: %d", super->m17d.enc_st);
-  else 
-  {
-    printw ("Clear; ");
-
-  }
+  // else 
+  //   printw ("Clear; ");
 
   //Too many color switches, but gotta pick the nits
   if (super->demod.in_sync == 1)
@@ -609,12 +606,6 @@ void print_ncurses_call_info (Super * super)
 
     printw ("\n");
     printw ("| ");
-    printw ("PKT:");
-    if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->m17e.raw[0] == 0)
-      printw (" Send SMS Text(t);");
-
-    printw ("\n");
-    printw ("| ");
     printw ("OTA:");
     if (super->enc.enc_type != 0)
     {
@@ -638,6 +629,16 @@ void print_ncurses_call_info (Super * super)
 
       if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
         printw (" Send OTASK(p);");
+    }
+
+    printw ("\n");
+    printw ("| ");
+    printw ("PKT:");
+    if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+    {
+      printw (" Send SMS Text(t);");
+      printw (" Send Raw Data(u);");
+      printw (" Load Arb Text(w);");
     }
 
     printw ("\n");
