@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
  * ncurses_input_handler.c
- * M17 Project - Ncurses Keystroke Input Handling
+ * M17 Project - Ncurses String and Keystroke Input Handling
  *
  * LWVMOBILE
- * 2024-05 M17 Project - Florida Man Edition
+ * 2024-06 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 
@@ -14,6 +14,30 @@
 
 #ifdef USE_CURSES
 
+char label[50];
+
+//open a boxed window, display label, let user input string to be set to output_string value
+void entry_string_ncurses_terminal (char * label, char * output_string)
+{
+  WINDOW * entry;
+  int rows   = 6;
+  int colums = 70;
+  int xpos = 10;
+  int ypos = 10;
+  
+  entry = newwin(rows, colums, ypos, xpos);
+  box (entry, 0, 0);
+  mvwprintw(entry, 2, 2, label); //" Enter Text Message:", etc
+  mvwprintw(entry, 3, 3, " ");
+  echo();
+  refresh();
+  //read input, including white spaces, up to line break
+  //had to google search this voodoo scan
+  wscanw(entry, "%[^\n]s", output_string); //or "%[^\n]%*c"
+  noecho();
+}
+
+//keyboard shortcut key handler
 void input_ncurses_terminal (Super * super, int c)
 {
 
@@ -253,13 +277,22 @@ void input_ncurses_terminal (Super * super, int c)
       no_carrier_sync (super); //reset demod
       break;
 
-    //'t' key, Send Loaded Text Message (disabled if raw/arb/meta data loaded)
+    //'t' key, Enter Text Message (will zero out any raw packet data)
     case 116:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->m17e.raw[0] == 0)
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
       {
-        super->demod.in_sync = 1;
-        encode_pkt(super, 0);
-        super->demod.in_sync = 0;
+        sprintf (super->m17e.sms, "%s", "");
+        sprintf (super->m17d.sms, "%s", "");
+        memset  (super->m17e.raw, 0, sizeof(super->m17e.raw)); //zero out any raw packet data (two aren't mutually exclusive)
+        sprintf (label, " Enter Text Message:"); //set label to be displayed in the entry box window
+        entry_string_ncurses_terminal(label, super->m17e.sms);
+        if (super->m17e.sms[0]) //only send if there is an SMS text message loaded, else do nothing
+        {
+          sprintf (super->m17d.sms, super->m17e.sms);
+          super->demod.in_sync = 1;
+          encode_pkt(super, 0);
+          super->demod.in_sync = 0;
+        }
       }        
       break;
 
