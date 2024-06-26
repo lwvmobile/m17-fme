@@ -304,17 +304,18 @@ Quick Examples:
 't' key, enter and send SMS Text Message over RF or IP
 'u' key, enter and send Raw Data Packet over RF or IP
 'w' key, Load Arb Data as Text Message for Stream
+'m' key, Load Meta Data as Text Message for Stream
 
   NOTE: if sending with 't' or 'u' and OTAKD and/or OTASK are enabled, 
   OTAKD and OTASK packets are also delivered via RF and IP
 
-  NOTE: hitting 't', 'u', or 'w' and entering blank data will
-  zero out entered data/text, and will revert 1600+arb to 3200.
+  NOTE: hitting 't', 'u', 'w', or 'm' and entering blank data will
+  zero out that field, and will revert 1600+arb to 3200 on 'w'.
 
 // Modulation and Demodulation
 'r' key, Toggle RRC Input / Output Filtering
 'x' key, Toggle Inversion
-'m' key, Toggle Analog / Raw Signal Monitor (when no sync)
+'M' key, Toggle Analog / Raw Signal Monitor (when no sync)
 
 // Audio Levels
 '/' key, decrement voice input gain by 1%

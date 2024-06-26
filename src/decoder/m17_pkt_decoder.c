@@ -299,11 +299,13 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     //make a better string out of it instead
     sprintf (super->m17d.arb, "%s", "");
     if (protocol == 0x80) //Meta Text with the control byte
-      memcpy (super->m17d.arb, input+2, len); //skip over control byte
+      memcpy (super->m17d.dat, input+2, len); //skip over control byte
     else memcpy (super->m17d.arb, input+1, len);
 
     //send to event_log_writer
-    event_log_writer (super, super->m17d.arb, protocol);
+    if (protocol == 0x80)
+      event_log_writer (super, super->m17d.dat, protocol);
+    else event_log_writer (super, super->m17d.arb, protocol);
   }
   //Any Other Raw or Unknown Data Protocol as Hex
   else

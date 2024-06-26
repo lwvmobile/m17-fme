@@ -165,6 +165,12 @@ void input_ncurses_terminal (Super * super, int c)
       else super->opts.ncurses_show_io = 0;
       break;
 
+    //'M' key, Toggle Analog / Raw Signal Monitor (when no sync)
+    case 77:
+      if (super->opts.use_raw_audio_monitor == 0) super->opts.use_raw_audio_monitor = 1;
+      else super->opts.use_raw_audio_monitor = 0;
+      break;
+
     //'O' key, Toggle OTA Key Delivery (aes and scrambler)
     case 79:
       if (super->opts.use_otakd == 0) super->opts.use_otakd = 1;
@@ -237,10 +243,34 @@ void input_ncurses_terminal (Super * super, int c)
       else super->opts.use_hpfilter_dig = 0;
       break;
 
-    //'m' key, Toggle Analog / Raw Signal Monitor (when no sync)
+    //'m' key, Enter Meta Text Message
     case 109:
-      if (super->opts.use_raw_audio_monitor == 0) super->opts.use_raw_audio_monitor = 1;
-      else super->opts.use_raw_audio_monitor = 0;
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->opts.use_m17_str_encoder == 1)
+      {
+        sprintf (inp_str, "%s", "");
+        sprintf (label, " Enter Meta Text:"); //set label to be displayed in the entry box window
+        entry_string_ncurses_terminal(label, inp_str);
+        parse_meta_txt_string(super, inp_str);
+        if (super->m17e.meta_data[2] == 0x20 && super->m17e.meta_data[3] == 0x20 && super->m17e.meta_data[4] == 0x20 && super->m17e.meta_data[5] == 0x20 && 
+            super->m17e.meta_data[6] == 0x20 && super->m17e.meta_data[7] == 0x20 && super->m17e.meta_data[8] == 0x20 && super->m17e.meta_data[9] == 0x20 && 
+            super->m17e.meta_data[10] == 0x20 && super->m17e.meta_data[11] == 0x20 && super->m17e.meta_data[12] == 0x20 && super->m17e.meta_data[13] == 0x20 && 
+            super->m17e.meta_data[14] == 0x20) //if all white spaces loaded, then zero out entire thing
+        {
+          super->enc.enc_type = 0;
+          super->enc.enc_subtype = 0;
+          super->m17e.enc_et = 0;
+          super->m17e.met_st = 0;
+          memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data));
+        }
+        else if (super->m17e.meta_data[0]) //meta has actual text in it
+        {
+          uint8_t meta_data[16]; memset (meta_data, 0, sizeof(meta_data));
+          meta_data[0] = 0x80; //Meta Text
+          memcpy (meta_data+1, super->m17e.meta_data+1, 14);
+          fprintf (stderr, "\n ");
+          decode_pkt_contents (super, meta_data, 15); //decode META
+        }
+      }
       break;
 
     //'o' key, send one time OTAKD Packet RF, if not VOX or TX enabled
@@ -280,7 +310,7 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'t' key, Enter Text Message (will zero out any raw packet data)
     case 116:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->opts.use_m17_str_encoder == 1)
       {
         sprintf (super->m17e.sms, "%s", "");
         sprintf (super->m17d.sms, "%s", "");
@@ -294,16 +324,17 @@ void input_ncurses_terminal (Super * super, int c)
           encode_pkt(super, 0);
           super->demod.in_sync = 0;
         }
-      }        
+      }
       break;
 
     //'u' key, Enter RAW Packet (will zero out loaded SMS Message)
     case 117:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->opts.use_m17_str_encoder == 1)
       {
         sprintf (super->m17e.sms, "%s", ""); //zero out any loaded SMS message
         memset  (super->m17e.raw, 0, sizeof(super->m17e.raw)); //zero out any raw packet data
-        sprintf (label, " Enter Raw Packet:"); //set label to be displayed in the entry box window        
+        sprintf (label, " Enter Raw Packet:"); //set label to be displayed in the entry box window
+        sprintf (inp_str, "%s", "");    
         entry_string_ncurses_terminal(label, inp_str);
         uint16_t len = parse_raw_user_string(super, inp_str);
         if (super->m17e.raw[0]) //only send if there is a packet loaded, else do nothing
@@ -313,7 +344,7 @@ void input_ncurses_terminal (Super * super, int c)
           encode_pkt(super, 0);
           super->demod.in_sync = 0;
         }
-      }        
+      }
       break;
 
     //'v' key, Toggle Vox Mode
@@ -332,11 +363,11 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'w' key, Enter Arb Text Message
     case 119:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->opts.use_m17_str_encoder == 1)
       {
         sprintf (super->m17e.arb, "%s", "");
         sprintf (super->m17d.arb, "%s", "");
-        sprintf (label, " Enter Arb Text:"); //set label to be displayed in the entry box window
+        sprintf (label, " Enter Arbitrary Data Text:"); //set label to be displayed in the entry box window
         entry_string_ncurses_terminal(label, super->m17e.arb);
         if (super->m17e.arb[0]) //only send if there is an arb text message loaded, else signal 3200 voice
         {
@@ -344,7 +375,7 @@ void input_ncurses_terminal (Super * super, int c)
           sprintf (super->m17d.arb, super->m17e.arb);
         }
         else super->opts.m17_str_encoder_dt = 2;
-      }        
+      }
       break;
 
     //'x' key, Toggle Inversion

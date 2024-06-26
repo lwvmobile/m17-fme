@@ -187,7 +187,7 @@ void encode_str(Super * super)
   }
 
   //if not encrypted, and meta data available, set lsf_es to met_st instead
-  if (lsf_et == 0 && super->m17e.raw[0] != 0)
+  if (lsf_et == 0 && super->m17e.meta_data[0] != 0)
     lsf_es = super->m17e.met_st;
 
   //compose the 16-bit frame information from the above sub elements
@@ -269,16 +269,16 @@ void encode_str(Super * super)
       m17_lsf[i+112] = iv[i];
   }
   //else if not ENC and Meta data provided, unpack Meta data into META Field (up to 112/8 = 14 octets or chars)
-  else if (lsf_et == 0 && super->m17e.raw[0] != 0)
+  else if (lsf_et == 0 && super->m17e.meta_data[0] != 0)
   {
-    unpack_byte_array_into_bit_array(super->m17e.raw+1, m17_lsf+112, 14);
+    unpack_byte_array_into_bit_array(super->m17e.meta_data+1, m17_lsf+112, 14);
 
     //Decode Meta Data Once For Ncurses Display if not loopback
     if (super->opts.internal_loopback_decoder == 0)
     {
       uint8_t meta_data[16]; memset (meta_data, 0, sizeof(meta_data));
       meta_data[0] = lsf_es + 0x80; //flip MSB bit to signal META
-      memcpy (meta_data+1, super->m17e.raw+1, 14);
+      memcpy (meta_data+1, super->m17e.meta_data+1, 14);
       fprintf (stderr, "\n ");
       decode_pkt_contents (super, meta_data, 15); //decode META
     }
@@ -348,7 +348,7 @@ void encode_str(Super * super)
     lsf_es = super->enc.enc_subtype; //encryption sub-type
 
     //if not encrypted, and meta data available, set lsf_es to met_st instead
-    if (lsf_et == 0 && super->m17e.raw[0] != 0)
+    if (lsf_et == 0 && super->m17e.meta_data[0] != 0)
       lsf_es = super->m17e.met_st;
 
     if (super->m17e.ecdsa.keys_loaded)
@@ -899,8 +899,8 @@ void encode_str(Super * super)
         super->enc.scrambler_seed_e = super->enc.scrambler_key; //reset seed value
       }
       //else if not ENC and Meta data provided, unpack Meta data into META Field (up to 112/8 = 14 octets or chars)
-      else if (lsf_et == 0 && super->m17e.raw[0] != 0)
-        unpack_byte_array_into_bit_array(super->m17e.raw+1, m17_lsf+112, 14);
+      else if (lsf_et == 0 && super->m17e.meta_data[0] != 0)
+        unpack_byte_array_into_bit_array(super->m17e.meta_data+1, m17_lsf+112, 14);
       else //zero out the meta field (prevent bad meta data decodes on decoder side)
       {
         for (i = 0; i < 112; i++)

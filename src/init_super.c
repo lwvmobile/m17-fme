@@ -239,13 +239,14 @@ void init_super (Super * super)
   sprintf (super->m17d.srcs, "%s", "N0CALL");
   sprintf (super->m17d.dsts, "%s", "ALL");
   sprintf (super->m17d.sms, "%s", "Any Encoded or Decoded SMS Text Messages Appear Here.");
-  sprintf (super->m17d.dat, "%s", "Any Encoded or Decoded GNSS POS Messages Appear Here.");
-  sprintf (super->m17d.arb, "%s", "Any Encoded or Decoded 1600 Arb Messages Appear Here.");
+  sprintf (super->m17d.dat, "%s", "Any Encoded or Decoded EMB Meta Messages Appear Here.");
+  sprintf (super->m17d.arb, "%s", "Any Encoded or Decoded ARB Data Messages Appear Here.");
 
   //PKT specific storage and counters
   memset (super->m17d.pkt, 0, sizeof(super->m17d.pkt));
   super->m17d.pbc_ptr = 0;
   memset  (super->m17d.raw, 0, sizeof(super->m17d.raw));
+  memset  (super->m17d.meta_data, 0, sizeof(super->m17d.meta_data));
   super->m17d.raw_len = 0;
 
   //Stream Voice Mode (UNUSED on decoder)
@@ -305,6 +306,7 @@ void init_super (Super * super)
   memset (super->m17e.pkt, 0, sizeof(super->m17e.pkt));
   super->m17e.pbc_ptr = 0;
   memset  (super->m17e.raw, 0, sizeof(super->m17e.raw));
+  memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data));
   super->m17e.raw_len = 0;
 
   //Stream Voice Mode

@@ -590,7 +590,7 @@ void print_ncurses_call_info (Super * super)
   memcpy (shortstr, super->m17d.dat, 71);
   printw ("\n");
   printw ("| ");
-  printw ("POS: ");
+  printw ("MET: ");
   printw ("%s", shortstr);
 
   sprintf (shortstr, "%s", "");
@@ -639,6 +639,7 @@ void print_ncurses_call_info (Super * super)
       printw (" Send SMS Text(t);");
       printw (" Send Raw Data(u);");
       printw (" Load Arb Text(w);");
+      printw (" Load Meta Text(m);");
     }
 
     printw ("\n");

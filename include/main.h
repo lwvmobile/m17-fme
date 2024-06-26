@@ -290,13 +290,14 @@ typedef struct
   char srcs[50]; //user supplied m17 src string
   char dsts[50]; //user supplied m17 dst string
   char sms[800]; //user supplied sms text string for pkt encoder
-  char dat[800]; //user supplied other data type for pkt encoder
+  char dat[800]; //user supplied met data as text string for str encoder
   char arb[800]; //user supplied arbitrary data on 1600
 
   //PKT specific storage and counters
   uint8_t pkt[850]; //bytewise packet
   uint8_t pbc_ptr;  //internal packet block counter
   uint8_t raw[850]; //raw data from PDU that isn't SMS or UTF-8
+  uint8_t meta_data[16]; //encoder meta data (that isn't an IV) as uint8_t array
   uint16_t raw_len; //legnth of raw hex user data for PKT encoder
 
   //Stream Voice Mode
