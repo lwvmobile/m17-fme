@@ -327,6 +327,10 @@ void decode_ipf (Super * super)
         //if there are leftovers (kmod), then run a keystream and partial application to left over bits
         uint8_t aes_ks_bits[128]; memset(aes_ks_bits, 0, 128*sizeof(uint8_t));
         int kmodstart = klen*128;
+
+        //set to 8 IF kmodstart == 0 so we don't try to decrypt the protocol byte on short single block packets
+        if (kmodstart == 0) kmodstart = 8;
+
         if (kmod != 0)
         {
           aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, aes_ks_bits, super->m17d.enc_st+1);

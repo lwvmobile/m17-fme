@@ -20,8 +20,8 @@ void entry_string_ncurses_terminal (char * label, char * output_string)
   WINDOW * entry;
   int rows   = 6;
   int colums = 70;
-  int xpos = 10;
-  int ypos = 10;
+  int xpos = 5;
+  int ypos = 5;
   
   entry = newwin(rows, colums, ypos, xpos);
   box (entry, 0, 0);
@@ -261,6 +261,7 @@ void input_ncurses_terminal (Super * super, int c)
           super->m17e.enc_et = 0;
           super->m17e.met_st = 0;
           memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data));
+          sprintf (super->m17d.dat, "%s", "");
         }
         else if (super->m17e.meta_data[0]) //meta has actual text in it
         {

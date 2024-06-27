@@ -285,6 +285,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
 
     if (protocol == 0x80) //Meta
     { 
+      sprintf (super->m17d.dat, "%s", "");
       //show Control Byte Len and Segment Values on Meta Text
       fprintf (stderr, "%d/%d; ", (input[1] >> 4), input[1] & 0xF);
       for (i = 2; i < len; i++)
@@ -292,12 +293,11 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     }
     else
     {
+      sprintf (super->m17d.arb, "%s", "");
       for (i = 1; i < len; i++)
         fprintf (stderr, "%c", input[i]);
     }
 
-    //make a better string out of it instead
-    sprintf (super->m17d.arb, "%s", "");
     if (protocol == 0x80) //Meta Text with the control byte
       memcpy (super->m17d.dat, input+2, len); //skip over control byte
     else memcpy (super->m17d.arb, input+1, len);
