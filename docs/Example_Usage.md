@@ -123,7 +123,7 @@ There are other combinations of usage between M17_Implementations and M17-FME, i
 
 m17-fme can be used together with m17-tools m17-mod, such that m17-mod will modulate audio, and m17-fme will demodulate and decode it. Here is an example of m17-mod modulating voice stream rf audio from a voiced wav input file, and feeding the RF modulated audio directly into m17-fme to be demodulated and decoded.
 
-Please note, the following example uses AES "256" encryption from m17-tools, which is then decrypted by m17-fme using a 128-bit segment of the same key, noting that m17-tools is hard coded to only with in AES 128-bit mode.
+Please note, the following example uses AES "256" encryption from m17-tools, which is then decrypted by m17-fme using a 128-bit segment of the same key, noting that m17-tools is hard coded to AES 128-bit mode. Recent updates to M17 Protocol also now use the subtype field to signal AES-128, AES-192, or AES-256, and m17-tools is, very conveniently, also signalling AES-128 due to lack of setting the subtype field appropriately.
 
 See the samples folder for the 8k1_voice.wav file.
 
