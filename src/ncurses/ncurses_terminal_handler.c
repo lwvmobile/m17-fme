@@ -646,18 +646,21 @@ void print_ncurses_call_info (Super * super)
     printw ("| ");
     printw ("DBG:");
 
-    if (super->enc.enc_type == 0 && super->enc.aes_key_is_loaded == 0 && super->enc.scrambler_key == 0)
+    if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
     {
-      printw (" Random Scrambler(1);");
-      printw (" Random AES(2);");
+      if (super->enc.enc_type == 0 && super->enc.aes_key_is_loaded == 0 && super->enc.scrambler_key == 0)
+      {
+        printw (" Random Scrambler(1);");
+        printw (" Random AES(2);");
+      }
+      else if (super->enc.scrambler_key)
+        printw (" Disable Scrambler(e);");
+      else if (super->enc.aes_key_is_loaded)
+        printw (" Disable AES(E);");
+      if (super->m17d.ecdsa.keys_loaded == 0)
+        printw (" Random Signature(3);");
+      else printw (" Disable Signature(5);");
     }
-    else if (super->enc.scrambler_key)
-      printw (" Disable Scrambler(e);");
-    else if (super->enc.aes_key_is_loaded)
-      printw (" Disable AES(E);");
-    if (super->m17d.ecdsa.keys_loaded == 0)
-      printw (" Random Signature(3);");
-    else printw (" Disable Signature(5);");
 
   }
 
