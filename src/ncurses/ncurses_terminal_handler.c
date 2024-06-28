@@ -657,9 +657,12 @@ void print_ncurses_call_info (Super * super)
         printw (" Disable Scrambler(e);");
       else if (super->enc.aes_key_is_loaded)
         printw (" Disable AES(E);");
+
+      #ifdef USE_UECC
       if (super->m17d.ecdsa.keys_loaded == 0)
         printw (" Random Signature(3);");
       else printw (" Disable Signature(5);");
+      #endif
     }
 
   }
