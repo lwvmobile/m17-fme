@@ -466,6 +466,7 @@ void parse_udp_user_string (Super * super, char * input);
 void parse_meta_raw_string (Super * super, char * input);
 void parse_meta_txt_string (Super * super, char * input);
 void parse_pulse_input_string (Super * super, char * input);
+void parse_pulse_input_string_dxv (Super * super, char * input);
 void parse_pulse_outrf_string (Super * super, char * input);
 void parse_pulse_outvx_string (Super * super, char * input);
 uint16_t parse_raw_user_string (Super * super, char * input);

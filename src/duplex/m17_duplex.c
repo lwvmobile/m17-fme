@@ -1447,6 +1447,7 @@ void m17_duplex_mode (Super * super)
   //will require Pulse Audio use for now
   open_pulse_audio_output_vx(super);
   super->opts.use_pa_input_vx = 0;
+  super->opts.use_pa_input = 0;
 
   //open only if not using IP Frames
   if (super->opts.m17_use_ip == 0)
@@ -1467,11 +1468,14 @@ void m17_duplex_mode (Super * super)
   //check for localhost, or 127.0.0.1, disable ip if target address is self
   //need potential IP6 variations, if possible, not sure if net_udp is configured to allow IP6 traffic
 
-  if ( (strcmp(super->opts.m17_hostname, "127.0.0.1") == 0) || 
-       (strcmp(super->opts.m17_hostname, "localhost") == 0)  )
+  if (super->opts.m17_use_ip == 1)
   {
-    fprintf (stderr, "Cannot use local hostname %s as target address on Duplex Mode.\n", super->opts.m17_hostname);
-    super->opts.m17_use_ip = 0;
+    if ( (strcmp(super->opts.m17_hostname, "127.0.0.1") == 0) || 
+         (strcmp(super->opts.m17_hostname, "localhost") == 0)  )
+    {
+      fprintf (stderr, "Cannot use host: %s as target address on Duplex Mode.\n", super->opts.m17_hostname);
+      super->opts.m17_use_ip = 0;
+    }
   }
 
   //Open UDP port to default or user defined values, if enabled
@@ -1531,12 +1535,15 @@ void m17_duplex_mode (Super * super)
     }
 
     else if ( ((super->demod.current_time - packet_burst_time) > 30) && (super->demod.in_sync == 0) && (super->opts.use_m17_packet_burst == 1) )
+    // else if (super->opts.use_m17_packet_burst)
     {
+      super->demod.in_sync = 1; //flag on for ncurses display
       // sprintf (super->m17e.sms, "%s", ""); //set as blank and it'll send the Lorem text message
       sprintf (super->m17e.sms, "The Current Time is: %s %s (UTC -04:00)", get_date_n(super->demod.current_time), get_time_n(super->demod.current_time));
       memset  (super->m17e.raw, 0, sizeof(super->m17e.raw)); //zero out the RAW packet so it won't sent that instead
       encode_pkt(super, 0);
       packet_burst_time = time(NULL);
+      super->demod.in_sync = 0;
     }
 
     else if (!use_ip)

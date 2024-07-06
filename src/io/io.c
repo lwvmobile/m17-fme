@@ -271,13 +271,18 @@ void parse_input_option_string (Super * super, char * input)
   }
 
   #ifdef USE_PULSEAUDIO
+  else if ( (strncmp(input, "pulsedxv", 8) == 0) ) //duplex mode mic input
+  {
+    parse_pulse_input_string_dxv(super, input+8);
+    // super->opts.use_pa_input_vx = 1; //is disabled in duplex until called
+  }
   else if ( (strncmp(input, "pulse", 5) == 0) )
   {
     fprintf (stderr, "\n");
     if ( (strncmp(input, "pulserf", 7) == 0) )
     {
       fprintf (stderr, "Audio Input Device: Pulse RF Input;");
-      super->opts.use_m17_rfa_decoder = 1; //enable the RF decoder if puslerf is detected
+      // super->opts.use_m17_rfa_decoder = 1; //enable the RF decoder if puslerf is detected (disabled for duplex addition)
     }
     else if ( (strncmp(input, "pulsevx", 7) == 0) )
       fprintf (stderr, "Audio Input Device: Pulse Mic Input;"); //default is for encoder voice
@@ -436,6 +441,19 @@ void parse_pulse_input_string (Super * super, char * input)
     super->pa.pa_input_idx[99] = 0;
     fprintf (stderr, "\n");
     fprintf (stderr, "Pulse Input Device: %s; ", super->pa.pa_input_idx);
+  }
+}
+
+void parse_pulse_input_string_dxv (Super * super, char * input)
+{
+  char * curr;
+  curr = strtok(input, ":");
+  if (curr != NULL)
+  {
+    strncpy (super->pa.pa_invx_idx, curr, 99);
+    super->pa.pa_invx_idx[99] = 0;
+    fprintf (stderr, "\n");
+    fprintf (stderr, "Pulse Duplex Voice Input Device: %s; ", super->pa.pa_invx_idx);
   }
 }
 

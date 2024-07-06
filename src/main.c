@@ -380,6 +380,9 @@ int main (int argc, char **argv)
       case 'i':
         strncpy(super.opts.input_handler_string, optarg, 2047);
         super.opts.input_handler_string[2047] = '\0';
+        if (super.opts.input_handler_string[0] != 0)
+          parse_input_option_string(&super, super.opts.input_handler_string);
+        memset (super.opts.input_handler_string, 0, 2048*sizeof(char));
         break;
 
       //Specify ECDSA Public Key File (Decoder)
@@ -441,6 +444,9 @@ int main (int argc, char **argv)
       case 'o':
         strncpy(super.opts.output_handler_string, optarg, 2047);
         super.opts.output_handler_string[2047] = '\0';
+        if (super.opts.output_handler_string[0] != 0)
+          parse_output_option_string(&super, super.opts.output_handler_string);
+        memset(super.opts.output_handler_string, 0, 2048*sizeof(char));
         break;
 
       //enable the RF Audio Demodulator
@@ -713,10 +719,6 @@ int main (int argc, char **argv)
   #endif
 
   //parse any user passed input or output strings
-  if (super.opts.input_handler_string[0] != 0)
-    parse_input_option_string(&super, super.opts.input_handler_string);
-  if (super.opts.output_handler_string[0] != 0)
-    parse_output_option_string(&super, super.opts.output_handler_string);
   if (super.opts.m17_udp_input[0] != 0)
     parse_udp_user_string(&super, super.opts.m17_udp_input);
   if (super.m17e.user[0] != 0)
