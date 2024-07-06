@@ -95,6 +95,7 @@ typedef struct
 
   //Pulse Audio User Options
   uint8_t use_pa_input;
+  uint8_t use_pa_input_vx;
   uint8_t use_pa_output_rf;
   uint8_t use_pa_output_vx;
 
@@ -127,6 +128,8 @@ typedef struct
   uint8_t use_m17_rfa_decoder;
   uint8_t use_m17_ipf_encoder;
   uint8_t use_m17_ipf_decoder;
+  uint8_t use_m17_duplex_mode;
+  uint8_t use_m17_packet_burst;
 
   //Misc Options to organize later
   uint8_t m17_str_encoder_dt;
@@ -332,15 +335,18 @@ typedef struct
   pa_sample_spec output_vx;
 
   pa_simple * pa_input_device;
+  pa_simple * pa_input_device_vx;
   pa_simple * pa_output_device_rf;
   pa_simple * pa_output_device_vx;
   #endif
 
   uint8_t pa_input_is_open;
+  uint8_t pa_input_vx_is_open;
   uint8_t pa_output_rf_is_open;
   uint8_t pa_output_vx_is_open;
 
   char pa_input_idx[100];
+  char pa_invx_idx[100];
   char pa_outrf_idx[100];
   char pa_outvx_idx[100];
 
@@ -466,7 +472,7 @@ uint16_t parse_raw_user_string (Super * super, char * input);
 
 //NCurses Terminal
 #ifdef USE_CURSES
-void open_ncurses_terminal ();
+void open_ncurses_terminal (Super * super);
 void close_ncurses_terminal ();
 void print_ncurses_terminal (Super * super);
 void print_ncurses_banner (Super * super);
@@ -481,12 +487,16 @@ void input_ncurses_terminal (Super * super, int c);
 //Pulse Audio Handling
 #ifdef USE_PULSEAUDIO
 void  open_pulse_audio_input (Super * super);
+void  open_pulse_audio_input_rf (Super * super);
+void  open_pulse_audio_input_vx (Super * super);
 void  open_pulse_audio_output_rf (Super * super);
 void  open_pulse_audio_output_vx (Super * super);
 void  close_pulse_audio_input (Super * super);
+void close_pulse_audio_input_vx (Super * super);
 void  close_pulse_audio_output_rf (Super * super);
 void  close_pulse_audio_output_vx (Super * super);
 short pa_input_read (Super * super);
+short pa_input_read_vx (Super * super);
 void  pulse_audio_output_rf (Super * super, short * out, size_t nsam);
 void  pulse_audio_output_vx (Super * super, short * out, size_t nsam);
 
@@ -531,6 +541,7 @@ int  udp_socket_bind (char *hostname, int portno);
 int  m17_socket_blaster (Super * super, size_t nsam, void * data);
 int  udp_socket_connectM17 (Super * super);
 int  m17_socket_receiver (Super * super, void * data);
+int  m17_socket_receiver_duplex(int m17_udp_socket_duplex, void * data);
 void error(char *msg);
 
 //TCP IP Related Functions
@@ -667,6 +678,9 @@ void demod_brt (Super * super, uint8_t * input, int debug);
 void demod_str (Super * super, uint8_t * input, int debug);
 void prepare_str (Super * super, uint8_t * input);
 void decode_ipf (Super * super);
+
+//M17 Duplex Mode(s)
+void m17_duplex_mode (Super * super);
 
 //Call History and Event Log
 void push_call_history (Super * super);

@@ -125,6 +125,16 @@ void usage ()
   printf ("  -p            Per Call decoded voice wav file saving into current directory ./m17wav folder\n");
   printf ("  -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)\n");
   printf ("\n");
+  printf ("Duplex Options:\n");
+  printf ("\n");
+  printf ("  -D            Enable Duplex Mode (Send and Receive over RF or IP Frame)\n");
+  printf ("                 EXPERIMENTAL! Current Implementation Requires Pulse Audio and Ncurses Availability, Vox Disabled\n");
+  printf ("                 RF Example:\n");
+  printf ("                 m17-fme -D 2> m17e.txt\n");
+  printf ("                 IP Frame Example:\n");
+  printf ("                 LAN Machine 1: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000\n");
+  printf ("                 LAN MAchine 2: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000\n");
+  printf ("\n");
   printf ("Encryption Options:\n");
   printf ("\n");
   printf ("                (NOTE: Encoder and Decoder share same values here)\n");
@@ -230,7 +240,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1234567890ac:d:e:f:hi:k:lmno:prs:t:uv:w:xA:C:E:F:IJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
+  while ((c = getopt (argc, argv, "1234567890ac:d:e:f:hi:k:lmno:prs:t:uv:w:xA:BC:DE:F:IJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
   {
 
     i++;
@@ -484,12 +494,39 @@ int main (int argc, char **argv)
         memcpy (super.m17d.arb, super.m17e.arb, 772);
         break;
 
+      //Enable Encoder / Duplex Packet Bursts
+      case 'B':
+        super.opts.use_m17_packet_burst = 1;
+        fprintf (stderr, "M17 Project Packet Burst Enabled. \n");
+        break;
+
       //Specify DSD-FME Dibit Capture Bin File Format (RF Encoded only)
       case 'C':
         strncpy(super.opts.dibit_output_file, optarg, 1023);
         super.opts.dibit_output_file[1023] = '\0';
         super.opts.use_dibit_output = 1;
         fprintf (stderr, "DSD-FME Dibit Output File: %s \n", super.opts.dibit_output_file);
+        break;
+
+      //M17 Repeater Mode / Duplex Mode
+      case 'D':
+        #ifdef USE_PULSEAUDIO
+        {} //continue
+        #else
+        fprintf (stderr, "M17 Project Repeater Mode / Duplex Mode Requires Pulse Audio. \n");
+        exitflag = 1;
+        #endif
+
+        #ifdef USE_CURSES
+        {} //continue
+        #else
+        fprintf (stderr, "M17 Project Repeater Mode / Duplex Mode Requires Ncurses. \n");
+        exitflag = 1;
+        #endif
+
+        super.opts.use_m17_duplex_mode = 1;
+        fprintf (stderr, "M17 Project Repeater Mode / Duplex Mode Enabled. \n");
+
         break;
 
       //Set AES Key (Encoding and Decoding)
@@ -672,7 +709,7 @@ int main (int argc, char **argv)
   //open the ncurses terminal if its available and enabled
   #ifdef USE_CURSES
   if (super.opts.use_ncurses_terminal == 1)
-    open_ncurses_terminal();
+    open_ncurses_terminal(&super);
   #endif
 
   //parse any user passed input or output strings
@@ -686,9 +723,12 @@ int main (int argc, char **argv)
     parse_m17_user_string(&super, super.m17e.user);
 
   //open any input or output audio devices or files
-  open_audio_input (&super);
-  open_audio_output (&super);
-  fprintf (stderr, "\n");
+  if (!super.opts.use_m17_duplex_mode) //temp measure to get this working
+  {
+    open_audio_input (&super);
+    open_audio_output (&super);
+    fprintf (stderr, "\n");
+  }
 
   //demodulate, frame sync, and decode OTA RF Audio, or captured/crafted files
   if (super.opts.use_m17_rfa_decoder == 1)
@@ -736,6 +776,10 @@ int main (int argc, char **argv)
   //decode IP Frames
   if (super.opts.use_m17_ipf_decoder == 1)
     decode_ipf(&super);
+
+  //M17 Duplex Mode
+  if (super.opts.use_m17_duplex_mode == 1)
+    m17_duplex_mode(&super);
 
   //exit gracefully
   cleanup_and_exit (&super);

@@ -452,19 +452,25 @@ void no_carrier_sync (Super * super)
   memset (super->demod.sample_buffer, 0, 256*sizeof(short));
   memset (super->demod.dibit_buffer, 0, 256*sizeof(uint8_t));
 
-  //reset some decoder elements
-  super->m17d.src = 0;
-  super->m17d.dst = 0;
-  super->m17d.can = -1;
-
-  memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
   memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
-  super->m17d.dt = 15;
-  super->m17d.enc_et = 0;
-  super->m17d.enc_st = 0;
-  super->m17d.enc_mute = 0;
-  sprintf (super->m17d.dst_csd_str, "%s", "         ");
-  sprintf (super->m17d.src_csd_str, "%s", "         ");
+  memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
+
+  if (super->opts.use_m17_duplex_mode == 0)
+  {
+    //reset some decoder elements
+    super->m17d.src = 0;
+    super->m17d.dst = 0;
+    super->m17d.can = -1;
+
+    // memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
+    // memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
+    super->m17d.dt = 15;
+    super->m17d.enc_et = 0;
+    super->m17d.enc_st = 0;
+    super->m17d.enc_mute = 0;
+    sprintf (super->m17d.dst_csd_str, "%s", "         ");
+    sprintf (super->m17d.src_csd_str, "%s", "         ");
+  }
 
   //reset scrambler fn value and seed value
   super->enc.scrambler_fn_d = 0;

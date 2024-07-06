@@ -21,7 +21,7 @@ void close_ncurses_terminal ()
   endwin();
 }
 
-void open_ncurses_terminal ()
+void open_ncurses_terminal (Super * super)
 {
 
   setlocale(LC_ALL, "");
@@ -52,6 +52,8 @@ void open_ncurses_terminal ()
 
   noecho();
   cbreak();
+
+  super->opts.ncurses_is_open = 1;
 
 }
 
@@ -154,7 +156,14 @@ void print_ncurses_config (Super * super)
   printw ("| ");
 
   //Input Methods (Hardware)
-  if (super->opts.use_pa_input && super->opts.use_m17_rfa_decoder)
+  if (super->opts.use_m17_duplex_mode)
+  {
+    if (super->opts.m17_use_ip == 0)
+      printw ("Pulse RFA    Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+    printw ("Pulse Voice  Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
+  }
+
+  else if (super->opts.use_pa_input && super->opts.use_m17_rfa_decoder)
   {
     printw ("Pulse RFA    Input:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
     if (super->pa.pa_input_idx[0] != 0)
@@ -243,8 +252,14 @@ void print_ncurses_config (Super * super)
     printw ("\n| File: DSD-FME Dibit Capture Bin Output: %s;", super->opts.dibit_output_file);
 
   //Output UDP IP Frame
-  if (super->opts.m17_udp_sock && !super->opts.use_m17_ipf_decoder)
+  if (super->opts.m17_udp_sock && !super->opts.use_m17_ipf_decoder && !super->opts.use_m17_duplex_mode)
     printw ("\n| UDP IP Frame Output: %s:%d; Reflector Module: %c", super->opts.m17_hostname, super->opts.m17_portno, super->m17e.reflector_module);
+
+  if (super->opts.m17_udp_sock && super->opts.use_m17_duplex_mode)
+  {
+    printw ("\n| UDP IP Frame  Input: %s:%d; ", "localhost", 17000);
+    printw ("\n| UDP IP Frame Output: %s:%d; Reflector Module: %c", super->opts.m17_hostname, super->opts.m17_portno, super->m17e.reflector_module);
+  }
 
   if (super->opts.event_log)
     printw ("\n| Event Log: %s", super->opts.event_log_file);
@@ -388,7 +403,9 @@ void print_ncurses_call_info (Super * super)
     printw ("Bit Error Rate Test Encoder"); //this doesn't use ncurses terminal, but it may later
   else if (super->opts.use_m17_ipf_decoder == 1)
     printw ("UDP/IP Frame Decoder");
-  else printw ("RF Stream and Packet Decoder"); //not sure what to put here, if anything
+  else if (super->opts.use_m17_duplex_mode == 1)
+    printw ("Duplex Encoder and Decoder");
+  else printw ("Stream and Packet Decoder");
 
   if (super->opts.payload_verbosity)
     printw ("; Payload Verbosity: %d;", super->opts.payload_verbosity);
@@ -480,11 +497,11 @@ void print_ncurses_call_info (Super * super)
       printw("24-bit; ");
 
     //may disable seed display if it gets too annoying later on
-    if (super->opts.use_m17_str_encoder && super->m17e.str_encoder_tx && super->enc.scrambler_key)
-      printw("Seed: %06X; ", super->enc.scrambler_seed_e);
+    // if ( (super->opts.use_m17_str_encoder || super->opts.use_m17_duplex_mode) && super->m17e.str_encoder_tx && super->enc.scrambler_key)
+    //   printw("Seed: %06X; ", super->enc.scrambler_seed_e);
 
-    else if (!super->opts.use_m17_str_encoder && super->enc.scrambler_key)
-      printw("Seed: %06X; ", super->enc.scrambler_seed_d);
+    // else if (!super->opts.use_m17_str_encoder && super->enc.scrambler_key)
+    //   printw("Seed: %06X; ", super->enc.scrambler_seed_d);
 
     if (super->demod.in_sync == 1)
       attron(COLOR_PAIR(2));
@@ -609,10 +626,10 @@ void print_ncurses_call_info (Super * super)
     printw ("OTA:");
     if (super->enc.enc_type != 0)
     {
-      if (super->opts.use_m17_str_encoder && super->opts.use_otakd)
+      if ( (super->opts.use_m17_str_encoder || super->opts.use_m17_duplex_mode) && super->opts.use_otakd)
         printw (" Disable OTAKD(O);");
 
-      if (super->opts.use_m17_str_encoder && !super->opts.use_otakd)
+      if ( (super->opts.use_m17_str_encoder || super->opts.use_m17_duplex_mode) && !super->opts.use_otakd)
         printw (" Enable OTAKD(O);");
       
       if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->enc.enc_type != 0)
@@ -627,7 +644,7 @@ void print_ncurses_call_info (Super * super)
       if (super->opts.use_m17_str_encoder && !super->opts.use_otask)
         printw (" Enable OTASK(P);");
 
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->opts.use_m17_duplex_mode == 0)
         printw (" Send OTASK(p);");
     }
 
@@ -659,10 +676,20 @@ void print_ncurses_call_info (Super * super)
         printw (" Disable AES(E);");
 
       #ifdef USE_UECC
-      if (super->m17d.ecdsa.keys_loaded == 0)
-        printw (" Random Signature(3);");
-      else printw (" Disable Signature(5);");
+      if (super->opts.use_m17_duplex_mode == 0)
+      {
+        if (super->m17e.ecdsa.keys_loaded == 0)
+          printw (" Random Signature(3);");
+        else printw (" Disable Signature(5);");
+      }
       #endif
+
+      if (super->opts.use_m17_duplex_mode == 1)
+      {
+        if (super->opts.use_m17_packet_burst == 0)
+          printw (" Enable PKT Burst(B);");
+        else printw (" Disable PKT Burst(B);");
+      }
     }
 
   }

@@ -9,6 +9,7 @@
 #include "main.h"
 
 struct sockaddr_in addressM17;
+struct sockaddr_in addressM17duplex;
 
 int udp_socket_bind(char *hostname, int portno)
 {
@@ -101,6 +102,18 @@ int m17_socket_receiver(Super * super, void * data)
 
   //receive data from socket
   err = recvfrom(super->opts.m17_udp_sock, data, 1000, 0, (struct sockaddr * ) & addressM17, &len);
+
+  return err;
+}
+
+int m17_socket_receiver_duplex(int m17_udp_socket_duplex, void * data)
+{
+  size_t err = 0;
+  struct sockaddr_in cliaddr; 
+  socklen_t len = sizeof(cliaddr); 
+
+  //receive data from socket
+  err = recvfrom(m17_udp_socket_duplex, data, 1000, 0, (struct sockaddr * ) & addressM17duplex, &len);
 
   return err;
 }

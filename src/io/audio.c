@@ -21,6 +21,8 @@ short get_short_audio_input_sample (Super * super)
   //PULSE AUDIO (obviously)
   else if (super->opts.use_pa_input == 1)
     sample = pa_input_read(super);
+  else if (super->opts.use_pa_input_vx == 1)
+    sample = pa_input_read_vx(super);
   #endif
 
   //OSS Hot Garbage

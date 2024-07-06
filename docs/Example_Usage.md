@@ -236,6 +236,16 @@ Decoder Options:
   -p            Per Call decoded voice wav file saving into current directory ./m17wav folder
   -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)
 
+Duplex Options:
+
+  -D            Enable Duplex Mode (Send and Receive over RF or IP Frame)
+                 EXPERIMENTAL! Current Implementation Requires Pulse Audio and Ncurses Availability, Vox Disabled
+                 RF Example:
+                 m17-fme -D 2> m17e.txt
+                 IP Frame Example:
+                 LAN Machine 1: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000
+                 LAN MAchine 2: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000
+
 Encryption Options:
 
                 (NOTE: Encoder and Decoder share same values here)

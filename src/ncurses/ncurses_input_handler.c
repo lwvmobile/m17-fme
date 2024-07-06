@@ -53,7 +53,7 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'1' key, Generate Random Scrambler Key (24-bit)
     case 49:
-      if (super->opts.use_m17_str_encoder == 1 && !super->m17e.str_encoder_tx)
+      if ( (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) && !super->m17e.str_encoder_tx)
       {
         super->enc.scrambler_key = rand() & 0xFFFFFF;
         super->enc.enc_type = 1;
@@ -69,7 +69,7 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'2' key, Generate Random AES Key (256-bit)
     case 50:
-      if (super->opts.use_m17_str_encoder == 1 && !super->m17e.str_encoder_tx)
+      if ( (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) && !super->m17e.str_encoder_tx)
       {
         super->enc.A1 = ((uint64_t)rand() << 32ULL) + rand();
         super->enc.A2 = ((uint64_t)rand() << 32ULL) + rand();
@@ -89,7 +89,8 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'3' key, Generate Random Signature Keys
     case 51:
-      ecdsa_generate_random_keys (super); //reset demod
+      if (super->opts.use_m17_str_encoder == 1 && !super->m17e.str_encoder_tx)
+        ecdsa_generate_random_keys (super);
       break;
 
     //'4' key, simulate no_carrier_sync (reset states)
@@ -116,6 +117,12 @@ void input_ncurses_terminal (Super * super, int c)
     case 65:
       if (super->opts.ncurses_show_audio == 0) super->opts.ncurses_show_audio = 1;
       else super->opts.ncurses_show_audio = 0;
+      break;
+
+    //'B' key, Toggle Packet Burst
+    case 66:
+      if (super->opts.use_m17_packet_burst == 0) super->opts.use_m17_packet_burst = 1;
+      else super->opts.use_m17_packet_burst = 0;
       break;
 
     //'C' key, Toggle Banner (Capital C)
@@ -179,8 +186,11 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'P' key, Toggle OTA Key Delivery (signatures)
     case 80:
-      if (super->opts.use_otask == 0) super->opts.use_otask = 1;
-      else super->opts.use_otask = 0;
+      if (super->opts.use_m17_duplex_mode == 0)
+      {
+        if (super->opts.use_otask == 0) super->opts.use_otask = 1;
+        else super->opts.use_otask = 0;
+      }
       break;
 
     //'S' key, Toggle Scope Display
@@ -245,7 +255,7 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'m' key, Enter Meta Text Message
     case 109:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->opts.use_m17_str_encoder == 1)
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1))
       {
         sprintf (inp_str, "%s", "");
         sprintf (label, " Enter Meta Text:"); //set label to be displayed in the entry box window
@@ -274,26 +284,24 @@ void input_ncurses_terminal (Super * super, int c)
       }
       break;
 
-    //'o' key, send one time OTAKD Packet RF, if not VOX or TX enabled
-    case 111: //NOTE: Sending LSF for SID is not an issue, since this can't be sent over IP Frames from here
+    //'o' key, send one time OTAKD Packet
+    case 111: //NOTE: Sending LSF for SID, not really random, but eh, M17 Protocol doesn't officially support IP Packets either.
       if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->enc.enc_type != 0)
       {
         super->demod.in_sync = 1;
-        encode_ota_key_delivery_pkt(super, 0, super->m17d.lsf, super->enc.enc_type, super->enc.enc_subtype);
+        encode_ota_key_delivery_pkt(super, super->opts.m17_use_ip, super->m17d.lsf, super->enc.enc_type, super->enc.enc_subtype);
         super->demod.in_sync = 0;
       }
-        
       break;
 
-    //'p' key, send one time OTASK Packet RF, if not VOX or TX enabled
+    //'p' key, send one time OTASK Packet
     case 112:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->m17d.ecdsa.keys_loaded == 1)
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->m17d.ecdsa.keys_loaded == 1 && super->opts.use_m17_duplex_mode == 0)
       {
         super->demod.in_sync = 1;
-        encode_ota_key_delivery_pkt(super, 0, super->m17d.lsf, 3, 0);
+        encode_ota_key_delivery_pkt(super, super->opts.m17_use_ip, super->m17d.lsf, 3, 0);
         super->demod.in_sync = 0;
       }
-        
       break;
 
     //'q' key, Quit
@@ -311,7 +319,7 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'t' key, Enter Text Message (will zero out any raw packet data)
     case 116:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->opts.use_m17_str_encoder == 1)
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) ) //&& super->opts.use_m17_str_encoder == 1
       {
         sprintf (super->m17e.sms, "%s", "");
         sprintf (super->m17d.sms, "%s", "");
@@ -330,7 +338,7 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'u' key, Enter RAW Packet (will zero out loaded SMS Message)
     case 117:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->opts.use_m17_str_encoder == 1)
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1))
       {
         sprintf (super->m17e.sms, "%s", ""); //zero out any loaded SMS message
         memset  (super->m17e.raw, 0, sizeof(super->m17e.raw)); //zero out any raw packet data
@@ -350,21 +358,24 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'v' key, Toggle Vox Mode
     case 118:
-      if (super->m17e.str_encoder_vox == 0) super->m17e.str_encoder_vox = 1;
-      else
+      if (super->opts.use_m17_duplex_mode == 0)
       {
-        super->m17e.str_encoder_vox = 0;
-        if (super->m17e.str_encoder_tx == 1)
+        if (super->m17e.str_encoder_vox == 0) super->m17e.str_encoder_vox = 1;
+        else
         {
-          super->m17e.str_encoder_tx  = 0;
-          super->m17e.str_encoder_eot = 1;
+          super->m17e.str_encoder_vox = 0;
+          if (super->m17e.str_encoder_tx == 1)
+          {
+            super->m17e.str_encoder_tx  = 0;
+            super->m17e.str_encoder_eot = 1;
+          }
         }
       }
       break;
 
     //'w' key, Enter Arb Text Message
     case 119:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->opts.use_m17_str_encoder == 1)
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1))
       {
         sprintf (super->m17e.arb, "%s", "");
         sprintf (super->m17d.arb, "%s", "");

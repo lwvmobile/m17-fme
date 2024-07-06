@@ -32,6 +32,7 @@ void init_super (Super * super)
 
   //Pulse Audio User Options
   super->opts.use_pa_input = 0;
+  super->opts.use_pa_input_vx = 0;
   super->opts.use_pa_output_rf = 0;
   super->opts.use_pa_output_vx = 0;
 
@@ -64,6 +65,8 @@ void init_super (Super * super)
   super->opts.use_m17_rfa_decoder = 0;
   super->opts.use_m17_ipf_encoder = 0; //this option isn't used, should use it probably instead of use_ip
   super->opts.use_m17_ipf_decoder = 0;
+  super->opts.use_m17_duplex_mode = 0;
+  super->opts.use_m17_packet_burst = 0;
 
   //Misc Options to organize later
   super->opts.m17_str_encoder_dt = 2; //2 is fullrate (3200), 3 is halfrate (1600) w/ arb data
@@ -168,10 +171,12 @@ void init_super (Super * super)
   #endif
 
   super->pa.pa_input_is_open = 0;
+  super->pa.pa_input_vx_is_open = 0;
   super->pa.pa_output_rf_is_open = 0;
   super->pa.pa_output_vx_is_open = 0;
 
   memset (super->pa.pa_input_idx, 0, 100*sizeof(char));
+  memset (super->pa.pa_invx_idx,  0, 100*sizeof(char));
   memset (super->pa.pa_outrf_idx, 0, 100*sizeof(char));
   memset (super->pa.pa_outvx_idx, 0, 100*sizeof(char));
   //end init_pa_state
@@ -236,7 +241,7 @@ void init_super (Super * super)
 
   //User Supplied Input Strings / Decoded Strings
   sprintf (super->m17d.user, "%s", "");
-  sprintf (super->m17d.srcs, "%s", "N0CALL");
+  sprintf (super->m17d.srcs, "%s", "N0CALL   "); //added spaces to avoid duplex mode mix match
   sprintf (super->m17d.dsts, "%s", "ALL");
   sprintf (super->m17d.sms, "%s", "Any Encoded or Decoded SMS Text Messages Appear Here.");
   sprintf (super->m17d.dat, "%s", "Any Encoded or Decoded EMB Meta Messages Appear Here.");
@@ -296,7 +301,7 @@ void init_super (Super * super)
 
   //User Supplied Input Strings
   sprintf (super->m17e.user, "%s", "");
-  sprintf (super->m17e.srcs, "%s", "N0CALL");
+  sprintf (super->m17e.srcs, "%s", "N0CALL   "); //added spaces to avoid duplex mode mix match
   sprintf (super->m17e.dsts, "%s", "ALL");
   sprintf (super->m17e.sms, "%s", "");
   sprintf (super->m17e.dat, "%s", "");

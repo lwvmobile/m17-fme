@@ -51,7 +51,7 @@ if(CURSES_FOUND)
     add_definitions(-DUSE_CURSES)
 endif(CURSES_FOUND)
 
-FILE(GLOB SRCS src/*.c src/decoder/*.c src/encoder/*.c src/encryption/*.c src/io/*.c src/fec/*.c src/modem/*.c src/net/*.c src/ncurses/*.c src/utils/*.c src/*.cpp src/utils/*.cpp)
+FILE(GLOB SRCS src/*.c src/decoder/*.c src/encoder/*.c src/encryption/*.c src/io/*.c src/fec/*.c src/modem/*.c src/net/*.c src/ncurses/*.c src/duplex/*.c src/utils/*.c src/*.cpp src/utils/*.cpp)
 FILE(GLOB HEADERS include/*.h include/*.hpp)
 
 configure_file("src/git_ver.c.in" "${CMAKE_CURRENT_BINARY_DIR}/git_ver.c" @ONLY)
