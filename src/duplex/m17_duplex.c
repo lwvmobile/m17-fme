@@ -414,8 +414,7 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
   short sample = 0;  //individual audio sample from source
   size_t nsam = 160; //number of samples to be read in (default is 160 samples for codec2 3200 bps)
   int dec = super->opts.input_sample_rate / 8000; //number of samples to run before selecting a sample from source input
-  uint32_t sql_hit = 26; //squelch hits, hit enough, and deactivate vox
-  uint8_t eot_out = 0; //was 1 on default, this any issue?
+  uint8_t eot_out = 0;
 
   //send dead air with type 99
   for (i = 0; i < 25; i++)
@@ -754,9 +753,6 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
     if (st == 2)
       input_gain_vx (super, voice2, nsam);
 
-    //read in RMS value for vox function;
-    super->demod.input_rms = raw_rms(voice1, nsam, 1);
-
     //convert out audio input into CODEC2 8 byte data stream
     uint8_t vc1_bytes[8]; memset (vc1_bytes, 0, sizeof(vc1_bytes));
     uint8_t vc2_bytes[8]; memset (vc2_bytes, 0, sizeof(vc2_bytes));
@@ -856,28 +852,6 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
       // for (i = 0; i < 16; i++)
       //   fprintf (stderr, "%02X", ecdsa_bytes[i]);
 
-    }
-
-    //tally consecutive squelch hits based on RMS value, or reset
-    if (super->demod.input_rms > super->demod.input_sql) sql_hit = 0;
-    else sql_hit++;
-
-    //sanity check to prevent roll over opening vox
-    if (sql_hit > 65000) sql_hit = 30000;
-
-    //if vox enabled, toggle tx/eot with sql_hit comparison
-    if (super->m17e.str_encoder_vox == 1)
-    {
-      if (sql_hit > 25 && lich_cnt == 0) //licn_cnt 0 to prevent new LSF popping out
-      {
-        super->m17e.str_encoder_tx = 0;
-        // eot = 1; //TODO: Trace down bug that causes this bit to cause a CRC error on LSF frames
-      }
-      else
-      {
-        super->m17e.str_encoder_tx = 1;
-        eot = 0;
-      }
     }
 
     //set end of tx bit on the exitflag (sig, results not gauranteed) or toggle eot flag (always triggers)
@@ -1018,15 +992,6 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
       //show UDP if active
       if (use_ip == 1 && lich_cnt != 5)
         fprintf (stderr, " UDP: %s:%d", super->opts.m17_hostname, udpport);
-
-      //debug RMS Value
-      if (super->m17e.str_encoder_vox == 1)
-      {
-        fprintf (stderr, "\n");
-        fprintf (stderr, " RMS: %04ld", super->demod.input_rms);
-        fprintf (stderr, " SQL: %04ld", super->demod.input_sql);
-        fprintf (stderr, " SQL HIT: %d;", sql_hit);
-      }
 
       #ifdef USE_PULSEAUDIO
       //debug show pulse input latency
@@ -1301,15 +1266,6 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
         if (use_ip == 1 && lich_cnt != 5)
           fprintf (stderr, " UDP: %s:%d", super->opts.m17_hostname, udpport);
 
-        //debug RMS Value
-        if (super->m17e.str_encoder_vox == 1)
-        {
-          fprintf (stderr, "\n");
-          fprintf (stderr, " RMS: %04ld", super->demod.input_rms);
-          fprintf (stderr, " SQL: %04ld", super->demod.input_sql);
-          fprintf (stderr, " SQL HIT: %d;", sql_hit);
-        }
-
         //convert bit array into symbols and RF/Audio
         encode_rfa (super, m17_t4s, mem, 2); //Last Stream Frame
 
@@ -1425,8 +1381,6 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
   super->demod.current_time = time(NULL);
 
 }
-
-//TODO: Cleanup Pulse Opening and Closing all the time
 
 //the duplex loop
 void m17_duplex_mode (Super * super)
@@ -1628,9 +1582,6 @@ void m17_text_games (Super * super)
 
   uint32_t progress = 0x00000000;
 
-  //quell defined but not used warnings from m17.h
-  stfu ();
-
   //use idle_time to periodically signal a beacon
   time_t idle_time = 0;
 
@@ -1822,8 +1773,18 @@ void generate_game_sms_reply(Super * super, char * input)
 
   else if ( (strncmp(input, "continue", 8) == 0) )
   {
-    //TODO: Read extended input to get game_progress value
-    sprintf (super->m17e.sms, "Continuing from Save Progress: %08X ", super->m17e.game_progress);
+    //Read extended input to get game_progress value
+    sscanf(input+9, "%X", &super->m17e.game_progress);
+    if (super->m17e.game_progress == 0)
+      sprintf (super->m17e.sms, "No Progress Point Entered.");
+    else if (!(super->m17e.game_progress & 0x80000000)) //game start bit not flipped
+    {
+      sprintf (super->m17e.sms, "Unknown Progress Entry: %08X ", super->m17e.game_progress);
+      // super->m17e.game_progress = super->m17d.game_progress; //revert to last point instead
+      super->m17e.game_progress = 0x80000000; //go back to start?
+    }
+    else sprintf (super->m17e.sms, "Continuing from Save Progress: %08X ", super->m17e.game_progress);
+
   }
 
   else if ( (strncmp(input, "quit", 4) == 0) )
@@ -1912,7 +1873,7 @@ void load_game_advertisement(Super * super, uint32_t input)
 {
   memset  (super->m17e.raw, 0, sizeof(super->m17e.raw));
   if (input == 0x00000000)
-    sprintf (super->m17e.sms, "This is a game repeater brought to you by: %s; Text 'start' to start your game. ", super->m17e.srcs);
+    sprintf (super->m17e.sms, "This is a game repeater brought to you by: %s; Text 'start' to start the game. ", super->m17e.srcs);
 
   // leave disabled to just repeat on loop the last sent SMS message in case user missed it, may need a timeout reset after x minutes?
   // else sprintf (super->m17e.sms, "This is a game repeater brought to you by: %s; Text 'start' to start your game. ", super->m17e.srcs);
@@ -1920,6 +1881,188 @@ void load_game_advertisement(Super * super, uint32_t input)
   //else just send last sent message
 
 }
+
+//WARNING! DO NOT SCROLL DOWN ANY FURTHER UNLESS YOU WANT TO SPOIL THE EXPLORATION / ADVENTURE GAME TEXT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//DON'T BE A DIRTY CHEATER
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//LAST WARNING FOR SPOILERS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void game_text(Super * super)
 {
