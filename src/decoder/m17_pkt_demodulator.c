@@ -221,9 +221,18 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
 
     //decode completed packet
     if (crc_cmp == crc_ext)
-      decode_pkt_contents(super, super->m17d.pkt, total);
+    {
+      if (super->opts.use_m17_textgame_mode)
+        decode_game_sms_gate(super, super->m17d.pkt, total);
+      else decode_pkt_contents(super, super->m17d.pkt, total);
+    }
+      
     else if (super->opts.allow_crc_failure == 1)
-      decode_pkt_contents(super, super->m17d.pkt, total);
+    {
+      if (super->opts.use_m17_textgame_mode)
+        decode_game_sms_gate(super, super->m17d.pkt, total);
+      else decode_pkt_contents(super, super->m17d.pkt, total);
+    }
 
     // if (crc_cmp != crc_ext)
     //   fprintf (stderr, " (CRC ERR) ");

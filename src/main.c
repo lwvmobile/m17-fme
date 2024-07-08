@@ -240,7 +240,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1234567890ac:d:e:f:hi:k:lmno:prs:t:uv:w:xA:BC:DE:F:IJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
+  while ((c = getopt (argc, argv, "1234567890ac:d:e:f:hi:k:lmno:prs:t:uv:w:xA:BC:DE:F:GIJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
   {
 
     i++;
@@ -555,6 +555,20 @@ int main (int argc, char **argv)
         fprintf (stderr, "Float Symbol Output File: %s \n", super.opts.float_symbol_output_file);
         break;
 
+      //M17 Text Game Mode
+      case 'G':
+        #ifdef USE_PULSEAUDIO
+        {} //continue
+        #else
+        fprintf (stderr, "M17 Project Repeater Text Games Requires Pulse Audio. \n");
+        exitflag = 1;
+        #endif
+
+        super.opts.use_m17_textgame_mode = 1;
+        fprintf (stderr, "M17 Project Repeater Text Games Enabled. \n");
+
+        break;
+
       //Enable IP Frame Output (with default localhost:17000)
       case 'I':
         super.opts.m17_use_ip = 1;
@@ -782,6 +796,10 @@ int main (int argc, char **argv)
   //M17 Duplex Mode
   if (super.opts.use_m17_duplex_mode == 1)
     m17_duplex_mode(&super);
+
+  //M17 Games
+  if (super.opts.use_m17_textgame_mode == 1)
+    m17_text_games(&super);
 
   //exit gracefully
   cleanup_and_exit (&super);

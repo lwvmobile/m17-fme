@@ -66,6 +66,7 @@ void init_super (Super * super)
   super->opts.use_m17_ipf_encoder = 0; //this option isn't used, should use it probably instead of use_ip
   super->opts.use_m17_ipf_decoder = 0;
   super->opts.use_m17_duplex_mode = 0;
+  super->opts.use_m17_textgame_mode = 0;
   super->opts.use_m17_packet_burst = 0;
 
   //Misc Options to organize later
@@ -266,6 +267,9 @@ void init_super (Super * super)
   //LSF Backup Copy
   memset (super->m17d.lsf_bkp, 0, 240*sizeof(uint8_t));
 
+  //Text Game Progression
+  super->m17d.game_progress = 0x00000000;
+
   #ifdef USE_CODEC2
   super->m17d.codec2_3200 = codec2_create(CODEC2_MODE_3200);
   super->m17d.codec2_1600 = codec2_create(CODEC2_MODE_1600);
@@ -325,6 +329,9 @@ void init_super (Super * super)
 
   //LSF Backup Copy
   memset (super->m17e.lsf_bkp, 0, 240*sizeof(uint8_t));
+
+  //Text Game Progression
+  super->m17e.game_progress = 0x00000000;
 
   #ifdef USE_CODEC2
   super->m17e.codec2_3200 = codec2_create(CODEC2_MODE_3200);
