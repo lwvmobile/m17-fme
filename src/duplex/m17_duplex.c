@@ -12,6 +12,50 @@
 static int m17_udp_socket_duplex;
 int samp_num = 1920*34; //discarded LSF Frame + up to 33 packet frames, prevent loopback decoding in game
 
+//detached ip frame conn and disc frame sending on start and exit
+void ip_send_conn_disc (Super * super, int cd)
+{
+  int i, j;
+
+  //src string and value
+  unsigned long long int src = 0;
+  char s40[50] = "M17-FME  ";
+  if (super->m17e.srcs[0] != 0)
+    sprintf (s40, "%s", super->m17e.srcs);
+
+  //encode callsign
+  if (src < 0xEE6B27FFFFFF)
+  {
+    for(i = strlen((const char*)s40)-1; i >= 0; i--)
+    {
+      for(j = 0; j < 40; j++)
+      {
+        if(s40[i]==b40[j])
+        {
+          src=src*40+j;
+          break;
+          }
+      }
+    }
+  }
+
+  uint8_t conn[11]; memset (conn, 0, sizeof(conn));
+  uint8_t disc[10]; memset (disc, 0, sizeof(disc));
+  conn[0] = 0x43; conn[1] = 0x4F; conn[2] = 0x4E; conn[3] = 0x4E; conn[10] = super->m17e.reflector_module;
+  disc[0] = 0x44; disc[1] = 0x49; disc[2] = 0x53; disc[3] = 0x43;
+
+  conn[4] = (src >> 40UL) & 0xFF; conn[5] = (src >> 32UL) & 0xFF; conn[6] = (src >> 24UL) & 0xFF;
+  conn[7] = (src >> 16UL) & 0xFF; conn[8] = (src >> 8UL)  & 0xFF; conn[9] = (src >> 0UL)  & 0xFF;
+  for (i = 0; i < 6; i++)
+    disc[i+4] = conn[i+4];
+
+  //1 for conn, 0 for disc
+  if (cd)
+    m17_socket_blaster (super, 11, conn);
+  else m17_socket_blaster (super, 10, disc);
+
+}
+
 void decode_ipf_duplex (Super * super)
 {
 
@@ -571,10 +615,6 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
     disc[i+4] = conn[i+4]; ping[i+4] = conn[i+4];
     pong[i+4] = conn[i+4]; eotx[i+4] = conn[i+4];
   }
-
-  //SEND CONN to reflector
-  // if (use_ip == 1)
-  //   udp_return = m17_socket_blaster (super, 11, conn);
   
   //load dst and src values into the LSF
   for (i = 0; i < 48; i++) m17_lsf[i+00] = (dst >> (47ULL-(unsigned long long int)i)) & 1;
@@ -1364,14 +1404,6 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
     #endif
     
   }
-
-  //SEND EOTX to reflector
-  // if (use_ip == 1)
-  //   udp_return = m17_socket_blaster (super, 10, eotx);
-
-  //SEND DISC to reflector
-  // if (use_ip == 1)
-  //   udp_return = m17_socket_blaster (super, 10, disc);
   
   //free allocated memory
   free(samp1);
@@ -1462,7 +1494,12 @@ void m17_duplex_mode (Super * super)
       use_ip = 0;
       super->opts.m17_use_ip = 0;
     }
-    else use_ip = 1;
+    else
+    {
+      use_ip = 1;
+      ip_send_conn_disc(super, 1);
+      m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
+    }
   }
 
   int k = 0; //packet rounds
@@ -1572,7 +1609,11 @@ void m17_duplex_mode (Super * super)
 
   //close UDP Socket afterwards
   if (m17_udp_socket_duplex)
+  {
+    ip_send_conn_disc(super, 0);
+    m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
     close(m17_udp_socket_duplex);
+  }
 
 }
 
@@ -1639,7 +1680,12 @@ void m17_text_games (Super * super)
       use_ip = 0;
       super->opts.m17_use_ip = 0;
     }
-    else use_ip = 1;
+    else
+    {
+      use_ip = 1;
+      ip_send_conn_disc(super, 1);
+      m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
+    }
   }
 
   while (!exitflag)
@@ -1710,7 +1756,11 @@ void m17_text_games (Super * super)
 
   //close UDP Socket afterwards
   if (m17_udp_socket_duplex)
+  {
+    ip_send_conn_disc(super, 0);
+    m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
     close(m17_udp_socket_duplex);
+  }
 
 }
 
