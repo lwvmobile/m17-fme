@@ -881,7 +881,12 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
     }
 
     //set end of tx bit on the exitflag (sig, results not gauranteed) or toggle eot flag (always triggers)
-    if (exitflag) eot = 1; //TODO: Change this to end? and then if no ecdsa, then allow it set to 1?
+    if (exitflag)
+    {
+      super->m17e.str_encoder_tx = 0;
+      super->m17e.str_encoder_eot = 1;
+      eot = 1;
+    }
     if (super->m17e.str_encoder_eot) eot = 1;
 
     if (!super->m17e.ecdsa.keys_loaded)
