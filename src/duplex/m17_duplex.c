@@ -1430,6 +1430,12 @@ void m17_duplex_mode (Super * super)
   //Disable VOX mode on Duplex
   super->m17e.str_encoder_vox = 0;
 
+  //Disable Ncurses IO Display (save screen space)
+  super->opts.ncurses_show_io = 0;
+
+  //Disable Ncurses Banner Display (save screen space)
+  // super->opts.ncurses_show_banner = 0;
+
   //Disable Loopback Mode
   super->opts.internal_loopback_decoder = 0;
 

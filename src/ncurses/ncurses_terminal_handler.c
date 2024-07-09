@@ -326,6 +326,34 @@ void print_ncurses_levels (Super * super)
 
   printw ("--Audio-Level--(A)-------------------------------------------------------------\n");
 
+  if (super->opts.use_m17_duplex_mode)
+  {
+    printw ("| Voice  Input: %3.0f%% (/|*) ", super->opts.input_gain_vx  * 100);
+    printw ("\n");
+    printw ("| Voice Output: %3.0f%% (-|+) ", super->opts.output_gain_vx * 100);
+    if (super->opts.use_hpfilter_dig == 1)
+      printw (" HPF(h); ");
+    else printw ("!HPF(h); ");
+    if (super->opts.use_raw_audio_monitor)
+      printw ( " Analog Monitor(M);");
+    else printw ( "!Analog Monitor(M);");
+    printw ("\n");
+
+    if (!super->opts.m17_use_ip)
+    {
+      printw ("|   RFA  Input: %3.0f%% ([|]) ", super->opts.input_gain_rf  * 100);
+      if (super->opts.disable_rrc_filter == 0)
+        printw (" RRC(r);");
+      else printw ("!RRC(r);");
+      if (super->opts.inverted_signal == 0)
+        printw (" +Polarity(x);");
+      else printw (" -Polarity(x);");
+      printw ("\n");
+      printw ("|   RFA Output: %3.0f%% ({|}) ", super->opts.output_gain_rf * 100);
+      printw ("\n");
+    }
+  }
+
   if (super->opts.use_m17_rfa_decoder == 1)
   {
     printw ("|   RFA  Input: %3.0f%% ([|]) ", super->opts.input_gain_rf  * 100);
@@ -370,8 +398,8 @@ void print_ncurses_levels (Super * super)
       printw (" HPF(h); ");
     else printw ("!HPF(h); ");
     if (super->opts.use_raw_audio_monitor)
-      printw ( " Analog Monitor(m);");
-    else printw ( "!Analog Monitor(m);");
+      printw ( " Analog Monitor(M);");
+    else printw ( "!Analog Monitor(M);");
     printw ("\n");
   }
   printw ("-------------------------------------------------------------------------------\n");
@@ -404,8 +432,18 @@ void print_ncurses_call_info (Super * super)
   else if (super->opts.use_m17_ipf_decoder == 1)
     printw ("UDP/IP Frame Decoder");
   else if (super->opts.use_m17_duplex_mode == 1)
+  {
     printw ("Duplex Encoder and Decoder");
-  else printw ("Stream and Packet Decoder");
+    if (super->opts.m17_use_ip) printw(" (IP)");
+    else printw(" (RF)");
+  }
+  else
+  {
+    printw ("Stream and Packet Decoder");
+    if (super->opts.m17_use_ip) printw(" (IP)");
+    else printw(" (RF)");
+  }
+
 
   if (super->opts.payload_verbosity)
     printw ("; Payload Verbosity: %d;", super->opts.payload_verbosity);
@@ -695,7 +733,7 @@ void print_ncurses_call_info (Super * super)
   }
 
   //error tracking (for decoder)
-  else
+  if (super->opts.use_m17_rfa_decoder || super->opts.use_m17_ipf_decoder || super->opts.use_m17_duplex_mode)
   {
     
     printw ("\n");
