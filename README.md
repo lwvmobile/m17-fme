@@ -22,17 +22,19 @@ When operating in decoding mode, RF audio can be captured and saved with floatin
 
 Voice Encoding and Decoding support both Codec2 3200 bps mode "full rate" and Codec2 1600 bps "half rate" modes, per specification. To encode in 1600 bps mode, the user on needs to specify some Arbitrary Data to the encoder, which is in turn handled as an embedded SMS message of up to 48 UTF-8 Characters to be decoded every superframe.
 
-It should also be noted, that M17-FME does not support simultaneous encoding and decoding, as in, you open one session to encode, and can have a second to decode, but one session cannot receive RF audio and encode (transmit) when not receiving. This functionality may be introduced in future updates. M17-FME does however, support a loopback mode where encoded data can be sent back into the decoder side to be decoded as its encoded. Keep in mind, only pulse audio, or a combination of output to audio sink and file will allow both sending of RF audio AND encoded voice or data playback simultaneously.
-
 ### Packet Data
 
-Packet Data Encoding and Decoding (RF Audio). Same input and output methods as listed above are available for Packet Data. Currently, only SMS text message protocol is expressely supported by Packet Data Encoding, while all standardized protocols (GNSS, etc) are decoded via the decoder if from another source. Users can encode an SMS message of up to 772 characters. Users can also enter raw encoded packet data as a string of hex octets to be encoded by the packet encoder (up to 772 octets).
+Packet Data Encoding and Decoding (RF Audio). Same input and output methods as listed above are available for Packet Data. Currently, only SMS text message protocol is expressely supported by Packet Data Encoding, while all standardized protocols (GNSS, etc) are decoded via the decoder if from another source. Users can encode an SMS message of up to 772 characters. Users can also enter raw encoded packet data as a string of hex octets to be encoded by the packet encoder (up to 772 octets). Packet Data can now also be easily entered (i.e., SMS text messages, or raw data) via the ncurses terminal during Stream Encoding or Duplex Mode, rather than at the CLI, which is still useful for one time data transmissions.
 
 ### UDP/IP Frame Format
 
-M17-FME is capable of transmitting and receiving UDP frames based on the specification linked above. This input and output has NOT BEEN TESTED on currently operating reflectors, and its status as working is unknown. M17-FME can however, communicate over UDP/IP Protocol to another M17-FME session. Also, note, that M17-FME can only encode and send IP frames, or receive and decode IP frames. Currently, there is no mode that handles simultaneous operation. IP Frame format can be encoded and sent over UDP either alone, or in conjunction with RF encoded audio output.
+M17-FME is capable of transmitting and receiving UDP frames based on the specification linked above. This input and output has NOT BEEN TESTED on currently operating reflectors, and its status as working is unknown. M17-FME can however, communicate over UDP/IP Protocol to another M17-FME session.
 
 NOTE: Encodng and Decoding of Packet Data over IP Frames has not been standardized in the M17 specifications, but operates with the same idea in mind as Voice Stream, where one UDP datagram is crafted with a complete LSF Link Data Setup, and the entire Packet Data contents are delivered all in one go.
+
+### Duplex Mode
+
+A new simultaneous encoder and decoder routine has been written for M17-FME. Now, users can both encode and transmit, AND listen for and decode M17 traffic, either over RF, or via UDP/IP. Keep in mind, that a user can only use RF or IP, but not both at the same time for Duplex Mode operations. See below linked Example Usage for more information on using Duplex Mode. Most all functionality of the seperate encoder and decoder has been retained for Duplex Mode, with the exception of Voice Activated Transmit (Vox), which is only available on the pure encoder. Also, keep in mind that Duplex Mode will require the use of both the ncurses terminal AND the use of pulse audio, no other input or output methods will work with Duplex Mode due to its simultaneous encode and decode operations, and needing to gracefully open and close input and output streams on demand in the software.
 
 ### Encryption
 
