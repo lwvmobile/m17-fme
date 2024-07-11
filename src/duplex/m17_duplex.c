@@ -1424,6 +1424,9 @@ void m17_duplex_mode (Super * super)
   //use packet_burst_time to periodically signal a burst packet (testing)
   time_t packet_burst_time = time(NULL);
 
+  //open any output files
+  open_file_output(super);
+
   //Disable Stream Encoder TX on Duplex
   super->m17e.str_encoder_tx = 0;
 
@@ -1631,6 +1634,9 @@ void m17_text_games (Super * super)
 
   //use idle_time to periodically signal a beacon
   time_t idle_time = 0;
+
+  //open any output files
+  open_file_output(super);
 
   //will require Pulse Audio use for now
   open_pulse_audio_output_vx(super);

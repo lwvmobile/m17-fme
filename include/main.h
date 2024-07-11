@@ -570,6 +570,7 @@ short get_short_audio_input_sample (Super * super);
 //Input and Output Open and Close Convenience Functions
 void open_audio_input (Super * super);
 void open_audio_output (Super * super);
+void open_file_output (Super * super);
 void cleanup_and_exit (Super * super);
 
 //Audio Manipulation and Filters

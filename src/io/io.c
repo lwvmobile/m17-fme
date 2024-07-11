@@ -65,6 +65,35 @@ void open_audio_input (Super * super)
 
 }
 
+//output files (wav, bin, float, event log)
+void open_file_output (Super * super)
+{
+  //event log
+  if (super->opts.use_event_log == 1)
+  {
+    char * timestr  = get_time();
+    char * datestr  = get_date();
+    sprintf (super->opts.event_log_file, "%s_%s_m17fme_eventlog.txt", datestr, timestr);
+    // sprintf (super->opts.event_log_file, "duplex_log.txt"); //debug
+    super->opts.event_log = fopen (super->opts.event_log_file, "a");
+    free (timestr); free (datestr);
+  }
+
+  //wav and misc output files
+  if (super->opts.use_wav_out_rf == 1)
+    open_wav_out_rf(super);
+  if (super->opts.use_wav_out_vx == 1)
+    open_wav_out_vx(super);
+
+  //float symbol output file
+  if (super->opts.use_float_symbol_output == 1)
+    super->opts.float_symbol_out = fopen (super->opts.float_symbol_output_file, "w");
+
+  //DSD-FME Dibit Capture Bin File
+  if (super->opts.use_dibit_output == 1)
+    super->opts.dibit_out = fopen (super->opts.dibit_output_file, "w");
+}
+
 //audio devices and output files (wav, bin, float, event log)
 void open_audio_output (Super * super)
 {
