@@ -293,9 +293,9 @@ typedef struct
   char user[50]; //user supplied m17 src and dst call sign data
   char srcs[50]; //user supplied m17 src string
   char dsts[50]; //user supplied m17 dst string
-  char sms[800]; //user supplied sms text string for pkt encoder
-  char dat[800]; //user supplied met data as text string for str encoder
-  char arb[800]; //user supplied arbitrary data on 1600
+  char sms[825]; //user supplied sms text string for pkt encoder
+  char dat[825]; //user supplied met data as text string for str encoder
+  char arb[825]; //user supplied arbitrary data on 1600
 
   //PKT specific storage and counters
   uint8_t pkt[850]; //bytewise packet

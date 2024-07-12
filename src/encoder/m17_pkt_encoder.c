@@ -36,22 +36,22 @@ void encode_pkt(Super * super, int mode)
   char s40[50] = "M17-FME  "; //SRC
 
   //Default
-  // char text[800] = "This is a simple SMS text message sent over M17 Packet Data.";
+  // char text[825] = "This is a simple SMS text message sent over M17 Packet Data.";
 
   //short
   //NOTE: Working on full payload w/o padding
-  // char text[800] = "Lorem";
+  // char text[825] = "Lorem";
 
   //medium
   //NOTE: Fixed w/ the pad < 1, then add a block (not just if 0)
-  // char text[800] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+  // char text[825] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 
   //large
   //NOTE: Working on full payload w/o padding
-  char text[800] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+  char text[825] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
   //Preamble of the Declaration of Independence (U.S.A.)
-  //NOTE: Fixed again with block != 31 check and manual terminator insertion into text byte 772
+  //NOTE: Fixed again (and again) with block != 33 check and manual terminator insertion into text byte 822
   // char text[] = "When in the Course of human events, it becomes necessary for one people to dissolve the political bands which have connected them with another, and to assume among the powers of the earth, the separate and equal station to which the Laws of Nature and of Nature's God entitle them, a decent respect to the opinions of mankind requires that they should declare the causes which impel them to the separation. We hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty and the pursuit of Happiness.--That to secure these rights, Governments are instituted among Men, deriving their just powers from the consent of the governed, --That whenever any Form of Government becomes destructive of these ends, it is the Right of the People to alter or to abolish it, and to institute new Government, laying its foundation on such principles and organizing its powers in such form, as to them shall seem most likely to effect their Safety and Happiness. Prudence, indeed, will dictate that Governments long established should not be changed for light and transient causes; and accordingly all experience hath shewn, that mankind are more disposed to suffer, while evils are sufferable, than to right themselves by abolishing the forms to which they are accustomed. But when a long train of abuses and usurpations, pursuing invariably the same Object evinces a design to reduce them under absolute Despotism, it is their right, it is their duty, to throw off such Government, and to provide new Guards for their future security.--Such has been the patient sufferance of these Colonies; and such is now the necessity which constrains them to alter their former Systems of Government. The history of the present King of Great Britain is a history of repeated injuries and usurpations, all having in direct object the establishment of an absolute Tyranny over these States. To prove this, let Facts be submitted to a candid world.";
 
   //end User Defined Variables
@@ -254,7 +254,7 @@ void encode_pkt(Super * super, int mode)
     m17_lsfs[i] = (m17_lsfi[i] ^ m17_scramble[i]) & 1;
 
   //a full sized complete packet paylaod to break into smaller frames
-  uint8_t m17_p1_full[31*200]; memset (m17_p1_full, 0, sizeof(m17_p1_full));
+  uint8_t m17_p1_full[33*25*8]; memset (m17_p1_full, 0, sizeof(m17_p1_full));
 
   //load protocol value into first 8 bits
   k = 0;
@@ -275,17 +275,17 @@ void encode_pkt(Super * super, int mode)
   uint8_t pbc = 0; //packet/octet counter
   uint8_t eot = 0; //end of tx bit
 
-  //sanity check, if tlen%25 is 23 or 24, need to increment to another block value
+  //sanity check, if tlen%25 > 23, need to increment to another block value
   if ( (tlen%25) > 23) tlen += (tlen%23) + 1;
 
-  //sanity check, maximum strlen should not exceed 771 for a full encode
-  if (tlen > 771) tlen = 771;
+  //sanity check, maximum strlen should not exceed 821 for a full encode
+  if (tlen > 821) tlen = 821;
 
   //insert a zero byte as the terminator
   text[tlen++] = 0x00;
 
-  //insert one at the last available byte position
-  text[772] = 0x00;
+  //insert one at the last available byte position (failsafe)
+  text[822] = 0x00;
 
   //debug tlen value
   // fprintf (stderr, " STRLEN: %d; ", tlen);
@@ -340,8 +340,8 @@ void encode_pkt(Super * super, int mode)
   //calculate blocks, pad, and last values for pbc
   block = (ptr / 25) + 1;
   pad = (block * 25) - ptr - 4;
-  // if (pad == 0 && block != 31) //fallback if issues arise
-  if (pad < 1 && block != 31)
+  
+  if (pad < 1 && block != 33) //test this to make sure its okay
   {
     block++;
     pad = (block * 25) - ptr - 4;
@@ -350,7 +350,7 @@ void encode_pkt(Super * super, int mode)
   if (super->m17e.raw[0] != 0) lst--; //trim lacking terminating byte if not SMS
 
   //sanity check block value
-  // if (block > 31) block = 31;
+  // if (block > 33) block = 33;
   
   //debug position values
   if (super->opts.payload_verbosity > 0)
@@ -413,7 +413,7 @@ void encode_pkt(Super * super, int mode)
   //Calculate the CRC and attach it here
   x = 0;
   uint8_t m17_p1_packed[31*25]; memset (m17_p1_packed, 0, sizeof(m17_p1_packed));
-  for (i = 0; i < 25*31; i++)
+  for (i = 0; i < 25*33; i++)
   {
     m17_p1_packed[x] = (uint8_t)convert_bits_into_output(&m17_p1_full[i*8], 8);
     // if (m17_p1_packed[x] == 0) break; //stop at the termination byte (may/will not work correctly on raw data with 00 in it, or enc key if result is 00)

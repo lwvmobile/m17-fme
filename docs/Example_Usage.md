@@ -231,11 +231,11 @@ Encoder Input Strings:
                 (example: -M 1:N0CALL:SP5WWP) 
   -U <str>      Set UDP/IP Frame HOST:PORT:MODULE 
                 (example: -U 127.0.0.1:17001:B) 
-  -S <str>      Enter SMS Message (up to 772 UTF-8 characters) for Packet Data Encoder
+  -S <str>      Enter SMS Message (up to 821 UTF-8 characters) for Packet Data Encoder
                 (example: -S 'Hello World! This is a text message') 
   -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.
                 (example: -A 'Hello World! This is arbitrary data on 1600') 
-  -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets.
+  -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets (up to 823 octets).
                 (example: -R 8169001E135152397C0A0000005A45) for Packet GNSS Position @ Wally World) 
 
                 (NOTE: Using Meta Fields is not compatible with Using Encryption!)

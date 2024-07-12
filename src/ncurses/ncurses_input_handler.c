@@ -40,7 +40,7 @@ void input_ncurses_terminal (Super * super, int c)
 {
 
   char label[50];
-  char inp_str[800];
+  char inp_str[825];
 
   switch (c)
   {

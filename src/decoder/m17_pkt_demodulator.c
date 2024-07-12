@@ -162,7 +162,7 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
     //if encrypted (lsf indicated, and key available, decrypt the packet now)
     if (super->m17d.enc_et == 1 && super->enc.scrambler_key)
     {
-      uint8_t unpacked_pkt[6200]; memset (unpacked_pkt, 0, 6200*sizeof(uint8_t));
+      uint8_t unpacked_pkt[8000]; memset (unpacked_pkt, 0, 8000*sizeof(uint8_t)); //33*25*8 = 6600, but giving some extra space here (stack smash fix on full sized enc frame decrypt)
       unpack_byte_array_into_bit_array(super->m17d.pkt, unpacked_pkt, total);
 
       //new method
@@ -197,7 +197,7 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
       //NOTE: Its pretty redundant to pack and unpack here and in the crypt function,
       //but this is still quicker than writing a new function for only one use case
       
-      uint8_t unpacked_pkt[6200]; memset (unpacked_pkt, 0, 6200*sizeof(uint8_t));
+      uint8_t unpacked_pkt[8000]; memset (unpacked_pkt, 0, 8000*sizeof(uint8_t)); //33*25*8 = 6600, but giving some extra space here (stack smash fix on full sized enc frame decrypt)
       unpack_byte_array_into_bit_array(super->m17d.pkt, unpacked_pkt, total);
       for (i = 0; i < klen; i++)
         aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, unpacked_pkt+(128*i)+8, super->m17d.enc_st+1);

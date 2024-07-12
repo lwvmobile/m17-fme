@@ -24,7 +24,7 @@ Voice Encoding and Decoding support both Codec2 3200 bps mode "full rate" and Co
 
 ### Packet Data
 
-Packet Data Encoding and Decoding (RF Audio). Same input and output methods as listed above are available for Packet Data. Currently, only SMS text message protocol is expressely supported by Packet Data Encoding, while all standardized protocols (GNSS, etc) are decoded via the decoder if from another source. Users can encode an SMS message of up to 772 characters. Users can also enter raw encoded packet data as a string of hex octets to be encoded by the packet encoder (up to 772 octets). Packet Data can now also be easily entered (i.e., SMS text messages, or raw data) via the ncurses terminal during Stream Encoding or Duplex Mode, rather than at the CLI, which is still useful for one time data transmissions.
+Packet Data Encoding and Decoding (RF Audio). Same input and output methods as listed above are available for Packet Data. Currently, only SMS text message protocol is expressely supported by Packet Data Encoding, while all standardized protocols (GNSS, etc) are decoded via the decoder if from another source. Users can encode an SMS message of up to 821 UTF-8 characters. Users can also enter raw encoded packet data as a string of hex octets to be encoded by the packet encoder (up to 823 octets). Packet Data can now also be easily entered (i.e., SMS text messages, or raw data) via the ncurses terminal during Stream Encoding or Duplex Mode, rather than at the CLI, which is still useful for one time data transmissions.
 
 ### UDP/IP Frame Format
 

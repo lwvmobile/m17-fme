@@ -66,7 +66,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     }
 
     //make a better string out of it instead
-    memset (super->m17d.sms, 0, 800*sizeof(char));
+    memset (super->m17d.sms, 0, 825*sizeof(char));
     sprintf (super->m17d.sms, "%s", "");
     memcpy (super->m17d.sms, input+1, len);
 

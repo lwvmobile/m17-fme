@@ -569,8 +569,8 @@ uint16_t parse_raw_user_string (Super * super, char * input)
   //divide by two to get octet len
   len /= 2;
 
-  //sanity check, maximum strlen should not exceed 771 for a full encode
-  if (len > 771) len = 771;
+  //sanity check, maximum strlen should not exceed 823 for a full encode on raw data
+  if (len > 823) len = 823;
   
   super->m17e.raw[0]  = 1;      //flag as 1 so the encoder will know to parse the data here and not on SMS 
   super->m17e.raw_len = len+1; //assign plus one to add terminating zero byte for CRC fix;

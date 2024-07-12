@@ -309,7 +309,7 @@ void decode_ipf_duplex (Super * super)
       //apply keystream here if encrypted
       if (super->m17d.enc_et == 1 && super->enc.scrambler_key)
       {
-        uint8_t unpacked_pkt[6200]; memset (unpacked_pkt, 0, 6200*sizeof(uint8_t));
+        uint8_t unpacked_pkt[8000]; memset (unpacked_pkt, 0, 8000*sizeof(uint8_t)); //33*25*8 = 6600, but giving some extra space here (stack smash fix on full sized enc frame decrypt)
         unpack_byte_array_into_bit_array(ip_frame+34, unpacked_pkt, err-34-3);
 
         //new method
@@ -346,7 +346,7 @@ void decode_ipf_duplex (Super * super)
         //NOTE: Its pretty redundant to pack and unpack here and in the crypt function,
         //but this is still quicker than writing a new function for only one use case
         
-        uint8_t unpacked_pkt[6200]; memset (unpacked_pkt, 0, 6200*sizeof(uint8_t));
+        uint8_t unpacked_pkt[8000]; memset (unpacked_pkt, 0, 8000*sizeof(uint8_t)); //33*25*8 = 6600, but giving some extra space here (stack smash fix on full sized enc frame decrypt)
         unpack_byte_array_into_bit_array(ip_frame+34, unpacked_pkt, ret);
         for (i = 0; i < klen; i++)
           aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, unpacked_pkt+(128*i)+8, super->m17d.enc_st+1);
