@@ -52,9 +52,8 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
     //NOTE: Below condition does not gaurantee perfect reception if marginal or bad signal and FN value is misaligned randomly with SEED value
     //but if we constantly recalculate a seed, the higher the FN sequence, the higher the probability of LAG incurring on slower devices
     if (super->enc.scrambler_fn_d != 0 && super->enc.scrambler_seed_d == super->enc.scrambler_key) //if the seed is currently the key value, but the fn value is not zero
-    {
       super->enc.scrambler_seed_d = scrambler_seed_calculation(super->m17d.enc_st, super->enc.scrambler_key, super->enc.scrambler_fn_d);
-    }
+    
     super->enc.scrambler_seed_d = scrambler_sequence_generator(super, 0);
     for (i = 0; i < 128; i++)
       payload[i] ^= super->enc.scrambler_pn[i];
@@ -62,8 +61,18 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   //generate AES Keystream and apply it to payload if AES enc and key is available
   else if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded)
   {
-    mute = 0;
-    aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, payload, super->m17d.enc_st+1);
+    
+    //check to see if meta/iv is populated, if not, bad LSF frame
+    uint16_t meta_sum = 0;
+    for (i = 0; i < 14; i++)
+      meta_sum += super->m17d.meta[i];
+    if (meta_sum == 0) //no IV loaded, mute
+      mute = 1;
+    else //IV and key loaded, unmute and decrypt
+    {
+      mute = 0;
+      aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, payload, super->m17d.enc_st+1);
+    }
   }
   else if (super->m17d.enc_et == 3)
   {
