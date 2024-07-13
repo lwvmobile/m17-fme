@@ -160,7 +160,9 @@ void encode_pkt(Super * super, int mode)
   //NONCE
   time_t epoch = 1577836800L;      //Jan 1, 2020, 00:00:00 UTC
   time_t ts = time(NULL) - epoch;  //timestamp since epoch
-  srand(ts); //randomizer seed based on timestamp
+  srand((unsigned int)ts&0xFFFFFFFE); //randomizer seed based on timestamp
+
+  rand(); rand(); //run 2x to match STR mode
 
   //initialize a nonce (if AES ENC is used)
   uint8_t nonce[14]; memset (nonce, 0, sizeof(nonce));
@@ -525,7 +527,7 @@ void encode_pkt(Super * super, int mode)
   }
 
   //randomize ID
-  srand(ts);
+  srand((unsigned int)ts&0xFFFFFFFE); //randomizer seed based on timestamp
   sid[0] = rand() & 0xFF;
   sid[1] = rand() & 0xFF;
 

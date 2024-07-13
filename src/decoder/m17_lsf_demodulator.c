@@ -220,8 +220,8 @@ void p1_predictive_depuncture(Super * super, uint8_t * input, uint8_t * output)
     //same code used by the m17_str_encoder
 
     time_t epoch = 1577836800L;                           //Jan 1, 2020, 00:00:00 UTC
-    time_t ts = super->demod.current_time - epoch - 1L;  //timestamp since epoch
-    srand(ts); //randomizer seed based on timestamp
+    time_t ts = super->demod.current_time - epoch;        //timestamp since epoch
+    srand((unsigned int)ts&0xFFFFFFFE); //randomizer seed based on timestamp
 
     //SID (run 2x rand to account for it)
     rand(); rand();
@@ -237,18 +237,15 @@ void p1_predictive_depuncture(Super * super, uint8_t * input, uint8_t * output)
     nonce[3]  = (ts >> 0)  & 0xFF;
 
     //64-bit of rnd data
-    // nonce[4]  = rand() & 0xFF;
-    // nonce[5]  = rand() & 0xFF;
-    // nonce[6]  = rand() & 0xFF;
-    // nonce[7]  = rand() & 0xFF;
-    // nonce[8]  = rand() & 0xFF;
-    // nonce[9]  = rand() & 0xFF;
-    // nonce[10] = rand() & 0xFF;
-    // nonce[11] = rand() & 0xFF;
-
-    //The last two octets are the CTR_HIGH value (upper 16 bits of the frame number),
-    //but you would need to talk non-stop for over 20 minutes to roll it, so just using rnd
-    //also, using zeroes seems like it may be a security issue, so using rnd as a base
+    nonce[4]  = rand() & 0xFF;
+    nonce[5]  = rand() & 0xFF;
+    nonce[6]  = rand() & 0xFF;
+    nonce[7]  = rand() & 0xFF;
+    nonce[8]  = rand() & 0xFF;
+    nonce[9]  = rand() & 0xFF;
+    nonce[10] = rand() & 0xFF;
+    nonce[11] = rand() & 0xFF;
+    //Spec updated and removes the CTR_HIGH value
     nonce[12] = rand() & 0xFF;
     nonce[13] = rand() & 0xFF;
 
@@ -259,7 +256,7 @@ void p1_predictive_depuncture(Super * super, uint8_t * input, uint8_t * output)
         iv[k++] = (nonce[j] >> (7-i))&1;
     }
 
-    for (i = 0; i < 112; i++) //may consider only loading the first 32-bit and not full value
+    for (i = 0; i < 112; i++)
       fake_lsf[i+112] = iv[i];
 
   }
@@ -283,18 +280,17 @@ void p1_predictive_depuncture(Super * super, uint8_t * input, uint8_t * output)
     }
 
     //Meta / IV Field (predictive)
-    else if ( (i > 224) && (i < 224+64) && has_meta) //(i < 456)
+    else if ( (i > 224) && (i < 448) && has_meta) //224+112+112
     {
       if (p1[k++] == 1)
         output[x++] = input[j++];
       else output[x++] = fake_con[i];
     }
 
-    //observation of last bit (Old Method)
+    //zero fill any other portions
     else
     {
       if (p1[k++] == 1) output[x++] = input[j++];
-      else if (output[x-2] == 1) output[x++] = 1;
       else output[x++] = 0;
     }
 

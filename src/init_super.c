@@ -78,7 +78,7 @@ void init_super (Super * super)
   super->opts.use_raw_audio_monitor = 0; //monitor raw audio if no sync
   super->opts.use_hpfilter_dig = 1;
   super->opts.inverted_signal = 0;
-  srand(time(NULL)); //seed a random number for below
+  srand((unsigned int)time(NULL)); //seed a random number for below
   super->opts.random_number = rand() & 0xFFFF; //random 16-bit number for session ID each start up
   super->opts.input_sample_rate = 48000;   //TODO: Make a function that reconfigures this and anything that is set from this
   super->opts.output_sample_rate = 48000;  //TODO: Make a function that reconfigures this and anything that is set from this

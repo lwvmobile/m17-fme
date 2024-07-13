@@ -12,7 +12,7 @@ void ecdsa_generate_random_keys(Super * super)
 {
 
   #ifdef USE_UECC
-  srand(time(NULL));
+  srand((unsigned int)time(NULL));
   int i; int ok = 0;
 
   const struct uECC_Curve_t* curve = uECC_secp256r1();

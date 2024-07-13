@@ -111,7 +111,7 @@ void encode_str(Super * super)
   //NONCE
   time_t epoch = 1577836800L;      //Jan 1, 2020, 00:00:00 UTC
   time_t ts = time(NULL) - epoch;  //timestamp since epoch
-  srand(ts); //randomizer seed based on timestamp
+  srand((unsigned int)ts&0xFFFFFFFE); //randomizer seed based on timestamp
 
   //Stream ID value
   sid[0] = rand() & 0xFF;
@@ -856,7 +856,7 @@ void encode_str(Super * super)
       ts = time(NULL) - epoch;
 
       //update randomizer seed and SID
-      srand(ts); //randomizer seed based on time
+      srand((unsigned int)ts&0xFFFFFFFE); //randomizer seed based on timestamp
 
       //update Stream ID
       sid[0] = rand() & 0xFF;

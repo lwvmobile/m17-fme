@@ -480,9 +480,9 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
   uint16_t ip_crc = 0;
 
   //NONCE
-  time_t epoch = 1577836800L;      //Jan 1, 2020, 00:00:00 UTC
-  time_t ts = time(NULL) - epoch;  //timestamp since epoch
-  srand(ts); //randomizer seed based on timestamp
+  time_t epoch = 1577836800L;           //Jan 1, 2020, 00:00:00 UTC
+  time_t ts = time(NULL) - epoch;      //timestamp since epoch
+  srand((unsigned int)ts&0xFFFFFFFE); //randomizer seed based on timestamp
 
   //Stream ID value
   sid[0] = rand() & 0xFF;
@@ -1200,7 +1200,7 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
       ts = time(NULL) - epoch;
 
       //update randomizer seed and SID
-      srand(ts); //randomizer seed based on time
+      srand((unsigned int)ts&0xFFFFFFFE); //randomizer seed based on timestamp
 
       //update Stream ID
       sid[0] = rand() & 0xFF;
