@@ -1626,14 +1626,14 @@ void m17_duplex_mode (Super * super)
 
 }
 
+//use idle_time to periodically signal a beacon
+time_t idle_time = 0;
+
 //m17 text based games for repeaters
 void m17_text_games (Super * super)
 {
 
   uint32_t progress = 0x00000000;
-
-  //use idle_time to periodically signal a beacon
-  time_t idle_time = 0;
 
   //open any output files
   open_file_output(super);
@@ -1781,7 +1781,30 @@ void decode_game_sms_gate(Super * super, uint8_t * input, int len)
 {
   int i = 0;
   uint8_t protocol = input[0];
-  if (protocol != 0x05)
+  if (super->m17d.enc_et != 0)
+  {
+    super->demod.in_sync = 1;
+
+    memset  (super->m17e.raw, 0, sizeof(super->m17e.raw));
+    sprintf (super->m17e.sms, "Please Disable Encryption and Send SMS Message Again. ");
+    
+    //send current loaded packet
+    encode_pkt(super, 0);
+
+    //read any trailing rf samples, but discard (trailing framesync bug)
+    for (int i = 0; i < samp_num; i++)
+      get_short_audio_input_sample(super);
+
+    //read but discard sent IP frame to prevent read/reply loop
+    if (m17_udp_socket_duplex) //one for MPKT, one for EOTX
+    {
+      m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
+      m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
+    }
+
+    super->demod.in_sync = 0;
+  }
+  else if (protocol != 0x05)
   {
     super->demod.in_sync = 1;
 
@@ -1821,6 +1844,8 @@ void decode_game_sms_gate(Super * super, uint8_t * input, int len)
     generate_game_sms_reply(super, super->m17d.sms);
     
   }
+
+  idle_time = time(NULL);
 }
 
 //basically, just a bunch of string compares, progression, and then load a text message
@@ -1888,10 +1913,12 @@ void generate_game_sms_reply(Super * super, char * input)
   }
 
   //initial reply
-  fprintf (stderr, "\n Reply: %s", super->m17e.sms);
+  
   super->demod.in_sync = 1;
+
   //send current loaded packet
   encode_pkt(super, 0);
+
   //read any trailing rf samples, but discard (trailing framesync bug)
   for (int i = 0; i < samp_num; i++)
     get_short_audio_input_sample(super);
@@ -1909,10 +1936,12 @@ void generate_game_sms_reply(Super * super, char * input)
   if (okay)
   {
     game_text(super);
-    fprintf (stderr, "\n Reply: %s", super->m17e.sms);
+
     super->demod.in_sync = 1;
+
     //send current loaded packet
     encode_pkt(super, 0);
+
     //read any trailing rf samples, but discard (trailing framesync bug)
     for (int i = 0; i < samp_num; i++)
       get_short_audio_input_sample(super);
@@ -2129,7 +2158,8 @@ void load_game_advertisement(Super * super, uint32_t input)
 void game_text(Super * super)
 {
   uint32_t progress = super->m17e.game_progress;
-  sprintf (super->m17e.sms, " Commands: north, south, east, west, quit; Progression Point: %08X\n", progress);
+  char commands[100]; sprintf (commands, "\n Commands: north, south, east, west, quit; Progression Point: %08X;", progress);
+
   switch (progress)
   {
     case 0x00000000:
@@ -2138,26 +2168,29 @@ void game_text(Super * super)
 
     //starting location on map
     case 0x80000000:
-      strcat (super->m17e.sms, "You find yourself in a dimly lit room, a candle flickering on top of a small night stand, casting the hue of its flames against the run down wall. There is a door to the north. To the south, a grimy dirty mattress.");
+      sprintf (super->m17e.sms, "You find yourself in a dimly lit room, a candle flickering on top of a small night stand, casting the hue of its flames against the run down wall. There is a door to the north. To the south, a grimy dirty mattress.");
       break;
 
     //Traveling North...
     case 0x80010000:
-      strcat (super->m17e.sms, "You venture outside of the small shack, once inhabited by yourself. To the north there appears to be an old graveyard.");
+      sprintf (super->m17e.sms, "You venture outside of the small shack, once inhabited by yourself. To the north there appears to be an old graveyard.");
       break;
 
     case 0x80020000:
-      strcat (super->m17e.sms, "Entering the graveyard, you see skeletons rising from the grave.");
+      sprintf (super->m17e.sms, "Entering the graveyard, you see skeletons rising from the grave.");
       // super->m17e.game_progress = 0x80000000;
       break;
 
     case 0x7FFF0000:
-      strcat (super->m17e.sms, "You lay on the dirty filthy matress, roll over and close your eyes. Head North to wake up.");
+      sprintf (super->m17e.sms, "You lay on the dirty filthy matress, roll over and close your eyes. Head North to wake up.");
       break;
 
     default:
       sprintf (super->m17e.sms, "There nothing but emptiness for as far as the eye can see, either that, or you may have bumped your head into the wall. Unknown Progression Point: %08x", progress);
 
   }
+
+  if (progress != 0)
+    strcat (super->m17e.sms, commands);
 
 }
