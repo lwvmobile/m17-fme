@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
-* m17_duplex.c
+* m17_duplex_mode.c
 * M17 Project - Duplex Mode Operations
 *
 * LWVMOBILE
-* 2024-06 M17 Project - Florida Man Edition
+* 2024-07 M17 Project - Florida Man Edition
 *-----------------------------------------------------------------------------*/
 
 #include "main.h"
