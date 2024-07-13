@@ -303,6 +303,7 @@ typedef struct
   uint8_t raw[850]; //raw data from PDU that isn't SMS or UTF-8
   uint8_t meta_data[16]; //encoder meta data (that isn't an IV) as uint8_t array
   uint16_t raw_len; //legnth of raw hex user data for PKT encoder
+  uint8_t packet_protocol;
 
   //Stream Voice Mode
   uint8_t str_encoder_tx;  //flag if transmit on or off

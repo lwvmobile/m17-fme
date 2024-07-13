@@ -18,6 +18,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
 
   //Decode the completed packet
   uint8_t protocol = input[0];
+  super->m17d.packet_protocol = protocol; //store for call history text message display
   fprintf (stderr, " Protocol:");
   if      (protocol == 0x00) fprintf (stderr, " Raw;");
   else if (protocol == 0x01) fprintf (stderr, " AX.25;");

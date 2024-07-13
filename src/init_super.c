@@ -254,6 +254,7 @@ void init_super (Super * super)
   memset  (super->m17d.raw, 0, sizeof(super->m17d.raw));
   memset  (super->m17d.meta_data, 0, sizeof(super->m17d.meta_data));
   super->m17d.raw_len = 0;
+  super->m17d.packet_protocol = 0;
 
   //Stream Voice Mode (UNUSED on decoder)
   super->m17d.str_encoder_tx  = 0;
@@ -317,6 +318,7 @@ void init_super (Super * super)
   memset  (super->m17e.raw, 0, sizeof(super->m17e.raw));
   memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data));
   super->m17e.raw_len = 0;
+  super->m17e.packet_protocol = 0;
 
   //Stream Voice Mode
   super->m17e.str_encoder_tx  = 1;

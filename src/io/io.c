@@ -682,7 +682,12 @@ void push_call_history (Super * super)
 
   char dt[9]; memset (dt, 0, 9*sizeof(char));
   if      (super->m17d.dt == 0) sprintf (dt, "RESERVED");
-  else if (super->m17d.dt == 1) sprintf (dt, "PKT DATA");
+  else if (super->m17d.dt == 1)
+  { 
+    if (super->m17d.packet_protocol == 0x05)
+      sprintf (dt, "SMS TEXT");
+    else sprintf (dt, "PKT DATA");
+  }
   else if (super->m17d.dt == 2) sprintf (dt, "VOX 3200");
   else if (super->m17d.dt == 3) sprintf (dt, "V+D 1600");
   else if (super->m17d.dt == 4) sprintf (dt, "RESET DM");
@@ -694,7 +699,17 @@ void push_call_history (Super * super)
   char * datestr  = get_date_n(super->demod.current_time);
   for (uint8_t i = 0; i < 9; i++)
     memcpy (super->m17d.callhistory[i], super->m17d.callhistory[i+1], 500*sizeof(char));
+
+  //make a truncated string of any text message
+  char shortstr[80]; sprintf (shortstr, "%s", "\n|      ");
+  strncpy (shortstr+8, super->m17d.sms, 71);
+  shortstr[79] = '\0'; //terminate string
+
   sprintf (super->m17d.callhistory[9], "%s %s CAN: %02d; SRC: %s; DST: %s; %s;", datestr, timestr, super->m17d.can, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
+
+  //Append SMS Text Message to Call History
+  if (super->m17d.dt == 1 && super->m17d.packet_protocol == 0x05)
+    strcat (super->m17d.callhistory[9], shortstr);
 
   //make a version without the timestamp, but include other info
   char event_string[500]; char key[75]; sprintf(key, "%s", "");
