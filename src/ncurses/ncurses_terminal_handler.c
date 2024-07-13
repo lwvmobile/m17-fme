@@ -753,20 +753,16 @@ void print_ncurses_call_info (Super * super)
 
 void print_ncurses_call_history (Super * super)
 {
-  int i;
-
   //color on, cyan
   attron(COLOR_PAIR(4));
 
-  printw ("--Call-History-(H)-------------------------------------------------------------");
-  for (i = 0; i < 10; i++)
+  printw ("--Call-History-(H)--Reset-(c)--Print-(L)---------------------------------------");
+  for (int i = 0; i < 100; i++)
   {
-    if (super->m17d.callhistory[9-i][0] != 0)
-      printw ("\n| #%02d. %s", i+1, super->m17d.callhistory[9-i]);
-    else printw ("\n| ");
+    if (super->m17d.callhistory[99-i][0] != 0)
+      printw ("\n| #%02d. %s", i+1, super->m17d.callhistory[99-i]);
   }
-  printw ("\n| Reset Call History with (c) key.\n");
-  printw ("-------------------------------------------------------------------------------\n");
+  printw ("\n-------------------------------------------------------------------------------\n");
 
   //color off, back to white
   attron(COLOR_PAIR(6));

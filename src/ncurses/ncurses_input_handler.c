@@ -172,6 +172,11 @@ void input_ncurses_terminal (Super * super, int c)
       else super->opts.ncurses_show_io = 0;
       break;
 
+    //'L' key, Print All Call History to Console
+    case 76:
+      print_call_history(super);
+      break;
+
     //'M' key, Toggle Analog / Raw Signal Monitor (when no sync)
     case 77:
       if (super->opts.use_raw_audio_monitor == 0) super->opts.use_raw_audio_monitor = 1;
@@ -216,7 +221,7 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'c' key, Reset Call History (lower c)
     case 99:
-      for (int i = 0; i < 10; i++)
+      for (int i = 0; i < 100; i++)
         sprintf (super->m17d.callhistory[i], "%s", "");
 
       sprintf (super->m17d.sms, "%s", "Call History Cleared;");

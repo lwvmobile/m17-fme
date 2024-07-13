@@ -677,6 +677,17 @@ void parse_meta_txt_string (Super * super, char * input)
 
 }
 
+void print_call_history (Super * super)
+{
+  fprintf (stderr, "\n--Call-History-----------------------------------------------------------------");
+  for (int i = 0; i < 100; i++)
+  {
+    if (super->m17d.callhistory[99-i][0] != 0)
+      fprintf (stderr, "\n| #%02d. %s", i+1, super->m17d.callhistory[99-i]);
+  }
+  fprintf (stderr, "\n-------------------------------------------------------------------------------\n");
+}
+
 void push_call_history (Super * super)
 {
 
@@ -697,7 +708,7 @@ void push_call_history (Super * super)
 
   char * timestr  = get_time_n(super->demod.current_time);
   char * datestr  = get_date_n(super->demod.current_time);
-  for (uint8_t i = 0; i < 9; i++)
+  for (uint8_t i = 0; i < 99; i++)
     memcpy (super->m17d.callhistory[i], super->m17d.callhistory[i+1], 500*sizeof(char));
 
   //make a truncated string of any text message
@@ -705,11 +716,11 @@ void push_call_history (Super * super)
   strncpy (shortstr+8, super->m17d.sms, 71);
   shortstr[79] = '\0'; //terminate string
 
-  sprintf (super->m17d.callhistory[9], "%s %s CAN: %02d; SRC: %s; DST: %s; %s;", datestr, timestr, super->m17d.can, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
+  sprintf (super->m17d.callhistory[99], "%s %s CAN: %02d; SRC: %s; DST: %s; %s;", datestr, timestr, super->m17d.can, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
 
   //Append SMS Text Message to Call History
   if (super->m17d.dt == 1 && super->m17d.packet_protocol == 0x05)
-    strcat (super->m17d.callhistory[9], shortstr);
+    strcat (super->m17d.callhistory[99], shortstr);
 
   //make a version without the timestamp, but include other info
   char event_string[500]; char key[75]; sprintf(key, "%s", "");

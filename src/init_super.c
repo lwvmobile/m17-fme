@@ -262,7 +262,7 @@ void init_super (Super * super)
   super->m17d.str_encoder_vox = 0;
 
   //Call History
-  for (int i = 0; i < 10; i++)
+  for (int i = 0; i < 100; i++)
     sprintf (super->m17d.callhistory[i], "%s", "");
 
   //LSF Backup Copy
@@ -326,7 +326,7 @@ void init_super (Super * super)
   super->m17e.str_encoder_vox = 0;
 
   //Call History (UNUSED on Encoder)
-  for (int i = 0; i < 10; i++)
+  for (int i = 0; i < 100; i++)
     sprintf (super->m17e.callhistory[i], "%s", "");
 
   //LSF Backup Copy

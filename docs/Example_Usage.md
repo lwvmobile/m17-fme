@@ -379,6 +379,7 @@ Quick Examples:
 'D' key, Toggle Encode / Decode Display
 'H' key, Toggle Show Call History
 'c' key, Reset Call History (lower c)
+'L' key, Print Call History (current) to console / log;
 
 // Terminal/Log Verbosity Levels
 'Z' key, Cycle Demodulator Verbosity (1-5)

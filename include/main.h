@@ -311,7 +311,7 @@ typedef struct
   uint8_t str_encoder_vox; //flag if use vox mode
 
   //Call History
-  char callhistory[10][500];
+  char callhistory[100][500];
 
   //LSF Backup Copy
   uint8_t lsf_bkp[240];
@@ -698,6 +698,7 @@ void game_text(Super * super);
 
 //Call History and Event Log
 void push_call_history (Super * super);
+void print_call_history (Super * super);
 void event_log_writer  (Super * super, char * event_string, uint8_t protocol);
 
 //Encryption and Decryption
