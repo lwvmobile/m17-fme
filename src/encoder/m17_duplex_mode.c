@@ -1459,17 +1459,21 @@ void m17_duplex_mode (Super * super)
     open_ncurses_terminal(super);
   #endif
 
+  #ifdef USE_PULSEAUDIO
   //will require Pulse Audio use for now
   open_pulse_audio_output_vx(super);
   super->opts.use_pa_input_vx = 0;
   super->opts.use_pa_input = 0;
+  #endif
 
   //open only if not using IP Frames
   if (super->opts.m17_use_ip == 0)
   {
+    #ifdef USE_PULSEAUDIO
     open_pulse_audio_output_rf(super);
     open_pulse_audio_input_rf(super);
     super->opts.use_pa_input = 1;
+    #endif
   }
 
   //NOTE: UDP IP Frames now working properly in UDP IP mode, IP Address is TARGET IP Address
@@ -1532,6 +1536,7 @@ void m17_duplex_mode (Super * super)
     if (super->m17e.str_encoder_tx == 1)
     {
 
+      #ifdef USE_PULSEAUDIO
       //Toggle PA Input modes
       super->opts.use_pa_input_vx = 1;
       super->opts.use_pa_input = 0;
@@ -1551,6 +1556,11 @@ void m17_duplex_mode (Super * super)
       close_pulse_audio_input_vx(super);
       if (super->opts.m17_use_ip == 0)
         open_pulse_audio_input_rf(super);
+
+      #else
+      UNUSED(super); UNUSED(use_ip); UNUSED(udpport); UNUSED(reflector_module);
+
+      #endif
 
       //send a packet after voice stream
       if (super->opts.use_m17_packet_burst == 2)
@@ -1658,6 +1668,7 @@ void m17_text_games (Super * super)
   //open any output files
   open_file_output(super);
 
+  #ifdef USE_PULSEAUDIO
   //will require Pulse Audio use for now
   open_pulse_audio_output_vx(super);
   super->opts.use_pa_input_vx = 0;
@@ -1670,6 +1681,9 @@ void m17_text_games (Super * super)
     open_pulse_audio_input_rf(super);
     super->opts.use_pa_input = 1;
   }
+  #else
+  UNUSED(super);
+  #endif
 
   //NOTE: UDP IP Frames now working properly in UDP IP mode, IP Address is TARGET IP Address
   //example:
