@@ -1418,6 +1418,16 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
 void m17_duplex_mode (Super * super)
 {
 
+  //hard coded values for cygwin (quick dirty fix)
+  // #ifdef __CYGWIN__
+  // //input
+  // sprintf(super->pa.pa_invx_idx, "input");
+  // sprintf(super->pa.pa_input_idx, "m17_sink2.monitor");
+  // //output
+  // sprintf(super->pa.pa_outvx_idx, "output");
+  // sprintf(super->pa.pa_outrf_idx, "m17_sink2");
+  // #endif
+
   //quell defined but not used warnings from m17.h
   stfu ();
 
@@ -1632,6 +1642,16 @@ time_t idle_time = 0;
 //m17 text based games for repeaters
 void m17_text_games (Super * super)
 {
+
+  //hard coded values for cygwin (quick dirty fix)
+  // #ifdef __CYGWIN__
+  // //input
+  // sprintf(super->pa.pa_invx_idx, "input");
+  // sprintf(super->pa.pa_input_idx, "m17_sink2.monitor");
+  // //output
+  // sprintf(super->pa.pa_outvx_idx, "output");
+  // sprintf(super->pa.pa_outrf_idx, "m17_sink2");
+  // #endif
 
   uint32_t progress = 0x00000000;
 

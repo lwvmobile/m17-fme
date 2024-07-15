@@ -385,6 +385,11 @@ void parse_output_option_string (Super * super, char * output)
   }
 
   #ifdef USE_PULSEAUDIO
+  else if ( (strncmp(output, "pulsedxv", 8) == 0) ) //duplex mode voice output
+  {
+    parse_pulse_outvx_string(super, output+8);
+    //
+  }
   else if ( (strncmp(output, "pulse", 5) == 0) )
   {
     fprintf (stderr, "\n");
@@ -495,7 +500,7 @@ void parse_pulse_outrf_string (Super * super, char * input)
     strncpy (super->pa.pa_outrf_idx, curr, 99);
     super->pa.pa_outrf_idx[99] = 0;
     fprintf (stderr, "\n");
-    fprintf (stderr, "Pulse Output Device: %s; ", super->pa.pa_outrf_idx);
+    fprintf (stderr, "Pulse Output RF Device: %s; ", super->pa.pa_outrf_idx);
   }
 }
 
@@ -508,7 +513,7 @@ void parse_pulse_outvx_string (Super * super, char * input)
     strncpy (super->pa.pa_outvx_idx, curr, 99);
     super->pa.pa_outvx_idx[99] = 0;
     fprintf (stderr, "\n");
-    fprintf (stderr, "Pulse Output Device: %s; ", super->pa.pa_outvx_idx);
+    fprintf (stderr, "Pulse Output VX Device: %s; ", super->pa.pa_outvx_idx);
   }
 }
 

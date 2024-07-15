@@ -45,7 +45,8 @@ void usage ()
   printf ("                pulserf for pulse audio RFA input \n");
   printf ("                pulserf:6 or pulserf:m17_sink2.monitor for pulse audio RFA input on m17_sink2 (see -a) \n");
   printf ("                pulsevx for pulse audio Voice / Mic input\n");
-  printf ("                pulsevx:2 or pulserf:alsa_input.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Mic input on device (see -a) \n");
+  printf ("                pulsedxv for pulse audio Voice / Mic input on Duplex Operation\n");
+  printf ("                pulsevx:2, pulsedxv:2, or pulsevx:alsa_input.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Mic input on device (see -a) \n");
   printf ("                - for STDIN input (specify encoder or decoder options below)\n");
   printf ("                (Note: When using STDIN, Ncurses Keyboard Shortcuts Disabled)\n");
   #ifdef __CYGWIN__
@@ -67,7 +68,8 @@ void usage ()
   printf ("                pulserf for pulse audio RFA output\n");
   printf ("                pulserf:5 or pulserf:m17_sink2 for pulse audio RFA output on m17_sink2 (see -a) \n");
   printf ("                pulsevx for pulse audio Voice / Loopback output\n");
-  printf ("                pulsevx:1 or pulserf:alsa_output.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Loopback output on device (see -a) \n");
+  printf ("                pulsedxv for pulse audio Voice output on Duplex Operation\n");
+  printf ("                pulsevx:1, pulsedxv:1, or pulsevx:alsa_output.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Loopback output on device (see -a) \n");
   printf ("                - for STDOUT output (specify encoder or decoder options below)\n");
   printf ("                (Note: Don't use Ncurses Terminal w/ STDOUT enabled)\n");
   #ifdef __CYGWIN__

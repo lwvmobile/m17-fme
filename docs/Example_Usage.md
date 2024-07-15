@@ -95,6 +95,12 @@ To use M17-FME in RF mode, simply run:
 m17-fme -D 2> m17duplex.txt
 ```
 
+or more complex setup (example) see `m17-fme` -a for input/output:
+
+```
+m17-fme -D -M 0:m17-fme1:m17-fme2 -i pulsedxv:alsa_input.pci-0000_0d_00.3.analog-stereo -i pulserf:m17_sink2.monitor -o pulserf:m17_sink2 -o pulsedxv:alsa_output.pci-0000_0b_00.1.hdmi-stereo-extra1
+```
+
 To run M17-FME in IP mode, it is recommended to use a target IP address that is the broadcast address on your subnet for LAN opeations. This example readme will not cover the use of IP addressing and subnets, etc, but as a general example for IP 4 addressing, `.255` is the typical broadcast IP address under a subnet of `255.255.255.0`. The example provided below assumes your PC is setup with an address of `192.168.7.X` where X can be any number from 1 to 254. This mode can be used on two or more computers on your LAN to talk back and forth using the example provided below. Note: Input IP is always bound to `localhost:17000` Changing the SRC from `USER1` to different names (or your callsign) is beneficial when using IP frames locally.
 
 To use M17-FME in IP mode, run:
@@ -182,7 +188,8 @@ Input Options:
                 pulserf for pulse audio RFA input 
                 pulserf:6 or pulserf:m17_sink2.monitor for pulse audio RFA input on m17_sink2 (see -a) 
                 pulsevx for pulse audio Voice / Mic input
-                pulsevx:2 or pulserf:alsa_input.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Mic input on device (see -a) 
+                pulsedxv for pulse audio Voice / Mic input on Duplex Operation
+                pulsevx:2, pulsedxv:2, or pulsevx:alsa_input.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Mic input on device (see -a) 
                 - for STDIN input (specify encoder or decoder options below)
                 (Note: When using STDIN, Ncurses Keyboard Shortcuts Disabled)
                 (padsp wrapper required for OSS audio on Linux)
@@ -200,7 +207,8 @@ Output Options:
                 pulserf for pulse audio RFA output
                 pulserf:5 or pulserf:m17_sink2 for pulse audio RFA output on m17_sink2 (see -a) 
                 pulsevx for pulse audio Voice / Loopback output
-                pulsevx:1 or pulserf:alsa_output.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Loopback output on device (see -a) 
+                pulsedxv for pulse audio Voice output on Duplex Operation
+                pulsevx:1, pulsedxv:1, or pulsevx:alsa_output.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Loopback output on device (see -a) 
                 - for STDOUT output (specify encoder or decoder options below)
                 (Note: Don't use Ncurses Terminal w/ STDOUT enabled)
                 (padsp wrapper required for OSS audio on Linux)
