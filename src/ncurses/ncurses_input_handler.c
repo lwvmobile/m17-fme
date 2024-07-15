@@ -25,7 +25,7 @@ void entry_string_ncurses_terminal (char * label, char * output_string)
   
   entry = newwin(rows, colums, ypos, xpos);
   box (entry, 0, 0);
-  mvwprintw(entry, 2, 2, label); //" Enter Text Message:", etc
+  mvwprintw(entry, 2, 2, "%s", label); //" Enter Text Message:", etc
   mvwprintw(entry, 3, 3, " ");
   echo();
   refresh();
