@@ -15,7 +15,6 @@ int samp_num = 1920*34; //discarded LSF Frame + up to 33 packet frames, prevent 
 //detached ip frame conn and disc frame sending on start and exit
 void ip_send_conn_disc (Super * super, int cd)
 {
-  int i, j;
 
   //src string and value
   unsigned long long int src = 0;
@@ -23,21 +22,8 @@ void ip_send_conn_disc (Super * super, int cd)
   if (super->m17e.srcs[0] != 0)
     sprintf (s40, "%s", super->m17e.srcs);
 
-  //encode callsign
-  if (src < 0xEE6B27FFFFFF)
-  {
-    for(i = strlen((const char*)s40)-1; i >= 0; i--)
-    {
-      for(j = 0; j < 40; j++)
-      {
-        if(s40[i]==b40[j])
-        {
-          src=src*40+j;
-          break;
-          }
-      }
-    }
-  }
+  //Encode Callsign Data
+  encode_callsign_data(super, NULL, s40, NULL, &src);
 
   uint8_t conn[11]; memset (conn, 0, sizeof(conn));
   uint8_t disc[10]; memset (disc, 0, sizeof(disc));
@@ -46,7 +32,7 @@ void ip_send_conn_disc (Super * super, int cd)
 
   conn[4] = (src >> 40UL) & 0xFF; conn[5] = (src >> 32UL) & 0xFF; conn[6] = (src >> 24UL) & 0xFF;
   conn[7] = (src >> 16UL) & 0xFF; conn[8] = (src >> 8UL)  & 0xFF; conn[9] = (src >> 0UL)  & 0xFF;
-  for (i = 0; i < 6; i++)
+  for (uint8_t i = 0; i < 6; i++)
     disc[i+4] = conn[i+4];
 
   //1 for conn, 0 for disc
@@ -440,19 +426,7 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
   //configure User Defined Variables, if defined at CLI
   if (super->m17e.can != -1) //has a set value
     can = super->m17e.can;
-
-  if (super->m17e.srcs[0] != 0)
-    sprintf (s40, "%s", super->m17e.srcs);
-
-  if (super->m17e.dsts[0] != 0)
-    sprintf (d40, "%s", super->m17e.dsts);
-
-  //if special values, then assign them
-  if (strcmp (d40, "ALL") == 0) //check for this first, or in duplex mode, we get a mix-match of ALL and BROADCAST
-    sprintf (d40, "%s", "BROADCAST");
-
-  if (strcmp (d40, "BROADCAST") == 0)
-    dst = 0xFFFFFFFFFFFF;
+  //end CLI Configuration
   
   int i, j, k, x;    //basic utility counters
   short sample = 0;  //individual audio sample from source
@@ -566,39 +540,8 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
   lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
   for (i = 0; i < 16; i++) m17_lsf[96+i] = (lsf_fi >> (15-i)) & 1;
 
-  //Convert base40 CSD to numerical values (lifted from libM17)
-
-  //Only if not already set to a reserved value
-  if (dst < 0xEE6B27FFFFFF)
-  {
-    for(i = strlen((const char*)d40)-1; i >= 0; i--)
-    {
-      for(j = 0; j < 40; j++)
-      {
-        if(d40[i]==b40[j])
-        {
-          dst=dst*40+j;
-          break;
-          }
-      }
-    }
-  }
-
-  if (src < 0xEE6B27FFFFFF)
-  {
-    for(i = strlen((const char*)s40)-1; i >= 0; i--)
-    {
-      for(j = 0; j < 40; j++)
-      {
-        if(s40[i]==b40[j])
-        {
-          src=src*40+j;
-          break;
-          }
-      }
-    }
-  }
-  //end CSD conversion
+  //Encode Callsign Data
+  encode_callsign_data(super, d40, s40, &dst, &src);
 
   //Setup conn, disc, eotx, ping, pong values
   conn[0] = 0x43; conn[1] = 0x4F; conn[2] = 0x4E; conn[3] = 0x4E; conn[10] = reflector_module;

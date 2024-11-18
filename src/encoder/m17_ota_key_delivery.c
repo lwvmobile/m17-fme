@@ -53,19 +53,6 @@ void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint
   //configure User Defined Variables, if defined at CLI
   if (super->m17e.can != -1) //has a set value
     can = super->m17e.can;
-
-  if (super->m17e.srcs[0] != 0)
-    sprintf (s40, "%s", super->m17e.srcs);
-
-  if (super->m17e.dsts[0] != 0)
-    sprintf (d40, "%s", super->m17e.dsts);
-  
-  //if special values, then assign them
-  if (strcmp (d40, "BROADCAST") == 0)
-    dst = 0xFFFFFFFFFFFF;
-  if (strcmp (d40, "ALL") == 0)
-    dst = 0xFFFFFFFFFFFF;
-
   //end CLI Configuration
 
   uint8_t m17_lsf[244]; //the complete LSF + 4 trailing bits
@@ -85,39 +72,8 @@ void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint
   lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
   for (i = 0; i < 16; i++) m17_lsf[96+i] = (lsf_fi >> (15-i)) & 1;
 
-  //Convert base40 CSD to numerical values (lifted from libM17)
-
-  //Only if not already set to a reserved value
-  if (dst < 0xEE6B27FFFFFF)
-  {
-    for(i = strlen((const char*)d40)-1; i >= 0; i--)
-    {
-      for(j = 0; j < 40; j++)
-      {
-        if(d40[i]==b40[j])
-        {
-          dst=dst*40+j;
-          break;
-          }
-      }
-    }
-  }
-
-  if (src < 0xEE6B27FFFFFF)
-  {
-    for(i = strlen((const char*)s40)-1; i >= 0; i--)
-    {
-      for(j = 0; j < 40; j++)
-      {
-        if(s40[i]==b40[j])
-        {
-          src=src*40+j;
-          break;
-          }
-      }
-    }
-  }
-  //end CSD conversion
+  //Encode Callsign Data
+  encode_callsign_data(super, d40, s40, &dst, &src);
 
   //load dst and src values into the LSF
   for (i = 0; i < 48; i++) m17_lsf[i] = (dst >> (47ULL-(unsigned long long int)i)) & 1;

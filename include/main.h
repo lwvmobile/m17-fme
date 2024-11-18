@@ -678,6 +678,9 @@ void decode_callsign_data (Super * super, unsigned long long int dst, unsigned l
 void decode_callsign_src(Super * super, unsigned long long int src);
 void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t lich_cnt);
 
+//M17 Callsign Data Encoder
+void encode_callsign_data(Super * super, char * d40, char * s40, unsigned long long int * dst, unsigned long long int * src);
+
 //M17 Frame Demodulators
 void demod_lsf (Super * super, uint8_t * input, int debug);
 void demod_pkt (Super * super, uint8_t * input, int debug);
