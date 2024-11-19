@@ -424,7 +424,11 @@ void print_ncurses_call_info (Super * super)
   printw ("M17: ");
 
   if (super->opts.use_m17_str_encoder)
+  {
     printw ("Stream Encoder");
+    if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+      printw ( " DST(d); SRC(s); CAN(b);");
+  }
   else if (super->opts.use_m17_pkt_encoder == 1)
     printw ("Packet Encoder"); //this doesn't use ncurses terminal, but it may later
   else if (super->opts.use_m17_brt_encoder == 1)
@@ -436,6 +440,8 @@ void print_ncurses_call_info (Super * super)
     printw ("Duplex Encoder and Decoder");
     if (super->opts.m17_use_ip) printw(" (IP)");
     else printw(" (RF)");
+    if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+      printw ( " DST(d); SRC(s); CAN(b);");
   }
   else
   {

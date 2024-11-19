@@ -16,14 +16,16 @@ int samp_num = 1920*34; //discarded LSF Frame + up to 33 packet frames, prevent 
 void ip_send_conn_disc (Super * super, int cd)
 {
 
-  //src string and value
+  //NOTE: Only src is used here, but we need a dst for the callsign function
   unsigned long long int src = 0;
+  unsigned long long int dst = 0;
   char s40[50] = "M17-FME  ";
+  char d40[50] = "M17-FME  ";
   if (super->m17e.srcs[0] != 0)
     sprintf (s40, "%s", super->m17e.srcs);
 
   //Encode Callsign Data
-  encode_callsign_data(super, NULL, s40, NULL, &src);
+  encode_callsign_data(super, d40, s40, &dst, &src);
 
   uint8_t conn[11]; memset (conn, 0, sizeof(conn));
   uint8_t disc[10]; memset (disc, 0, sizeof(disc));
@@ -677,6 +679,11 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
       lsf_dt = 2;
       st = 2;
     }
+
+    //update CAN
+    if (super->m17e.can != -1)
+      can = super->m17e.can;
+    lsf_cn = can;
 
     //compose the 16-bit frame information from the above sub elements
     lsf_fi = 0;

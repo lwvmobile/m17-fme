@@ -325,6 +325,11 @@ void encode_str(Super * super)
       st = 2;
     }
 
+    //update CAN
+    if (super->m17e.can != -1)
+      can = super->m17e.can;
+    lsf_cn = can;
+
     //compose the 16-bit frame information from the above sub elements
     lsf_fi = 0;
     lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
@@ -818,6 +823,13 @@ void encode_str(Super * super)
       //update Stream ID
       sid[0] = rand() & 0xFF;
       sid[1] = rand() & 0xFF;
+
+      //Encode Callsign Data
+      encode_callsign_data(super, d40, s40, &dst, &src);
+
+      //load dst and src values into the LSF
+      for (i = 0; i < 48; i++) m17_lsf[i+00] = (dst >> (47ULL-(unsigned long long int)i)) & 1;
+      for (i = 0; i < 48; i++) m17_lsf[i+48] = (src >> (47ULL-(unsigned long long int)i)) & 1;
 
       //update nonce
       nonce[0]  = (ts >> 24) & 0xFF;

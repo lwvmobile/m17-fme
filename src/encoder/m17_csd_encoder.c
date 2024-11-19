@@ -17,10 +17,17 @@ void encode_callsign_data(Super * super, char * d40, char * s40, unsigned long l
   
   int i, j;
 
+  //reset each time for user configurable values during session
+  *dst = 0;
+  *src = 0;
+
   //TODO: Add any known 'reserved addressed denoted by a #
   //when developers/users declare any in future works
   //for now, if a # is used, and it isn't a broadcast dst,
   //we will simply set the src or dst to a reserved address value
+
+  //TODO: might be more beneficial to switch to strncmp to do len values
+  //for partial string matches if string is terminated or something
 
   //Source
   if (super->m17e.srcs[0] == '#')
@@ -31,6 +38,9 @@ void encode_callsign_data(Super * super, char * d40, char * s40, unsigned long l
 
   //Destination
   if (strcmp (super->m17e.dsts, "#BROADCAST") == 0)
+    *dst = 0xFFFFFFFFFFFF;
+
+  else if (strcmp (super->m17e.dsts, "#BROADCAS") == 0)
     *dst = 0xFFFFFFFFFFFF;
 
   else if (strcmp (super->m17e.dsts, "#ALL") == 0)

@@ -277,7 +277,7 @@ typedef struct
   unsigned long long int src; //src as a 48 bit value
   char dst_csd_str[50]; //dst call sign data as a string
   char src_csd_str[50]; //src call sign data as a string
-  int16_t can;      //channel access number
+  int16_t can;          //channel access number
 
   uint8_t lsf[240]; //bitwise lsf
   uint8_t meta[16]; //packed meta

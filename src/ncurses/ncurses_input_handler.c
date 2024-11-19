@@ -41,6 +41,7 @@ void input_ncurses_terminal (Super * super, int c)
 
   char label[50];
   char inp_str[825];
+  int16_t can_bkp = 0;
 
   switch (c)
   {
@@ -219,6 +220,26 @@ void input_ncurses_terminal (Super * super, int c)
         super->m17e.str_encoder_eot = 1;
       break;
 
+    //'b' key, set new CAN value, if using duplex mode or stream encoder
+    case 98:
+      can_bkp = super->m17e.can;
+
+      //Scan in CAN Value
+      char canstr[50]; memset(canstr, 0, 50*sizeof(char));
+
+      sprintf (label, " Enter Channel Access Number (0-15):"); //set label to be displayed in the entry box window
+      entry_string_ncurses_terminal(label, canstr);
+
+      //convert canstr to numerical value
+      sscanf (canstr, "%hd", &super->m17e.can);
+
+      if (super->m17e.can > 15) super->m17e.can = can_bkp;
+
+      //debug dump new can to stderr
+      // fprintf (stderr, "\n New CAN: %02i", super->m17e.can);
+      
+      break;
+
     //'c' key, Reset Call History (lower c)
     case 99:
       for (int i = 0; i < 100; i++)
@@ -226,6 +247,36 @@ void input_ncurses_terminal (Super * super, int c)
 
       sprintf (super->m17d.sms, "%s", "Call History Cleared;");
       event_log_writer (super, super->m17d.sms, 0xFC);
+      break;
+
+    //'d' key, Enter Destination Address Value, if using duplex mode or stream encoder
+    case 100:
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) )
+      {
+        //backup current string found here
+        char tempsrc[50]; memset(tempsrc, 0, 50*sizeof(char));
+        sprintf (tempsrc, "%s", super->m17e.dsts);
+        sprintf (super->m17e.dsts, "%s", "");
+
+        sprintf (label, " Enter Destination Callsign:"); //set label to be displayed in the entry box window
+        entry_string_ncurses_terminal(label, super->m17e.dsts);
+
+        //check and capatalize any letters in the CSD
+        for (int i = 0; super->m17e.dsts[i]!='\0'; i++)
+        {
+          if(super->m17e.dsts[i] >= 'a' && super->m17e.dsts[i] <= 'z')
+            super->m17e.dsts[i] -= 32;
+        }
+
+        //terminate string
+        super->m17e.dsts[9] = '\0';
+
+        //if no entry provided, revert to backup
+        if (super->m17e.dsts[0] == 0)
+        {
+          sprintf (super->m17e.dsts, "%s", tempsrc);
+        }
+      }
       break;
 
     //'e' key, Toggle Scrambler Encryption (only when not TX, and a key is loaded)
@@ -320,6 +371,36 @@ void input_ncurses_terminal (Super * super, int c)
       else super->opts.disable_rrc_filter = 0;
       super->m17d.dt = 4; //fake for carrier reset
       no_carrier_sync (super); //reset demod
+      break;
+
+    //'s' key, Enter Source Address Value, if using duplex mode or stream encoder
+    case 115:
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) )
+      {
+        //backup current string found here
+        char tempsrc[50]; memset(tempsrc, 0, 50*sizeof(char));
+        sprintf (tempsrc, "%s", super->m17e.srcs);
+        sprintf (super->m17e.srcs, "%s", "");
+
+        sprintf (label, " Enter Source Callsign:"); //set label to be displayed in the entry box window
+        entry_string_ncurses_terminal(label, super->m17e.srcs);
+
+        //check and capatalize any letters in the CSD
+        for (int i = 0; super->m17e.srcs[i]!='\0'; i++)
+        {
+          if(super->m17e.srcs[i] >= 'a' && super->m17e.srcs[i] <= 'z')
+            super->m17e.srcs[i] -= 32;
+        }
+
+        //terminate string
+        super->m17e.srcs[9] = '\0';
+
+        //if no entry provided, revert to backup
+        if (super->m17e.srcs[0] == 0)
+        {
+          sprintf (super->m17e.srcs, "%s", tempsrc);
+        }
+      }
       break;
 
     //'t' key, Enter Text Message (will zero out any raw packet data)
