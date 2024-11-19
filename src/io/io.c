@@ -447,15 +447,33 @@ void parse_m17_user_string (Super * super, char * input)
   curr = strtok(NULL, ":"); //m17 src callsign
   if (curr != NULL)
   {
-    strncpy (super->m17e.srcs, curr, 9); //only read first 9
-    super->m17e.srcs[9] = '\0';
+    if (curr[0] == '#') //if user submits a reserved value denoted by a hash
+    {
+      //Store entire string if a hash
+      strncpy (super->m17e.srcs, curr, 49);
+      super->m17e.srcs[49] = '\0';
+    }
+    else //only read first 9, handle as encodable CSD
+    {
+      strncpy (super->m17e.srcs, curr, 9);
+      super->m17e.srcs[9] = '\0';
+    }
   }
 
   curr = strtok(NULL, ":"); //m17 dst callsign
   if (curr != NULL)
   {
-    strncpy (super->m17e.dsts, curr, 9); //only read first 9
-    super->m17e.dsts[9] = '\0';
+    if (curr[0] == '#') //if user submits a reserved value denoted by a hash
+    {
+      //Store entire string if a hash
+      strncpy (super->m17e.dsts, curr, 49);
+      super->m17e.dsts[49] = '\0';
+    }
+    else //only read first 9, handle as encodable CS
+    {
+      strncpy (super->m17e.dsts, curr, 9);
+      super->m17e.dsts[9] = '\0';
+    }
   }
 
   fprintf (stderr, "\n");

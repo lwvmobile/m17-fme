@@ -17,19 +17,38 @@ void encode_callsign_data(Super * super, char * d40, char * s40, unsigned long l
   
   int i, j;
 
-  if (super->m17e.srcs[0] != 0)
+  //TODO: Add any known 'reserved addressed denoted by a #
+  //when developers/users declare any in future works
+  //for now, if a # is used, and it isn't a broadcast dst,
+  //we will simply set the src or dst to a reserved address value
+
+  //Source
+  if (super->m17e.srcs[0] == '#')
+    *src = 0xEE6B28000001; 
+
+  else if (super->m17e.srcs[0] != 0)
     sprintf (s40, "%s", super->m17e.srcs);
 
-  if (super->m17e.dsts[0] != 0)
+  //Destination
+  if (strcmp (super->m17e.dsts, "#BROADCAST") == 0)
+    *dst = 0xFFFFFFFFFFFF;
+
+  else if (strcmp (super->m17e.dsts, "#ALL") == 0)
+    *dst = 0xFFFFFFFFFFFF;
+
+  else if (strcmp (super->m17e.dsts, "BROADCAST") == 0)
+    *dst = 0xFFFFFFFFFFFF;
+
+  else if (strcmp (super->m17e.dsts, "ALL") == 0)
+    *dst = 0xFFFFFFFFFFFF;
+
+  else if (super->m17e.dsts[0] == '#')
+    *dst = 0xEE6B28000001;
+
+  else if (super->m17e.dsts[0] != 0)
     sprintf (d40, "%s", super->m17e.dsts);
 
-  //if special values, then assign them
-  if (strcmp (d40, "BROADCAST") == 0)
-    *dst = 0xFFFFFFFFFFFF;
-  if (strcmp (d40, "ALL") == 0)
-    *dst = 0xFFFFFFFFFFFF;
-
-  //Only if not already set to a reserved value
+  //if dst and src not a reserved address, encode them now
   if (*dst < 0xEE6B28000000)
   {
     for(i = strlen((const char*)d40)-1; i >= 0; i--)
