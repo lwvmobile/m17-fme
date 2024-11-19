@@ -433,13 +433,6 @@ void parse_m17_user_string (Super * super, char * input)
 {
   char * curr;
 
-  //check and capatalize any letters in the CSD
-  for (int i = 0; input[i]!='\0'; i++)
-  {
-    if(input[i] >= 'a' && input[i] <= 'z')
-      input[i] = input[i] -32;
-  }
-
   curr = strtok(input, ":"); //CAN
   if (curr != NULL)
     super->m17e.can = atoi(curr);
@@ -449,14 +442,21 @@ void parse_m17_user_string (Super * super, char * input)
   {
     if (curr[0] == '#') //if user submits a reserved value denoted by a hash
     {
-      //Store entire string if a hash
-      strncpy (super->m17e.srcs, curr, 49);
-      super->m17e.srcs[49] = '\0';
+      //Store entire string if a hash (up to 13 to allow 12 chars for 48-bit value plus #)
+      strncpy (super->m17e.srcs, curr, 13);
+      super->m17e.srcs[13] = '\0';
     }
     else //only read first 9, handle as encodable CSD
     {
       strncpy (super->m17e.srcs, curr, 9);
       super->m17e.srcs[9] = '\0';
+
+      //check and capatalize any letters in the CSD
+      for (int i = 0; super->m17e.srcs[i]!='\0'; i++)
+      {
+        if(super->m17e.srcs[i] >= 'a' && super->m17e.srcs[i] <= 'z')
+          super->m17e.srcs[i] -= 32;
+      }
     }
   }
 
@@ -465,14 +465,21 @@ void parse_m17_user_string (Super * super, char * input)
   {
     if (curr[0] == '#') //if user submits a reserved value denoted by a hash
     {
-      //Store entire string if a hash
-      strncpy (super->m17e.dsts, curr, 49);
-      super->m17e.dsts[49] = '\0';
+      //Store entire string if a hash (up to 13 to allow 12 chars for 48-bit value plus #)
+      strncpy (super->m17e.dsts, curr, 13);
+      super->m17e.dsts[13] = '\0';
     }
     else //only read first 9, handle as encodable CS
     {
       strncpy (super->m17e.dsts, curr, 9);
       super->m17e.dsts[9] = '\0';
+
+      //check and capatalize any letters in the CSD
+      for (int i = 0; super->m17e.dsts[i]!='\0'; i++)
+      {
+        if(super->m17e.dsts[i] >= 'a' && super->m17e.dsts[i] <= 'z')
+          super->m17e.dsts[i] -= 32;
+      }
     }
   }
 

@@ -21,17 +21,16 @@ void encode_callsign_data(Super * super, char * d40, char * s40, unsigned long l
   *dst = 0;
   *src = 0;
 
-  //TODO: Add any known 'reserved addressed denoted by a #
-  //when developers/users declare any in future works
-  //for now, if a # is used, and it isn't a broadcast dst,
-  //we will simply set the src or dst to a reserved address value
-
-  //TODO: might be more beneficial to switch to strncmp to do len values
-  //for partial string matches if string is terminated or something
+  //NOTE: When a # is passed, if not a known reserved string value, like #BROADCAST,
+  //the user must pass the raw encoded CSD value >= 0xEE6B28000000 after the #
 
   //Source
   if (super->m17e.srcs[0] == '#')
-    *src = 0xEE6B28000001; 
+  {
+    //scan string to value, excluding #
+    sscanf (super->m17e.srcs+1, "%llX", src);
+    *src &= 0xFFFFFFFFFFFF; //truncate to 48-bits
+  }
 
   else if (super->m17e.srcs[0] != 0)
     sprintf (s40, "%s", super->m17e.srcs);
@@ -53,7 +52,11 @@ void encode_callsign_data(Super * super, char * d40, char * s40, unsigned long l
     *dst = 0xFFFFFFFFFFFF;
 
   else if (super->m17e.dsts[0] == '#')
-    *dst = 0xEE6B28000001;
+  {
+    //scan string to value, excluding #
+    sscanf (super->m17e.dsts+1, "%llX", dst);
+    *dst &= 0xFFFFFFFFFFFF; //truncate to 48-bits
+  }
 
   else if (super->m17e.dsts[0] != 0)
     sprintf (d40, "%s", super->m17e.dsts);

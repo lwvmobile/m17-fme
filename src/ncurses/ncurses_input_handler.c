@@ -261,15 +261,20 @@ void input_ncurses_terminal (Super * super, int c)
         sprintf (label, " Enter Destination Callsign:"); //set label to be displayed in the entry box window
         entry_string_ncurses_terminal(label, super->m17e.dsts);
 
-        //check and capatalize any letters in the CSD
-        for (int i = 0; super->m17e.dsts[i]!='\0'; i++)
+        if (super->m17e.dsts[0] != '#')
         {
-          if(super->m17e.dsts[i] >= 'a' && super->m17e.dsts[i] <= 'z')
-            super->m17e.dsts[i] -= 32;
-        }
 
-        //terminate string
-        super->m17e.dsts[9] = '\0';
+          //check and capatalize any letters in the CSD
+          for (int i = 0; super->m17e.dsts[i]!='\0'; i++)
+          {
+            if(super->m17e.dsts[i] >= 'a' && super->m17e.dsts[i] <= 'z')
+              super->m17e.dsts[i] -= 32;
+          }
+
+          //terminate string
+          super->m17e.dsts[9] = '\0';
+
+        }
 
         //if no entry provided, revert to backup
         if (super->m17e.dsts[0] == 0)
@@ -385,15 +390,21 @@ void input_ncurses_terminal (Super * super, int c)
         sprintf (label, " Enter Source Callsign:"); //set label to be displayed in the entry box window
         entry_string_ncurses_terminal(label, super->m17e.srcs);
 
-        //check and capatalize any letters in the CSD
-        for (int i = 0; super->m17e.srcs[i]!='\0'; i++)
+        //If using is not passing a #XXXXXXXXXX reserved value
+        if (super->m17e.srcs[0] != '#')
         {
-          if(super->m17e.srcs[i] >= 'a' && super->m17e.srcs[i] <= 'z')
-            super->m17e.srcs[i] -= 32;
-        }
 
-        //terminate string
-        super->m17e.srcs[9] = '\0';
+          //check and capatalize any letters in the CSD
+          for (int i = 0; super->m17e.srcs[i]!='\0'; i++)
+          {
+            if(super->m17e.srcs[i] >= 'a' && super->m17e.srcs[i] <= 'z')
+              super->m17e.srcs[i] -= 32;
+          }
+
+          //terminate string
+          super->m17e.srcs[9] = '\0';
+
+        }
 
         //if no entry provided, revert to backup
         if (super->m17e.srcs[0] == 0)
