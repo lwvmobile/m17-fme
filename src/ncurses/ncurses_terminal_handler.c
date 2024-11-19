@@ -491,7 +491,7 @@ void print_ncurses_call_info (Super * super)
   if (super->m17d.dst == 0xFFFFFFFFFFFF)
     printw("BROADCAST ");
   else if (super->m17d.dst != 0 && super->m17d.dst >= 0xEE6B28000000)
-    printw("RESERVED (%012llx) ", super->m17d.dst);
+    printw("RESERVED (%012llX) ", super->m17d.dst);
   else
     printw("%s", super->m17d.dst_csd_str);
 
@@ -500,7 +500,7 @@ void print_ncurses_call_info (Super * super)
 
   printw ("SRC: ");
   if (super->m17d.src != 0 && super->m17d.src >= 0xEE6B28000000)
-    printw("RESERVED (%012llx)", super->m17d.src);
+    printw("RESERVED (%012llX)", super->m17d.src);
   else
     printw("%s", super->m17d.src_csd_str);
 

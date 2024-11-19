@@ -26,13 +26,13 @@ void decode_callsign_data(Super * super, unsigned long long int dst, unsigned lo
   }
   else if (dst == 0)
   {
-    fprintf (stderr, " DST: RESERVED %012llx", dst);
+    fprintf (stderr, " DST: RESERVED %012llX", dst);
     sprintf (super->m17d.dst_csd_str, "RESERVED ");
   }
 
   else if (dst >= 0xEE6B28000000)
   {
-    fprintf (stderr, " DST: RESERVED %012llx", dst);
+    fprintf (stderr, " DST: RESERVED %012llX", dst);
     sprintf (super->m17d.dst_csd_str, "RES: %012llX", dst); //can't fit the whole thing in here
   }
     
@@ -59,9 +59,9 @@ void decode_callsign_data(Super * super, unsigned long long int dst, unsigned lo
   if (src == 0xFFFFFFFFFFFF) 
     fprintf (stderr, " SRC:  UNKNOWN FFFFFFFFFFFF");
   else if (src == 0)
-    fprintf (stderr, " SRC: RESERVED %012llx", src);
+    fprintf (stderr, " SRC: RESERVED %012llX", src);
   else if (src >= 0xEE6B28000000)
-    fprintf (stderr, " SRC: RESERVED %012llx", src);
+    fprintf (stderr, " SRC: RESERVED %012llX", src);
   else
   {
     fprintf (stderr, " SRC: ");
@@ -97,9 +97,9 @@ void decode_callsign_src(Super * super, unsigned long long int src)
   if (src == 0xFFFFFFFFFFFF) 
     fprintf (stderr, " SRC:  UNKNOWN FFFFFFFFFFFF");
   else if (src == 0)
-    fprintf (stderr, " SRC: RESERVED %012llx", src);
+    fprintf (stderr, " SRC: RESERVED %012llX", src);
   else if (src >= 0xEE6B28000000)
-    fprintf (stderr, " SRC: RESERVED %012llx", src);
+    fprintf (stderr, " SRC: RESERVED %012llX", src);
   else
   {
     fprintf (stderr, " SRC: ");
