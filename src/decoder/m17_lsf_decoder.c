@@ -140,6 +140,14 @@ void decode_lsf_contents(Super * super)
   //if no Meta (debug)
   // if (lsf_et == 0 && meta_sum == 0)
   //   fprintf (stderr, " Meta Null; ");
+
+  //reset potential stale FN portion of meta field if ES enc PKT 
+  //comes in immediately after a Stream without a nocarrier reset
+  if (lsf_ps == 0) //packet data indicator
+  {
+    super->m17d.meta[14] = 0;
+    super->m17d.meta[15] = 0;
+  }
   
   if (lsf_et == 2)
   {
