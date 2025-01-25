@@ -147,23 +147,23 @@ void encode_pkt(Super * super, int mode)
   nonce[12] = rand() & 0xFF;
   nonce[13] = rand() & 0xFF;
 
-  //NOTE: Currently, LSF frame viterbi on RF Audio Input has a minor chance to fail with IV present
-  //but in latest testing, observed less than %5 failure rate, so re-enabling IV on PKT Data.
-  //Its just experimental and for fun, so it is what it is. (could consider moving to a KW-like method)
+  //leaving disabled, but code is present now if we wish to run and convert ECB to IV mode
+  //NOTE: Currently, LSF frame decode on RF Audio Input is 50/50 with an IV present
+  //Another thing to consider, if we don't use the CTR (no LSN) then its technically not CTR mode
 
   //load nonce into the IV field of the m17_lsf and mirror to m17e.meta for aes crypt function
-  if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)
-  {
-    k = 112;
-    for (j = 0; j < 14; j++)
-    {
-      for (i = 0; i < 8; i++)
-        m17_lsf[k++] = (nonce[j] >> (7-i))&1;
-    }
+  // if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)
+  // {
+  //   k = 112;
+  //   for (j = 0; j < 14; j++)
+  //   {
+  //     for (i = 0; i < 8; i++)
+  //       m17_lsf[k++] = (nonce[j] >> (7-i))&1;
+  //   }
 
-    //copy nonce to meta for crypt function below
-    memcpy (super->m17e.meta, nonce, 14);
-  }
+  //   //copy nonce to meta for crypt function below
+  //   memcpy (super->m17e.meta, nonce, 14);
+  // }
   //end load
 
   //pack and compute the CRC16 for LSF
@@ -218,8 +218,8 @@ void encode_pkt(Super * super, int mode)
   for (i = 0; i < 368; i++)
     m17_lsfs[i] = (m17_lsfi[i] ^ m17_scramble[i]) & 1;
 
-  //a full sized complete packet paylaod to break into smaller frames + 1 for padding zeroes if needed
-  uint8_t m17_p1_full[34*25*8]; memset (m17_p1_full, 0, sizeof(m17_p1_full));
+  //a full sized complete packet paylaod to break into smaller frames
+  uint8_t m17_p1_full[33*25*8]; memset (m17_p1_full, 0, sizeof(m17_p1_full));
 
   //load protocol value into first 8 bits
   k = 0;
@@ -346,7 +346,7 @@ void encode_pkt(Super * super, int mode)
   else if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)
   {
     int klen = (k-8)/128; //NOTE: This will fall short by % value octets
-    int kmod = (k-8)%128; //This is how many bits we are short, so we need an extra round of AES with padded block
+    int kmod = (k-8)%128; //This is how many bits we are short, so we need to account with a partial ks application
 
     //NOTE: Without a proper IV, this is effectively turning AES-CTR into AES-ECB mode
     //I should load a proper IV, but if the LSF fails, then we can't recover packets
@@ -356,11 +356,22 @@ void encode_pkt(Super * super, int mode)
     for (i = 0; i < klen; i++)
       aes_ctr_str_payload_crypt (super->m17e.meta, super->enc.aes_key, m17_p1_full+(128*i)+8, super->enc.enc_subtype+1);
 
-    if (kmod != 0) //if a partial block left over to encrypt, encrypt it with the remainder of what is in m17_p1_full (padding zero bits)
-      aes_ctr_str_payload_crypt (super->m17e.meta, super->enc.aes_key, m17_p1_full+(128*i)+8, super->enc.enc_subtype+1);
+    //if there are leftovers (kmod), then run a keystream and partial application to left over bits
+    uint8_t aes_ks_bits[128]; memset(aes_ks_bits, 0, 128*sizeof(uint8_t));
+    int kmodstart = klen*128;
+    
+    //set to 8 IF kmodstart == 0 so we don't encrypt the protocol byte on short single block packets
+    if (kmodstart == 0) kmodstart = 8;
 
-    //NOTE: This will currently leave residual cipher text octets after the CRC value,
-    //but that is fine since M17 has a last significant octet count value when EOT bit
+    //debug
+    // fprintf (stderr, " AES KLEN: %d; KMOD: %d; KMODSTART: %d; ", klen, kmod, kmodstart);
+
+    if (kmod != 0)
+    {
+      aes_ctr_str_payload_crypt (super->m17e.meta, super->enc.aes_key, aes_ks_bits, super->enc.enc_subtype+1);
+      for (i = 0; i < kmod; i++)
+        m17_p1_full[i+kmodstart] ^= aes_ks_bits[i];
+    }
 
   }
 

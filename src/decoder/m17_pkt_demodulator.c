@@ -189,7 +189,7 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
     else if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded)
     {
       int klen = ((total*8))/128; //NOTE: This will fall short by % value octets
-      int kmod = ((total*8))%128; //This is how many bits we are short, so we need an extra round of AES with padded block
+      int kmod = ((total*8))%128; //This is how many bits we are short, so we need to account with a partial ks application
 
       //debug
       // fprintf (stderr, " AES KLEN: %d; KMOD: %d;", klen, kmod);
@@ -198,17 +198,25 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
       //but this is still quicker than writing a new function for only one use case
       
       uint8_t unpacked_pkt[8000]; memset (unpacked_pkt, 0, 8000*sizeof(uint8_t)); //33*25*8 = 6600, but giving some extra space here (stack smash fix on full sized enc frame decrypt)
-      unpack_byte_array_into_bit_array(super->m17d.pkt, unpacked_pkt, total+1); //+1 to accomodate the terminating 0x00 byte
+      unpack_byte_array_into_bit_array(super->m17d.pkt, unpacked_pkt, total);
       for (i = 0; i < klen; i++)
         aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, unpacked_pkt+(128*i)+8, super->m17d.enc_st+1);
 
-      if (kmod != 0) //if a partial block left over to decrypt, decrypt it with the remainder of what is in m17_p1_full (padding zero bits)
-        aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, unpacked_pkt+(128*i)+8, super->m17d.enc_st+1);
+      //if there are leftovers (kmod), then run a keystream and partial application to left over bits
+      uint8_t aes_ks_bits[128]; memset(aes_ks_bits, 0, 128*sizeof(uint8_t));
+      int kmodstart = klen*128;
 
-      //NOTE: This will currently leave residual cipher text octets after the CRC value,
-      //but that is fine since M17 has a last significant octet count value when EOT bit
+      //set to 8 IF kmodstart == 0 so we don't try to decrypt the protocol byte on short single block packets
+      if (kmodstart == 0) kmodstart = 8;
+
+      if (kmod != 0)
+      {
+        aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, aes_ks_bits, super->m17d.enc_st+1);
+        for (i = 0; i < kmod; i++)
+          unpacked_pkt[i+kmodstart] ^= aes_ks_bits[i];
+      }
         
-      pack_bit_array_into_byte_array(unpacked_pkt, super->m17d.pkt, total+1);
+      pack_bit_array_into_byte_array(unpacked_pkt, super->m17d.pkt, total);
     }
 
     //decode completed packet
