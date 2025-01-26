@@ -354,7 +354,7 @@ void encode_pkt(Super * super, int mode)
     //I may consider leaving this as ECB mode (less secure, but more secure than scrambler)
 
     for (i = 0; i < klen; i++)
-      aes_ctr_str_payload_crypt (super->m17e.meta, super->enc.aes_key, m17_p1_full+(128*i)+8, super->enc.enc_subtype+1);
+      aes_ctr_pkt_payload_crypt (super->m17e.meta, super->enc.aes_key, m17_p1_full+(128*i)+8, super->enc.enc_subtype+1);
 
     //if there are leftovers (kmod), then run a keystream and partial application to left over bits
     uint8_t aes_ks_bits[128]; memset(aes_ks_bits, 0, 128*sizeof(uint8_t));
@@ -368,10 +368,13 @@ void encode_pkt(Super * super, int mode)
 
     if (kmod != 0)
     {
-      aes_ctr_str_payload_crypt (super->m17e.meta, super->enc.aes_key, aes_ks_bits, super->enc.enc_subtype+1);
+      aes_ctr_pkt_payload_crypt (super->m17e.meta, super->enc.aes_key, aes_ks_bits, super->enc.enc_subtype+1);
       for (i = 0; i < kmod; i++)
         m17_p1_full[i+kmodstart] ^= aes_ks_bits[i];
     }
+
+    //reset meta after use
+    memset(super->m17e.meta, 0, sizeof(super->m17e.meta));
 
   }
 

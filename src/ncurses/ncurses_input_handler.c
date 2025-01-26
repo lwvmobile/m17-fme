@@ -148,7 +148,7 @@ void input_ncurses_terminal (Super * super, int c)
         if (super->enc.aes_key_is_loaded == 1)
         {
           super->enc.aes_key_is_loaded = 0;
-          memset (super->enc.aes_key, 0, 64*sizeof(uint8_t));
+          memset (super->enc.aes_key, 0, 32*sizeof(uint8_t));
         }
 
         sprintf (super->m17d.sms, "%s", "Encryption Key Cleared;");

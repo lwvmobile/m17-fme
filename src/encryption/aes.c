@@ -651,6 +651,67 @@ void aes_ctr_str_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, 
 
 }
 
+//symmetrical payload encryption and decryption for M17 Stream Frames (return iterated IV)
+void aes_ctr_pkt_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int type)
+{
+
+  //NOTE: This is for PKT ciphering and passes the IV back to the host after iterating it
+
+  //Set values specific to type (128/192/256)
+  if (type == 1) //128
+  {
+    Nb = 4;
+    Nk = 4;
+    Nr = 10;
+  }
+  else if (type == 2) //192
+  {
+    Nb = 4;
+    Nk = 6;
+    Nr = 12;
+  }
+  else //if (type == 3) //256
+  {
+    Nb = 4;
+    Nk = 8;
+    Nr = 14;
+  }
+  
+  struct AES_ctx ctx;
+
+  //init and set the iv and key variables
+  memset (ctx.RoundKey, 0, 240*sizeof(uint8_t));
+  memset (ctx.Iv, 0, 16*sizeof(uint8_t));
+
+  KeyExpansion(ctx.RoundKey, key);
+  memcpy (ctx.Iv, iv, AES_BLOCKLEN);
+
+  //pack input bit-wise payload to byte array
+  uint8_t payload_bytes[16];
+  memset (payload_bytes, 0, sizeof(payload_bytes));
+  pack_bit_array_into_byte_array (payload, payload_bytes, 16);
+
+  //debug
+  // fprintf (stderr, "\n  INPUT: ");
+  // for (int i = 0; i < 16; i++)
+  //   fprintf (stderr, "%02X", payload_bytes[i]);
+
+  //pass to internal CTR handler for payload
+  AES_CTR_xcrypt_buffer(&ctx, payload_bytes, 16);
+
+  //debug
+  // fprintf (stderr, "\n OUTPUT: ");
+  // for (int i = 0; i < 16; i++)
+  //   fprintf (stderr, "%02X", payload_bytes[i]);
+
+  //unpack output bytes back to bits
+  unpack_byte_array_into_bit_array(payload_bytes, payload, 16);
+
+  //copy iterated IV back out to calling function for PKT mode
+  memcpy (iv, ctx.Iv, AES_BLOCKLEN);
+
+}
+
 //Tiny-AES distributed under the unlicense license
 
 /*
