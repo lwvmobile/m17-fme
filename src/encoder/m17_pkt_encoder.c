@@ -152,18 +152,21 @@ void encode_pkt(Super * super, int mode)
   //Another thing to consider, if we don't use the CTR (no LSN) then its technically not CTR mode
 
   //load nonce into the IV field of the m17_lsf and mirror to m17e.meta for aes crypt function
-  // if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)
-  // {
-  //   k = 112;
-  //   for (j = 0; j < 14; j++)
-  //   {
-  //     for (i = 0; i < 8; i++)
-  //       m17_lsf[k++] = (nonce[j] >> (7-i))&1;
-  //   }
+  if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)
+  {
+    k = 112;
+    for (j = 0; j < 14; j++)
+    {
+      for (i = 0; i < 8; i++)
+        m17_lsf[k++] = (nonce[j] >> (7-i))&1;
+    }
 
-  //   //copy nonce to meta for crypt function below
-  //   memcpy (super->m17e.meta, nonce, 14);
-  // }
+    //reset meta
+    memset(super->m17e.meta, 0, sizeof(super->m17e.meta));
+
+    //copy nonce to meta for crypt function below
+    memcpy (super->m17e.meta, nonce, 14);
+  }
   //end load
 
   //pack and compute the CRC16 for LSF
