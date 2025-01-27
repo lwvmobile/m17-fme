@@ -209,11 +209,11 @@ float demodulate_and_return_float_symbol(Super * super)
   super->demod.sample_buffer[super->demod.sample_buffer_ptr++] = sample;
 
   //save symbol stream format (M17_Implementations), if opened
-  if (super->opts.float_symbol_out)
+  if (super->opts.float_symbol_out && !super->opts.use_m17_duplex_mode && !super->opts.use_m17_textgame_mode)
     fwrite(&float_symbol, sizeof(float), 1, super->opts.float_symbol_out); //sizeof(float) is 4 (usually)
 
   //save dibits to DSD-FME compatible dibit "symbol" capture bin file format
-  if (super->opts.dibit_out) //use -C output.bin to use this format for output
+  if (super->opts.dibit_out && !super->opts.use_m17_duplex_mode && !super->opts.use_m17_textgame_mode) //use -C output.bin to use this format for output
   {
     dibit = digitize_symbol_to_dibit(float_symbol);
     fputc (dibit, super->opts.dibit_out);
