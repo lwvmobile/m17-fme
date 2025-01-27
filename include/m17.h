@@ -17,7 +17,7 @@
 static char b40[] = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.";
 
 //scramble / randomization bit array
-static uint8_t m17_scramble[369] = { 
+static uint8_t m17_scramble[368] = { 
 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1,
 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0,
 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -44,15 +44,23 @@ static uint8_t m17_scramble[369] = {
 };
 
 //p1 puncture
-static uint8_t p1[62] = {
+static uint8_t p1[61] = {
 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1,
 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1,
 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1,
 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1
 };
 
+//libm17 p1 puncture
+static uint8_t puncture_pattern_1[61] = {
+    1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,
+      1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,
+      1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,
+      1,0,1,1,1,0,1,1,1,0,1,1
+};
+
 //p3 puncture
-static uint8_t p3[62] = {1, 1, 1, 1, 1, 1, 1, 0};
+static uint8_t p3[8] = {1, 1, 1, 1, 1, 1, 1, 0};
 
 //dibits-symbols map
 static int8_t symbol_map[4] = {+1, +3, -1, -3};
@@ -130,5 +138,6 @@ static int stfu ()
 	//quell defined but not used warnings from m17.h
   UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(inv_symbol_map); UNUSED(m17_rrc); UNUSED(m17_input_rrc);
   UNUSED(lsf_sync_symbols); UNUSED(str_sync_symbols); UNUSED(pkt_sync_symbols); UNUSED(brt_sync_symbols); UNUSED(symbol_levels);
+	UNUSED(puncture_pattern_1);
 	return 0;
 }
