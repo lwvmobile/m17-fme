@@ -2,7 +2,10 @@
  * slice.c
  * M17 Project - Soft Dibit Slicer, Viterbi for LSF frames (symbol based viterbi)
  *
- * LWVMOBILE
+ * Wojciech Kaczmarski, SP5WWP
+ * M17 Project, 29 December 2023
+ * 
+ * (sloppy copy and paste done for) TODO: Cleanup
  * 2025-01 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
@@ -11,7 +14,13 @@
 //same as symbol levels in m17.h (m17-fme version)
 const int8_t symbol_list[4]={-3, -1, +1, +3};
 
-//may convert to ptr later
+/**
+ * @brief Slice payload symbols into soft dibits.
+ * Input (RRC filtered baseband sampled at symbol centers)
+ * should be already normalized to {-3, -1, +1 +3}.
+ * @param out Soft valued dibits (type-4).
+ * @param inp Array of 184 floats (1 sample per symbol).
+ */
 void slice_symbols(uint16_t out[2*SYM_PER_PLD], const float inp[SYM_PER_PLD])
 {
 
@@ -337,14 +346,3 @@ void reorder_soft_bits(uint16_t outp[SYM_PER_PLD*2], const uint16_t inp[SYM_PER_
 	for(uint16_t i=0; i<SYM_PER_PLD*2; i++)
         outp[i]=inp[intrl_seq[i]];
 }
-
-//TODO: Cleanup and properly credit Woj 
-//--------------------------------------------------------------------
-// M17 C library - decode/viterbi.c
-//
-// This file contains:
-// - the Viterbi decoder
-//
-// Wojciech Kaczmarski, SP5WWP
-// M17 Project, 29 December 2023
-//--------------------------------------------------------------------

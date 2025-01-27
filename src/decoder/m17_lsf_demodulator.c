@@ -14,18 +14,12 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
   //quell defined but not used warnings from m17.h
   stfu ();
 
-  int i, x;
-  uint8_t dbuf[384];           //384-bit frame - 16-bit (8 symbol) sync pattern (184 dibits)
-  uint8_t m17_int_bits[368];  //368 bits that are still interleaved
-  uint8_t m17_rnd_bits[368]; //368 bits that are still scrambled (randomized)
-  uint8_t m17_bits[368];    //368 bits that have been de-interleaved and de-scramble
-  uint8_t m17_depunc[500]; //488 bits after depuncturing
+  int i;
+  uint8_t dbuf[184]; //384-bit frame - 16-bit (8 symbol) sync pattern (184 dibits)
+  float   sbuf[184]; //float symbol buffer
 
-  memset (dbuf, 0, sizeof(dbuf));
-  memset (m17_int_bits, 0, sizeof(m17_int_bits));
-  memset (m17_rnd_bits, 0, sizeof(m17_rnd_bits));
-  memset (m17_bits, 0, sizeof(m17_bits));
-  memset (m17_depunc, 0, sizeof(m17_depunc));
+  memset(dbuf, 0, sizeof(dbuf));
+  memset(sbuf, 0.0f, sizeof(sbuf));
 
   //if not running in debug / encoder mode, then perform dibit collection
   if (debug == 0)
@@ -34,68 +28,60 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
     for (i = 0; i < 184; i++)
       dbuf[i] = get_dibit(super);
 
-    //convert dbuf into a bit array
+    //convert dbuf into a symbol array
     for (i = 0; i < 184; i++)
     {
-      m17_rnd_bits[i*2+0] = (dbuf[i] >> 1) & 1;
-      m17_rnd_bits[i*2+1] = (dbuf[i] >> 0) & 1;
+      if      (dbuf[i] == 0) sbuf[i] = +1.0f;
+      else if (dbuf[i] == 1) sbuf[i] = +3.0f;
+      else if (dbuf[i] == 2) sbuf[i] = -1.0f;
+      else if (dbuf[i] == 3) sbuf[i] = -3.0f;
+      else                   sbuf[i] = +0.0f;
+    }
+    
+  }
+  else //we are debugging, and convert input to symbols
+  {
+    //load dibits into dibit buffer from input bits
+    for (i = 0; i < 184; i++)
+      dbuf[i] = (input[(i*2)+0] << 1) | input[(i*2)+1];
+
+    //convert dbuf into a symbol array
+    for (i = 0; i < 184; i++)
+    {
+      if      (dbuf[i] == 0) sbuf[i] = +1.0f;
+      else if (dbuf[i] == 1) sbuf[i] = +3.0f;
+      else if (dbuf[i] == 2) sbuf[i] = -1.0f;
+      else if (dbuf[i] == 3) sbuf[i] = -3.0f;
+      else                   sbuf[i] = +0.0f;
     }
   }
-  else //we are debugging, and copy input to m17_rnd_bits
-    memcpy (m17_rnd_bits, input, 368);
 
-  //descramble the frame
-  for (i = 0; i < 368; i++)
-    m17_int_bits[i] = (m17_rnd_bits[i] ^ m17_scramble[i]) & 1;
+  //
+  uint32_t error = 0;                 //viterbi error
+  uint16_t soft_bit[2*SYM_PER_PLD];   //raw frame soft bits
+  uint16_t d_soft_bit[2*SYM_PER_PLD]; //deinterleaved soft bits
+  uint8_t  lsf_vit[31];               //packed LSF frame
 
-  //deinterleave the bit array using Quadratic Permutation Polynomial
-  //function π(x) = (45x + 92x^2 ) mod 368
-  for (i = 0; i < 368; i++)
-  {
-    x = ((45*i)+(92*i*i)) % 368;
-    m17_bits[i] = m17_int_bits[x];
-  }
+  memset(soft_bit, 0, sizeof(soft_bit));
+  memset(d_soft_bit, 0, sizeof(d_soft_bit));
+  memset(lsf_vit, 0, sizeof(lsf_vit));
 
-  //p1 depuncture
-  p1_predictive_depuncture (super, m17_bits, m17_depunc);
+  //libm17 magic
+  //slice symbols to soft dibits
+  slice_symbols(soft_bit, sbuf);
 
-  //setup the convolutional decoder
-  uint8_t temp[500];
-  uint8_t s0;
-  uint8_t s1;
-  uint8_t m_data[32];
-  uint8_t trellis_buf[260]; //30*8 = 240
-  memset (trellis_buf, 0, sizeof(trellis_buf));
-  memset (temp, 0, sizeof (temp));
-  memset (m_data, 0, sizeof (m_data));
-  uint16_t metric = 0; UNUSED(metric);
+  //derandomize
+  randomize_soft_bits(soft_bit);
 
-  for (i = 0; i < 488; i++)
-    temp[i] = m17_depunc[i] << 1; 
+  //deinterleave
+  reorder_soft_bits(d_soft_bit, soft_bit);
 
-  convolution_start();
-  for (i = 0; i < 244; i++)
-  {
-    s0 = temp[(2*i)];
-    s1 = temp[(2*i)+1];
+  //viterbi
+  error = viterbi_decode_punctured(lsf_vit, d_soft_bit, puncture_pattern_1, 2*SYM_PER_PLD, 61);
 
-    metric += convolution_decode(s0, s1);
-  }
-
-  convolution_chainback(m_data, 240);
-
-  unpack_byte_array_into_bit_array(m_data, trellis_buf, 30);
-
-  //test running other viterbi / trellis decoder
-  // memset (trellis_buf, 0, sizeof(trellis_buf));
-  // memset (m_data, 0, sizeof (m_data));
-  // trellis_decode(trellis_buf, m17_depunc, 240);
-
-  //debug view metric out of convolutional decoder
-  // fprintf (stderr, " lsf metric: %05d; ", metric); //144 and 17616
-
+  //unpack into the lsf bit array
   memset (super->m17d.lsf, 0, sizeof(super->m17d.lsf));
-  memcpy (super->m17d.lsf, trellis_buf, 240);
+  unpack_byte_array_into_bit_array(lsf_vit+1, super->m17d.lsf, 30);
 
   uint8_t lsf_packed[30];
   memset (lsf_packed, 0, sizeof(lsf_packed));
@@ -123,7 +109,7 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
       if (i == 15) fprintf (stderr, "\n     ");
       fprintf (stderr, " %02X", lsf_packed[i]);
     }
-    fprintf (stderr, "\n      (CRC CHK) E: %04X; C: %04X;", crc_ext, crc_cmp);
+    fprintf (stderr, "\n      (CRC CHK) E: %04X; C: %04X; V-Error: %d;", crc_ext, crc_cmp, error);
   }
 
   if (crc_err == 1) fprintf (stderr, " CRC ERR");

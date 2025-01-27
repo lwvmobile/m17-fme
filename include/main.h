@@ -593,7 +593,7 @@ void convolution_chainback (unsigned char* out, unsigned int nBits);
 void convolution_start ();
 void convolution_init ();
 
-//libm17 based soft viterbi for LSF frames workflow
+//libm17 magic soft viterbi for LSF frames workflow
 #define SYM_PER_PLD 184
 void slice_symbols(uint16_t out[2*SYM_PER_PLD], const float inp[SYM_PER_PLD]);
 void randomize_soft_bits(uint16_t inp[SYM_PER_PLD*2]);
