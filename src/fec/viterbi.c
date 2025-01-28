@@ -1,11 +1,12 @@
 /*-------------------------------------------------------------------------------
- * slice.c
- * M17 Project - Soft Dibit Slicer, Viterbi for LSF frames (symbol based viterbi)
+ * viterbi.c
+ * M17 Project - Soft Dibit Slicer, Viterbi for M17 frames (symbol based viterbi)
  *
+ * https://github.com/M17-Project/libm17
  * Wojciech Kaczmarski, SP5WWP
  * M17 Project, 29 December 2023
  * 
- * (sloppy copy and paste done for) TODO: Cleanup
+ * (sloppy copy and paste done for) TODO: Migrate STR and PKT to this as well
  * 2025-01 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
@@ -79,8 +80,8 @@ uint16_t q_abs_diff(const uint16_t v1, const uint16_t v2)
 }
 
 // M17 C library - lib/decode/viterbi.c
-#define M17_CONVOL_K				      5									        //constraint length K=5
-#define M17_CONVOL_STATES	        (1 << (M17_CONVOL_K - 1))	//number of states of the convolutional encoder
+#define M17_CONVOL_K        5							//constraint length K=5
+#define M17_CONVOL_STATES   (1 << (M17_CONVOL_K - 1))	//number of states of the convolutional encoder
 
 static uint32_t prevMetrics[M17_CONVOL_STATES];
 static uint32_t currMetrics[M17_CONVOL_STATES];
@@ -94,11 +95,11 @@ static uint16_t viterbi_history[244];
  */
 void viterbi_reset(void)
 {
-  memset((uint8_t*)viterbi_history, 0, 2*244);
-  memset((uint8_t*)currMetrics, 0, 4*M17_CONVOL_STATES);
-  memset((uint8_t*)prevMetrics, 0, 4*M17_CONVOL_STATES);
-  memset((uint8_t*)currMetricsData, 0, 4*M17_CONVOL_STATES);
-  memset((uint8_t*)prevMetricsData, 0, 4*M17_CONVOL_STATES);
+    memset((uint8_t*)viterbi_history, 0, 2*244);
+    memset((uint8_t*)currMetrics, 0, 4*M17_CONVOL_STATES);
+    memset((uint8_t*)prevMetrics, 0, 4*M17_CONVOL_STATES);
+    memset((uint8_t*)currMetricsData, 0, 4*M17_CONVOL_STATES);
+    memset((uint8_t*)prevMetricsData, 0, 4*M17_CONVOL_STATES);
 }
 
 /**
@@ -243,30 +244,30 @@ uint32_t viterbi_decode(uint8_t* out, const uint16_t* in, const uint16_t len)
  */
 uint32_t viterbi_decode_punctured(uint8_t* out, const uint16_t* in, const uint8_t* punct, const uint16_t in_len, const uint16_t p_len)
 {
-  if(in_len > 244*2)
-  fprintf(stderr, "Input size exceeds max history\n");
+    if(in_len > 244*2)
+    fprintf(stderr, "Input size exceeds max history\n");
 
-  uint16_t umsg[244*2];       //unpunctured message
-  uint8_t p=0;		            //puncturer matrix entry
-  uint16_t u=0;		            //bits count - unpunctured message
-  uint16_t i=0;               //bits read from the input message
+    uint16_t umsg[244*2];       //unpunctured message
+    uint8_t p=0;		            //puncturer matrix entry
+    uint16_t u=0;		            //bits count - unpunctured message
+    uint16_t i=0;               //bits read from the input message
 
-	while(i<in_len)
-	{
-		if(punct[p])
-		{
-			umsg[u]=in[i];
-			i++;
-		}
-		else
-		{
-			umsg[u]=0x7FFF;
-		}
+    while(i<in_len)
+    {
+        if(punct[p])
+        {
+            umsg[u]=in[i];
+            i++;
+        }
+        else
+        {
+            umsg[u]=0x7FFF;
+        }
 
-		u++;
-		p++;
-		p%=p_len;
-	}
+        u++;
+        p++;
+        p%=p_len;
+    }
 
   return viterbi_decode(out, umsg, u) - (u-in_len)*0x7FFF;
 }
@@ -279,7 +280,7 @@ uint32_t viterbi_decode_punctured(uint8_t* out, const uint16_t* in, const uint8_
  */
 uint16_t soft_bit_NOT(const uint16_t a)
 {
-	return 0xFFFFU-a;
+    return 0xFFFFU-a;
 }
 
 //randomizing pattern
@@ -304,8 +305,6 @@ void randomize_soft_bits(uint16_t inp[SYM_PER_PLD*2])
         }
     }
 }
-
-
 
 //interleaver pattern
 const uint16_t intrl_seq[SYM_PER_PLD*2]=
@@ -343,6 +342,6 @@ const uint16_t intrl_seq[SYM_PER_PLD*2]=
  */
 void reorder_soft_bits(uint16_t outp[SYM_PER_PLD*2], const uint16_t inp[SYM_PER_PLD*2])
 {
-	for(uint16_t i=0; i<SYM_PER_PLD*2; i++)
+    for(uint16_t i=0; i<SYM_PER_PLD*2; i++)
         outp[i]=inp[intrl_seq[i]];
 }

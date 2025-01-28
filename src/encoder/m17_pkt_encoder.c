@@ -582,7 +582,7 @@ void encode_pkt(Super * super, int mode)
       //convert bit array into symbols and RF/Audio
       memset (nil, 0, sizeof(nil));
       encode_rfa (super, nil, mem, 11); //Preamble
-      // for (i = 0; i < 2; i++)
+      for (i = 0; i < 2; i++) //send LSF multiple times on PKT data to ensure it syncs properly
         encode_rfa (super, m17_lsfs, mem, 1); //LSF
 
       //flag off after sending

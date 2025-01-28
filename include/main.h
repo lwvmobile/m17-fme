@@ -600,13 +600,6 @@ void randomize_soft_bits(uint16_t inp[SYM_PER_PLD*2]);
 void reorder_soft_bits(uint16_t outp[SYM_PER_PLD*2], const uint16_t inp[SYM_PER_PLD*2]);
 uint32_t viterbi_decode_punctured(uint8_t* out, const uint16_t* in, const uint8_t* punct, const uint16_t in_len, const uint16_t p_len);
 
-//p1 predictive depuncture
-void p1_predictive_depuncture(Super * super, uint8_t * input, uint8_t * output);
-
-//alternate viterbi (trellis) encoder and decoder
-void trellis_encode(uint8_t * result, uint8_t * source, int result_len, int reg);
-void trellis_decode(uint8_t * result, uint8_t * source, int result_len);
-
 //Golay 24_12 encoder and decoder
 void golay_24_12_encode (unsigned char *origBits, unsigned char *encodedBits);
 bool golay_24_12_decode (unsigned char *rxBits);

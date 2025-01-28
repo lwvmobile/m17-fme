@@ -452,10 +452,10 @@ void print_ncurses_call_info (Super * super)
 
 
   if (super->opts.payload_verbosity)
-    printw ("; Payload Verbosity: %d;", super->opts.payload_verbosity);
+    printw (" Payload Verb: %d;", super->opts.payload_verbosity);
 
   if (super->opts.demod_verbosity)
-    printw ("; Demod Verbosity: %d;", super->opts.demod_verbosity);
+    printw (" Demod Verb: %d;", super->opts.demod_verbosity);
 
   if (!super->opts.use_m17_rfa_decoder && !super->opts.use_m17_ipf_decoder)
   {
