@@ -213,7 +213,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     }
     if (dst != 0) //if used
     {
-      fprintf (stderr, " REF: "); //Reflector Name
+      fprintf (stderr, " CF2: "); //Reflector Name
       for (i = 0; i < 9; i++)
       {
         char c = b40[dst % 40];
@@ -224,7 +224,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     }
 
     //
-    sprintf (super->m17d.dat, "Extended CSD - Original SRC: %s; Reflector: %s;", cf1, cf2);
+    sprintf (super->m17d.dat, "Extended CSD - CF1: %s; CF2: %s;", cf1, cf2);
     
     //send Extended CSD to event_log_writer
     event_log_writer (super, super->m17d.dat, protocol);
