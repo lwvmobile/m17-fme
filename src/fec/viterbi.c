@@ -1,12 +1,12 @@
 /*-------------------------------------------------------------------------------
  * viterbi.c
- * M17 Project - Soft Dibit Slicer, Viterbi for M17 frames (symbol based viterbi)
+ * M17 Project - Soft Symbol Slicer, Viterbi for M17 frames (soft decisions)
  *
  * https://github.com/M17-Project/libm17
  * Wojciech Kaczmarski, SP5WWP
  * M17 Project, 29 December 2023
  * 
- * (sloppy copy and paste done for) TODO: Migrate STR and PKT to this as well
+ * sloppy copy and paste done for
  * 2025-01 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
@@ -245,7 +245,7 @@ uint32_t viterbi_decode(uint8_t* out, const uint16_t* in, const uint16_t len)
 uint32_t viterbi_decode_punctured(uint8_t* out, const uint16_t* in, const uint8_t* punct, const uint16_t in_len, const uint16_t p_len)
 {
     if(in_len > 244*2)
-    fprintf(stderr, "Input size exceeds max history\n");
+        fprintf(stderr, "Input size exceeds max history\n");
 
     uint16_t umsg[244*2];       //unpunctured message
     uint8_t p=0;		            //puncturer matrix entry

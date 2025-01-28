@@ -16,7 +16,8 @@ void demod_str(Super * super, uint8_t * input, int debug)
 
   int i, x;
   
-  uint8_t dbuf[384]; //384-bit frame - 16-bit (8 symbol) sync pattern (184 dibits)
+  uint8_t  dbuf[184];                 //384-bit frame - 16-bit (8 symbol) sync pattern (184 dibits)
+  float    sbuf[184];                 //float symbol buffer
   uint8_t m17_rnd_bits[368]; //368 bits that are still scrambled (randomized)
   uint8_t m17_int_bits[368]; //368 bits that are still interleaved
   uint8_t m17_bits[368]; //368 bits that have been de-interleaved and de-scramble
@@ -24,6 +25,7 @@ void demod_str(Super * super, uint8_t * input, int debug)
   int lich_err = -1;
 
   memset (dbuf, 0, sizeof(dbuf));
+  memset (sbuf, 0, sizeof(sbuf));
   memset (m17_rnd_bits, 0, sizeof(m17_rnd_bits));
   memset (m17_int_bits, 0, sizeof(m17_int_bits));
   memset (m17_bits, 0, sizeof(m17_bits));
@@ -42,9 +44,37 @@ void demod_str(Super * super, uint8_t * input, int debug)
       m17_rnd_bits[i*2+0] = (dbuf[i] >> 1) & 1;
       m17_rnd_bits[i*2+1] = (dbuf[i] >> 0) & 1;
     }
+
+    //convert dbuf into a symbol array
+    for (i = 0; i < 184; i++)
+    {
+      if      (dbuf[i] == 0) sbuf[i] = +1.0f;
+      else if (dbuf[i] == 1) sbuf[i] = +3.0f;
+      else if (dbuf[i] == 2) sbuf[i] = -1.0f;
+      else if (dbuf[i] == 3) sbuf[i] = -3.0f;
+      else                   sbuf[i] = +0.0f;
+    }
+
   }
-  else //we are debugging, and copy input to m17_rnd_bits
+  else //we are debugging, and copy input to m17_rnd_bits, and convert input to symbols
+  {
     memcpy (m17_rnd_bits, input, 368);
+
+    //load dibits into dibit buffer from input bits
+    for (i = 0; i < 184; i++)
+      dbuf[i] = (input[(i*2)+0] << 1) | input[(i*2)+1];
+
+    //convert dbuf into a symbol array
+    for (i = 0; i < 184; i++)
+    {
+      if      (dbuf[i] == 0) sbuf[i] = +1.0f;
+      else if (dbuf[i] == 1) sbuf[i] = +3.0f;
+      else if (dbuf[i] == 2) sbuf[i] = -1.0f;
+      else if (dbuf[i] == 3) sbuf[i] = -3.0f;
+      else                   sbuf[i] = +0.0f;
+    }
+
+  }
 
   //descramble the frame
   for (i = 0; i < 368; i++)
@@ -65,7 +95,7 @@ void demod_str(Super * super, uint8_t * input, int debug)
   lich_err = decode_lich_contents(super, lich_bits);
 
   if (lich_err == 0)
-    prepare_str(super, m17_bits);
+    prepare_str(super, sbuf);
 
   //get rid of this if it costs too much CPU / skips / lags
   super->demod.sync_time = super->demod.current_time = time(NULL);
@@ -78,78 +108,44 @@ void demod_str(Super * super, uint8_t * input, int debug)
 
 }
 
-void prepare_str(Super * super, uint8_t * input)
+void prepare_str(Super * super, float * sbuf)
 {
-  int i, k, x; 
-  uint8_t m17_punc[275]; //25 * 11 = 275
-  memset (m17_punc, 0, sizeof(m17_punc));
-  for (i = 0; i < 272; i++)
-    m17_punc[i] = input[i+96];
+  int i;
+  uint16_t soft_bit[2*SYM_PER_PLD];   //raw frame soft bits
+  uint16_t d_soft_bit[2*SYM_PER_PLD]; //deinterleaved soft bits
+  uint8_t  viterbi_bytes[31];         //packed viterbi return bytes
+  uint32_t error = 0;                 //viterbi error
 
-  //depuncture the bits
-  uint8_t m17_depunc[300]; //25 * 12 = 300
-  memset (m17_depunc, 0, sizeof(m17_depunc));
-  k = 0; x = 0;
-  for (i = 0; i < 25; i++)
-  {
-    m17_depunc[k++] = m17_punc[x++];
-    m17_depunc[k++] = m17_punc[x++];
-    m17_depunc[k++] = m17_punc[x++];
-    m17_depunc[k++] = m17_punc[x++];
-    m17_depunc[k++] = m17_punc[x++];
-    m17_depunc[k++] = m17_punc[x++];
-    m17_depunc[k++] = m17_punc[x++];
-    m17_depunc[k++] = m17_punc[x++];
-    m17_depunc[k++] = m17_punc[x++];
-    m17_depunc[k++] = m17_punc[x++];
-    m17_depunc[k++] = m17_punc[x++];
-    m17_depunc[k++] = 0; 
-  }
-
-  //setup the convolutional decoder
-  uint8_t temp[300];
-  uint8_t s0;
-  uint8_t s1;
-  uint8_t m_data[28];
-  uint8_t trellis_buf[144];
-  memset (trellis_buf, 0, sizeof(trellis_buf));
-  memset (temp, 0, sizeof (temp));
-  memset (m_data, 0, sizeof (m_data));
-  uint16_t metric = 0; UNUSED(metric);
-
-  //test viterbi with all zeroes and all ones
-  // memset (m17_depunc, 0, sizeof(m17_depunc));
-  // memset (m17_depunc, 1, sizeof(m17_depunc));
-
-  for (i = 0; i < 296; i++)
-    temp[i] = m17_depunc[i] << 1; 
-
-  convolution_start();
-  for (i = 0; i < 148; i++)
-  {
-    s0 = temp[(2*i)];
-    s1 = temp[(2*i)+1];
-
-    metric += convolution_decode(s0, s1);
-  }
-
-  convolution_chainback(m_data, 144);
-
-  unpack_byte_array_into_bit_array(m_data, trellis_buf, 18);
-
-  //test running other viterbi / trellis decoder
-  // memset (trellis_buf, 0, sizeof(trellis_buf));
-  // memset (m_data, 0, sizeof (m_data));
-  // trellis_decode(trellis_buf, m17_depunc, 144);
-
-  //load m_data into bits for either data packets or voice packets
+  uint8_t stream_bits[144]; //128+16
   uint8_t payload[128];
   uint8_t end = 9;
   uint16_t fn = 0;
+
+  memset(soft_bit, 0, sizeof(soft_bit));
+  memset(d_soft_bit, 0, sizeof(d_soft_bit));
+  memset(viterbi_bytes, 0, sizeof(viterbi_bytes));
+
+  memset (stream_bits, 0, sizeof(stream_bits));
   memset (payload, 0, sizeof(payload));
 
-  end = trellis_buf[0];
-  fn = (uint16_t)convert_bits_into_output(&trellis_buf[1], 15);
+  //libm17 magic
+  //slice symbols to soft dibits
+  slice_symbols(soft_bit, sbuf);
+
+  //derandomize
+  randomize_soft_bits(soft_bit);
+
+  //deinterleave
+  reorder_soft_bits(d_soft_bit, soft_bit);
+
+  //viterbi
+  error = viterbi_decode_punctured(viterbi_bytes, d_soft_bit+96, p2, 272, 12);
+
+  //load viterbi_bytes into bits for either data packets or voice packets
+  unpack_byte_array_into_bit_array(viterbi_bytes+1, stream_bits, 18); //18*8 = 144
+
+  end = stream_bits[0];
+  fn = (uint16_t)convert_bits_into_output(&stream_bits[1], 15);
 
   //for scrambler seed calculation, if required (late entry)
   super->enc.scrambler_fn_d = fn;
@@ -157,29 +153,21 @@ void prepare_str(Super * super, uint8_t * input)
     super->enc.scrambler_seed_d = super->enc.scrambler_key;
 
   //insert fn bits into meta 14 and meta 15 for Initialization Vector
-  super->m17d.meta[14] = (uint8_t)convert_bits_into_output(&trellis_buf[1], 7);
-  super->m17d.meta[15] = (uint8_t)convert_bits_into_output(&trellis_buf[8], 8);
+  super->m17d.meta[14] = (uint8_t)convert_bits_into_output(&stream_bits[1], 7);
+  super->m17d.meta[15] = (uint8_t)convert_bits_into_output(&stream_bits[8], 8);
 
   if (super->opts.payload_verbosity >= 1)
-    fprintf (stderr, " FSN: %05d", fn);
+  {
+    fprintf (stderr, " FSN: %04X", fn);
+    //viterbi error
+    fprintf (stderr, " Ve: %1.1f; ", (float)error/(float)0xFFFF);
+  }
 
   if (end == 1)
     fprintf (stderr, " END;");
 
-  //place code here, but may be better to leave it disabled if 
-  //bit errors occur (no parity or checksum on these bits)
-  // if (end == 1)
-  // {
-  //   //close per call wav file, if opened
-  //   if (super->wav.wav_out_pc)
-  //     close_wav_out_pc (super);
-  // }
-
-  //debug view metric out of convolutional decoder
-  // fprintf (stderr, " str metric: %05d; ", metric); //88 and 6422
-
   for (i = 0; i < 128; i++)
-    payload[i] = trellis_buf[i+16];
+    payload[i] = stream_bits[i+16];
 
   if (super->m17d.dt == 2 || super->m17d.dt == 3)
     decode_str_payload(super, payload, super->m17d.dt, fn%6);
@@ -190,10 +178,10 @@ void prepare_str(Super * super, uint8_t * input)
   if (super->m17d.ecdsa.keys_loaded == 1 && super->m17d.dt == 15)
     decode_str_payload(super, payload, super->m17d.dt, fn%6);
 
-  if (super->opts.payload_verbosity >= 1 && super->m17d.dt < 2)
+  if (super->opts.payload_verbosity >= 1 && super->m17d.dt == 15)
   {
-    fprintf (stderr, "\n STREAM:");
+    fprintf (stderr, "\n STREAM: ");
     for (i = 0; i < 18; i++) 
-      fprintf (stderr, " %02X", (uint8_t)convert_bits_into_output(&trellis_buf[i*8], 8));
+      fprintf (stderr, "%02X", (uint8_t)convert_bits_into_output(&stream_bits[i*8], 8));
   }
 }

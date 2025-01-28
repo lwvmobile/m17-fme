@@ -51,6 +51,9 @@ static uint8_t p1[61] = {
 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1
 };
 
+//p2 puncture
+static uint8_t p2[12] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0};
+
 //p3 puncture
 static uint8_t p3[8] = {1, 1, 1, 1, 1, 1, 1, 0};
 
@@ -128,7 +131,7 @@ static float symbol_levels[4]={-3.0, -1.0, +1.0, +3.0}; //3,2.0,1
 static int stfu ()
 {
 	//quell defined but not used warnings from m17.h
-  UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p3); UNUSED(symbol_map); UNUSED(inv_symbol_map); UNUSED(m17_rrc); UNUSED(m17_input_rrc);
-  UNUSED(lsf_sync_symbols); UNUSED(str_sync_symbols); UNUSED(pkt_sync_symbols); UNUSED(brt_sync_symbols); UNUSED(symbol_levels);
+  UNUSED(b40); UNUSED(m17_scramble); UNUSED(p1); UNUSED(p2); UNUSED(p3); UNUSED(symbol_map); UNUSED(inv_symbol_map); UNUSED(m17_rrc); 
+	UNUSED(m17_input_rrc); UNUSED(lsf_sync_symbols); UNUSED(str_sync_symbols); UNUSED(pkt_sync_symbols); UNUSED(brt_sync_symbols); UNUSED(symbol_levels);
 	return 0;
 }

@@ -586,14 +586,10 @@ void hpfilter_d (Super * super, short * input, int len);
 short rrc_input_filter(float * mem, short sample);
 void upscale_and_rrc_output_filter (int * output_symbols, float * mem, short * baseband);
 
-//convolutional encoder and decoder (viterbi)
+//simple convolutional encoder
 void simple_conv_encoder (uint8_t * input, uint8_t * output, int len);
-uint16_t convolution_decode (uint8_t s0, uint8_t s1);
-void convolution_chainback (unsigned char* out, unsigned int nBits);
-void convolution_start ();
-void convolution_init ();
 
-//libm17 magic soft viterbi for LSF frames workflow
+//libm17 magic soft decision based viterbi
 #define SYM_PER_PLD 184
 void slice_symbols(uint16_t out[2*SYM_PER_PLD], const float inp[SYM_PER_PLD]);
 void randomize_soft_bits(uint16_t inp[SYM_PER_PLD*2]);
@@ -686,7 +682,7 @@ void demod_lsf (Super * super, uint8_t * input, int debug);
 void demod_pkt (Super * super, uint8_t * input, int debug);
 void demod_brt (Super * super, uint8_t * input, int debug);
 void demod_str (Super * super, uint8_t * input, int debug);
-void prepare_str (Super * super, uint8_t * input);
+void prepare_str (Super * super, float * sbuf);
 void decode_ipf (Super * super);
 
 //M17 Duplex Mode(s)

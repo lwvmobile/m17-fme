@@ -19,14 +19,14 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
   float    sbuf[184];                 //float symbol buffer
   uint16_t soft_bit[2*SYM_PER_PLD];   //raw frame soft bits
   uint16_t d_soft_bit[2*SYM_PER_PLD]; //deinterleaved soft bits
-  uint8_t  lsf_vit[31];               //packed LSF frame
+  uint8_t  viterbi_bytes[31];         //packed viterbi return bytes
   uint32_t error = 0;                 //viterbi error
 
   memset(dbuf, 0, sizeof(dbuf));
   memset(sbuf, 0.0f, sizeof(sbuf));
   memset(soft_bit, 0, sizeof(soft_bit));
   memset(d_soft_bit, 0, sizeof(d_soft_bit));
-  memset(lsf_vit, 0, sizeof(lsf_vit));
+  memset(viterbi_bytes, 0, sizeof(viterbi_bytes));
 
   //if not running in debug / encoder mode, then perform dibit collection
   if (debug == 0)
@@ -74,11 +74,11 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
   reorder_soft_bits(d_soft_bit, soft_bit);
 
   //viterbi
-  error = viterbi_decode_punctured(lsf_vit, d_soft_bit, p1, 2*SYM_PER_PLD, 61);
+  error = viterbi_decode_punctured(viterbi_bytes, d_soft_bit, p1, 2*SYM_PER_PLD, 61);
 
   //unpack into the lsf bit array
   memset (super->m17d.lsf, 0, sizeof(super->m17d.lsf));
-  unpack_byte_array_into_bit_array(lsf_vit+1, super->m17d.lsf, 30);
+  unpack_byte_array_into_bit_array(viterbi_bytes+1, super->m17d.lsf, 30);
 
   uint8_t lsf_packed[30];
   memset (lsf_packed, 0, sizeof(lsf_packed));

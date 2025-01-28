@@ -14,19 +14,19 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
   //quell defined but not used warnings from m17.h
   stfu ();
 
-  int i, x;
+  int i;
+  uint8_t  dbuf[184];                 //384-bit frame - 16-bit (8 symbol) sync pattern (184 dibits)
+  float    sbuf[184];                 //float symbol buffer
+  uint16_t soft_bit[2*SYM_PER_PLD];   //raw frame soft bits
+  uint16_t d_soft_bit[2*SYM_PER_PLD]; //deinterleaved soft bits
+  uint8_t  viterbi_bytes[31];         //packed viterbi return bytes
+  uint32_t error = 0;                 //viterbi error
 
-  uint8_t dbuf[384];           //384-bit frame - 16-bit (8 symbol) sync pattern (184 dibits)
-  uint8_t m17_int_bits[368];  //368 bits that are still interleaved
-  uint8_t m17_rnd_bits[368]; //368 bits that are still scrambled (randomized)
-  uint8_t m17_bits[368];    //368 bits that have been de-interleaved and de-scramble
-  uint8_t m17_depunc[500]; //488 bits after depuncturing
-
-  memset (dbuf, 0, sizeof(dbuf));
-  memset (m17_int_bits, 0, sizeof(m17_int_bits));
-  memset (m17_rnd_bits, 0, sizeof(m17_rnd_bits));
-  memset (m17_bits, 0, sizeof(m17_bits));
-  memset (m17_depunc, 0, sizeof(m17_depunc));
+  memset(dbuf, 0, sizeof(dbuf));
+  memset(sbuf, 0.0f, sizeof(sbuf));
+  memset(soft_bit, 0, sizeof(soft_bit));
+  memset(d_soft_bit, 0, sizeof(d_soft_bit));
+  memset(viterbi_bytes, 0, sizeof(viterbi_bytes));
 
   //if not running in debug / encoder mode, then perform dibit collection
   if (debug == 0)
@@ -35,79 +35,52 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
     for (i = 0; i < 184; i++)
       dbuf[i] = get_dibit(super);
 
-    //convert dbuf into a bit array
+    //convert dbuf into a symbol array
     for (i = 0; i < 184; i++)
     {
-      m17_rnd_bits[i*2+0] = (dbuf[i] >> 1) & 1;
-      m17_rnd_bits[i*2+1] = (dbuf[i] >> 0) & 1;
+      if      (dbuf[i] == 0) sbuf[i] = +1.0f;
+      else if (dbuf[i] == 1) sbuf[i] = +3.0f;
+      else if (dbuf[i] == 2) sbuf[i] = -1.0f;
+      else if (dbuf[i] == 3) sbuf[i] = -3.0f;
+      else                   sbuf[i] = +0.0f;
+    }
+    
+  }
+  else //we are debugging, and convert input to symbols
+  {
+    //load dibits into dibit buffer from input bits
+    for (i = 0; i < 184; i++)
+      dbuf[i] = (input[(i*2)+0] << 1) | input[(i*2)+1];
+
+    //convert dbuf into a symbol array
+    for (i = 0; i < 184; i++)
+    {
+      if      (dbuf[i] == 0) sbuf[i] = +1.0f;
+      else if (dbuf[i] == 1) sbuf[i] = +3.0f;
+      else if (dbuf[i] == 2) sbuf[i] = -1.0f;
+      else if (dbuf[i] == 3) sbuf[i] = -3.0f;
+      else                   sbuf[i] = +0.0f;
     }
   }
-  else //we are debugging, and copy input to m17_rnd_bits
-    memcpy (m17_rnd_bits, input, 368);
 
-  //descramble the frame
-  for (i = 0; i < 368; i++)
-    m17_int_bits[i] = (m17_rnd_bits[i] ^ m17_scramble[i]) & 1;
+  //libm17 magic
+  //slice symbols to soft dibits
+  slice_symbols(soft_bit, sbuf);
 
-  //deinterleave the bit array using Quadratic Permutation Polynomial
-  //function π(x) = (45x + 92x^2 ) mod 368
-  for (i = 0; i < 368; i++)
-  {
-    x = ((45*i)+(92*i*i)) % 368;
-    m17_bits[i] = m17_int_bits[x];
-  }
+  //derandomize
+  randomize_soft_bits(soft_bit);
 
-  //P3 Depuncture
-  x = 0;
-  for (i = 0; i < 420; i++)
-  {
-    if (p3[i%8] == 1)
-      m17_depunc[i] = m17_bits[x++];
-    else m17_depunc[i] = 0;
-  }
+  //deinterleave
+  reorder_soft_bits(d_soft_bit, soft_bit);
 
-  //setup the convolutional decoder
-  uint8_t temp[500];
-  uint8_t s0;
-  uint8_t s1;
-  uint8_t m_data[27];
-  uint8_t trellis_buf[260]; //30*8 = 240
-  memset (trellis_buf, 0, sizeof(trellis_buf));
-  memset (temp, 0, sizeof (temp));
-  memset (m_data, 0, sizeof (m_data));
-  uint16_t metric = 0; UNUSED(metric);
-
-  //test viterbi with all zeroes and all ones
-  // memset (m17_depunc, 0, sizeof(m17_depunc));
-  // memset (m17_depunc, 1, sizeof(m17_depunc));
-
-  for (i = 0; i < 420; i++) //double check and test value here
-    temp[i] = m17_depunc[i] << 1; 
-
-  convolution_start();
-  for (i = 0; i < 210; i++) //double check and test value here
-  {
-    s0 = temp[(2*i)];
-    s1 = temp[(2*i)+1];
-
-    metric += convolution_decode(s0, s1);
-  }
-
-  convolution_chainback(m_data, 206); //double check and test value here
-
-  unpack_byte_array_into_bit_array(m_data, trellis_buf, 26);
-
-  //test running other viterbi / trellis decoder
-  // memset (trellis_buf, 0, sizeof(trellis_buf));
-  // memset (m_data, 0, sizeof (m_data));
-  // trellis_decode(trellis_buf, m17_depunc, 206);
-  // pack_bit_array_into_byte_array_asym(trellis_buf, m_data, 206);
+  //viterbi
+  error = viterbi_decode_punctured(viterbi_bytes, d_soft_bit, p3, 2*SYM_PER_PLD, 8);
 
   uint8_t pkt_packed[26];
   memset (pkt_packed, 0, sizeof(pkt_packed));
 
   //pack to local
-  memcpy (pkt_packed, m_data, 26);
+  memcpy (pkt_packed, viterbi_bytes+1, 26);
 
   //local variables
   uint8_t counter = (pkt_packed[25] >> 2) & 0x1F;
@@ -127,12 +100,10 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
   int end = ptr + 25;
 
   //debug counter and eot value
-  if (!eot) fprintf (stderr, " CNT: %02d; PBC: %02d; EOT: %d;", super->m17d.pbc_ptr, counter, eot);
-  else fprintf (stderr, " CNT: %02d; LST: %02d; EOT: %d;", super->m17d.pbc_ptr, counter, eot);
-  // fprintf (stderr, " PTR: %d; Total: %d; ", ptr, total);
-
-  //debug view metric out of convolutional decoder
-  // fprintf (stderr, " pkt metric: %05d; ", metric); //126 and 13020
+  if (!eot) fprintf (stderr, "CNT: %02d; PBC: %02d; EOT: %d; ", super->m17d.pbc_ptr, counter, eot);
+  else fprintf (stderr, "CNT: %02d; LST: %02d; EOT: %d; ", super->m17d.pbc_ptr, counter, eot);
+  // fprintf (stderr, "PTR: %d; Total: %d; ", ptr, total);
+  fprintf (stderr, "Ve: %1.1f; ", (float)error/(float)0xFFFF);
 
   //put packet into storage
   memcpy (super->m17d.pkt+ptr, pkt_packed, 25);
