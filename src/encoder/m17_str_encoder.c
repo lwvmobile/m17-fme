@@ -246,7 +246,7 @@ void encode_str(Super * super)
   uint8_t lsf_packed[30];
   memset (lsf_packed, 0, sizeof(lsf_packed));
   for (i = 0; i < 28; i++)
-      lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
+    lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
   crc_cmp = crc16(lsf_packed, 28);
 
   //attach the crc16 bits to the end of the LSF data
@@ -254,7 +254,7 @@ void encode_str(Super * super)
 
   //pack the CRC
   for (i = 28; i < 30; i++)
-      lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
+    lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
 
   //Craft and Send Initial LSF frame to be decoded
 
@@ -554,15 +554,8 @@ void encode_str(Super * super)
     for (i = 0; i < 272; i++)
       m17_t4c[i+96] = m17_v1p[i];
 
-    //make a backup copy of the original LSF
+    //make a backup copy of the LSF
     memcpy (super->m17e.lsf_bkp, m17_lsf, 240*sizeof(uint8_t));
-
-    //prepare substitution LSF with embedded OTAKD segment in it
-    if (super->opts.use_otakd == 1)
-    {
-      if (super->enc.enc_type != 0 && ((lsf_count%5) != 0) )
-        encode_ota_key_delivery_emb(super, m17_lsf, &lsf_count);
-    }
 
     //load up the lsf chunk for this cnt
     for (i = 0; i < 40; i++)
@@ -746,8 +739,8 @@ void encode_str(Super * super)
         }
       }
 
-      //restore original LSF (move to bottom so IP Frames can also have the embedded OTAKD)
-      memcpy (m17_lsf, super->m17e.lsf_bkp, 240*sizeof(uint8_t));
+      //restore original LSF
+      // memcpy (m17_lsf, super->m17e.lsf_bkp, 240*sizeof(uint8_t));
 
     } //end if (super->m17d.strencoder_tx)
 
@@ -969,7 +962,7 @@ void encode_str(Super * super)
       else if (eot && !eot_out && super->m17e.ecdsa.keys_loaded)
       {
 
-        encode_str_ecdsa(super, lich_cnt, mem, use_ip, udpport, can, st, sid, src, dst);
+        encode_str_ecdsa(super, lich_cnt, super->m17e.lsf_bkp, mem, use_ip, udpport, sid);
 
         memset (nil, 0, sizeof(nil));
         encode_rfa (super, nil, mem, 55);    //EOT Marker

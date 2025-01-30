@@ -249,13 +249,13 @@ void aes_key_loader (Super * super)
       fprintf (stderr, "192 ");
     if (super->m17e.enc_st == 2)
       fprintf (stderr, "256 ");
-    fprintf (stderr, "Key:");
+    fprintf (stderr, "Key: ");
     for (i = 0; i < len; i++)
     {
-      if (i == 16) fprintf (stderr, "\n            ");
-      fprintf (stderr, " %02X", super->enc.aes_key[i]);
+      // if (i == 16) fprintf (stderr, "\n             ");
+      fprintf (stderr, "%02X", super->enc.aes_key[i]);
     }
-    fprintf (stderr, "\n");
+    // fprintf (stderr, "\n");
   }
 
 }

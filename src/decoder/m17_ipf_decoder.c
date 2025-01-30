@@ -98,7 +98,7 @@ void decode_ipf (Super * super)
       super->m17d.meta[14] = (uint16_t)convert_bits_into_output(&ip_bits[273], 7);
       super->m17d.meta[15] = (uint16_t)convert_bits_into_output(&ip_bits[280], 8);
 
-      fprintf (stderr, "\n M17 IP Stream: %04X; FN: %05d;", sid, fn);
+      fprintf (stderr, "\n M17 IP Stream: %04X; FN: %04X;", sid, fn);
       if (eot) fprintf (stderr, " EOT;");
 
       //copy payload

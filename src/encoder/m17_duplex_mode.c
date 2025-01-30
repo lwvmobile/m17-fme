@@ -892,15 +892,8 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
     for (i = 0; i < 272; i++)
       m17_t4c[i+96] = m17_v1p[i];
 
-    //make a backup copy of the original LSF
+    //make a backup copy of the LSF
     memcpy (super->m17e.lsf_bkp, m17_lsf, 240*sizeof(uint8_t));
-
-    //prepare substitution LSF with embedded OTAKD segment in it
-    if (super->opts.use_otakd == 1)
-    {
-      if (super->enc.enc_type != 0 && ((lsf_count%5) != 0) )
-        encode_ota_key_delivery_emb(super, m17_lsf, &lsf_count);
-    }
 
     //load up the lsf chunk for this cnt
     for (i = 0; i < 40; i++)
@@ -1081,8 +1074,8 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
         }
       }
 
-      //restore original LSF (move to bottom so IP Frames can also have the embedded OTAKD)
-      memcpy (m17_lsf, super->m17e.lsf_bkp, 240*sizeof(uint8_t));
+      //restore original LSF
+      // memcpy (m17_lsf, super->m17e.lsf_bkp, 240*sizeof(uint8_t));
 
     } //end if (super->m17d.strencoder_tx)
 
@@ -1298,7 +1291,7 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
       else if (eot && !eot_out && super->m17e.ecdsa.keys_loaded)
       {
 
-        encode_str_ecdsa(super, lich_cnt, mem, use_ip, udpport, can, st, sid, src, dst);
+        encode_str_ecdsa(super, lich_cnt, super->m17e.lsf_bkp, mem, use_ip, udpport, sid);
 
         memset (nil, 0, sizeof(nil));
         encode_rfa (super, nil, mem, 55);    //EOT Marker
@@ -1502,7 +1495,7 @@ void m17_duplex_mode (Super * super)
       m17_duplex_str (super, use_ip, udpport, reflector_module);
 
       //read any trailing rf samples, but discard (trailing framesync bug)
-      for (int i = 0; i < 1920*6; i++)
+      for (int i = 0; i < 1920*(6+10+4); i++) //6 str frames, plus a full sized OTASK and OTAKD with LSF's, plus Signature Frames
         get_short_audio_input_sample(super);
 
       //open one, close the other

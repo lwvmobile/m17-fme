@@ -157,11 +157,11 @@ void decode_lsf_contents(Super * super)
 
     if (super->enc.aes_key_is_loaded)
     {
-      fprintf (stderr, "\n Key:");
+      fprintf (stderr, "\n Key: ");
       for (i = 0; i < keylen; i++)
       {
-        if (i == 16) fprintf (stderr, "\n     ");
-        fprintf (stderr, " %02X", super->enc.aes_key[i]);
+        // if (i == 16) fprintf (stderr, "\n      ");
+        fprintf (stderr, "%02X", super->enc.aes_key[i]);
       }
 
     }

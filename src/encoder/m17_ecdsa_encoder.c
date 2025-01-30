@@ -9,22 +9,8 @@
 #include "main.h"
 #include "m17.h"
 
-/*
-The last frame would be generated as follows:
-1. At the start of the stream initialize an array of 16 bytes with all 0's
-2. After each stream frame (starting with 0) XOR the array with payload and rotate it by 1 byte (let's say left)
-3. Repeat until there's no more voice payload.
-*/
-
-/*
-Use bit 11 of the TYPE field to indicate signed stream (1-signed, 0-unsigned).
-The most significant bit of the frame counter of the last speech/data frame must not be set if the stream is signed.*
-If the stream is signed, the last 4 frames should have frame numbers equal to 0x7FFC, 0x7FFD, 0x7FFE, 0xFFFF, with the last one having MSB set to 1 (stream end).*
-The contents of the last 4 frames is the signature. It is calculated with the stream digest and user's private key over secp256r1 curve - 512-bit long vector.
-*/
-
 //encode and create audio of a M17 Project Stream Frame Signature
-void encode_str_ecdsa(Super * super, uint8_t lich_cnt, float * mem, int use_ip, int udpport, uint8_t can, uint8_t st, uint8_t * sid, unsigned long long int src, unsigned long long int dst)
+void encode_str_ecdsa(Super * super, uint8_t lich_cnt, uint8_t * m17_lsf, float * mem, int use_ip, int udpport, uint8_t * sid)
 {
 
   //quell defined but not used warnings from m17.h
@@ -50,40 +36,8 @@ void encode_str_ecdsa(Super * super, uint8_t lich_cnt, float * mem, int use_ip, 
   uint8_t eot = 0;
 
   uint8_t lsf_chunk[6][48]; //40 bit chunks of link information spread across 6 frames
-  uint8_t m17_lsf[244];    //the complete LSF + 4 trailing bits
-
   memset (lsf_chunk, 0, sizeof(lsf_chunk));
-  memset (m17_lsf, 0, sizeof(m17_lsf));
 
-  uint16_t lsf_ps = 1;                      //packet or stream indicator bit
-  uint16_t lsf_dt = st;                     //stream type
-  uint16_t lsf_et = super->enc.enc_type;    //encryption type
-  uint16_t lsf_es = super->enc.enc_subtype; //encryption sub-type
-  uint16_t lsf_cn = can;                    //can value
-  uint16_t lsf_rs = 0;                      //reserved bits
-
-  if (super->m17e.ecdsa.keys_loaded)
-    lsf_rs = lsf_rs | (uint8_t)0x1; //OR 0x01 for ECDSA
-
-  //compose the 16-bit frame information from the above sub elements
-  uint16_t lsf_fi = 0;
-  lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
-  for (i = 0; i < 16; i++) m17_lsf[96+i] = (lsf_fi >> (15-i)) & 1;
-
-  //load dst and src values into the LSF
-  for (i = 0; i < 48; i++) m17_lsf[i+00] = (dst >> (47ULL-(unsigned long long int)i)) & 1;
-  for (i = 0; i < 48; i++) m17_lsf[i+48] = (src >> (47ULL-(unsigned long long int)i)) & 1;
-
-  //pack and compute the CRC16 for LSF (still needed for LSF Chunk)
-  uint16_t crc_cmp = 0;
-  uint8_t lsf_packed[30];
-  memset (lsf_packed, 0, sizeof(lsf_packed));
-  for (i = 0; i < 28; i++)
-      lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
-  crc_cmp = crc16(lsf_packed, 28);
-
-  //attach the crc16 bits to the end of the LSF data
-  for (i = 0; i < 16; i++) m17_lsf[224+i] = (crc_cmp >> (15-i)) & 1;
 
   y = 0; //counter for sig_bits
   for (z = 0; z < 4; z++) //loop to send ECDSA Signature in 4 Frame Payload

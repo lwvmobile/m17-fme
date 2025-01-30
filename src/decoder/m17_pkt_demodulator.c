@@ -100,10 +100,18 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
   int end = ptr + 25;
 
   //debug counter and eot value
-  if (!eot) fprintf (stderr, "CNT: %02d; PBC: %02d; EOT: %d; ", super->m17d.pbc_ptr, counter, eot);
-  else fprintf (stderr, "CNT: %02d; LST: %02d; EOT: %d; ", super->m17d.pbc_ptr, counter, eot);
-  // fprintf (stderr, "PTR: %d; Total: %d; ", ptr, total);
-  fprintf (stderr, "Ve: %1.1f; ", (float)error/(float)0xFFFF);
+  if (super->opts.payload_verbosity)
+  {
+    if (!eot) fprintf (stderr, "CNT: %02d; PBC: %02d; EOT: %d; ", super->m17d.pbc_ptr, counter, eot);
+    else fprintf (stderr, "CNT: %02d; LST: %02d; EOT: %d; ", super->m17d.pbc_ptr, counter, eot);
+    // fprintf (stderr, "PTR: %d; Total: %d; ", ptr, total); //internal debug only
+    fprintf (stderr, "Ve: %1.1f; ", (float)error/(float)0xFFFF);
+  }
+  else
+  {
+    if (!eot) fprintf (stderr, "PKT#: %02d;", counter);
+    else fprintf (stderr, "PKT#: XX;");
+  }
 
   //put packet into storage
   memcpy (super->m17d.pkt+ptr, pkt_packed, 25);

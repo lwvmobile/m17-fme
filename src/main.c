@@ -147,7 +147,7 @@ void usage ()
   printf ("                (example: -E '0520C1B0220AFBCA 16FB1330764B26EC')\n");
   printf ("                (Limiting significant key value to first 32 characters to maintain compatibility)\n");
   printf ("  -J <file>     Load AES Key from file. (see example key: key/aes_key.txt)\n");
-  printf ("  -O            Send OTA Key Delivery Packets and Embedded LSD for AES and Scrambler Keys\n");
+  printf ("  -O            Send OTA Key Delivery Packets for AES and Scrambler Keys\n");
   printf ("  -Q            Send OTA Key Delivery Packets for Signature Public Keys\n");
   printf ("\n");
   printf ("Debug Options:\n");
