@@ -77,7 +77,8 @@ int udp_socket_connectM17(Super * super)
 
   memset((char * ) & addressM17, 0, sizeof(addressM17));
   addressM17.sin_family = AF_INET;
-  err = addressM17.sin_addr.s_addr = inet_addr(super->opts.m17_hostname);
+  // err = addressM17.sin_addr.s_addr = inet_addr(super->opts.m17_hostname); //old method, fallback if issues arise
+  err = inet_aton(super->opts.m17_hostname, &addressM17.sin_addr); //inet_aton handles broadcast .255 addresses correctly in some environments (Raspbian GNU/Linux 11 (bullseye) armv7l)
   if (err < 0)
   {
     fprintf (stderr, " UDP inet_addr Error %ld\n", err);
