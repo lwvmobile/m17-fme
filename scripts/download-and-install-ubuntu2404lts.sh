@@ -12,7 +12,7 @@ ANSWER=$(printf "$ANSWER"|tr '[:upper:]' '[:lower:]')
 if [ "$ANSWER" = "y" ]; then
 
   sudo apt update
-  sudo apt install cmake make build-essential git wget libsndfile1-dev libcodec2-dev libncurses-dev libncurses6 libpulse-dev pavucontrol socat
+  sudo apt install cmake make build-essential git wget libsndfile1-dev libcodec2-dev libncurses-dev libncurses6 libpulse-dev socat
 
   git clone --recursive https://github.com/lwvmobile/m17-fme.git
   cd m17-fme

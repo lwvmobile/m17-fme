@@ -12,7 +12,7 @@ ANSWER=$(printf "$ANSWER"|tr '[:upper:]' '[:lower:]')
 if [ "$ANSWER" = "y" ]; then
   
   sudo dnf update 
-  sudo dnf install libsndfile-devel pulseaudio-libs-devel pulseaudio-utils cmake git ncurses ncurses-devel gcc wget pavucontrol gcc-c++ codec2-devel
+  sudo dnf install libsndfile-devel pulseaudio-libs-devel pulseaudio-utils cmake git ncurses ncurses-devel gcc wget gcc-c++ codec2-devel
 
   git clone --recursive https://github.com/lwvmobile/m17-fme.git
   cd m17-fme
