@@ -805,7 +805,7 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
   char * datestr  = get_date_n(super->demod.current_time);
 
   //only if the log file is open
-  if (super->opts.event_log)
+  if (super->opts.event_log && (protocol < 0x80 || protocol >= 0xE0)) //don't write meta events into the log, they occur too frequently
   {
     //write date and time
     fprintf (super->opts.event_log, "%s_%s ", datestr, timestr);
