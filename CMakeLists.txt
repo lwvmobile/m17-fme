@@ -24,6 +24,25 @@ endif ()
 include(git_revision)
 git_describe(GIT_TAG)
 
+# Find PkgConfig first (required for dependency detection)
+find_package(PkgConfig REQUIRED)
+
+# macOS specific configurations
+if(APPLE)
+    # Add Homebrew paths for macOS
+    list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew" "/usr/local")
+    
+    # Set additional library and include paths for Homebrew packages
+    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/opt/homebrew/lib" "/usr/local/lib")
+    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/opt/homebrew/include" "/usr/local/include")
+    
+    # Ensure we can find pkg-config in Homebrew paths
+    find_program(PKG_CONFIG_EXECUTABLE pkg-config PATHS "/opt/homebrew/bin" "/usr/local/bin")
+    if(PKG_CONFIG_EXECUTABLE)
+        set(PKG_CONFIG_FOUND TRUE)
+    endif()
+endif()
+
 find_package(LibSndFile REQUIRED) #required packaged need the REQUIRED argument
 find_package(PulseAudio)
 find_package(Curses)
@@ -71,6 +90,18 @@ endif()
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
 ADD_EXECUTABLE(m17-fme ${SRCS} ${HEADERS})
+
+# macOS specific linking
+if(APPLE)
+    # Add math library explicitly for macOS
+    list(APPEND LIBS m)
+    
+    # Set RPATH for Homebrew libraries
+    set_target_properties(m17-fme PROPERTIES
+        INSTALL_RPATH "/opt/homebrew/lib;/usr/local/lib"
+        BUILD_WITH_INSTALL_RPATH TRUE)
+endif()
+
 TARGET_LINK_LIBRARIES(m17-fme ${LIBS})
 
 target_compile_options(m17-fme PRIVATE -Wunused-but-set-variable -Wall -Wextra -Wpedantic $<$<COMPILE_LANGUAGE:C>:-Wpointer-sign>)

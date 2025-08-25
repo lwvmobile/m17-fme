@@ -33,8 +33,10 @@
 //libsndfile support
 #include <sndfile.h>
 
-//OSS support (for Cygwin compatability)
+//OSS support (for Cygwin compatability and Linux)
+#if !defined(__APPLE__) && !defined(__MACH__)
 #include <sys/soundcard.h>
+#endif
 
 //Pulse Audio Support
 #ifdef USE_PULSEAUDIO
