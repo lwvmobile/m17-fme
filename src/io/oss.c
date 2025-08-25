@@ -8,6 +8,8 @@
 
 #include "main.h"
 
+#if !defined(__APPLE__) && !defined(__MACH__)
+
 void open_oss_output (Super * super)
 {
   
@@ -101,3 +103,32 @@ void oss_output_write (Super * super, short * out, size_t nsam)
   int err = 0; UNUSED(err);
   write (super->opts.oss_output_device, out, nsam*2);
 }
+
+#else /* macOS - OSS not supported */
+
+void open_oss_output (Super * super)
+{
+  fprintf(stderr, "OSS audio output is not supported on macOS. Use PulseAudio or file output instead.\n");
+  super->opts.use_oss_output = 0;
+}
+
+void open_oss_input (Super * super)
+{
+  fprintf(stderr, "OSS audio input is not supported on macOS. Use PulseAudio or file input instead.\n");
+  super->opts.oss_input_device = 0;
+}
+
+short oss_input_read (Super * super)
+{
+  UNUSED(super);
+  return 0;
+}
+
+void oss_output_write (Super * super, short * out, size_t nsam)
+{
+  UNUSED(super);
+  UNUSED(out);
+  UNUSED(nsam);
+}
+
+#endif /* !__APPLE__ && !__MACH__ */

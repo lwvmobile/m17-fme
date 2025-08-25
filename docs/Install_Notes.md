@@ -29,6 +29,12 @@ wget https://raw.githubusercontent.com/lwvmobile/m17-fme/main/scripts/download-a
 sh download-and-install-arch.sh
 ```
 
+macOS (Homebrew)
+```
+wget https://raw.githubusercontent.com/lwvmobile/m17-fme/main/scripts/download-and-install-macos.sh
+sh download-and-install-macos.sh
+```
+
 ## How to Build (Manual Install)
 
 ### Dependencies
@@ -96,6 +102,31 @@ sudo apt install codec2 ncurses libpulse pavucontrol wget socat
 
 ```
 
+macOS (Homebrew)
+```
+# First, install Homebrew if not already installed
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Update Homebrew
+brew update
+
+# Install required dependencies
+brew install cmake make git libsndfile
+
+# Install recommended dependencies  
+brew install codec2 ncurses pulseaudio pkg-config gcc wget socat
+
+# Note: PulseAudio may need to be started manually:
+# brew services start pulseaudio
+# or: /opt/homebrew/opt/pulseaudio/bin/pulseaudio --exit-idle-time=-1 --verbose
+
+required:
+brew install cmake make git libsndfile
+
+optional:
+brew install codec2 ncurses pulseaudio pkg-config gcc wget socat
+```
+
 ### Pull, Compile, and Install
 
 ```
@@ -106,6 +137,33 @@ cd build
 cmake ..
 make
 sudo make install
+```
+
+### macOS-Specific Notes
+
+When building on macOS, please note the following:
+
+**Audio Support:**
+- OSS audio is not available on macOS. Use PulseAudio, file I/O, or network input/output instead.
+- PulseAudio may need to be started manually after installation:
+  ```
+  brew services start pulseaudio
+  ```
+- For first-time PulseAudio use, you may need to configure audio permissions in System Preferences > Security & Privacy > Microphone.
+
+**Dependencies:**
+- All dependencies are available through Homebrew
+- The build system automatically detects macOS and adjusts compiler/linker settings
+- RPATH is configured to work with Homebrew library locations
+
+**Known Limitations:**
+- OSS audio (`/dev/dsp`) is not supported on macOS
+- Some warning messages during compilation are normal and don't affect functionality
+
+**Verification:**
+After installation, verify M17-FME is working:
+```
+m17-fme --help
 ```
 
 
