@@ -252,13 +252,13 @@ Encoder Input Strings:
   -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.
                 (example: -A 'Hello World! This is arbitrary data on 1600') 
   -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets (up to 823 octets).
-                (example: -R 8169001E135152397C0A0000005A45) for Packet GNSS Position @ Wally World) 
+                (example: -R 81F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) 
 
                 (NOTE: Using Meta Fields is not compatible with Using Encryption!)
   -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 13 UTF-8 characters, single segment only);
                 (example: -Y 'Hello World!!') for Meta Text 
   -Z <hex>      Enter META Data for Stream Voice Encoder as Hex Octets (1 Meta Type Octet + 14 Hex Octets Max);
-                (example: -Z 0169001E135152397C0A0000005A45) for Meta GNSS Position @ Wally World 
+                (example: -Z 01F0F2B42B20ABC500C80424064000) for Meta GNSS Position @ Wally World 
 
 Decoder Options:
 

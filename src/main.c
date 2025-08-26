@@ -109,13 +109,13 @@ void usage ()
   printf ("  -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.\n");
   printf ("                (example: -A 'Hello World! This is arbitrary data on 1600') \n");
   printf ("  -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets (up to 823 octets).\n");
-  printf ("                (example: -R 8169001E135152397C0A0000005A45) for Packet GNSS Position @ Wally World) \n");
+  printf ("                (example: -R 81F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) \n");
   printf ("\n");
   printf ("                (NOTE: Using Meta Fields is not compatible with Using Encryption!) \n");
   printf ("  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 13 UTF-8 characters, single segment only);\n");
   printf ("                (example: -Y 'Hello World!!') for Meta Text \n");
   printf ("  -Z <hex>      Enter META Data for Stream Voice Encoder as Hex Octets (1 Meta Type Octet + 14 Hex Octets Max);\n");
-  printf ("                (example: -Z 0169001E135152397C0A0000005A45) for Meta GNSS Position @ Wally World \n");
+  printf ("                (example: -Z 01F0F2B42B20ABC500C80424064000) for Meta GNSS Position @ Wally World \n");
   printf ("\n");
   printf ("Decoder Options:\n");
   printf ("\n");
