@@ -133,11 +133,13 @@ void print_ncurses_banner (Super * super)
       attron(COLOR_PAIR(9));
       printw ("%s", FME_banner[i]);
       attron(COLOR_PAIR(6));
-      if (i == 2) printw ("   CTRL+C or ");
-      if (i == 3) printw (" 'q' to Quit ");
       #ifdef USE_CODEC2
-      if (i == 5) printw (" CODEC2");
+      if (i == 1) printw (" CODEC2");
       #endif
+      if (i == 2) printw (" 'q' to Quit ");
+
+      if (i == 4) printw (" SV: %s", SPEC_VERSION);
+      if (i == 5) printw (" SD: %s", SPEC_DATE);
       if (i == 6) printw (" Session: %04X", super->opts.random_number);
       if (i == 7) printw (" %s", GIT_TAG);
       printw ("\n");

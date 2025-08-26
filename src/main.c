@@ -232,6 +232,10 @@ int main (int argc, char **argv)
 
   //print git tag / version number
   fprintf (stderr, "Build Version: %s \n", GIT_TAG);
+
+  //print Specification Version Number and Date on Specification PDF
+  fprintf (stderr, "Specification Version: %s; \n", SPEC_VERSION);
+  fprintf (stderr, "Specification Date: %s \n", SPEC_DATE);
   
   //print current session number
   fprintf (stderr, "Session Number: %04X \n", super.opts.random_number);
