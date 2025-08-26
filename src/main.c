@@ -201,6 +201,9 @@ int main (int argc, char **argv)
   //initialize golay
   golay_24_12_init();
 
+  //init static
+  void m17_udp_socket_duplex_init(void);
+
   //set the exitflag to 0
   exitflag = 0;
 
@@ -796,7 +799,11 @@ int main (int argc, char **argv)
 
   //decode IP Frames
   if (super.opts.use_m17_ipf_decoder == 1)
-    decode_ipf(&super);
+  {
+    start_ipf(&super);
+    while (!exitflag)
+      decode_ipf(&super, 0);
+  }
 
   //M17 Duplex Mode
   if (super.opts.use_m17_duplex_mode == 1)

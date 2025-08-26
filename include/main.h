@@ -687,7 +687,11 @@ void demod_pkt (Super * super, uint8_t * input, int debug);
 void demod_brt (Super * super, uint8_t * input, int debug);
 void demod_str (Super * super, uint8_t * input, int debug);
 void prepare_str (Super * super, float * sbuf);
-void decode_ipf (Super * super);
+
+//IP Frames
+void m17_udp_socket_duplex_init(void);
+void start_ipf (Super * super);
+void decode_ipf (Super * super, int socket);
 
 //M17 Duplex Mode(s)
 void m17_duplex_mode (Super * super);

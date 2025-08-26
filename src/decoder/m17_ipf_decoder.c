@@ -3,13 +3,13 @@
  * M17 Project - IP Frame Receiver and Decoding
  *
  * LWVMOBILE
- * 2024-05 M17 Project - Florida Man Edition
+ * 2025-09 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"
 #include "m17.h"
 
-void decode_ipf (Super * super)
+void start_ipf (Super * super)
 {
 
   //quell defined but not used warnings from m17.h
@@ -22,10 +22,15 @@ void decode_ipf (Super * super)
   #endif
 
   //Bind UDP Socket
-  int err = 1; //NOTE: err will tell us how many bytes were received, if successful
   super->opts.m17_udp_sock = udp_socket_bind(super->opts.m17_hostname, super->opts.m17_portno);
 
+}
+
+void decode_ipf (Super * super, int socket)
+{
+
   int i, j, k;
+  int err = 1; //NOTE: err will tell us how many bytes were received, if successful
 
   //Standard IP Framing
   uint8_t ip_frame[1000]; memset (ip_frame, 0, sizeof(ip_frame));
@@ -38,12 +43,11 @@ void decode_ipf (Super * super)
   uint8_t pong[4]  = {0x50, 0x4F, 0x4E, 0x47};
   uint8_t eotx[4]  = {0x45, 0x4F, 0x54, 0x58}; //EOTX is not Standard, but going to send / receive anyways
   uint8_t mpkt[4]  = {0x4D, 0x50, 0x4B, 0x54}; //MPKT is not Standard, but I think sending PKT payloads would be viable over UDP (no reason not to)
+  uint8_t m17p[4]  = {0x4D, 0x31, 0x37, 0x50}; //https://github.com/M17-Project/M17_inet/tree/main Current "Standard"
 
   unsigned long long int src = 0; //source derived from CONN, DISC, EOTX, and Other Headers
 
-  while (!exitflag)
-  {
-
+    //TODO: Fix Tab Alignment in another commit so I can see the meaningful changes now
     //set current time for call history, etc
     super->demod.current_time = time(NULL);
 
@@ -52,7 +56,10 @@ void decode_ipf (Super * super)
     {
       //NOTE: blocking issue resolved with setsockopt in udp_socket_bind
 
-      err = m17_socket_receiver(super, &ip_frame);
+      if (super->opts.use_m17_ipf_decoder == 1)
+        err = m17_socket_receiver(super, &ip_frame);
+      else if (super->opts.use_m17_duplex_mode == 1)
+        err = m17_socket_receiver_duplex(socket, &ip_frame);
 
       //debug
       // fprintf (stderr, "ERR: %X; ", err);
@@ -250,7 +257,7 @@ void decode_ipf (Super * super)
       }
     }
 
-    else if (memcmp(ip_frame, mpkt, 4) == 0)
+    else if (memcmp(ip_frame, mpkt, 4) == 0) //old experimental UDP packet I wrote before "standard" came out
     {
 
       //convert bytes to bits
@@ -268,6 +275,7 @@ void decode_ipf (Super * super)
       //copy LSF
       for (i = 0; i < 224; i++)
         super->m17d.lsf[i] = ip_bits[i+48];
+
       //copy received CRC
       uint16_t crc_ext = (ip_frame[err-2] << 8) + ip_frame[err-1];
 
@@ -372,6 +380,129 @@ void decode_ipf (Super * super)
 
     }
 
+    else if (memcmp(ip_frame, m17p, 4) == 0) //new "Standard"
+    {
+
+      //The main differences between this new version, and my version
+      //is that I had a SID value, and this doesn't, but instead
+      //has an extra CRC value on the LSF portion, the payload
+      //is in the same location, but has a CRC for only the payload
+      //where mine had the CRC for the entire UDP frame, frame
+      //size will equal out to be the same regardless
+
+      //unpack ip frame into lsf (sans crc)
+      unpack_byte_array_into_bit_array(ip_frame+4, super->m17d.lsf, 28);
+
+      //copy received CRC on LSF Portion
+      uint16_t crc_ext = (ip_frame[32] << 8) + ip_frame[33];
+
+      //calculate CRC on LSF Portion
+      uint16_t crc_cmp = crc16(ip_frame+4, 28);
+
+      fprintf (stderr, "\n M17 IP   M17P;");
+
+      if (crc_ext != crc_cmp) fprintf (stderr, " IP M17P LSF CRC ERR");
+
+      //track errors
+      if (crc_ext != crc_cmp) super->error.ipf_crc_err++;
+
+      if (crc_ext == crc_cmp)
+        decode_lsf_contents(super);
+
+      //copy received CRC on Payload
+      crc_ext = (ip_frame[err-2] << 8) + ip_frame[err-1];
+
+      //calculate CRC on Payload Portion
+      crc_cmp = crc16(ip_frame, err-2);
+
+      //apply keystream here if encrypted
+      if (super->m17d.enc_et == 1 && super->enc.scrambler_key)
+      {
+        uint8_t unpacked_pkt[8000]; memset (unpacked_pkt, 0, 8000*sizeof(uint8_t)); //33*25*8 = 6600, but giving some extra space here (stack smash fix on full sized enc frame decrypt)
+        unpack_byte_array_into_bit_array(ip_frame+34, unpacked_pkt, err-34-3);
+
+        //new method
+        super->enc.scrambler_seed_d = super->enc.scrambler_key; //reset seed to key value
+        super->enc.scrambler_seed_d = scrambler_sequence_generator(super, 0);
+        int z = 0;
+        for (i = 8; i < (err*8); i++)
+        {
+          unpacked_pkt[i] ^= super->enc.scrambler_pn[z++];
+          if (z == 128)
+          {
+            super->enc.scrambler_seed_d = scrambler_sequence_generator(super, 0);
+            z = 0;
+          }
+        }
+
+        pack_bit_array_into_byte_array(unpacked_pkt, ip_frame+34, err-34-3);
+      }
+
+      else if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded)
+      {
+        int ret = err - 34 - 3;
+        int klen = (ret*8)/128; //NOTE: This will fall short by % value octets
+        int kmod = (ret*8)%128; //This is how many bits we are short, so we need to account with a partial ks application
+
+        //debug
+        // fprintf (stderr, " AES KLEN: %d; KMOD: %d;", klen, kmod);
+
+        //NOTE: Its pretty redundant to pack and unpack here and in the crypt function,
+        //but this is still quicker than writing a new function for only one use case
+        
+        uint8_t unpacked_pkt[8000]; memset (unpacked_pkt, 0, 8000*sizeof(uint8_t)); //33*25*8 = 6600, but giving some extra space here (stack smash fix on full sized enc frame decrypt)
+        unpack_byte_array_into_bit_array(ip_frame+34, unpacked_pkt, ret);
+        for (i = 0; i < klen; i++)
+          aes_ctr_pkt_payload_crypt (super->m17d.meta, super->enc.aes_key, unpacked_pkt+(128*i)+8, super->m17d.enc_st+1);
+
+        //if there are leftovers (kmod), then run a keystream and partial application to left over bits
+        uint8_t aes_ks_bits[128]; memset(aes_ks_bits, 0, 128*sizeof(uint8_t));
+        int kmodstart = klen*128;
+
+        //set to 8 IF kmodstart == 0 so we don't try to decrypt the protocol byte on short single block packets
+        if (kmodstart == 0) kmodstart = 8;
+
+        if (kmod != 0)
+        {
+          aes_ctr_pkt_payload_crypt (super->m17d.meta, super->enc.aes_key, aes_ks_bits, super->m17d.enc_st+1);
+          for (i = 0; i < kmod; i++)
+            unpacked_pkt[i+kmodstart] ^= aes_ks_bits[i];
+        }
+          
+        pack_bit_array_into_byte_array(unpacked_pkt, ip_frame+34, ret);
+      }
+
+      //reset meta after use
+      memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
+
+      if (super->opts.payload_verbosity >= 1)
+      {
+        for (i = 0; i < err; i++)
+        {
+          if ( (i%25)==0)
+            fprintf (stderr, "\n ");
+          fprintf (stderr, "%02X ", ip_frame[i]);
+        }
+        fprintf (stderr, " (CRC CHK) E: %04X; C: %04X;", crc_ext, crc_cmp);
+        // fprintf (stderr, "\n M17 IP   RECD: %d", err);
+      }
+
+      if (crc_ext == crc_cmp)
+      {
+        fprintf (stderr, "\n");
+        decode_pkt_contents (super, ip_frame+34, err-34-3);
+      }
+        
+      if (crc_ext != crc_cmp) fprintf (stderr, " IP M17P Payload CRC ERR");
+
+      //track errors
+      if (crc_ext != crc_cmp) super->error.ipf_crc_err++;
+
+      //clear frame
+      memset(ip_frame, 0, sizeof(ip_frame));
+
+    }
+
     //refresh ncurses printer, if enabled
     #ifdef USE_CURSES
     if (super->opts.use_ncurses_terminal == 1)
@@ -381,5 +512,4 @@ void decode_ipf (Super * super)
     //clear frame (if not recognized format)
     memset(ip_frame, 0, sizeof(ip_frame));
 
-  }
 }
