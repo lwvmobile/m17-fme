@@ -204,7 +204,7 @@ int main (int argc, char **argv)
   golay_24_12_init();
 
   //init static
-  void m17_udp_socket_duplex_init(void);
+  m17_udp_socket_duplex_init();
 
   //set the exitflag to 0
   exitflag = 0;
