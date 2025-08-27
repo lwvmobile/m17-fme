@@ -9,6 +9,9 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#define SPEC_VERSION "1.4"
+#define SPEC_DATE "Jan 01, 2025"
+
 #define PI 3.141592653
 
 #include "colors.h"
