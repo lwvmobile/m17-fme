@@ -413,7 +413,7 @@ void decode_ipf (Super * super, int socket)
       crc_ext = (ip_frame[err-2] << 8) + ip_frame[err-1];
 
       //calculate CRC on Payload Portion
-      crc_cmp = crc16(ip_frame, err-2);
+      crc_cmp = crc16(ip_frame+34, err-2-34); //had to fix, was doing entire ip_frame
 
       //apply keystream here if encrypted
       if (super->m17d.enc_et == 1 && super->enc.scrambler_key)

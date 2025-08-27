@@ -453,7 +453,8 @@ void encode_pkt(Super * super, int mode)
   //of decoding them
 
   //Standard IP Framing
-  uint8_t mpkt[4]  = {0x4D, 0x50, 0x4B, 0x54};
+  uint8_t mpkt[4]  = {0x4D, 0x50, 0x4B, 0x54}; UNUSED(mpkt);
+  uint8_t m17p[4]  = {0x4D, 0x31, 0x37, 0x50}; //https://github.com/M17-Project/M17_inet/tree/main Current "Standard"
   uint8_t ackn[4]  = {0x41, 0x43, 0x4B, 0x4E}; UNUSED(ackn);
   uint8_t nack[4]  = {0x4E, 0x41, 0x43, 0x4B}; UNUSED(nack);
   uint8_t conn[11]; memset (conn, 0, sizeof(conn));
@@ -487,29 +488,25 @@ void encode_pkt(Super * super, int mode)
   if (use_ip == 1 && mode == 1)
     udp_return = m17_socket_blaster (super, 11, conn);
 
-  //add MPKT header
+  //add M17P header
   k = 0;
   for (j = 0; j < 4; j++)
   {
     for (i = 0; i < 8; i++)
-      m17_ip_frame[k++] = (mpkt[j] >> (7-i)) &1;
-  }
-
-  //randomize ID
-  srand((unsigned int)ts&0xFFFFFFFE); //randomizer seed based on timestamp
-  sid[0] = rand() & 0xFF;
-  sid[1] = rand() & 0xFF;
-
-  //add StreamID / PKT ID
-  for (j = 0; j < 2; j++)
-  {
-    for (i = 0; i < 8; i++)
-      m17_ip_frame[k++] = (sid[j] >> (7-i)) &1;
+      m17_ip_frame[k++] = (m17p[j] >> (7-i)) &1;
   }
 
   //add the current LSF, sans CRC
   for (i = 0; i < 224; i++) //28 bytes
     m17_ip_frame[k++] = m17_lsf[i];
+
+  //Add checksum for LSF (Byte 1)
+  for (i = 0; i < 8; i++)
+    m17_ip_frame[k++] = (lsf_packed[28] >> (7-i)) & 1;
+
+  //Add checksum for LSF (Byte 2)
+  for (i = 0; i < 8; i++)
+    m17_ip_frame[k++] = (lsf_packed[29] >> (7-i)) & 1;
 
   //pack current bit array to current
   for (i = 0; i < 34; i++)
@@ -518,9 +515,9 @@ void encode_pkt(Super * super, int mode)
   //pack the entire PKT payload (plus terminator, sans CRC)
   for (i = 0; i < x+1; i++)
     m17_ip_packed[i+34] = (uint8_t)convert_bits_into_output(&m17_p1_full[i*8], 8);
-
-  //Calculate CRC over everthing packed (including the terminator)
-  ip_crc = crc16(m17_ip_packed, 34+1+x);
+  
+  //Calculate CRC over payload only (double check this)
+  ip_crc = crc16(m17_ip_packed+34, 1+x);
 
   //add CRC value to the ip frame
   uint8_t crc_bits[16]; memset (crc_bits, 0, sizeof(crc_bits));
@@ -531,6 +528,11 @@ void encode_pkt(Super * super, int mode)
   for (i = x+34+1, j = 0; i < (x+34+3); i++, j++) //double check this
     m17_ip_packed[i] = (uint8_t)convert_bits_into_output(&crc_bits[j*8], 8);
 
+  //debug print what is in m17_ip_packed right now
+  // fprintf (stderr, "\n UDP: ");
+  // for (i = 0; i < (x+34+3); i++)
+  //   fprintf (stderr, "%02X ", m17_ip_packed[i]);
+  // fprintf (stderr, "\n");
 
   //NOTE: Sending Packets from Ncurses KB Shortcut with OTAKD enabled will
   //also send the OTAKD data packet here (unintended but handy side effect)

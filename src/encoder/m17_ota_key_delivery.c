@@ -194,7 +194,7 @@ void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint
     block =  1;
     lst   =  6+2;
     pad   = 19-2;
-    stop  =  5;
+    stop  =  5; //this is okay (still have a 00 byte, was still set up as a terminator? or just extra byte? extra 00 byte doesn't matter)
     sprintf (super->m17d.sms, "OTAKD Scrambler Key: %X;", super->enc.scrambler_key);
   }
   else if (enc_type == 2)
@@ -202,7 +202,7 @@ void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint
     block =  2;
     lst   = 10+2;
     pad   = 15-2;
-    stop  = 35;
+    stop  = 34; //was 35 (still have a 00 byte, was still set up as a terminator? or just extra byte? extra 00 byte doesn't matter)
     sprintf (super->m17d.sms, "OTAKD AES Key Delivery;");
   }
   else if (enc_type == 3)
@@ -210,7 +210,7 @@ void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint
     block =  3;
     lst   = 19;
     pad   = 6;
-    stop  = 67;
+    stop  = 66; //was 67 (still have a 00 byte, was still set up as a terminator? or just extra byte? extra 00 byte doesn't matter)
     sprintf (super->m17d.sms, "OTASK Signature Public Key Delivery;");
   }
   
@@ -249,30 +249,34 @@ void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint
   fprintf (stderr, "\n");
 
   //Standard IP Framing (stripped down)
-  uint8_t mpkt[4]  = {0x4D, 0x50, 0x4B, 0x54};
+  uint8_t mpkt[4]  = {0x4D, 0x50, 0x4B, 0x54}; UNUSED(mpkt);
+  uint8_t m17p[4]  = {0x4D, 0x31, 0x37, 0x50}; //https://github.com/M17-Project/M17_inet/tree/main Current "Standard"
   int udp_return = 0;
   uint8_t  m17_ip_frame[8000]; memset (m17_ip_frame, 0, sizeof(m17_ip_frame));
   uint8_t m17_ip_packed[25*40]; memset (m17_ip_packed, 0, sizeof(m17_ip_packed));
   uint16_t ip_crc = 0;
 
-  //add MPKT header
+  //add M17P header
   k = 0;
   for (j = 0; j < 4; j++)
   {
     for (i = 0; i < 8; i++)
-      m17_ip_frame[k++] = (mpkt[j] >> (7-i)) &1;
+      m17_ip_frame[k++] = (m17p[j] >> (7-i)) &1;
   }
 
-  //add StreamID / PKT ID (sent from calling function)
-  for (j = 0; j < 2; j++)
-  {
-    for (i = 0; i < 8; i++)
-      m17_ip_frame[k++] = (sid[j] >> (7-i)) &1;
-  }
+  UNUSED(sid); //remove SID from this function later on
 
   //add the current LSF, sans CRC
   for (i = 0; i < 224; i++) //28 bytes
     m17_ip_frame[k++] = m17_lsf[i];
+
+  //Add checksum for LSF (Byte 1)
+  for (i = 0; i < 8; i++)
+    m17_ip_frame[k++] = (lsf_packed[28] >> (7-i)) & 1;
+
+  //Add checksum for LSF (Byte 2)
+  for (i = 0; i < 8; i++)
+    m17_ip_frame[k++] = (lsf_packed[29] >> (7-i)) & 1;
 
   //pack current bit array to current
   for (i = 0; i < 34; i++)
@@ -281,9 +285,9 @@ void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint
   //pack the entire PKT payload (plus terminator, sans CRC)
   for (i = 0; i < x+1; i++)
     m17_ip_packed[i+34] = (uint8_t)convert_bits_into_output(&m17_p1_full[i*8], 8);
-
-  //Calculate CRC over everthing packed (including the terminator)
-  ip_crc = crc16(m17_ip_packed, 34+1+x);
+  
+  //Calculate CRC over payload only (double check this)
+  ip_crc = crc16(m17_ip_packed+34, 1+x);
 
   //add CRC value to the ip frame
   uint8_t crc_bits[16]; memset (crc_bits, 0, sizeof(crc_bits));
@@ -293,6 +297,12 @@ void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint
   //pack CRC into the byte array as well
   for (i = x+34+1, j = 0; i < (x+34+3); i++, j++) //double check this
     m17_ip_packed[i] = (uint8_t)convert_bits_into_output(&crc_bits[j*8], 8);
+
+  //debug print what is in m17_ip_packed right now
+  // fprintf (stderr, "\n UDP: ");
+  // for (i = 0; i < (x+34+3); i++)
+  //   fprintf (stderr, "%02X ", m17_ip_packed[i]);
+  // fprintf (stderr, "\n");
 
   //Send MPKT to reflector
   if (use_ip == 1)
