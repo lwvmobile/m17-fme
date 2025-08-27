@@ -58,6 +58,8 @@ void usage ()
   printf ("                udp for UDP Frame Input (default localhost:17000)\n");
   printf ("                udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port)\n");
   printf ("                m17udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port)\n");
+  printf ("                tcp for Network Audio TCP Source at 48000 (SDR++)\n");
+  printf ("                tcp:192.168.7.5:7355 for Network Audio TCP Source at 48000 (SDR++)\n"); 
   printf ("  -w <file>     48k/1 SNDFile Compatible RF Audio .wav or .rrc input file\n");
   printf ("  -c <file>     DSD-FME Compatible Dibit/Symbol Capture Bin input file (from RF Encoder)\n");
   printf ("  -f <file>     Float Symbol input file (from RF Encoder and M17_Implementations)\n");

@@ -262,6 +262,9 @@ void parse_input_option_string (Super * super, char * input)
     fprintf (stderr, "\n");
     fprintf (stderr, "Audio Input Device: TCP;");
     super->opts.use_tcp_input = 1;
+
+    //NOTE: We can further yeet the string to tcp handler to get the rest
+    parse_tcp_user_string(super, input+4);
   }
 
   else if ( (strncmp(input, "/dev/dsp", 8) == 0) )
@@ -580,6 +583,28 @@ void parse_udp_user_string (Super * super, char * input)
   if (super->m17e.reflector_module != 0)
     fprintf (stderr, "Module: %c; ", super->m17e.reflector_module);
 
+  fprintf (stderr, "\n");
+
+}
+
+//tcp input string tcp:address:port
+void parse_tcp_user_string (Super * super, char * input)
+{
+
+  char * curr;
+
+  //scan in these values
+  // super->opts.tcp_input_hostname, super->opts.tcp_input_portno
+
+  curr = strtok(input, ":");
+  if (curr != NULL)
+    strncpy (super->opts.tcp_input_hostname, curr, 1023);
+  curr = strtok(NULL, ":"); //host port
+    if (curr != NULL) super->opts.tcp_input_portno = atoi (curr);
+
+  fprintf (stderr, "\n");
+  fprintf (stderr, "TCP Input: %s; ", super->opts.tcp_input_hostname);
+  fprintf (stderr, "Port: %d; ", super->opts.tcp_input_portno);
   fprintf (stderr, "\n");
 
 }

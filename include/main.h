@@ -473,6 +473,7 @@ void parse_input_option_string (Super * super, char * input);
 void parse_output_option_string (Super * super, char * output);
 void parse_m17_user_string (Super * super, char * input);
 void parse_udp_user_string (Super * super, char * input);
+void parse_tcp_user_string (Super * super, char * input);
 void parse_meta_raw_string (Super * super, char * input);
 void parse_meta_txt_string (Super * super, char * input);
 void parse_pulse_input_string (Super * super, char * input);
