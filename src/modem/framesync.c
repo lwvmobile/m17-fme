@@ -436,6 +436,9 @@ void no_carrier_sync (Super * super)
   super->demod.fsk4_center = 0.0f;
   super->demod.in_sync     = 0;
 
+  //init BERT
+  init_brt();
+
   //push call history items
   push_call_history(super);
 

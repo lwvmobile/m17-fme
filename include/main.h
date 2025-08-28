@@ -664,6 +664,7 @@ void encode_rfa (Super * super, uint8_t * input, float * mem, int type);
 void encode_pkt(Super * super, int mode);
 void encode_str (Super * super);
 void encode_str_ecdsa(Super * super, uint8_t lich_cnt, uint8_t * m17_lsf, float * mem, int use_ip, int udpport, uint8_t * sid);
+void encode_brt(Super * super);
 //Special Frame / Packet Encoders
 void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint8_t enc_type, uint8_t enc_stype);
 void encode_ota_key_delivery_emb(Super * super, uint8_t * m17_lsf, uint8_t * lsf_count);
@@ -688,6 +689,10 @@ void demod_pkt (Super * super, uint8_t * input, int debug);
 void demod_brt (Super * super, uint8_t * input, int debug);
 void demod_str (Super * super, uint8_t * input, int debug);
 void prepare_str (Super * super, float * sbuf);
+
+//BERT Mode
+uint16_t brt_lfsr (uint16_t seed, uint8_t * output, uint8_t len);
+void init_brt(void);
 
 //IP Frames
 void m17_udp_socket_duplex_init(void);

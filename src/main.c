@@ -93,6 +93,7 @@ void usage ()
   printf ("\n");
   printf ("  -V            Enable the Stream Voice Encoder\n");
   printf ("  -P            Enable the Packet Data  Encoder\n");
+  printf ("  -!            Enable the Bit Error Rate Test (BERT) Encoder (RFA only)\n");
   printf ("  -I            Enable IP Frame Output with defaults (can be combined with Loopback or RFA output)\n");
   printf ("  -L            Enable Internal Encoder Loopback Decoder (must be used with pulsevx output)\n");
   printf ("  -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder\n");
@@ -203,6 +204,9 @@ int main (int argc, char **argv)
   //initialize golay
   golay_24_12_init();
 
+  //init BERT
+  init_brt();
+
   //init static
   m17_udp_socket_duplex_init();
 
@@ -250,7 +254,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "1234567890ac:d:e:f:hi:k:lmno:prs:t:uv:w:xA:BC:DE:F:GIJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
+  while ((c = getopt (argc, argv, "!1234567890ac:d:e:f:hi:k:lmno:prs:t:uv:w:xA:BC:DE:F:GIJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
   {
 
     i++;
@@ -702,6 +706,12 @@ int main (int argc, char **argv)
         fprintf (stderr, "M17 Project Stream Voice Encoder. \n");
         break;
 
+      //Enable the BERT Encoder
+      case '!':
+        super.opts.use_m17_brt_encoder = 1;
+        fprintf (stderr, "M17 Project BERT Encoder. \n");
+        break;
+
       //Specify RF Audio Output Wav File
       case 'W':
         super.opts.use_wav_out_rf = 1;
@@ -794,6 +804,10 @@ int main (int argc, char **argv)
   //encode M17 Voice Stream Frames
   if (super.opts.use_m17_str_encoder == 1)
     encode_str(&super);
+
+  //encode M17 BERT Frame
+  if (super.opts.use_m17_brt_encoder == 1)
+    encode_brt(&super);
 
   //Test Pattern Generator
   if (super.opts.use_m17_tst_encoder == 1)
