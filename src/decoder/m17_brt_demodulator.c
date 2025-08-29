@@ -128,37 +128,24 @@ void demod_brt(Super * super, uint8_t * input, int debug)
   uint8_t sync_error_bit_count = 0;
   uint8_t full_bit_error_count = 0;
 
+  //debug flip a sync bit to test logic
+  // bert_bits[7] ^= 1;
+
   //first 18 for sync period test (twice len of PRBS9)
   for (i = 0; i < 18; i++)
   {
     if (bert_bits[i+7] != bert_lfsr_bit_array[i]) //+7 offset
+    {
       sync_error_bit_count++;
+      full_bit_error_count++;
+    }
   }
 
-  //do full bit rx error as well
-  for (i = 0; i < 197; i++)
+  //do remaining for full bit rx error
+  for (i = 18; i < 197; i++)
   {
     if (bert_bits[i+7] != bert_lfsr_bit_array[i]) //+7 offset
       full_bit_error_count++;
-  }
-
-  fprintf (stderr, "\n Sync Bit Error: %02d / 18; Full Bit Error: %03d / 197; Ve: %1.1f; LFSR: %03X;", sync_error_bit_count, full_bit_error_count, (float)ve/(float)0xFFFF , bert_lfsr_seed);
-
-  if (sync_error_bit_count != 0)
-  {
-    memset (bert_lfsr_bit_array, 0, sizeof(bert_lfsr_bit_array));
-    bert_lfsr_seed = brt_lfsr(1, bert_lfsr_bit_array, 197);
-    sync_error_count++;
-    fprintf (stderr, " Sync Error; %02d / 512;", sync_error_count);
-
-    if (sync_error_count > 512) //9-bit LFSR should reset after 512 attempts, if it doesn't, then heavy reception error
-      fprintf (stderr, " Sync Failure!");
-  }
-  else
-  {
-    bert_lfsr_seed = brt_lfsr(bert_lfsr_seed, bert_lfsr_bit_array, 197); //unsure if this advances by only 1, or by next 197
-    sync_error_count = 0;
-    fprintf (stderr, " Sync Okay;");
   }
 
   if (super->opts.payload_verbosity > 0)
@@ -169,7 +156,34 @@ void demod_brt(Super * super, uint8_t * input, int debug)
 
     fprintf (stderr, "\n   RX Bits: ");
     for (i = 0; i < 197; i++)
-      fprintf (stderr, "%d", bert_bits[i]);
+      fprintf (stderr, "%d", bert_bits[i+7]); //+7 offset
+  }
+
+  if (sync_error_bit_count != 0)
+  {
+    fprintf (stderr, "\n Sync Bit Error: %02d / 18; Full Bit Error: ??? / 197; Ve: %1.1f; LFSR: %03X;", sync_error_bit_count, (float)ve/(float)0xFFFF , bert_lfsr_seed);
+    memset (bert_lfsr_bit_array, 0, sizeof(bert_lfsr_bit_array));
+    bert_lfsr_seed = brt_lfsr(1, bert_lfsr_bit_array, 197);
+    sync_error_count++;
+    fprintf (stderr, " LFSR Sync Attempt; %03d / 512;", sync_error_count);
+
+    if (sync_error_count > 512) //9-bit LFSR should reset after 512 attempts, if it doesn't, then heavy reception error
+      fprintf (stderr, " Sync Failure!");
+  }
+  else if (full_bit_error_count > 18)
+  {
+    fprintf (stderr, "\n Sync Bit Error: %02d / 18; Full Bit Error: %03d / 197; Ve: %1.1f; LFSR: %03X;", sync_error_bit_count, full_bit_error_count, (float)ve/(float)0xFFFF , bert_lfsr_seed);
+    memset (bert_lfsr_bit_array, 0, sizeof(bert_lfsr_bit_array));
+    bert_lfsr_seed = brt_lfsr(1, bert_lfsr_bit_array, 197);
+    sync_error_count = 0;
+    fprintf (stderr, " Heavy Bit Rate Error! Attempting Resync!");
+  }
+  else
+  {
+    fprintf (stderr, "\n Sync Bit Error: %02d / 18; Full Bit Error: %03d / 197; Ve: %1.1f; LFSR: %03X;", sync_error_bit_count, full_bit_error_count, (float)ve/(float)0xFFFF , bert_lfsr_seed);
+    bert_lfsr_seed = brt_lfsr(bert_lfsr_seed, bert_lfsr_bit_array, 197); //unsure if this advances by only 1, or by next 197
+    sync_error_count = 0;
+    fprintf (stderr, " LFSR Sync Okay;");
   }
 
   super->demod.sync_time = super->demod.current_time = time(NULL);

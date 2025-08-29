@@ -45,7 +45,7 @@ void usage ()
   printf ("                pulserf for pulse audio RFA input \n");
   printf ("                pulserf:6 or pulserf:m17_sink2.monitor for pulse audio RFA input on m17_sink2 (see -a) \n");
   printf ("                pulsevx for pulse audio Voice / Mic input\n");
-  printf ("                pulsedxv for pulse audio Voice / Mic input on Duplex Operation\n");
+  printf ("                pulsedxv for pulse audio Voice / Mic input on TX and RX Mode Operation\n");
   printf ("                pulsevx:2, pulsedxv:2, or pulsevx:alsa_input.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Mic input on device (see -a) \n");
   printf ("                - for STDIN input (specify encoder or decoder options below)\n");
   printf ("                (Note: When using STDIN, Ncurses Keyboard Shortcuts Disabled)\n");
@@ -70,7 +70,7 @@ void usage ()
   printf ("                pulserf for pulse audio RFA output\n");
   printf ("                pulserf:5 or pulserf:m17_sink2 for pulse audio RFA output on m17_sink2 (see -a) \n");
   printf ("                pulsevx for pulse audio Voice / Loopback output\n");
-  printf ("                pulsedxv for pulse audio Voice output on Duplex Operation\n");
+  printf ("                pulsedxv for pulse audio Voice output on TX and RX Mode Operation\n");
   printf ("                pulsevx:1, pulsedxv:1, or pulsevx:alsa_output.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Loopback output on device (see -a) \n");
   printf ("                - for STDOUT output (specify encoder or decoder options below)\n");
   printf ("                (Note: Don't use Ncurses Terminal w/ STDOUT enabled)\n");
@@ -130,11 +130,11 @@ void usage ()
   printf ("  -p            Per Call decoded voice wav file saving into current directory ./m17wav folder\n");
   printf ("  -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)\n");
   printf ("\n");
-  printf ("Duplex Options:\n");
+  printf ("TX and RX Options:\n");
   printf ("\n");
-  printf ("  -D            Enable Duplex Mode (Send and Receive over RF or IP Frame)\n");
+  printf ("  -D            Enable TX and RX Mode (Send and Receive over RF or IP Frame)\n");
   printf ("                 EXPERIMENTAL! Current Implementation Requires Pulse Audio and Ncurses Availability, Vox Disabled\n");
-  printf ("                 RF Example:\n");
+  printf ("                 RF Example (w/ Multiple Audio Devices or Virtual / Null Sinks):\n");
   printf ("                 m17-fme -D 2> m17e.txt\n");
   printf ("                 IP Frame Example:\n");
   printf ("                 LAN Machine 1: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000\n");
@@ -514,7 +514,7 @@ int main (int argc, char **argv)
         memcpy (super.m17d.arb, super.m17e.arb, 772);
         break;
 
-      //Enable Encoder / Duplex Packet Bursts
+      //Enable Encoder / TX and RX Packet Bursts
       case 'B':
         super.opts.use_m17_packet_burst = 1;
         fprintf (stderr, "M17 Project Packet Burst Enabled. \n");
@@ -528,24 +528,24 @@ int main (int argc, char **argv)
         fprintf (stderr, "DSD-FME Dibit Output File: %s \n", super.opts.dibit_output_file);
         break;
 
-      //M17 Repeater Mode / Duplex Mode
+      //M17 Repeater Mode / TX and RX Mode
       case 'D':
         #ifdef USE_PULSEAUDIO
         {} //continue
         #else
-        fprintf (stderr, "M17 Project Repeater Mode / Duplex Mode Requires Pulse Audio. \n");
+        fprintf (stderr, "M17 Project Repeater Mode / TX and RX Requires Pulse Audio. \n");
         exitflag = 1;
         #endif
 
         #ifdef USE_CURSES
         {} //continue
         #else
-        fprintf (stderr, "M17 Project Repeater Mode / Duplex Mode Requires Ncurses. \n");
+        fprintf (stderr, "M17 Project Repeater Mode / TX and RX Requires Ncurses. \n");
         exitflag = 1;
         #endif
 
         super.opts.use_m17_duplex_mode = 1;
-        fprintf (stderr, "M17 Project Repeater Mode / Duplex Mode Enabled. \n");
+        fprintf (stderr, "M17 Project Repeater Mode / TX and RX Enabled. \n");
 
         break;
 
@@ -821,7 +821,7 @@ int main (int argc, char **argv)
       decode_ipf(&super, 0);
   }
 
-  //M17 Duplex Mode
+  //M17 TX and RX Mode
   if (super.opts.use_m17_duplex_mode == 1)
     m17_duplex_mode(&super);
 

@@ -85,14 +85,14 @@ m17-fme -i pulserf -o pulsevx -r -E '1234567890ABCDEF 1234567890ABCDEF 123456789
 
 NOTE: Packet Data can be sent and received over IP Frame just as it is encoded and decoded using RF Audio, but this is not currently an M17 Specification, and is internal to M17-FME. 
 
-## Duplex Mode Operation
+## TX and RX Operation
 
-M17-FME can now be used in a 'duplex' mode of operation, that is, a single session that can both encode and transmit, AND listen for and decode M17 traffic. This mode is the new preferred method of using M17-FME, if possible, but will absolutely requrie the use of the Ncurses Terminal for Stream Voice TX and Packet Mode Data Entry. Duplex Mode will also require using Pulse Audio for Voice Input, RF Input, or both, due to the need to gracefully open and close audio streams internally on the fly. Duplex Mode can operate in RF input and output mode, or in IP input and output mode, but not both at the same time.
+M17-FME can now be used in a 'simultaneous' mode of operation, that is, a single session that can both encode and transmit, AND listen for and decode M17 traffic. This mode is the new preferred method of using M17-FME, if possible, but will absolutely requrie the use of the Ncurses Terminal for Stream Voice TX and Packet Mode Data Entry. TX and RX Mode will also require using Pulse Audio for Voice Input, RF Input, or both, due to the need to gracefully open and close audio streams internally on the fly. TX and RX Mode can operate in RF input and output mode, or in IP input and output mode, but not both at the same time.
 
 To use M17-FME in RF mode, simply run:
 
 ```
-m17-fme -D 2> m17duplex.txt
+m17-fme -D 2> m17txrx.txt
 ```
 
 or more complex setup (example) see `m17-fme` -a for input/output:
@@ -110,7 +110,7 @@ m17-fme -D -I -U 192.168.7.255:17000 -M 7:USER1:ALL 2> m17ip.txt
 ```
 
 
-To use M17-FME in IP Mode (Duplex) on multiple LAN computers, run:
+To use M17-FME in IP Mode (TX and RX Mode) on multiple LAN computers, run:
 
 ```
 LAN Machine 1: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000:B -M 6:USER2:ALL
@@ -196,7 +196,7 @@ Input Options:
                 pulserf for pulse audio RFA input 
                 pulserf:6 or pulserf:m17_sink2.monitor for pulse audio RFA input on m17_sink2 (see -a) 
                 pulsevx for pulse audio Voice / Mic input
-                pulsedxv for pulse audio Voice / Mic input on Duplex Operation
+                pulsedxv for pulse audio Voice / Mic input on TX and RX Mode Operation
                 pulsevx:2, pulsedxv:2, or pulsevx:alsa_input.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Mic input on device (see -a) 
                 - for STDIN input (specify encoder or decoder options below)
                 (Note: When using STDIN, Ncurses Keyboard Shortcuts Disabled)
@@ -205,6 +205,8 @@ Input Options:
                 udp for UDP Frame Input (default localhost:17000)
                 udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port)
                 m17udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port)
+                tcp for Network Audio TCP Source at 48000 (SDR++)
+                tcp:192.168.7.5:7355 for Network Audio TCP Source at 48000 (SDR++)
   -w <file>     48k/1 SNDFile Compatible RF Audio .wav or .rrc input file
   -c <file>     DSD-FME Compatible Dibit/Symbol Capture Bin input file (from RF Encoder)
   -f <file>     Float Symbol input file (from RF Encoder and M17_Implementations)
@@ -215,7 +217,7 @@ Output Options:
                 pulserf for pulse audio RFA output
                 pulserf:5 or pulserf:m17_sink2 for pulse audio RFA output on m17_sink2 (see -a) 
                 pulsevx for pulse audio Voice / Loopback output
-                pulsedxv for pulse audio Voice output on Duplex Operation
+                pulsedxv for pulse audio Voice output on TX and RX Mode Operation
                 pulsevx:1, pulsedxv:1, or pulsevx:alsa_output.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Loopback output on device (see -a) 
                 - for STDOUT output (specify encoder or decoder options below)
                 (Note: Don't use Ncurses Terminal w/ STDOUT enabled)
@@ -234,6 +236,7 @@ Encoder Options:
 
   -V            Enable the Stream Voice Encoder
   -P            Enable the Packet Data  Encoder
+  -!            Enable the Bit Error Rate Test (BERT) Encoder (RFA only)
   -I            Enable IP Frame Output with defaults (can be combined with Loopback or RFA output)
   -L            Enable Internal Encoder Loopback Decoder (must be used with pulsevx output)
   -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder
@@ -254,7 +257,7 @@ Encoder Input Strings:
   -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets (up to 823 octets).
                 (example: -R 81F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) 
 
-                (NOTE: Using Meta Fields is not compatible with Using Encryption!)
+                (NOTE: Using Meta Fields is not compatible with Using Encryption!) 
   -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 13 UTF-8 characters, single segment only);
                 (example: -Y 'Hello World!!') for Meta Text 
   -Z <hex>      Enter META Data for Stream Voice Encoder as Hex Octets (1 Meta Type Octet + 14 Hex Octets Max);
@@ -270,11 +273,11 @@ Decoder Options:
   -p            Per Call decoded voice wav file saving into current directory ./m17wav folder
   -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)
 
-Duplex Options:
+TX and RX Options:
 
-  -D            Enable Duplex Mode (Send and Receive over RF or IP Frame)
+  -D            Enable TX and RX Mode (Send and Receive over RF or IP Frame)
                  EXPERIMENTAL! Current Implementation Requires Pulse Audio and Ncurses Availability, Vox Disabled
-                 RF Example:
+                 RF Example (w/ Multiple Audio Devices or Virtual / Null Sinks):
                  m17-fme -D 2> m17e.txt
                  IP Frame Example:
                  LAN Machine 1: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000
@@ -288,7 +291,6 @@ Encryption Options:
   -E <hex str>  Enter AES Key Value (in single quote, space every 16 chars) 
                 (example: -E '0520C1B0220AFBCA 16FB1330764B26EC 5C34A197764C147A 15FBA7515ED8BCFC')
                 (example: -E '0520C1B0220AFBCA 16FB1330764B26EC')
-                (NOTE: Due to bug in m17-tools handling of AES keys, all keys are run as AES-128)
                 (Limiting significant key value to first 32 characters to maintain compatibility)
   -J <file>     Load AES Key from file. (see example key: key/aes_key.txt)
   -O            Send OTA Key Delivery Packets for AES and Scrambler Keys
@@ -299,8 +301,8 @@ Debug Options:
   -1            Generate Random One Time Use 24-bit Scrambler Key 
   -2            Generate Random One Time Use 256-bit AES Key. 
   -3            Generate Random Keys For secp256r1 Signatures. Enable Signing and Verification.
-  -4            Permit Data Decoding on CRC Failure (not recommended). 
   -5            Generate Random Keys For secp256r1 Signatures, and exit.
+  -4            Permit Data Decoding on CRC Failure (not recommended). 
   -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). 
   -7            Disable Symbol Timing Correction. 
   -8            Disable High Pass Filter on CODEC2 Output. 

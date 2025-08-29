@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------------
- * m17_str_encoder.c
- * M17 Project - Stream Voice Encoder
+ * m17_brt_encoder.c
+ * M17 Project - BERT (Bit Error Rate Test) Frame Encoder
  *
  * LWVMOBILE
- * 2024-06 M17 Project - Florida Man Edition
+ * 2025-08 M17 Project - Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #include "main.h"

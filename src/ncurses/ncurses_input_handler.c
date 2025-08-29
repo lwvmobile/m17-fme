@@ -220,7 +220,7 @@ void input_ncurses_terminal (Super * super, int c)
         super->m17e.str_encoder_eot = 1;
       break;
 
-    //'b' key, set new CAN value, if using duplex mode or stream encoder
+    //'b' key, set new CAN value, if using TX and RX or stream encoder
     case 98:
       can_bkp = super->m17e.can;
 
@@ -249,7 +249,7 @@ void input_ncurses_terminal (Super * super, int c)
       event_log_writer (super, super->m17d.sms, 0xFC);
       break;
 
-    //'d' key, Enter Destination Address Value, if using duplex mode or stream encoder
+    //'d' key, Enter Destination Address Value, if using TX and RX or stream encoder
     case 100:
       if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) )
       {
@@ -378,7 +378,7 @@ void input_ncurses_terminal (Super * super, int c)
       no_carrier_sync (super); //reset demod
       break;
 
-    //'s' key, Enter Source Address Value, if using duplex mode or stream encoder
+    //'s' key, Enter Source Address Value, if using TX and RX or stream encoder
     case 115:
       if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) )
       {

@@ -19,7 +19,7 @@ void open_audio_input (Super * super)
   else if (super->opts.use_dibit_input == 1)
     super->opts.dibit_in = fopen (super->opts.dibit_input_file, "r");
   
-  //TCP Sourced SB16LE Network Sink
+  //TCP Sourced S16LE Network Sink
   else if (super->opts.use_tcp_input == 1)
   {
     super->opts.tcp_input_sock = 
@@ -34,7 +34,7 @@ void open_audio_input (Super * super)
     else exitflag = 1;
   }
 
-  //STDIN Sourced SB16LE Input
+  //STDIN Sourced S16LE Input
   else if (super->opts.use_stdin_input == 1)
   {
     stdin_snd_audio_source_open(super);
@@ -42,7 +42,7 @@ void open_audio_input (Super * super)
     super->opts.use_snd_input = 1;
   }
 
-  //.wav, .rrc (or other) Sourced SB16LE file based input
+  //.wav, .rrc (or other) Sourced S16LE file based input
   else if (super->opts.snd_input_is_a_file == 1)
   {
     file_snd_audio_source_open(super);
@@ -303,7 +303,7 @@ void parse_input_option_string (Super * super, char * input)
   }
 
   #ifdef USE_PULSEAUDIO
-  else if ( (strncmp(input, "pulsedxv", 8) == 0) ) //duplex mode mic input
+  else if ( (strncmp(input, "pulsedxv", 8) == 0) ) //TX and RX mic input
   {
     parse_pulse_input_string_dxv(super, input+8);
     // super->opts.use_pa_input_vx = 1; //is disabled in duplex until called
@@ -388,7 +388,7 @@ void parse_output_option_string (Super * super, char * output)
   }
 
   #ifdef USE_PULSEAUDIO
-  else if ( (strncmp(output, "pulsedxv", 8) == 0) ) //duplex mode voice output
+  else if ( (strncmp(output, "pulsedxv", 8) == 0) ) //TX and RX voice output
   {
     parse_pulse_outvx_string(super, output+8);
     //

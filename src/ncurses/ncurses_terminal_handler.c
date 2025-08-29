@@ -439,7 +439,7 @@ void print_ncurses_call_info (Super * super)
     printw ("UDP/IP Frame Decoder");
   else if (super->opts.use_m17_duplex_mode == 1)
   {
-    printw ("Duplex Encoder and Decoder");
+    printw ("TX and RX Mode");
     if (super->opts.m17_use_ip) printw(" (IP)");
     else printw(" (RF)");
     if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
