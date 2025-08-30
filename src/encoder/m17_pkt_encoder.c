@@ -474,6 +474,11 @@ void encode_pkt(Super * super, int mode)
   for (i = 0; i < 34; i++)
     m17_ip_packed[i] = (uint8_t)convert_bits_into_output(&m17_ip_frame[i*8], 8);
 
+  //BUGFIX: Raw encoded data packets over IP had extra zero byte on the end, and CRC shifted
+  //NOTE: Better fix might include doing an x++ on SMS and fixing all the x+1 items for CRC
+  if (super->m17e.raw[0] != 0)
+    x--;
+
   //pack the entire PKT payload (plus terminator, sans CRC)
   for (i = 0; i < x+1; i++)
     m17_ip_packed[i+34] = (uint8_t)convert_bits_into_output(&m17_p1_full[i*8], 8);
