@@ -317,6 +317,7 @@ typedef struct
 
   //Call History
   char callhistory[100][500];
+  char lasteventstring[500];
 
   //LSF Backup Copy
   uint8_t lsf_bkp[240];

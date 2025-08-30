@@ -829,8 +829,15 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
   char * timestr  = get_time_n(super->demod.current_time);
   char * datestr  = get_date_n(super->demod.current_time);
 
+  uint8_t write = 1;
+
+  //compare this event to the last event written, if they match
+  //then don't write it again (META Extended CSD and GNSS)
+  if (strncmp(super->m17d.lasteventstring, event_string, 500) == 0)
+    write = 0;
+
   //only if the log file is open
-  if (super->opts.event_log && (protocol < 0x80 || protocol >= 0xE0)) //don't write meta events into the log, they occur too frequently
+  if (super->opts.event_log && write == 1)
   {
     //write date and time
     fprintf (super->opts.event_log, "%s_%s ", datestr, timestr);
@@ -898,6 +905,9 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
 
     fprintf (super->opts.event_log, "%s\n", event_string);
     fflush (super->opts.event_log); //flush event so its immediately available without having to close the file
+
+    //save the event_string to the lasteventstring to prevent duplicates during sync period
+    sprintf (super->m17d.lasteventstring, "%s", event_string);
   }
 
   free (timestr); free (datestr);

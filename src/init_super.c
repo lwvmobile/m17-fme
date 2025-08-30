@@ -265,6 +265,8 @@ void init_super (Super * super)
   for (int i = 0; i < 100; i++)
     sprintf (super->m17d.callhistory[i], "%s", "");
 
+  sprintf (super->m17d.lasteventstring, "%s", "");
+
   //LSF Backup Copy
   memset (super->m17d.lsf_bkp, 0, 240*sizeof(uint8_t));
 
@@ -328,6 +330,8 @@ void init_super (Super * super)
   //Call History (UNUSED on Encoder)
   for (int i = 0; i < 100; i++)
     sprintf (super->m17e.callhistory[i], "%s", "");
+
+  sprintf (super->m17e.lasteventstring, "%s", "");
 
   //LSF Backup Copy
   memset (super->m17e.lsf_bkp, 0, 240*sizeof(uint8_t));

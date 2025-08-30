@@ -315,7 +315,7 @@ void enc_pkt_ks_creation(Super * super, uint8_t * ks_bits, uint8_t * ks_bytes, i
   pack_bit_array_into_byte_array(ks_bits, ks_bytes, 960);
 
   //debug print out the keystream bytes
-  fprintf (stderr, "\n KS: ");
-  for (int i = 0; i < 10; i++)
-    fprintf (stderr, "%02X", ks_bytes[i]);
+  // fprintf (stderr, "\n KS: ");
+  // for (int i = 0; i < 10; i++)
+  //   fprintf (stderr, "%02X", ks_bytes[i]);
 }
