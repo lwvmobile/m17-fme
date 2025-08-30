@@ -415,61 +415,32 @@ void decode_ipf (Super * super, int socket)
       //calculate CRC on Payload Portion
       crc_cmp = crc16(ip_frame+34, err-2-34); //had to fix, was doing entire ip_frame
 
-      //apply keystream here if encrypted
-      if (super->m17d.enc_et == 1 && super->enc.scrambler_key)
+      //create and apply encryption keystream to ip_frame at this 
+      //point, after magic, lsf, and protocol byte and prior to terminating byte and CRC
+      if ((super->m17d.enc_et == 1 && super->enc.scrambler_key) ||
+          (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded) )
       {
-        uint8_t unpacked_pkt[8000]; memset (unpacked_pkt, 0, 8000*sizeof(uint8_t)); //33*25*8 = 6600, but giving some extra space here (stack smash fix on full sized enc frame decrypt)
-        unpack_byte_array_into_bit_array(ip_frame+34, unpacked_pkt, err-34-3);
 
-        //new method
-        super->enc.scrambler_seed_d = super->enc.scrambler_key; //reset seed to key value
-        super->enc.scrambler_seed_d = scrambler_sequence_generator(super, 0);
-        int z = 0;
-        for (i = 8; i < (err*8); i++)
-        {
-          unpacked_pkt[i] ^= super->enc.scrambler_pn[z++];
-          if (z == 128)
-          {
-            super->enc.scrambler_seed_d = scrambler_sequence_generator(super, 0);
-            z = 0;
-          }
-        }
+        int total = err - 3; //check this again after
 
-        pack_bit_array_into_byte_array(unpacked_pkt, ip_frame+34, err-34-3);
-      }
-
-      else if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded)
-      {
-        int ret = err - 34 - 3;
-        int klen = (ret*8)/128; //NOTE: This will fall short by % value octets
-        int kmod = (ret*8)%128; //This is how many bits we are short, so we need to account with a partial ks application
+        //sanity check (probably don't really need this)
+        if (total < 0)
+          err = 1;
 
         //debug
-        // fprintf (stderr, " AES KLEN: %d; KMOD: %d;", klen, kmod);
+        // fprintf (stderr, " T: %d; ", total);
 
-        //NOTE: Its pretty redundant to pack and unpack here and in the crypt function,
-        //but this is still quicker than writing a new function for only one use case
-        
-        uint8_t unpacked_pkt[8000]; memset (unpacked_pkt, 0, 8000*sizeof(uint8_t)); //33*25*8 = 6600, but giving some extra space here (stack smash fix on full sized enc frame decrypt)
-        unpack_byte_array_into_bit_array(ip_frame+34, unpacked_pkt, ret);
-        for (i = 0; i < klen; i++)
-          aes_ctr_pkt_payload_crypt (super->m17d.meta, super->enc.aes_key, unpacked_pkt+(128*i)+8, super->m17d.enc_st+1);
+        //keystream bit and byte arrays
+        uint8_t ks_bits[7680]; memset(ks_bits, 0, sizeof(ks_bits));
+        uint8_t ks_bytes[960]; memset(ks_bytes, 0, sizeof(ks_bytes));
 
-        //if there are leftovers (kmod), then run a keystream and partial application to left over bits
-        uint8_t aes_ks_bits[128]; memset(aes_ks_bits, 0, 128*sizeof(uint8_t));
-        int kmodstart = klen*128;
+        enc_pkt_ks_creation(super, ks_bits, ks_bytes, 0);
+        for (i = 35; i < total; i++)
+          ip_frame[i] ^= ks_bytes[i-35];
 
-        //set to 8 IF kmodstart == 0 so we don't try to decrypt the protocol byte on short single block packets
-        if (kmodstart == 0) kmodstart = 8;
+        //reset meta (iv) after use
+        memset(super->m17d.meta, 0, sizeof(super->m17e.meta));
 
-        if (kmod != 0)
-        {
-          aes_ctr_pkt_payload_crypt (super->m17d.meta, super->enc.aes_key, aes_ks_bits, super->m17d.enc_st+1);
-          for (i = 0; i < kmod; i++)
-            unpacked_pkt[i+kmodstart] ^= aes_ks_bits[i];
-        }
-          
-        pack_bit_array_into_byte_array(unpacked_pkt, ip_frame+34, ret);
       }
 
       //reset meta after use

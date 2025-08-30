@@ -720,6 +720,7 @@ uint32_t scrambler_seed_calculation(int8_t subtype, uint32_t key, int fn);
 uint32_t scrambler_sequence_generator (Super * super, int de);
 void aes_ctr_str_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int type);
 void aes_ctr_pkt_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int type);
+void enc_pkt_ks_creation(Super * super, uint8_t * ks_bits, uint8_t * ks_bytes, int de);
 void aes_key_loader (Super * super);
 
 //ECDSA

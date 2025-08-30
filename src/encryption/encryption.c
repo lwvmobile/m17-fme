@@ -259,3 +259,63 @@ void aes_key_loader (Super * super)
   }
 
 }
+
+//unified ks creation for packet data
+//hard coded size of ks_bits and ks_bytes shall be 7680 bits and 960 bytes
+void enc_pkt_ks_creation(Super * super, uint8_t * ks_bits, uint8_t * ks_bytes, int de)
+{
+
+  if (super->enc.enc_type == 1 && super->enc.scrambler_key)
+  {
+
+    if (de)
+      super->enc.scrambler_seed_d = super->enc.scrambler_key;
+    else super->enc.scrambler_seed_e = super->enc.scrambler_key;
+
+    int k = 0;
+
+    for (int j = 0; j < 60; j++)
+    {
+      scrambler_sequence_generator(super, de);
+      for (int i = 0; i < 128; i++)
+        ks_bits[k++] = super->enc.scrambler_pn[i];
+    }
+
+  }
+
+  else if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)
+  {
+
+    uint8_t * iv = NULL;
+    uint8_t * key = NULL;
+    uint8_t type = super->enc.enc_subtype+1;
+
+    if (de)
+    {
+      iv = super->m17e.meta;
+      key = super->enc.aes_key;
+    }
+    else
+    {
+      iv = super->m17d.meta;
+      key = super->enc.aes_key;
+      type = super->m17d.enc_st+1;
+    }
+
+    for (int i = 0; i < 60; i++)
+      aes_ctr_pkt_payload_crypt (iv, key, ks_bits+(128*i), type);
+
+    //null pointers
+    iv = NULL;
+    key = NULL;
+
+  }
+
+  //pack the bits into bytes
+  pack_bit_array_into_byte_array(ks_bits, ks_bytes, 960);
+
+  //debug print out the keystream bytes
+  fprintf (stderr, "\n KS: ");
+  for (int i = 0; i < 10; i++)
+    fprintf (stderr, "%02X", ks_bytes[i]);
+}

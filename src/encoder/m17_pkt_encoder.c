@@ -324,61 +324,23 @@ void encode_pkt(Super * super, int mode)
   if (super->opts.payload_verbosity > 0)
     fprintf (stderr, "\n BLOCK: %02d; PAD: %02d; LST: %d; K: %04d; PTR: %04d;", block, pad, lst, k, ptr);
 
-  //apply encryption keystream to m17_p1_full at this point, after protocol byte, and prior to terminating byte and CRC
-  if (super->enc.enc_type == 1 && super->enc.scrambler_key)
+  //create and apply encryption keystream to m17_p1_full at this 
+  //point, after protocol byte, and prior to terminating byte and CRC
+  if ( (super->enc.enc_type == 1 && super->enc.scrambler_key) || 
+       (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded) )
   {
-    //mew method
-    super->enc.scrambler_seed_e = scrambler_sequence_generator(super, 1);
-    int z = 0;
-    for (i = 8; i < (k-8); i++) //k should be at the correct position here //k-9
-    {
-      m17_p1_full[i] ^= super->enc.scrambler_pn[z++];
-      if (z == 128)
-      {
-        super->enc.scrambler_seed_e = scrambler_sequence_generator(super, 1);
-        z = 0;
-      }
-    }
-      
 
-    //old method
-    // for (i = 8; i < (k-8); i++) //k should be at the correct position here //k-9
-    //   m17_p1_full[i] ^= super->enc.scrambler_pn[i%768]; //I think this could have been an issue previously
-  }
+    //keystream bit and byte arrays
+    uint8_t ks_bits[7680]; memset(ks_bits, 0, sizeof(ks_bits));
+    uint8_t ks_bytes[960]; memset(ks_bytes, 0, sizeof(ks_bytes));
 
-  else if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)
-  {
-    int klen = (k-8)/128; //NOTE: This will fall short by % value octets
-    int kmod = (k-8)%128; //This is how many bits we are short, so we need to account with a partial ks application
+    enc_pkt_ks_creation(super, ks_bits, ks_bytes, 1);
 
-    //NOTE: Without a proper IV, this is effectively turning AES-CTR into AES-ECB mode
-    //I should load a proper IV, but if the LSF fails, then we can't recover packets
-    //unlike voice, where we have a rolling embedded link data with an IV in it
-    //I may consider leaving this as ECB mode (less secure, but more secure than scrambler)
+    for (i = 8; i < (k-8); i++)
+      m17_p1_full[i] ^= ks_bits[i-8];
 
-    for (i = 0; i < klen; i++)
-      aes_ctr_pkt_payload_crypt (super->m17e.meta, super->enc.aes_key, m17_p1_full+(128*i)+8, super->enc.enc_subtype+1);
-
-    //if there are leftovers (kmod), then run a keystream and partial application to left over bits
-    uint8_t aes_ks_bits[128]; memset(aes_ks_bits, 0, 128*sizeof(uint8_t));
-    int kmodstart = klen*128;
-    
-    //set to 8 IF kmodstart == 0 so we don't encrypt the protocol byte on short single block packets
-    if (kmodstart == 0) kmodstart = 8;
-
-    //debug
-    // fprintf (stderr, " AES KLEN: %d; KMOD: %d; KMODSTART: %d; ", klen, kmod, kmodstart);
-
-    if (kmod != 0)
-    {
-      aes_ctr_pkt_payload_crypt (super->m17e.meta, super->enc.aes_key, aes_ks_bits, super->enc.enc_subtype+1);
-      for (i = 0; i < kmod; i++)
-        m17_p1_full[i+kmodstart] ^= aes_ks_bits[i];
-    }
-
-    //reset meta after use
+    //reset meta (iv) after use
     memset(super->m17e.meta, 0, sizeof(super->m17e.meta));
-
   }
 
   //Calculate the CRC and attach it here
