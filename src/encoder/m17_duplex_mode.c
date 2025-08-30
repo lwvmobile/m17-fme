@@ -1355,7 +1355,7 @@ void m17_text_games (Super * super)
         get_short_audio_input_sample(super);
 
       //read but discard sent IP frame to prevent read/reply loop
-      if (m17_udp_socket_duplex) //one for MPKT, one for EOTX
+      if (m17_udp_socket_duplex) //one for M17P, one for EOTX
       {
         m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
         m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
@@ -1424,7 +1424,7 @@ void decode_game_sms_gate(Super * super, uint8_t * input, int len)
       get_short_audio_input_sample(super);
 
     //read but discard sent IP frame to prevent read/reply loop
-    if (m17_udp_socket_duplex) //one for MPKT, one for EOTX
+    if (m17_udp_socket_duplex) //one for M17P, one for EOTX
     {
       m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
       m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
@@ -1447,7 +1447,7 @@ void decode_game_sms_gate(Super * super, uint8_t * input, int len)
       get_short_audio_input_sample(super);
 
     //read but discard sent IP frame to prevent read/reply loop
-    if (m17_udp_socket_duplex) //one for MPKT, one for EOTX
+    if (m17_udp_socket_duplex) //one for M17P, one for EOTX
     {
       m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
       m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
@@ -1552,7 +1552,7 @@ void generate_game_sms_reply(Super * super, char * input)
     get_short_audio_input_sample(super);
 
   //read but discard sent IP frame to prevent read/reply loop
-  if (m17_udp_socket_duplex) //one for MPKT, one for EOTX
+  if (m17_udp_socket_duplex) //one for M17P, one for EOTX
   {
     m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
     m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
@@ -1575,7 +1575,7 @@ void generate_game_sms_reply(Super * super, char * input)
       get_short_audio_input_sample(super);
 
     //read but discard sent IP frame to prevent read/reply loop
-    if (m17_udp_socket_duplex) //one for MPKT, one for EOTX
+    if (m17_udp_socket_duplex) //one for M17P, one for EOTX
     {
       m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
       m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);

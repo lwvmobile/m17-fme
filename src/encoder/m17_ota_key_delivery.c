@@ -249,7 +249,6 @@ void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint
   fprintf (stderr, "\n");
 
   //Standard IP Framing (stripped down)
-  uint8_t mpkt[4]  = {0x4D, 0x50, 0x4B, 0x54}; UNUSED(mpkt);
   uint8_t m17p[4]  = {0x4D, 0x31, 0x37, 0x50}; //https://github.com/M17-Project/M17_inet/tree/main Current "Standard"
   int udp_return = 0;
   uint8_t  m17_ip_frame[8000]; memset (m17_ip_frame, 0, sizeof(m17_ip_frame));
@@ -304,7 +303,7 @@ void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint
   //   fprintf (stderr, "%02X ", m17_ip_packed[i]);
   // fprintf (stderr, "\n");
 
-  //Send MPKT to reflector
+  //Send M17P to reflector
   if (use_ip == 1)
     udp_return = m17_socket_blaster (super, x+34+3, m17_ip_packed);
 

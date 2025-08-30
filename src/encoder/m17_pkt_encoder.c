@@ -409,13 +409,7 @@ void encode_pkt(Super * super, int mode)
   //should be connected if these conditions are met
   else if (super->opts.m17_use_ip == 1 && super->opts.m17_udp_sock != 0 && mode == 0) use_ip = 1;
 
-  //NOTE: IP Framing is not standard on M17 for PKT mode, but
-  //I don't see any reason why we can't send them anyways, just
-  //need to use a new magic for it: MPKT. The receiver here is capable
-  //of decoding them
-
   //Standard IP Framing
-  uint8_t mpkt[4]  = {0x4D, 0x50, 0x4B, 0x54}; UNUSED(mpkt);
   uint8_t m17p[4]  = {0x4D, 0x31, 0x37, 0x50}; //https://github.com/M17-Project/M17_inet/tree/main Current "Standard"
   uint8_t ackn[4]  = {0x41, 0x43, 0x4B, 0x4E}; UNUSED(ackn);
   uint8_t nack[4]  = {0x4E, 0x41, 0x43, 0x4B}; UNUSED(nack);
@@ -519,7 +513,7 @@ void encode_pkt(Super * super, int mode)
       encode_ota_key_delivery_pkt(super, use_ip, sid, 3, 0);
   }
 
-  //Send MPKT to reflector
+  //Send M17P to reflector
   if (use_ip == 1)
     udp_return = m17_socket_blaster (super, x+34+3, m17_ip_packed);
 
