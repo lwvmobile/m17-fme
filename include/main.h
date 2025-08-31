@@ -699,6 +699,7 @@ void init_brt(void);
 void m17_udp_socket_duplex_init(void);
 void start_ipf (Super * super);
 void decode_ipf (Super * super, int socket);
+void ip_send_conn_disc_ping_pong (Super * super, int cd);
 
 //M17 Duplex Mode(s)
 void m17_duplex_mode (Super * super);

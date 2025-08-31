@@ -242,6 +242,42 @@ void decode_ipf (Super * super, int socket)
         fprintf (stderr, "%02X ", ip_frame[i]);
     }
 
+    //check source of ping, if not us, send the pong reply
+    unsigned long long int ip_src = 0;
+    unsigned long long int src = 0;
+    unsigned long long int dst = 0;
+    for (i = 0; i < 6; i++)
+    {
+      ip_src <<= 8;
+      ip_src |= ip_frame[i+4];
+    }
+
+    char d40[50] = "M17-FME  ";
+    char s40[50] = "M17-FME  ";
+    if (super->m17e.srcs[0] != 0)
+      sprintf (s40, "%s", super->m17e.srcs);
+
+    //Encode Callsign Data
+    encode_callsign_data(super, d40, s40, &dst, &src);
+
+    uint8_t send_pong = 0;
+    if (super->opts.use_m17_duplex_mode == 1 && ip_src != src)
+      send_pong = 1;
+
+    //Reply with a PONG, if conditions satisfied
+    if (send_pong == 1)
+      ip_send_conn_disc_ping_pong(super, 3);
+
+    //clear frame
+    memset (ip_frame, 0, sizeof(ip_frame));
+
+    //since there is no destination, let's write PINGED IN into dsts
+    sprintf (super->m17d.dst_csd_str, "PINGED IN");
+
+    //drop sync
+    super->m17d.dt = 7; //fake for PING message in Call History
+    no_carrier_sync(super);
+
   }
 
   else if (memcmp(ip_frame, pong, 4) == 0)
@@ -253,6 +289,17 @@ void decode_ipf (Super * super, int socket)
       for (i = 0; i < 10; i++)
         fprintf (stderr, "%02X ", ip_frame[i]);
     }
+
+    //clear frame
+    memset (ip_frame, 0, sizeof(ip_frame));
+
+    //since there is no destination, let's write REFLECTOR into dsts
+    sprintf (super->m17d.dst_csd_str, "REFLECTOR");
+
+    //drop sync
+    super->m17d.dt = 8; //fake for PONG message in Call History
+    no_carrier_sync(super);
+
   }
 
   else if (memcmp(ip_frame, m17p, 4) == 0)
@@ -339,6 +386,24 @@ void decode_ipf (Super * super, int socket)
 
     //clear frame
     memset(ip_frame, 0, sizeof(ip_frame));
+
+  }
+
+  //anything else (unknown UDP IP Frames)
+  else if (ip_frame[0] != 0)
+  {
+    if (err > 0)
+    {
+      fprintf (stderr, "\n Unknown IPF: ");
+      for (int i = 0; i < err; i++)
+        fprintf (stderr, "%02X ", ip_frame[i]);
+    }
+
+    //clear frame
+    memset (ip_frame, 0, sizeof(ip_frame));
+
+    //drop sync
+    no_carrier_sync(super);
 
   }
 

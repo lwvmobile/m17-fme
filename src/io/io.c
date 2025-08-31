@@ -759,6 +759,8 @@ void push_call_history (Super * super)
   else if (super->m17d.dt == 4) sprintf (dt, "RESET DM");
   else if (super->m17d.dt == 5) sprintf (dt, "IPF DISC");
   else if (super->m17d.dt == 6) sprintf (dt, "IPF CONN");
+  else if (super->m17d.dt == 7) sprintf (dt, "IPF PING");
+  else if (super->m17d.dt == 8) sprintf (dt, "IPF PONG");
   else                          sprintf (dt, "UNK TYPE");
 
   char * timestr  = get_time_n(super->demod.current_time);

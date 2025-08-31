@@ -4,7 +4,7 @@
 ## Information
 
 M17-FME is a stand-alone encoder and decoder of [M17 Project](https://m17project.org/ "M17") protocol.
-M17-FME uses the open source [Codec2](https://github.com/drowe67/codec2 "Codec2") vocoder, and built on the specifications openly and freely provided under [M17 Protocol Specifications](https://spec.m17project.org/ "M17 Protocol Specifications"). M17-FME should only be considered an 'educational' tool for radio enthusiasts and people interested in tinkering. It is also in an early beta stage, and as such, is prone to error and may have changing functionality over time as features are added, removed, reworked, etc. This tool should never be used for any commercial or critical needs, and any use for ill or malicious intent (jamming, DDOS, trolling, warfare, etc) is NOT CONDONED or TOLERATED!
+M17-FME uses the open source [Codec2](https://github.com/drowe67/codec2 "Codec2") vocoder, and built on the specifications openly and freely provided under [M17 Protocol Specifications Part I - Air Interface](https://spec.m17project.org/ "M17 Protocol Specifications Part I - Air Interface"). M17-FME should only be considered an 'educational' tool for radio enthusiasts and people interested in tinkering. It is also in an early beta stage, and as such, is prone to error and may have changing functionality over time as features are added, removed, reworked, etc. This tool should never be used for any commercial or critical needs, and any use for ill or malicious intent (jamming, DDOS, trolling, warfare, etc) is NOT CONDONED or TOLERATED!
 
 ![M17-FME](https://github.com/lwvmobile/m17-fme/blob/main/docs/m17-fme1.png)
 
@@ -32,7 +32,7 @@ M17-FME can encode the M17 BERT (Bit Error Rate Test) as described in 2.10 and A
 
 ### UDP/IP Frame Format
 
-M17-FME is capable of transmitting and receiving UDP frames based on the specification linked above. This input and output has NOT BEEN TESTED on currently operating reflectors, and its status as working is unknown. M17-FME can however, communicate over UDP/IP Protocol to another M17-FME session.
+M17-FME is capable of transmitting and receiving UDP frames based on [M17 Protocol Specifications Part II - Internet Interface](https://github.com/M17-Project/M17_inet "M17 Protocol Specifications Part II - Internet Interface"). This input and output has NOT BEEN TESTED on currently operating reflectors, and its status as working is unknown. M17-FME can however, communicate over UDP/IP Protocol to another M17-FME session.
 
 ### TX and RX Mode
 

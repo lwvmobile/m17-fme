@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
-* m17_duplex_mode.c
-* M17 Project - Duplex Mode Operations
+* m17_rxtx_mode.c
+* M17 Project - RX and TX Mode Operations
 *
 * LWVMOBILE
 * 2024-07 M17 Project - Florida Man Edition
@@ -17,8 +17,8 @@ void m17_udp_socket_duplex_init(void)
   m17_udp_socket_duplex = 0;
 }
 
-//detached ip frame conn and disc frame sending on start and exit
-void ip_send_conn_disc (Super * super, int cd)
+//detached ip frame conn, disc, ping, and pong
+void ip_send_conn_disc_ping_pong (Super * super, int cd)
 {
 
   //NOTE: Only src is used here, but we need a dst for the callsign function
@@ -34,18 +34,31 @@ void ip_send_conn_disc (Super * super, int cd)
 
   uint8_t conn[11]; memset (conn, 0, sizeof(conn));
   uint8_t disc[10]; memset (disc, 0, sizeof(disc));
+  uint8_t ping[10]; memset (ping, 0, sizeof(ping));
+  uint8_t pong[10]; memset (pong, 0, sizeof(pong));
   conn[0] = 0x43; conn[1] = 0x4F; conn[2] = 0x4E; conn[3] = 0x4E; conn[10] = super->m17e.reflector_module;
   disc[0] = 0x44; disc[1] = 0x49; disc[2] = 0x53; disc[3] = 0x43;
+  ping[0] = 0x50; ping[1] = 0x49; ping[2] = 0x4E; ping[3] = 0x47;
+  pong[0] = 0x50; pong[1] = 0x4F; pong[2] = 0x4E; pong[3] = 0x47;
 
   conn[4] = (src >> 40UL) & 0xFF; conn[5] = (src >> 32UL) & 0xFF; conn[6] = (src >> 24UL) & 0xFF;
   conn[7] = (src >> 16UL) & 0xFF; conn[8] = (src >> 8UL)  & 0xFF; conn[9] = (src >> 0UL)  & 0xFF;
   for (uint8_t i = 0; i < 6; i++)
+  {
     disc[i+4] = conn[i+4];
+    ping[i+4] = conn[i+4];
+    pong[i+4] = conn[i+4];
+  }
 
-  //1 for conn, 0 for disc
-  if (cd)
-    m17_socket_blaster (super, 11, conn);
-  else m17_socket_blaster (super, 10, disc);
+  //0 for disc, 1 for conn, 2 for ping, 3 for pong
+  if (cd == 0)
+    m17_socket_blaster (super, 10, disc);
+  else if (cd == 1)
+    m17_socket_blaster (super, 10, conn);
+  else if (cd == 2)
+    m17_socket_blaster (super, 10, ping);
+  else if (cd == 3)
+    m17_socket_blaster (super, 10, pong);
 
 }
 
@@ -1114,7 +1127,7 @@ void m17_duplex_mode (Super * super)
     else
     {
       use_ip = 1;
-      ip_send_conn_disc(super, 1);
+      ip_send_conn_disc_ping_pong(super, 1);
       m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
     }
   }
@@ -1233,7 +1246,7 @@ void m17_duplex_mode (Super * super)
   //close UDP Socket afterwards
   if (m17_udp_socket_duplex)
   {
-    ip_send_conn_disc(super, 0);
+    ip_send_conn_disc_ping_pong(super, 0);
     m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
     close(m17_udp_socket_duplex);
   }
@@ -1323,7 +1336,7 @@ void m17_text_games (Super * super)
     else
     {
       use_ip = 1;
-      ip_send_conn_disc(super, 1);
+      ip_send_conn_disc_ping_pong(super, 1);
       m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
     }
   }
@@ -1397,7 +1410,7 @@ void m17_text_games (Super * super)
   //close UDP Socket afterwards
   if (m17_udp_socket_duplex)
   {
-    ip_send_conn_disc(super, 0);
+    ip_send_conn_disc_ping_pong(super, 0);
     m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
     close(m17_udp_socket_duplex);
   }
