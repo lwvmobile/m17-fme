@@ -54,7 +54,7 @@ void ip_send_conn_disc_ping_pong (Super * super, int cd)
   if (cd == 0)
     m17_socket_blaster (super, 10, disc);
   else if (cd == 1)
-    m17_socket_blaster (super, 10, conn);
+    m17_socket_blaster (super, 11, conn);
   else if (cd == 2)
     m17_socket_blaster (super, 10, ping);
   else if (cd == 3)

@@ -267,6 +267,10 @@ void init_super (Super * super)
 
   sprintf (super->m17d.lasteventstring, "%s", "");
 
+  //Ping and Pong
+  sprintf (super->m17d.pingpongsrcs, "%s", "#PINGPONG");
+  sprintf (super->m17d.pingpongdsts, "%s", "#PINGPONG");
+
   //LSF Backup Copy
   memset (super->m17d.lsf_bkp, 0, 240*sizeof(uint8_t));
 
@@ -332,6 +336,10 @@ void init_super (Super * super)
     sprintf (super->m17e.callhistory[i], "%s", "");
 
   sprintf (super->m17e.lasteventstring, "%s", "");
+
+  //Ping and Pong
+  sprintf (super->m17e.pingpongsrcs, "%s", "#PINGPONG");
+  sprintf (super->m17e.pingpongdsts, "%s", "#PINGPONG");
 
   //LSF Backup Copy
   memset (super->m17e.lsf_bkp, 0, 240*sizeof(uint8_t));

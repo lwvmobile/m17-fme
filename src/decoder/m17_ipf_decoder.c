@@ -271,8 +271,11 @@ void decode_ipf (Super * super, int socket)
     //clear frame
     memset (ip_frame, 0, sizeof(ip_frame));
 
+    //write source string to pingpongsrcs
+    sprintf (super->m17d.pingpongsrcs, "%s", super->m17d.src_csd_str);
+
     //since there is no destination, let's write PINGED IN into dsts
-    sprintf (super->m17d.dst_csd_str, "PINGED IN");
+    sprintf (super->m17d.dst_csd_str, "#PINGEDIN");
 
     //drop sync
     super->m17d.dt = 7; //fake for PING message in Call History
@@ -293,8 +296,9 @@ void decode_ipf (Super * super, int socket)
     //clear frame
     memset (ip_frame, 0, sizeof(ip_frame));
 
-    //since there is no destination, let's write REFLECTOR into dsts
-    sprintf (super->m17d.dst_csd_str, "REFLECTOR");
+    //if a ping came in, check to see if its src was recorded
+    sprintf (super->m17d.dst_csd_str, "%s", super->m17d.pingpongsrcs);
+    sprintf (super->m17d.pingpongsrcs, "%s", "#PINGPONG");
 
     //drop sync
     super->m17d.dt = 8; //fake for PONG message in Call History

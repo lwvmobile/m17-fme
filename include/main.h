@@ -319,6 +319,10 @@ typedef struct
   char callhistory[100][500];
   char lasteventstring[500];
 
+  //Ping and Pong
+  char pingpongsrcs[50];
+  char pingpongdsts[50];
+
   //LSF Backup Copy
   uint8_t lsf_bkp[240];
 
