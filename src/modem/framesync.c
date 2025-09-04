@@ -613,11 +613,27 @@ void print_debug_information(Super * super)
 
 void print_frame_sync_pattern(Super * super, int type)
 {
+  char * datestr = get_date_n(super->demod.current_time);
   char * timestr = get_time_n(super->demod.current_time);
   char * syncstr = get_sync_type_string(type);
   fprintf (stderr, "\n");
+  
+  fprintf (stderr, "(%s %s) M17 %s Frame Sync: ", datestr, timestr, syncstr);
+
   if (super->opts.demod_verbosity >= 1)
     fprintf (stderr, "INLVL: %2.1f; ", super->demod.input_level);
-  fprintf (stderr, "M17 %s Frame Sync (%s): ", syncstr, timestr);
-  free (timestr); timestr = NULL;
+
+  //free allocated memory
+  if (datestr != NULL)
+  {
+    free (datestr);
+    datestr = NULL;
+  }
+
+  if (timestr != NULL)
+  {
+    free (timestr);
+    timestr = NULL;
+  }
+
 }

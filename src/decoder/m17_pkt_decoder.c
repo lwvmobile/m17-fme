@@ -313,16 +313,16 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     else fprintf (stderr, "\n GPS Not Valid;");
 
     if (validity & 0x4)
-      fprintf (stderr, " Altitude: %f m;", altitude_float);
+      fprintf (stderr, " Altitude: %.1f m;", altitude_float);
 
     if (validity & 0x2)
     {
-      fprintf (stderr, " Speed: %f km/h;", speed_float);
+      fprintf (stderr, " Speed: %.1f km/h;", speed_float);
       fprintf (stderr, " Bearing: %d%s;", bearing, deg_glyph);
     }
 
     if (validity & 0x1)
-      fprintf (stderr, " Radius: %f;", radius_float);
+      fprintf (stderr, " Radius: %.1f;", radius_float);
 
     if (reserved)
       fprintf (stderr, " Reserved: %03X;", reserved);

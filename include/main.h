@@ -134,6 +134,9 @@ typedef struct
   uint8_t use_m17_ipf_encoder;
   uint8_t use_m17_ipf_decoder;
   uint8_t use_m17_duplex_mode;
+  uint8_t use_m17_adhoc_mode;
+  uint8_t use_m17_reflector_mode;
+  uint8_t send_conn_or_lstn;
   uint8_t use_m17_textgame_mode;
   uint8_t use_m17_packet_burst;
 
@@ -703,7 +706,7 @@ void init_brt(void);
 void m17_udp_socket_duplex_init(void);
 void start_ipf (Super * super);
 void decode_ipf (Super * super, int socket);
-void ip_send_conn_disc_ping_pong (Super * super, int cd);
+void ip_send_conn_disc_ping_pong (Super * super, uint8_t cd);
 
 //M17 Duplex Mode(s)
 void m17_duplex_mode (Super * super);

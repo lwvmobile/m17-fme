@@ -33,22 +33,32 @@ void decode_lsf_contents(Super * super)
   decode_callsign_data(super, lsf_dst, lsf_src);
   fprintf (stderr, " CAN: %d;", lsf_cn);
   
-  if (lsf_dt == 0) fprintf (stderr, " Reserved");
-  if (lsf_dt == 1) fprintf (stderr, " Data");
-  if (lsf_dt == 2) fprintf (stderr, " Voice (3200bps)");
-  if (lsf_dt == 3) fprintf (stderr, " Voice (1600bps)");
-
-  //packet or stream
-  if (lsf_ps == 0) fprintf (stderr, " Packet");
-  if (lsf_ps == 1) fprintf (stderr, " Stream");
-
-  //debug type, et, es on misc things from other sources
-  if (super->opts.payload_verbosity >= 1)
+  //only valid on Stream mode
+  if (lsf_ps == 1)
   {
+    if (lsf_dt == 0) fprintf (stderr, " Reserved");
+    if (lsf_dt == 1) fprintf (stderr, " Data");
+    if (lsf_dt == 2) fprintf (stderr, " Voice (3200bps)");
+    if (lsf_dt == 3) fprintf (stderr, " Voice (1600bps)");
+
+    fprintf (stderr, " Stream");
+
+    //debug type, et, es on misc things from other sources
+    if (super->opts.payload_verbosity >= 1)
+    {
+      fprintf (stderr, "\n");
+      fprintf (stderr, " FT: %04X;", lsf_type);
+      fprintf (stderr, " ET: %0X;", lsf_et);
+      fprintf (stderr, " ES: %0X;", lsf_es);
+      fprintf (stderr, " RES: %02X;", lsf_rs);
+    }
+  }
+
+  //Packet Mode
+  if (lsf_ps == 0)
+  {
+    fprintf (stderr, " Packet");
     fprintf (stderr, " FT: %04X;", lsf_type);
-    fprintf (stderr, " ET: %0X;", lsf_et);
-    fprintf (stderr, " ES: %0X;", lsf_es);
-    fprintf (stderr, " RES: %02X;", lsf_rs);
   }
 
   if (lsf_rs != 0)

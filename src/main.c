@@ -105,8 +105,11 @@ void usage ()
   printf ("\n");
   printf ("  -M <str>      Set M17 CAN:SRC:DST \n");
   printf ("                (example: -M 1:N0CALL:SP5WWP) \n");
-  printf ("  -U <str>      Set UDP/IP Frame HOST:PORT:MODULE \n");
-  printf ("                (example: -U 127.0.0.1:17001:B) \n");
+  printf ("                Note: Use an Underscore (_) for any required spaces when using a reflector, etc. \n");
+  printf ("  -U <str>      Set UDP/IP Frame HOST:PORT:MODE:MODULE:AFFIRMATION \n");
+  printf ("                (example: -U 127.0.0.1:17001:A) \n");
+  printf ("                (example: -U 127.0.0.1:17001:R:C:YES) \n");
+  printf ("                 Note: Affirmation YES means you have a valid callsign and verify you are allowed to legally TX\n");
   printf ("  -S <str>      Enter SMS Message (up to 821 UTF-8 characters) for Packet Data Encoder\n");
   printf ("                (example: -S 'Hello World! This is a text message') \n");
   printf ("  -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.\n");
@@ -133,12 +136,22 @@ void usage ()
   printf ("TX and RX Options:\n");
   printf ("\n");
   printf ("  -D            Enable TX and RX Mode (Send and Receive over RF or IP Frame)\n");
-  printf ("                 EXPERIMENTAL! Current Implementation Requires Pulse Audio and Ncurses Availability, Vox Disabled\n");
+  printf ("                 Current Implementation Requires Pulse Audio and Ncurses Availability for RF Mode.\n");
   printf ("                 RF Example (w/ Multiple Audio Devices or Virtual / Null Sinks):\n");
   printf ("                 m17-fme -D 2> m17e.txt\n");
-  printf ("                 IP Frame Example:\n");
-  printf ("                 LAN Machine 1: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000\n");
-  printf ("                 LAN MAchine 2: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000\n");
+  printf ("\n");
+  printf ("                 IP Frame Example(s):\n");
+  printf ("\n");
+  printf ("                 Adhoc Mode:\n");
+  printf ("                 LAN Machine 1: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000:A\n");
+  printf ("                 LAN MAchine 2: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000:A\n");
+  printf ("                 Note: Adhoc Mode does not require the use of a module selection.\n");
+  printf ("\n");
+  printf ("                 Reflector Client Mode:\n");
+  printf ("                 LSTN MODE: m17-fme -D 2> m17e.txt -M 0:M17FME000:ALL -I -U 112.213.34.65:17000:R:C:NO\n");
+  printf ("                 CONN MODE: m17-fme -D 2> m17e.txt -M 0:SP5WWP__D:ALL -I -U 112.213.34.65:17000:R:C:YES\n");
+  printf ("                 Note: Using Reflector mode, you must enter all fields, including R for reflector, module\n");
+  printf ("                       and YES to affirm you have a valid callsign for TX. NO is Listen Only (LSTN) Mode.\n");
   printf ("\n");
   printf ("Encryption Options:\n");
   printf ("\n");
@@ -181,7 +194,7 @@ void usage ()
   printf (" IP Frame Decoder for Voice Stream and Packet Data Default Host and Port \n");
   printf (" m17-fme -i udp -u -o pulsevx -N 2> m17decoder.txt \n");
   printf ("\n");
-  printf (" Packet Data Encoder with SMS Message to IP Frame Output to custom port and RF Audio Output\n");
+  printf (" Packet Data Encoder with SMS Message to Adhoc IP Frame Output to custom port and RF Audio Output\n");
   printf (" m17-fme -o pulserf -P -S 'This is a text message' -M 1:M17-FME:ALL -I -U 127.0.0.1:17001:A \n");
   printf ("\n");
   printf (" IP Frame Decoder for Voice Stream and Packet Data Bound to Custom Host and Port \n");
@@ -533,19 +546,19 @@ int main (int argc, char **argv)
         #ifdef USE_PULSEAUDIO
         {} //continue
         #else
-        fprintf (stderr, "M17 Project Repeater Mode / TX and RX Requires Pulse Audio. \n");
+        fprintf (stderr, "M17 Project TX and RX Mode Requires Pulse Audio. \n");
         exitflag = 1;
         #endif
 
         #ifdef USE_CURSES
         {} //continue
         #else
-        fprintf (stderr, "M17 Project Repeater Mode / TX and RX Requires Ncurses. \n");
+        fprintf (stderr, "M17 Project TX and RX Mode Requires Ncurses. \n");
         exitflag = 1;
         #endif
 
         super.opts.use_m17_duplex_mode = 1;
-        fprintf (stderr, "M17 Project Repeater Mode / TX and RX Enabled. \n");
+        fprintf (stderr, "M17 Project TX and RX Mode Enabled. \n");
 
         break;
 

@@ -69,9 +69,22 @@ int udp_socket_connectM17(Super * super)
   // Don't think this is needed, but doesn't seem to hurt to keep it here either
   int broadcastEnable = 1;
   err = setsockopt(super->opts.m17_udp_sock, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable));
+
   if (err < 0)
   {
     fprintf (stderr, " UDP Broadcast Set Error %ld\n", err);
+    return (err);
+  }
+
+  //set these for non blocking when no samples to read (or speed up responsiveness to ncurses)
+  struct timeval read_timeout;
+  read_timeout.tv_sec = 0;
+  read_timeout.tv_usec = 10;
+  err = setsockopt(super->opts.m17_udp_sock, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof read_timeout);
+
+  if (err < 0)
+  {
+    fprintf (stderr, " UDP Read Timeout Set Error %ld\n", err);
     return (err);
   }
 

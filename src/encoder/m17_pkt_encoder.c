@@ -94,7 +94,7 @@ void encode_pkt(Super * super, int mode)
   //Setup LSF Variables, these are not sent in chunks like with voice
   //but only once at start of PKT TX
   uint16_t lsf_ps   = 0; //packet or stream indicator bit
-  uint16_t lsf_dt   = 1; //Data
+  uint16_t lsf_dt   = 0; //Reserved
   uint16_t lsf_et   = super->enc.enc_type;    //encryption type
   uint16_t lsf_es   = super->enc.enc_subtype; //encryption sub-type
   uint16_t lsf_cn = can; //can value

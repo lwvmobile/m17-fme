@@ -66,6 +66,9 @@ void init_super (Super * super)
   super->opts.use_m17_ipf_encoder = 0; //this option isn't used, should use it probably instead of use_ip
   super->opts.use_m17_ipf_decoder = 0;
   super->opts.use_m17_duplex_mode = 0;
+  super->opts.use_m17_adhoc_mode = 0;
+  super->opts.use_m17_reflector_mode = 1;
+  super->opts.send_conn_or_lstn = 4; //default on LSTN, make user confirm to use CONN for reflectors
   super->opts.use_m17_textgame_mode = 0;
   super->opts.use_m17_packet_burst = 0;
 

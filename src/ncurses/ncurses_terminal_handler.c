@@ -255,12 +255,25 @@ void print_ncurses_config (Super * super)
 
   //Output UDP IP Frame
   if (super->opts.m17_udp_sock && !super->opts.use_m17_ipf_decoder && !super->opts.use_m17_duplex_mode)
-    printw ("\n| UDP IP Frame Output: %s:%d; Reflector Module: %c", super->opts.m17_hostname, super->opts.m17_portno, super->m17e.reflector_module);
+    printw ("\n| UDP IP Frame Output: %s:%d; Reflector Module: %c;", super->opts.m17_hostname, super->opts.m17_portno, super->m17e.reflector_module);
 
-  if (super->opts.m17_udp_sock && super->opts.use_m17_duplex_mode)
+  //Adhoc Mode
+  if (super->opts.m17_udp_sock && super->opts.use_m17_duplex_mode && super->opts.use_m17_adhoc_mode)
   {
-    printw ("\n| UDP IP Frame  Input: %s:%d; ", "localhost", 17000);
-    printw ("\n| UDP IP Frame Output: %s:%d; Reflector Module: %c", super->opts.m17_hostname, super->opts.m17_portno, super->m17e.reflector_module);
+    printw ("\n| UDP IP Frame  Input: %s:%d; ", "0.0.0.0", super->opts.m17_portno);
+    printw ("\n| UDP IP Frame Output: %s:%d;", super->opts.m17_hostname, super->opts.m17_portno);
+    if (super->opts.send_conn_or_lstn == 4)
+      printw (" LSTN;");
+    else printw (" CONN;");
+  }
+
+  //Reflector Mode
+  if (super->opts.m17_udp_sock && super->opts.use_m17_duplex_mode && super->opts.use_m17_reflector_mode)
+  {
+    printw ("\n| UDP IP Frame Reflector: %s:%d; Module: %c;", super->opts.m17_hostname, super->opts.m17_portno, super->m17e.reflector_module);
+    if (super->opts.send_conn_or_lstn == 4)
+      printw (" LSTN;");
+    else printw (" CONN;");
   }
 
   if (super->opts.event_log)
@@ -672,17 +685,17 @@ void print_ncurses_call_info (Super * super)
     printw ("OTA:");
     if (super->enc.enc_type != 0)
     {
-      if ( (super->opts.use_m17_str_encoder || super->opts.use_m17_duplex_mode) && super->opts.use_otakd)
+      if ( (super->opts.use_m17_str_encoder || super->opts.use_m17_duplex_mode) && super->opts.use_otakd && super->opts.use_m17_reflector_mode == 0)
         printw (" Disable OTAKD(O);");
 
-      if ( (super->opts.use_m17_str_encoder || super->opts.use_m17_duplex_mode) && !super->opts.use_otakd)
+      if ( (super->opts.use_m17_str_encoder || super->opts.use_m17_duplex_mode) && !super->opts.use_otakd && super->opts.use_m17_reflector_mode == 0)
         printw (" Enable OTAKD(O);");
       
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->enc.enc_type != 0)
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->enc.enc_type != 0 && super->opts.use_m17_reflector_mode == 0)
         printw (" Send OTAKD(o);");
     }
 
-    if (super->m17d.ecdsa.keys_loaded != 0)
+    if (super->m17d.ecdsa.keys_loaded != 0 && super->opts.use_m17_reflector_mode == 0)
     {
       if (super->opts.use_m17_str_encoder && super->opts.use_otask)
         printw (" Disable OTASK(P);");
@@ -709,7 +722,7 @@ void print_ncurses_call_info (Super * super)
     printw ("| ");
     printw ("DBG:");
 
-    if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+    if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->opts.use_m17_reflector_mode == 0)
     {
       if (super->enc.enc_type == 0 && super->enc.aes_key_is_loaded == 0 && super->enc.scrambler_key == 0)
       {

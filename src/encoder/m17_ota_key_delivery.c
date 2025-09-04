@@ -61,7 +61,7 @@ void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint
   //Setup LSF Variables, these are not sent in chunks like with voice
   //but only once at start of PKT TX
   uint16_t lsf_ps    = 0; //packet or stream indicator bit
-  uint16_t lsf_dt    = 1; //Data
+  uint16_t lsf_dt    = 0; //Reserved
   uint16_t lsf_et    = 0; //encryption type
   uint16_t lsf_es    = 0; //encryption sub-type
   uint16_t lsf_cn  = can; //can value

@@ -32,7 +32,9 @@ M17-FME can encode the M17 BERT (Bit Error Rate Test) as described in 2.10 and A
 
 ### UDP/IP Frame Format
 
-M17-FME is capable of transmitting and receiving UDP frames based on [M17 Protocol Specifications Part II - Internet Interface](https://github.com/M17-Project/M17_inet "M17 Protocol Specifications Part II - Internet Interface"). This input and output has NOT BEEN TESTED on currently operating reflectors, and its status as working is unknown. M17-FME can however, communicate over UDP/IP Protocol to another M17-FME session.
+M17-FME is capable of transmitting and receiving UDP frames based on [M17 Protocol Specifications Part II - Internet Interface](https://github.com/M17-Project/M17_inet "M17 Protocol Specifications Part II - Internet Interface"). Two modes of operation are currently available. Reflector Client mode will allow users to connect to active MREF reflectors either in Listen Only Mode, or with transmit capabilities. Users must have a valid callsign/license to transmit on an active reflector and must affirm with YES before starting any session. Reflector Client mode is currently only available as a subset of teh TX and RX mode described below.
+
+Adhoc mode is also available, and allows multiple clients to talk to one another on a shared network by binding a UDP port and broadcasting over the broadcast address for the network subnet. Adhoc mode does not connect to a reflector and does not transmit over the air.
 
 ### TX and RX Mode
 

@@ -60,7 +60,7 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'1' key, Generate Random Scrambler Key (24-bit)
     case 49:
-      if ( (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) && !super->m17e.str_encoder_tx)
+      if ( (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) && !super->m17e.str_encoder_tx && super->opts.use_m17_reflector_mode == 0)
       {
         super->enc.scrambler_key = rand() & 0xFFFFFF;
         super->enc.enc_type = 1;
@@ -76,7 +76,7 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'2' key, Generate Random AES Key (256-bit)
     case 50:
-      if ( (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) && !super->m17e.str_encoder_tx)
+      if ( (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) && !super->m17e.str_encoder_tx && super->opts.use_m17_reflector_mode == 0)
       {
         super->enc.A1 = ((uint64_t)rand() << 32ULL) + rand();
         super->enc.A2 = ((uint64_t)rand() << 32ULL) + rand();
@@ -96,7 +96,7 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'3' key, Generate Random Signature Keys
     case 51:
-      if (super->opts.use_m17_str_encoder == 1 && !super->m17e.str_encoder_tx)
+      if (super->opts.use_m17_str_encoder == 1 && !super->m17e.str_encoder_tx && super->opts.use_m17_reflector_mode == 0)
         ecdsa_generate_random_keys (super);
       break;
 

@@ -32,11 +32,16 @@ void decode_ipf (Super * super, int socket)
   int i, j, k;
   int err = 1; //NOTE: err will tell us how many bytes were received, if successful
 
+  super->demod.current_time = time(NULL);
+  char * datestr = get_date_n(super->demod.current_time);
+  char * timestr = get_time_n(super->demod.current_time);
+
   //Standard IP Framing
   uint8_t ip_frame[1000]; memset (ip_frame, 0, sizeof(ip_frame));
   uint8_t magic[4] = {0x4D, 0x31, 0x37, 0x20};
   uint8_t ackn[4]  = {0x41, 0x43, 0x4B, 0x4E};
   uint8_t nack[4]  = {0x4E, 0x41, 0x43, 0x4B};
+  uint8_t lstn[4]  = {0x4C, 0x53, 0x54, 0x4E};
   uint8_t conn[4]  = {0x43, 0x4F, 0x4E, 0x4E};
   uint8_t disc[4]  = {0x44, 0x49, 0x53, 0x43};
   uint8_t ping[4]  = {0x50, 0x49, 0x4E, 0x47};
@@ -103,7 +108,7 @@ void decode_ipf (Super * super, int socket)
     super->m17d.meta[14] = (uint16_t)convert_bits_into_output(&ip_bits[273], 7);
     super->m17d.meta[15] = (uint16_t)convert_bits_into_output(&ip_bits[280], 8);
 
-    fprintf (stderr, "\n M17 IP Stream: %04X; FN: %04X;", sid, fn);
+    fprintf (stderr, "\n(%s %s) M17 IP Stream: %04X; FN: %04X;", datestr, timestr, sid, fn);
     if (eot) fprintf (stderr, " EOT;");
 
     //copy payload
@@ -147,12 +152,20 @@ void decode_ipf (Super * super, int socket)
     //clear frame
     memset (ip_frame, 0, sizeof(ip_frame));
 
+    //drop sync when EOT bit is on (to push history, etc)
+    if (eot)
+      no_carrier_sync(super);
+
   }
 
   //other headers from UDP IP
   else if (memcmp(ip_frame, ackn, 4) == 0)
   {
-    fprintf (stderr, "\n M17 IP   ACNK: ");
+    fprintf (stderr, "\n(%s %s) M17 IP   ACKN: ", datestr, timestr);
+
+    //drop sync
+    super->m17d.dt = 9; //fake for ACKN message in Call History
+    no_carrier_sync(super);
 
     //clear frame
     memset (ip_frame, 0, sizeof(ip_frame));
@@ -160,7 +173,11 @@ void decode_ipf (Super * super, int socket)
 
   else if (memcmp(ip_frame, nack, 4) == 0)
   {
-    fprintf (stderr, "\n M17 IP   NACK: ");
+    fprintf (stderr, "\n(%s %s) M17 IP   NACK: ", datestr, timestr);
+
+    //drop sync
+    super->m17d.dt = 10; //fake for NACK message in Call History
+    no_carrier_sync(super);
 
     //clear frame
     memset (ip_frame, 0, sizeof(ip_frame));
@@ -168,11 +185,38 @@ void decode_ipf (Super * super, int socket)
 
   else if (memcmp(ip_frame, conn, 4) == 0)
   {
-    fprintf (stderr, "\n M17 IP   CONN: ");
+    fprintf (stderr, "\n(%s %s) M17 IP   CONN: ", datestr, timestr);
     decode_callsign_src(super, src);
 
     //reflector module user is connecting to
-    fprintf (stderr, "Module: %c; ", ip_frame[10]);
+    fprintf (stderr, " Module: %c; ", ip_frame[10]);
+
+    super->m17d.reflector_module = ip_frame[10];
+
+    if (super->opts.payload_verbosity >= 1)
+    {
+      for (i = 0; i < 11; i++)
+        fprintf (stderr, "%02X ", ip_frame[i]);
+    }
+
+    //since there is no destination, let's write REFLECTOR into dsts
+    sprintf (super->m17d.dst_csd_str, "REFLECTOR");
+
+    //clear frame
+    memset (ip_frame, 0, sizeof(ip_frame));
+
+    super->m17d.dt = 6; //push an IP CONN to Call History
+    push_call_history(super);
+  }
+
+  //mref alternate to CONN is LSTN (listen only)
+  else if (memcmp(ip_frame, lstn, 4) == 0)
+  {
+    fprintf (stderr, "\n(%s %s) M17 IP   LSTN: ", datestr, timestr);
+    decode_callsign_src(super, src);
+
+    //reflector module user is connecting to
+    fprintf (stderr, " Module: %c; ", ip_frame[10]);
 
     super->m17d.reflector_module = ip_frame[10];
 
@@ -194,7 +238,7 @@ void decode_ipf (Super * super, int socket)
 
   else if (memcmp(ip_frame, disc, 4) == 0)
   {
-    fprintf (stderr, "\n M17 IP   DISC: ");
+    fprintf (stderr, "\n(%s %s) M17 IP   DISC: ", datestr, timestr);
     decode_callsign_src(super, src);
     if (super->opts.payload_verbosity >= 1)
     {
@@ -216,7 +260,7 @@ void decode_ipf (Super * super, int socket)
 
   else if (memcmp(ip_frame, eotx, 4) == 0)
   {
-    fprintf (stderr, "\n M17 IP   EOTX: ");
+    fprintf (stderr, "\n(%s %s) M17 IP   EOTX: ", datestr, timestr);
     decode_callsign_src(super, src);
     if (super->opts.payload_verbosity >= 1)
     {
@@ -234,13 +278,20 @@ void decode_ipf (Super * super, int socket)
 
   else if (memcmp(ip_frame, ping, 4) == 0)
   {
-    fprintf (stderr, "\n M17 IP   PING: ");
-    decode_callsign_src(super, src);
-    if (super->opts.payload_verbosity >= 1)
+
+    //Pings hit about once every 3 seconds, and need a Pong
+    //as a heartbeat, or they send a disc, so instead of 
+    //printing every ping, just put a . so users can see the ping
+
+    if (super->opts.payload_verbosity >= 2)
     {
+      fprintf (stderr, "\n(%s %s) M17 IP   PING: ", datestr, timestr);
       for (i = 0; i < 10; i++)
         fprintf (stderr, "%02X ", ip_frame[i]);
+
+      decode_callsign_src(super, src);
     }
+    else fprintf (stderr, ".");
 
     //check source of ping, if not us, send the pong reply
     unsigned long long int ip_src = 0;
@@ -271,38 +322,48 @@ void decode_ipf (Super * super, int socket)
     //clear frame
     memset (ip_frame, 0, sizeof(ip_frame));
 
-    //write source string to pingpongsrcs
-    sprintf (super->m17d.pingpongsrcs, "%s", super->m17d.src_csd_str);
+    //items below disabled so every ping or pong doesn't clog up the history
 
-    //since there is no destination, let's write PINGED IN into dsts
-    sprintf (super->m17d.dst_csd_str, "#PINGEDIN");
+    // //write source string to pingpongsrcs
+    // sprintf (super->m17d.pingpongsrcs, "%s", super->m17d.src_csd_str);
 
-    //drop sync
-    super->m17d.dt = 7; //fake for PING message in Call History
-    no_carrier_sync(super);
+    // //since there is no destination, let's write PINGED IN into dsts
+    // sprintf (super->m17d.dst_csd_str, "#PINGEDIN");
+
+    // //drop sync
+    // super->m17d.dt = 7; //fake for PING message in Call History
+    // no_carrier_sync(super);
 
   }
 
   else if (memcmp(ip_frame, pong, 4) == 0)
   {
-    fprintf (stderr, "\n M17 IP   PONG: ");
-    decode_callsign_src(super, src);
-    if (super->opts.payload_verbosity >= 1)
+
+    //Pings hit about once every 3 seconds, and need a Pong
+    //as a heartbeat, or they send a disc, so instead of 
+    //printing every ping, just put a . so users can see the ping
+    if (super->opts.payload_verbosity >= 2)
     {
+      fprintf (stderr, "\n(%s %s) M17 IP   PONG: ", datestr, timestr);
       for (i = 0; i < 10; i++)
         fprintf (stderr, "%02X ", ip_frame[i]);
+
+      decode_callsign_src(super, src);
     }
+    else fprintf (stderr, "O");
 
     //clear frame
     memset (ip_frame, 0, sizeof(ip_frame));
 
+    //items below disabled so every ping or pong doesn't clog up the history
+
     //if a ping came in, check to see if its src was recorded
-    sprintf (super->m17d.dst_csd_str, "%s", super->m17d.pingpongsrcs);
-    sprintf (super->m17d.pingpongsrcs, "%s", "#PINGPONG");
+    // sprintf (super->m17d.dst_csd_str, "%s", super->m17d.pingpongsrcs);
+    // sprintf (super->m17d.pingpongsrcs, "%s", "#PINGPONG");
 
     //drop sync
-    super->m17d.dt = 8; //fake for PONG message in Call History
-    no_carrier_sync(super);
+    // super->m17d.dt = 8; //fake for PONG message in Call History
+    // no_carrier_sync(super);
 
   }
 
@@ -318,7 +379,7 @@ void decode_ipf (Super * super, int socket)
     //calculate CRC on LSF Portion
     uint16_t crc_cmp = crc16(ip_frame+4, 28);
 
-    fprintf (stderr, "\n M17 IP   M17P;");
+    fprintf (stderr, "\n(%s %s) M17 IP   M17P;", datestr, timestr);
 
     if (crc_ext != crc_cmp) fprintf (stderr, " IP M17P LSF CRC ERR");
 
@@ -362,9 +423,6 @@ void decode_ipf (Super * super, int socket)
 
     }
 
-    //reset meta after use
-    memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
-
     if (super->opts.payload_verbosity >= 1)
     {
       for (i = 0; i < err; i++)
@@ -391,6 +449,9 @@ void decode_ipf (Super * super, int socket)
     //clear frame
     memset(ip_frame, 0, sizeof(ip_frame));
 
+    //drop sync
+    no_carrier_sync(super); //was missing, no history on good packets
+
   }
 
   //anything else (unknown UDP IP Frames)
@@ -398,7 +459,7 @@ void decode_ipf (Super * super, int socket)
   {
     if (err > 0)
     {
-      fprintf (stderr, "\n Unknown IPF: ");
+      fprintf (stderr, "\n(%s %s) Unknown IPF: ", datestr, timestr);
       for (int i = 0; i < err; i++)
         fprintf (stderr, "%02X ", ip_frame[i]);
     }
@@ -419,5 +480,18 @@ void decode_ipf (Super * super, int socket)
 
   //clear frame (if not recognized format)
   memset(ip_frame, 0, sizeof(ip_frame));
+
+  //free allocated memory
+  if (datestr != NULL)
+  {
+    free (datestr);
+    datestr = NULL;
+  }
+
+  if (timestr != NULL)
+  {
+    free (timestr);
+    timestr = NULL;
+  }
 
 }

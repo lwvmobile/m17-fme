@@ -21,18 +21,18 @@ void decode_callsign_data(Super * super, unsigned long long int dst, unsigned lo
 
   if (dst == 0xFFFFFFFFFFFF)
   {
-    fprintf (stderr, " DST: BROADCAST");
+    fprintf (stderr, " DST: BROADCAST;");
     sprintf (super->m17d.dst_csd_str, "BROADCAST");
   }
   else if (dst == 0)
   {
-    fprintf (stderr, " DST: RESERVED %012llX", dst);
+    fprintf (stderr, " DST: RESERVED %012llX;", dst);
     sprintf (super->m17d.dst_csd_str, "RESERVED ");
   }
 
   else if (dst >= 0xEE6B28000000)
   {
-    fprintf (stderr, " DST: RESERVED %012llX", dst);
+    fprintf (stderr, " DST: RESERVED %012llX;", dst);
     sprintf (super->m17d.dst_csd_str, "RES: %012llX", dst); //can't fit the whole thing in here
   }
     
@@ -47,6 +47,8 @@ void decode_callsign_data(Super * super, unsigned long long int dst, unsigned lo
       dst = dst / 40;
     }
 
+    fprintf (stderr, ";");
+
     //assign completed CSD to a more useful string instead
     sprintf (super->m17d.dst_csd_str, "%c%c%c%c%c%c%c%c%c", 
     dst_csd[0], dst_csd[1], dst_csd[2], dst_csd[3], 
@@ -57,11 +59,11 @@ void decode_callsign_data(Super * super, unsigned long long int dst, unsigned lo
   }
 
   if (src == 0xFFFFFFFFFFFF) 
-    fprintf (stderr, " SRC:  UNKNOWN FFFFFFFFFFFF");
+    fprintf (stderr, " SRC:  UNKNOWN FFFFFFFFFFFF;");
   else if (src == 0)
-    fprintf (stderr, " SRC: RESERVED %012llX", src);
+    fprintf (stderr, " SRC: RESERVED %012llX;", src);
   else if (src >= 0xEE6B28000000)
-    fprintf (stderr, " SRC: RESERVED %012llX", src);
+    fprintf (stderr, " SRC: RESERVED %012llX;", src);
   else
   {
     fprintf (stderr, " SRC: ");
@@ -72,6 +74,8 @@ void decode_callsign_data(Super * super, unsigned long long int dst, unsigned lo
       fprintf (stderr, "%c", c);
       src = src / 40;
     }
+
+    fprintf (stderr, ";");
 
     //assign completed CSD to a more useful string instead
     sprintf (super->m17d.src_csd_str, "%c%c%c%c%c%c%c%c%c", 

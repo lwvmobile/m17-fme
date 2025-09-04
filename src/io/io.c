@@ -457,7 +457,9 @@ void parse_m17_user_string (Super * super, char * input)
       //check and capatalize any letters in the CSD
       for (int i = 0; super->m17e.srcs[i]!='\0'; i++)
       {
-        if(super->m17e.srcs[i] >= 'a' && super->m17e.srcs[i] <= 'z')
+        if (super->m17e.srcs[i] == '_') //underscore to space
+          super->m17e.srcs[i] = ' ';
+        else if(super->m17e.srcs[i] >= 'a' && super->m17e.srcs[i] <= 'z')
           super->m17e.srcs[i] -= 32;
       }
     }
@@ -480,7 +482,9 @@ void parse_m17_user_string (Super * super, char * input)
       //check and capatalize any letters in the CSD
       for (int i = 0; super->m17e.dsts[i]!='\0'; i++)
       {
-        if(super->m17e.dsts[i] >= 'a' && super->m17e.dsts[i] <= 'z')
+        if (super->m17e.dsts[i] == '_') //underscore to space
+          super->m17e.dsts[i] = ' ';
+        else if(super->m17e.dsts[i] >= 'a' && super->m17e.dsts[i] <= 'z')
           super->m17e.dsts[i] -= 32;
       }
     }
@@ -558,6 +562,26 @@ void parse_udp_user_string (Super * super, char * input)
   curr = strtok(NULL, ":"); //host port
     if (curr != NULL) super->opts.m17_portno = atoi (curr);
 
+  curr = strtok(NULL, ":"); //Reflector, or Adhoc mode
+  if (curr != NULL)
+  {
+    if (*curr == 0x52) //'R' for Reflector
+    {
+      super->opts.use_m17_reflector_mode = 1;
+      super->opts.use_m17_adhoc_mode = 0;
+      super->opts.send_conn_or_lstn = 4; //set to LSTN until user affirms they are eligible to TX (valid callsign)
+    }
+
+    if (*curr == 0x41) //'A' for Adhoc
+    {
+      super->opts.use_m17_reflector_mode = 1;
+      super->opts.use_m17_adhoc_mode = 0;
+      super->opts.send_conn_or_lstn = 1;
+    }
+
+    //default is currently reflector with LSTN
+  }
+
   curr = strtok(NULL, ":"); //reflector module
   if (curr != NULL)
   {
@@ -571,10 +595,28 @@ void parse_udp_user_string (Super * super, char * input)
     //make sure its a value from A to Z
     if (super->m17e.reflector_module < 0x41 || super->m17e.reflector_module > 0x5A)
     {
-      super->m17e.reflector_module = 0;
+      super->m17e.reflector_module = 0x41; //set to default A value
       fprintf (stderr, "\n");
       fprintf (stderr, "M17 Reflector Module must be value from A-Z; \n");
     }
+
+    //default module is A
+  }
+
+  curr = strtok(NULL, ":"); //supplimental field for CONN or LSTN
+  if (curr != NULL)
+  {
+    if (strncmp(curr, "YES", 3) == 0) //YES allows for the CONN to affirm user has a valid callsign
+    {
+      fprintf (stderr, " Entering YES affirms you have a valid callsign and take \n sole responsibility for transmitting over a Reflector Responsibly! \n");
+      super->opts.send_conn_or_lstn = 1;
+    }
+    
+    if (super->opts.send_conn_or_lstn == 4)
+      fprintf (stderr, " Connecting using LSTN (Listen Only Mode!) \n");
+
+    //default is currently reflector with LSTN
+
   }
 
   fprintf (stderr, "\n");
@@ -754,14 +796,16 @@ void push_call_history (Super * super)
       sprintf (dt, "SMS TEXT");
     else sprintf (dt, "PKT DATA");
   }
-  else if (super->m17d.dt == 2) sprintf (dt, "VOX 3200");
-  else if (super->m17d.dt == 3) sprintf (dt, "V+D 1600");
-  else if (super->m17d.dt == 4) sprintf (dt, "RESET DM");
-  else if (super->m17d.dt == 5) sprintf (dt, "IPF DISC");
-  else if (super->m17d.dt == 6) sprintf (dt, "IPF CONN");
-  else if (super->m17d.dt == 7) sprintf (dt, "IPF PING");
-  else if (super->m17d.dt == 8) sprintf (dt, "IPF PONG");
-  else                          sprintf (dt, "UNK TYPE");
+  else if (super->m17d.dt == 2)  sprintf (dt, "VOX 3200");
+  else if (super->m17d.dt == 3)  sprintf (dt, "V+D 1600");
+  else if (super->m17d.dt == 4)  sprintf (dt, "RESET DM");
+  else if (super->m17d.dt == 5)  sprintf (dt, "IPF DISC");
+  else if (super->m17d.dt == 6)  sprintf (dt, "IPF CONN");
+  else if (super->m17d.dt == 7)  sprintf (dt, "IPF PING");
+  else if (super->m17d.dt == 8)  sprintf (dt, "IPF PONG");
+  else if (super->m17d.dt == 9)  sprintf (dt, "IPF ACKN");
+  else if (super->m17d.dt == 10) sprintf (dt, "IPF NACK");
+  else                           sprintf (dt, "UNK TYPE");
 
   char * timestr  = get_time_n(super->demod.current_time);
   char * datestr  = get_date_n(super->demod.current_time);

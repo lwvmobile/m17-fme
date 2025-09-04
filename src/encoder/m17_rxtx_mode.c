@@ -18,7 +18,7 @@ void m17_udp_socket_duplex_init(void)
 }
 
 //detached ip frame conn, disc, ping, and pong
-void ip_send_conn_disc_ping_pong (Super * super, int cd)
+void ip_send_conn_disc_ping_pong (Super * super, uint8_t cd)
 {
 
   //NOTE: Only src is used here, but we need a dst for the callsign function
@@ -32,10 +32,12 @@ void ip_send_conn_disc_ping_pong (Super * super, int cd)
   //Encode Callsign Data
   encode_callsign_data(super, d40, s40, &dst, &src);
 
+  uint8_t lstn[11]; memset (lstn, 0, sizeof(lstn));
   uint8_t conn[11]; memset (conn, 0, sizeof(conn));
   uint8_t disc[10]; memset (disc, 0, sizeof(disc));
   uint8_t ping[10]; memset (ping, 0, sizeof(ping));
   uint8_t pong[10]; memset (pong, 0, sizeof(pong));
+  lstn[0] = 0x4C; lstn[1] = 0x53; lstn[2] = 0x54; lstn[3] = 0x4E; lstn[10] = super->m17e.reflector_module;
   conn[0] = 0x43; conn[1] = 0x4F; conn[2] = 0x4E; conn[3] = 0x4E; conn[10] = super->m17e.reflector_module;
   disc[0] = 0x44; disc[1] = 0x49; disc[2] = 0x53; disc[3] = 0x43;
   ping[0] = 0x50; ping[1] = 0x49; ping[2] = 0x4E; ping[3] = 0x47;
@@ -45,12 +47,13 @@ void ip_send_conn_disc_ping_pong (Super * super, int cd)
   conn[7] = (src >> 16UL) & 0xFF; conn[8] = (src >> 8UL)  & 0xFF; conn[9] = (src >> 0UL)  & 0xFF;
   for (uint8_t i = 0; i < 6; i++)
   {
+    lstn[i+4] = conn[i+4];
     disc[i+4] = conn[i+4];
     ping[i+4] = conn[i+4];
     pong[i+4] = conn[i+4];
   }
 
-  //0 for disc, 1 for conn, 2 for ping, 3 for pong
+  //0 for disc, 1 for conn, 2 for ping, 3 for pong, 4 for lstn
   if (cd == 0)
     m17_socket_blaster (super, 10, disc);
   else if (cd == 1)
@@ -59,6 +62,8 @@ void ip_send_conn_disc_ping_pong (Super * super, int cd)
     m17_socket_blaster (super, 10, ping);
   else if (cd == 3)
     m17_socket_blaster (super, 10, pong);
+  else if (cd == 4)
+    m17_socket_blaster (super, 11, lstn);
 
 }
 
@@ -1099,7 +1104,7 @@ void m17_duplex_mode (Super * super)
     if ( (strcmp(super->opts.m17_hostname, "127.0.0.1") == 0) || 
          (strcmp(super->opts.m17_hostname, "localhost") == 0)  )
     {
-      fprintf (stderr, "Cannot use host: %s as target address on Duplex Mode.\n", super->opts.m17_hostname);
+      fprintf (stderr, "Cannot use host: %s as target address on RX and TX Mode.\n", super->opts.m17_hostname);
       super->opts.m17_use_ip = 0;
     }
   }
@@ -1112,11 +1117,22 @@ void m17_duplex_mode (Super * super)
   if (super->opts.m17_use_ip == 1)
   {
     
-    //Bind UDP Socket for recevier (127.0.0.1:17000)
-    m17_udp_socket_duplex = udp_socket_bind("localhost", 17000);
+    //Split Bind and Socket (Works on AD-HOC LAN MACHINES)
+    if (super->opts.use_m17_adhoc_mode == 1)
+    {
+      //Bind UDP Socket for recevier
+      m17_udp_socket_duplex = udp_socket_bind("0.0.0.0", 17000);
 
-    //Socket Connect for sender
-    sock_err = udp_socket_connectM17(super);
+      //Socket Connect for sender
+      sock_err = udp_socket_connectM17(super);
+    }
+
+    //Shared Socket (Works on Reflectors)
+    if (super->opts.use_m17_reflector_mode == 1)
+    {
+      sock_err = udp_socket_connectM17(super);
+      m17_udp_socket_duplex = super->opts.m17_udp_sock;
+    }
 
     if (m17_udp_socket_duplex < 0 && sock_err < 0)
     {
@@ -1127,7 +1143,7 @@ void m17_duplex_mode (Super * super)
     else
     {
       use_ip = 1;
-      ip_send_conn_disc_ping_pong(super, 1);
+      ip_send_conn_disc_ping_pong(super, super->opts.send_conn_or_lstn);
       m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
     }
   }
@@ -1321,11 +1337,22 @@ void m17_text_games (Super * super)
   if (super->opts.m17_use_ip == 1)
   {
     
-    //Bind UDP Socket for recevier (127.0.0.1:17000)
-    m17_udp_socket_duplex = udp_socket_bind("localhost", 17000);
+    //Split Bind and Socket (Works on AD-HOC LAN MACHINES)
+    if (super->opts.use_m17_adhoc_mode == 1)
+    {
+      //Bind UDP Socket for recevier
+      m17_udp_socket_duplex = udp_socket_bind("0.0.0.0", 17000);
 
-    //Socket Connect for sender
-    sock_err = udp_socket_connectM17(super);
+      //Socket Connect for sender
+      sock_err = udp_socket_connectM17(super);
+    }
+
+    //Shared Socket (Works on Reflectors)
+    if (super->opts.use_m17_reflector_mode == 1)
+    {
+      sock_err = udp_socket_connectM17(super);
+      m17_udp_socket_duplex = super->opts.m17_udp_sock;
+    }
 
     if (m17_udp_socket_duplex < 0 && sock_err < 0)
     {
@@ -1336,7 +1363,7 @@ void m17_text_games (Super * super)
     else
     {
       use_ip = 1;
-      ip_send_conn_disc_ping_pong(super, 1);
+      ip_send_conn_disc_ping_pong(super, super->opts.send_conn_or_lstn);
       m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
     }
   }

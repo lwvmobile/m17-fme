@@ -176,6 +176,12 @@ After this file has been created and populated with float symbols from the examp
 This is the current usage (subject to change), verbatim, from m17-fme -h option:
 
 ```
+M17 Project - Florida Man Edition                          
+Build Version: 2025-34-gbc75901 
+Specification Version: 2.0; 
+Specification Date: Aug 26, 2025 
+Session Number: 7DBA 
+
 Usage: m17-fme [options]    Start the Program
   or:  m17-fme -h           Show Help
 
@@ -248,8 +254,11 @@ Encoder Input Strings:
 
   -M <str>      Set M17 CAN:SRC:DST 
                 (example: -M 1:N0CALL:SP5WWP) 
-  -U <str>      Set UDP/IP Frame HOST:PORT:MODULE 
-                (example: -U 127.0.0.1:17001:B) 
+                Note: Use an Underscore (_) for any required spaces when using a reflector, etc. 
+  -U <str>      Set UDP/IP Frame HOST:PORT:MODE:MODULE:AFFIRMATION 
+                (example: -U 127.0.0.1:17001:A) 
+                (example: -U 127.0.0.1:17001:R:C:YES) 
+                 Note: Affirmation YES means you have a valid callsign and verify you are allowed to legally TX
   -S <str>      Enter SMS Message (up to 821 UTF-8 characters) for Packet Data Encoder
                 (example: -S 'Hello World! This is a text message') 
   -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.
@@ -276,12 +285,22 @@ Decoder Options:
 TX and RX Options:
 
   -D            Enable TX and RX Mode (Send and Receive over RF or IP Frame)
-                 EXPERIMENTAL! Current Implementation Requires Pulse Audio and Ncurses Availability, Vox Disabled
+                 Current Implementation Requires Pulse Audio and Ncurses Availability for RF Mode.
                  RF Example (w/ Multiple Audio Devices or Virtual / Null Sinks):
                  m17-fme -D 2> m17e.txt
-                 IP Frame Example:
-                 LAN Machine 1: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000
-                 LAN MAchine 2: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000
+
+                 IP Frame Example(s):
+
+                 Adhoc Mode:
+                 LAN Machine 1: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000:A
+                 LAN MAchine 2: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000:A
+                 Note: Adhoc Mode does not require the use of a module selection.
+
+                 Reflector Client Mode:
+                 LSTN MODE: m17-fme -D 2> m17e.txt -M 0:M17FME000:ALL -I -U 112.213.34.65:17000:R:C:NO
+                 CONN MODE: m17-fme -D 2> m17e.txt -M 0:SP5WWP__D:ALL -I -U 112.213.34.65:17000:R:C:YES
+                 Note: Using Reflector mode, you must enter all fields, including R for reflector, module
+                       and YES to affirm you have a valid callsign for TX. NO is Listen Only (LSTN) Mode.
 
 Encryption Options:
 
@@ -324,7 +343,7 @@ Quick Examples:
  IP Frame Decoder for Voice Stream and Packet Data Default Host and Port 
  m17-fme -i udp -u -o pulsevx -N 2> m17decoder.txt 
 
- Packet Data Encoder with SMS Message to IP Frame Output to custom port and RF Audio Output
+ Packet Data Encoder with SMS Message to Adhoc IP Frame Output to custom port and RF Audio Output
  m17-fme -o pulserf -P -S 'This is a text message' -M 1:M17-FME:ALL -I -U 127.0.0.1:17001:A 
 
  IP Frame Decoder for Voice Stream and Packet Data Bound to Custom Host and Port 
