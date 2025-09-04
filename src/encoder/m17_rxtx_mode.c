@@ -1121,7 +1121,7 @@ void m17_duplex_mode (Super * super)
     if (super->opts.use_m17_adhoc_mode == 1)
     {
       //Bind UDP Socket for recevier
-      m17_udp_socket_duplex = udp_socket_bind("0.0.0.0", 17000);
+      m17_udp_socket_duplex = udp_socket_bind("0.0.0.0", super->opts.m17_portno);
 
       //Socket Connect for sender
       sock_err = udp_socket_connectM17(super);
@@ -1341,7 +1341,7 @@ void m17_text_games (Super * super)
     if (super->opts.use_m17_adhoc_mode == 1)
     {
       //Bind UDP Socket for recevier
-      m17_udp_socket_duplex = udp_socket_bind("0.0.0.0", 17000);
+      m17_udp_socket_duplex = udp_socket_bind("0.0.0.0", super->opts.m17_portno);
 
       //Socket Connect for sender
       sock_err = udp_socket_connectM17(super);

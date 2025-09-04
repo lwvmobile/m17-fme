@@ -12,6 +12,10 @@
 void start_ipf (Super * super)
 {
 
+  //debug test options
+  // super->opts.use_m17_adhoc_mode = 1;
+  // super->opts.use_m17_reflector_mode = 0;
+
   //quell defined but not used warnings from m17.h
   stfu ();
 
@@ -21,8 +25,11 @@ void start_ipf (Super * super)
     open_ncurses_terminal(super);
   #endif
 
-  //Bind UDP Socket
-  super->opts.m17_udp_sock = udp_socket_bind(super->opts.m17_hostname, super->opts.m17_portno);
+  if (super->opts.use_m17_adhoc_mode == 1)
+    super->opts.m17_udp_sock = udp_socket_bind("0.0.0.0", super->opts.m17_portno);
+  else if (super->opts.use_m17_reflector_mode == 1) udp_socket_connectM17(super);
+
+  ip_send_conn_disc_ping_pong(super, super->opts.send_conn_or_lstn);
 
 }
 
@@ -272,7 +279,8 @@ void decode_ipf (Super * super, int socket)
     memset (ip_frame, 0, sizeof(ip_frame));
 
     //drop sync
-    no_carrier_sync(super);
+    // super->m17d.dt = 11; //fake for EOTX message in Call History
+    // no_carrier_sync(super);
 
   }
 
@@ -312,7 +320,8 @@ void decode_ipf (Super * super, int socket)
     encode_callsign_data(super, d40, s40, &dst, &src);
 
     uint8_t send_pong = 0;
-    if (super->opts.use_m17_duplex_mode == 1 && ip_src != src)
+    // if (ip_src != src && super->opts.use_m17_reflector_mode == 1) //should work now on ipf_decoder -u reflector mode (receive only)
+    if (ip_src != src) //should work now on ipf_decoder -u reflector mode (receive only)
       send_pong = 1;
 
     //Reply with a PONG, if conditions satisfied

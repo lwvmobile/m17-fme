@@ -177,10 +177,10 @@ This is the current usage (subject to change), verbatim, from m17-fme -h option:
 
 ```
 M17 Project - Florida Man Edition                          
-Build Version: 2025-34-gbc75901 
+Build Version: 2025-35-g1c18435 
 Specification Version: 2.0; 
 Specification Date: Aug 26, 2025 
-Session Number: 7DBA 
+Session Number: 57EE 
 
 Usage: m17-fme [options]    Start the Program
   or:  m17-fme -h           Show Help
@@ -209,8 +209,8 @@ Input Options:
                 (padsp wrapper required for OSS audio on Linux)
                 /dev/dsp for OSS audio
                 udp for UDP Frame Input (default localhost:17000)
-                udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port)
-                m17udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port)
+                udp:192.168.7.8:17001:A for M17 UDP/IP Adhoc input (Address, Port, (A)dhock)
+                udp:192.168.7.8:17001:R:C:YES for M17 UDP/IP Reflector input (Address, Port, (R)eflector, Module, Affirmation (See Below))
                 tcp for Network Audio TCP Source at 48000 (SDR++)
                 tcp:192.168.7.5:7355 for Network Audio TCP Source at 48000 (SDR++)
   -w <file>     48k/1 SNDFile Compatible RF Audio .wav or .rrc input file
@@ -337,17 +337,20 @@ Quick Examples:
  RF Demodulator for Stream Voice and Data Packet with Decoded Voice Output (pulsevx) 
  m17-fme -i pulserf -o pulsevx -r -N 2> m17decoder.txt 
 
- Stream Voice Encoder with Mic Input (pulsevx) IP Frame Output Default Host and Port
- m17-fme -i pulsevx -o udp -V -I -N 2> m17encoder.txt 
+ Stream Voice Encoder with Mic Input (pulsevx) IP Frame Output Adhoc Host and Port
+ m17-fme -i pulsevx -o udp:192.168.7.255:17000:A -V -I -N 2> m17encoder.txt 
 
- IP Frame Decoder for Voice Stream and Packet Data Default Host and Port 
+ IP Frame Decoder for Voice Stream and Packet Data Adhoc Host and Port (Adhoc 0.0.0.0:17000)
  m17-fme -i udp -u -o pulsevx -N 2> m17decoder.txt 
 
  Packet Data Encoder with SMS Message to Adhoc IP Frame Output to custom port and RF Audio Output
  m17-fme -o pulserf -P -S 'This is a text message' -M 1:M17-FME:ALL -I -U 127.0.0.1:17001:A 
 
- IP Frame Decoder for Voice Stream and Packet Data Bound to Custom Host and Port 
- m17-fme -i udp:127.0.0.1:17001 -N 2> m17decoder.txt 
+ IP Frame Decoder for Voice Stream and Packet Data Bound to Adhoc Custom Address and Port 
+ m17-fme -i udp:127.0.0.1:17001:A -N 2> m17decoder.txt 
+
+ IP Frame Decoder for Voice Stream and Packet Data Connect to Reflector Address, Port, R, Module in LSTN mode
+ m17-fme -i udp:172.234.217.28:17000:R:C -M 0:M17FME0:ALL -o pulsevx -N 2> m17decoder.txt 
 
 ```
 

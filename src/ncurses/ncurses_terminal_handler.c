@@ -193,8 +193,14 @@ void print_ncurses_config (Super * super)
   else if (super->opts.use_tcp_input)
     printw ("TCP SND Input: %s:%d; %d kHz; %d Ch; ", super->opts.tcp_input_hostname, super->opts.tcp_input_portno, super->opts.input_sample_rate/1000, 1);
 
-  else if (super->opts.m17_udp_sock && super->opts.use_m17_ipf_decoder)
-    printw ("UDP IP Frame Input: %s:%d; ", super->opts.m17_hostname, super->opts.m17_portno);
+  else if (super->opts.m17_udp_sock && super->opts.use_m17_ipf_decoder && super->opts.use_m17_adhoc_mode)
+    printw ("UDP IP Frame Input: %s:%d; ", "0.0.0.0", super->opts.m17_portno);
+
+  else if (super->opts.m17_udp_sock && super->opts.use_m17_ipf_decoder && super->opts.use_m17_reflector_mode)
+  {
+    printw ("UDP IP Frame Reflector: %s:%d; Module: %c;", super->opts.m17_hostname, super->opts.m17_portno, super->m17e.reflector_module);
+    printw (" LSTN;");
+  }
 
   //Input Methods (Files)
   else if (super->opts.snd_input_is_a_file)

@@ -56,8 +56,8 @@ void usage ()
   #endif
   printf ("                /dev/dsp for OSS audio\n");
   printf ("                udp for UDP Frame Input (default localhost:17000)\n");
-  printf ("                udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port)\n");
-  printf ("                m17udp:192.168.7.8:17001 for M17 UDP/IP bind input (Binding Address and Port)\n");
+  printf ("                udp:192.168.7.8:17001:A for M17 UDP/IP Adhoc input (Address, Port, (A)dhock)\n");
+  printf ("                udp:192.168.7.8:17001:R:C:YES for M17 UDP/IP Reflector input (Address, Port, (R)eflector, Module, Affirmation (See Below))\n");
   printf ("                tcp for Network Audio TCP Source at 48000 (SDR++)\n");
   printf ("                tcp:192.168.7.5:7355 for Network Audio TCP Source at 48000 (SDR++)\n"); 
   printf ("  -w <file>     48k/1 SNDFile Compatible RF Audio .wav or .rrc input file\n");
@@ -188,17 +188,20 @@ void usage ()
   printf (" RF Demodulator for Stream Voice and Data Packet with Decoded Voice Output (pulsevx) \n");
   printf (" m17-fme -i pulserf -o pulsevx -r -N 2> m17decoder.txt \n");
   printf ("\n");
-  printf (" Stream Voice Encoder with Mic Input (pulsevx) IP Frame Output Default Host and Port\n");
-  printf (" m17-fme -i pulsevx -o udp -V -I -N 2> m17encoder.txt \n");
+  printf (" Stream Voice Encoder with Mic Input (pulsevx) IP Frame Output Adhoc Host and Port\n");
+  printf (" m17-fme -i pulsevx -o udp:192.168.7.255:17000:A -V -I -N 2> m17encoder.txt \n");
   printf ("\n");
-  printf (" IP Frame Decoder for Voice Stream and Packet Data Default Host and Port \n");
+  printf (" IP Frame Decoder for Voice Stream and Packet Data Adhoc Host and Port (Adhoc 0.0.0.0:17000)\n");
   printf (" m17-fme -i udp -u -o pulsevx -N 2> m17decoder.txt \n");
   printf ("\n");
   printf (" Packet Data Encoder with SMS Message to Adhoc IP Frame Output to custom port and RF Audio Output\n");
   printf (" m17-fme -o pulserf -P -S 'This is a text message' -M 1:M17-FME:ALL -I -U 127.0.0.1:17001:A \n");
   printf ("\n");
-  printf (" IP Frame Decoder for Voice Stream and Packet Data Bound to Custom Host and Port \n");
-  printf (" m17-fme -i udp:127.0.0.1:17001 -N 2> m17decoder.txt \n");
+  printf (" IP Frame Decoder for Voice Stream and Packet Data Bound to Adhoc Custom Address and Port \n");
+  printf (" m17-fme -i udp:127.0.0.1:17001:A -N 2> m17decoder.txt \n");
+  printf ("\n");
+  printf (" IP Frame Decoder for Voice Stream and Packet Data Connect to Reflector Address, Port, R, Module in LSTN mode\n");
+  printf (" m17-fme -i udp:172.234.217.28:17000:R:C -M 0:M17FME0:ALL -o pulsevx -N 2> m17decoder.txt \n");
   printf ("\n");
 }
 

@@ -283,6 +283,10 @@ void parse_input_option_string (Super * super, char * input)
 
   else if ( (strncmp(input, "udp", 3) == 0) )
   {
+    //set default as ad-hoc (full string can change these)
+    super->opts.use_m17_adhoc_mode = 1;
+    super->opts.use_m17_reflector_mode = 0;
+
     fprintf (stderr, "\n");
     fprintf (stderr, "UDP IP Frame Input;");
     super->opts.use_m17_ipf_decoder = 1;
@@ -294,6 +298,10 @@ void parse_input_option_string (Super * super, char * input)
   //Mirror the DSD-FME Variation on this string
   else if ( (strncmp(input, "m17udp", 6) == 0) )
   {
+    //set default as ad-hoc (full string can change these)
+    super->opts.use_m17_adhoc_mode = 1;
+    super->opts.use_m17_reflector_mode = 0;
+    
     fprintf (stderr, "\n");
     fprintf (stderr, "M17 UDP IP Frame Input: ");
     super->opts.use_m17_ipf_decoder = 1;
@@ -805,6 +813,7 @@ void push_call_history (Super * super)
   else if (super->m17d.dt == 8)  sprintf (dt, "IPF PONG");
   else if (super->m17d.dt == 9)  sprintf (dt, "IPF ACKN");
   else if (super->m17d.dt == 10) sprintf (dt, "IPF NACK");
+  else if (super->m17d.dt == 11) sprintf (dt, "IPF EOTX");
   else                           sprintf (dt, "UNK TYPE");
 
   char * timestr  = get_time_n(super->demod.current_time);
