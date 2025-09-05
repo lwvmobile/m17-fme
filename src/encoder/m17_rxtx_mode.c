@@ -3,7 +3,7 @@
 * M17 Project - RX and TX Mode Operations
 *
 * LWVMOBILE
-* 2024-07 M17 Project - Florida Man Edition
+* 2025-09 M17 Project - Florida Man Edition
 *-----------------------------------------------------------------------------*/
 
 #include "main.h"
@@ -1146,6 +1146,39 @@ void m17_duplex_mode (Super * super)
       ip_send_conn_disc_ping_pong(super, super->opts.send_conn_or_lstn);
       m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
     }
+  }
+
+  //if using use_m17_reflector_mode, then zero out any entered encryption info from the CLI
+  if (super->opts.use_m17_reflector_mode == 1)
+  {
+    //check for any enc keys loaded
+    if (super->enc.scrambler_key != 0 || super->enc.aes_key_is_loaded != 0)
+      fprintf (stderr, "\n Encryption Zeroed Out on Reflector Client Mode!");
+
+    //init encryption items
+    super->enc.enc_type    = 0;
+    super->enc.enc_subtype = 0;
+
+    super->enc.scrambler_key = 0;
+    memset (super->enc.scrambler_pn, 0, 128*sizeof(uint8_t));
+
+    super->enc.scrambler_fn_d = 0;
+    super->enc.scrambler_fn_e = 0;
+
+    //subtype for scrambler is initted at -1, so we know whether or not to run subtype
+    super->enc.scrambler_subtype_d = -1;
+    super->enc.scrambler_subtype_e = -1;
+
+    super->enc.scrambler_seed_d = 0;
+    super->enc.scrambler_seed_e = 0;
+
+    super->enc.aes_key_is_loaded = 0;
+    super->enc.A1 = 0;
+    super->enc.A2 = 0;
+    super->enc.A3 = 0;
+    super->enc.A4 = 0;
+    memset (super->enc.aes_key, 0, 32*sizeof(uint8_t));
+    //end init enc
   }
 
   int k = 0; //packet rounds

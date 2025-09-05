@@ -52,11 +52,11 @@ void input_ncurses_terminal (Super * super, int c)
       getch(); //A,B,C,D, etc
       break;
 
-    //'0' key, Send an IP Frame Ping in RX and TX Mode (debug, disable later)
-    case 48:
-      if (super->opts.use_m17_duplex_mode == 1)
-        ip_send_conn_disc_ping_pong(super, 2);
-      break;
+    // //'0' key, Send an IP Frame Ping in RX and TX Mode (debug, disable later)
+    // case 48:
+    //   if (super->opts.use_m17_duplex_mode == 1)
+    //     ip_send_conn_disc_ping_pong(super, 2);
+    //   break;
 
     //'1' key, Generate Random Scrambler Key (24-bit)
     case 49:

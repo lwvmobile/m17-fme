@@ -59,23 +59,36 @@ void setup_percall_filename (Super * super)
   char * datestr = get_date();
   char * timestr = get_time();
 
-  //make a local copy that can be parsed to remove any spaces
+  //make a local copy that can be parsed to remove any special characters
   char src_csd[10]; memset (src_csd, 0, 10*sizeof(char));
   char dst_csd[10]; memset (dst_csd, 0, 10*sizeof(char));
   memcpy (src_csd, super->m17d.src_csd_str, 9);
   memcpy (dst_csd, super->m17d.dst_csd_str, 9);
   for (i = 0; i < 9; i++)
   {
-    if (src_csd[i] == 0x20) //change 'space' to zero will also terminate string
-      src_csd[i] = 0;
+    if (src_csd[i] == 0x20) //change 'space' to underscore
+      src_csd[i] = 0x5F;
 
-    if (dst_csd[i] == 0x20) //change 'space' to zero will also terminate string
-      dst_csd[i] = 0;
+    if (dst_csd[i] == 0x20) //change 'space' to underscore
+      dst_csd[i] = 0x5F;
+
+    if (src_csd[i] == 0x2F) //change forward slash to underscore
+      src_csd[i] = 0x5F;
+
+    if (dst_csd[i] == 0x2F) //change forward slash to underscore
+      dst_csd[i] = 0x5F;
+
+    if (src_csd[i] == 0x2E) //change 'period / full stop' to underscore
+      src_csd[i] = 0x5F;
+
+    if (dst_csd[i] == 0x2E) //change 'period / full stop' to underscore
+      dst_csd[i] = 0x5F;
+
   }
 
   //NOTE: .wav extension is not included, will be renamed with .wav when closed
-  sprintf (super->wav.wav_out_file_pc, "%s/%s_%s_CAN_%d_SRC_%s_DST_%s", 
-           super->wav.wav_file_direct, datestr, timestr, super->m17d.can, src_csd, dst_csd);
+  sprintf (super->wav.wav_out_file_pc, "%s/%s_%s_%04X_CAN_%d_SRC_%s_DST_%s", 
+           super->wav.wav_file_direct, datestr, timestr, super->opts.random_number, super->m17d.can, src_csd, dst_csd);
 
   free (datestr); free(timestr);
 

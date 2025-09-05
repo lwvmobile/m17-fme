@@ -18,7 +18,7 @@ Voice Stream Encoding and Decoding (RF Audio). Voice Stream Frames can be decode
 
 When operating in encoding mode, Voice Stream can be modulated in FSK4 48k/1 S16LE RF Audio output to Pulse Audio Sink, OSS Audio Sink, STDOUT, .wav file, float symbol output file, or dibit output file. Also, while in Encoding Mode, encoded data can also be sent back into the decoder via a loopback functionality which will, in turn, decode the encoded bitstream, with audio output being either decoded voice output, encoded RF output, or both through seperate output sinks, along with any file formats specified.
 
-When operating in decoding mode, RF audio can be captured and saved with floating symbol output file, and decoded voice can be saved on a 'per call' basis with wav file creation for each new call after a no-sync period.
+When operating in decoding mode, RF audio can be captured and saved with floating symbol output file, and decoded voice can be saved on a 'per call' basis with wav file creation for each new call after an EOT signal or a no-sync period.
 
 Voice Encoding and Decoding support both Codec2 3200 bps mode "full rate" and Codec2 1600 bps "half rate" modes, per specification. To encode in 1600 bps mode, the user on needs to specify some Arbitrary Data to the encoder, which is in turn handled as an embedded SMS message of up to 48 UTF-8 Characters to be decoded every superframe.
 
@@ -34,9 +34,11 @@ M17-FME can encode the M17 BERT (Bit Error Rate Test) as described in 2.10 and A
 
 M17-FME is capable of transmitting and receiving UDP frames based on [M17 Protocol Specifications Part II - Internet Interface](https://github.com/M17-Project/M17_inet "M17 Protocol Specifications Part II - Internet Interface"). 
 
-Two modes of operation are currently available. Reflector Client mode will allow users to connect to active [MREFD](https://github.com/n7tae/mrefd "MREFD") reflectors either in Listen Only Mode (LSTN), or with transmit capabilities (CONN). Users must have a valid callsign/license to transmit on an active reflector and must affirm with YES before starting any session. Reflector Client mode is currently only available as a subset of the TX and RX mode described below.
+Two modes of operation are currently available. Reflector Client mode will allow users to connect to active [MREFD](https://github.com/n7tae/mrefd "MREFD") reflectors either in Listen Only Mode (LSTN), or with transmit capabilities (CONN). Users must have a valid callsign/license to transmit on an active reflector and must affirm with YES before starting any session. Reflector Client mode is currently only available as a subset of the TX and RX mode described below for TX capability, but Listen Only Mode is also available in the older UDP IP Frame Decoder .
 
 Adhoc mode is also available, and allows multiple clients to talk to one another on a shared network by binding a UDP port and broadcasting over the broadcast address for the network subnet. Adhoc mode does not connect to a reflector and does not transmit over the air.
+
+Encryption is disabled on Reflector Client Mode, but is permissable on Adhoc mode.
 
 Please note, IP6 is currently not supported, but will be supported in a future update.
 
@@ -47,6 +49,8 @@ A new encoder and decoder routine has been written for M17-FME. Now, users can b
 ### Encryption
 
 M17-FME supports both the encryption and decryption of Voice Stream using AES and Scrambler modes per specification. M17-FME also (experimentally and unofficially) supports encryption and decryption of Packet Data using AES and Scrambler modes. The official stance from M17-FME is that encryption should be used as a tool, and in the context of M17-FME, it is available as a learning tool. When using encryption mode with "OTAKD" enabled, M17-FME will craft and send Packet Data formatted with your encryption key, encryption type, and encryption subtype at the start of any TX. "Over the Air Key Delivery" or "OTAKD" was devised as a method to both allow and learn form the use of encryption, but to also freely and openly provide the encryption key to others to use while decoding. This 'format' is NOT per M17 specification, but is a method devised internally to allow the use of encryption while sharing the key for others. OTAKD can be enabled by using the `-O` command line option, or using the `O` or `o` keyboard shortcut in the Ncurses Terminal.
+
+NOTE: Encryption Modes and Ncurses Shortcuts pertaining to Encryption will be disabled during any IP Reflector Client Sessions.
 
 ### secp256r1 Signatures with Private and Public Keys
 

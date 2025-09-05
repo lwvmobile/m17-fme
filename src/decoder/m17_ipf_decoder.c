@@ -129,7 +129,14 @@ void decode_ipf (Super * super, int socket)
     //calculate CRC on received packet
     uint16_t crc_cmp = crc16(ip_frame, 52);
 
-    if (crc_ext == crc_cmp)
+    // if (crc_ext == crc_cmp)
+    //   decode_lsf_contents(super);
+
+    //NIT FIX: Capture 00 04 C5 84 CA C9 (AE5ME E) so they aren't the entire call history on M17-KCW
+    //TODO: Find a better way to fix when this sort of thing happens during transencoding
+    uint64_t src_check = (uint64_t)convert_bits_into_output(&super->m17d.lsf[48], 48);
+
+    if (crc_ext == crc_cmp && src_check != 0x0004C584CAC9)
       decode_lsf_contents(super);
 
     //Consolodate these two

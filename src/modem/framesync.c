@@ -482,10 +482,12 @@ void no_carrier_sync (Super * super)
   super->enc.scrambler_fn_d = 0;
   super->enc.scrambler_seed_d = super->enc.scrambler_key;
 
+  //below items were disabled, causing stale GNSS (any reason why this was disabled, probably so it doesn't clear out of the encode window in ncurses?)
   // memset (super->m17d.raw, 0, sizeof(super->m17d.raw));
   // sprintf (super->m17d.sms, "%s", "");
   // sprintf (super->m17d.dat, "%s", "");
   // sprintf (super->m17d.arb, "%s", "");
+  super->m17d.packet_protocol = 0; //may only need this one, then we can keep the items above in the display
 
   //ECDSA
   memset (super->m17d.ecdsa.curr_stream_pyl, 0, 16*sizeof(uint8_t));
