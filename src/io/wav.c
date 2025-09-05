@@ -93,7 +93,7 @@ void setup_percall_filename (Super * super)
   free (datestr); free(timestr);
 
   //send per call to event_log_writer
-  event_log_writer (super, super->wav.wav_out_file_pc, 0xFD);
+  // event_log_writer (super, super->wav.wav_out_file_pc, 0xFD); //should I disable this?
 
   open_wav_out_pc(super);
 }
@@ -125,7 +125,7 @@ void close_wav_out_pc (Super * super)
   super->wav.wav_out_file_pc[1023] = 0;
 
   //send per call to event_log_writer
-  event_log_writer (super, super->wav.wav_out_file_pc, 0xFE);
+  // event_log_writer (super, super->wav.wav_out_file_pc, 0xFE); //should I disable this?
 }
 
 void write_wav_out_rf (Super * super, short * out, size_t nsam)
