@@ -259,6 +259,7 @@ typedef struct
   uint8_t in_sync;
   time_t sync_time;
   time_t current_time;
+  time_t ping_time;
 
   long int input_sql;
   long int input_rms;

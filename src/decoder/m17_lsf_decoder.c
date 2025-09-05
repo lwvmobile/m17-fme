@@ -57,8 +57,9 @@ void decode_lsf_contents(Super * super)
   //Packet Mode
   if (lsf_ps == 0)
   {
-    fprintf (stderr, " Packet");
+    fprintf (stderr, " Data PDU");
     fprintf (stderr, " FT: %04X;", lsf_type);
+    super->m17d.dt = 20;
   }
 
   if (lsf_rs != 0)

@@ -73,7 +73,7 @@ void open_file_output (Super * super)
   {
     char * timestr  = get_time();
     char * datestr  = get_date();
-    sprintf (super->opts.event_log_file, "%s_%s_m17fme_eventlog.txt", datestr, timestr);
+    sprintf (super->opts.event_log_file, "%s_%s_%04X_m17fme_eventlog.txt", datestr, timestr, super->opts.random_number);
     // sprintf (super->opts.event_log_file, "duplex_log.txt"); //debug
     super->opts.event_log = fopen (super->opts.event_log_file, "a");
     free (timestr); free (datestr);
@@ -798,11 +798,13 @@ void push_call_history (Super * super)
 
   char dt[9]; memset (dt, 0, 9*sizeof(char));
   if      (super->m17d.dt == 0) sprintf (dt, "RESERVED");
-  else if (super->m17d.dt == 1)
+  else if (super->m17d.dt == 20)
   { 
     if (super->m17d.packet_protocol == 0x05)
-      sprintf (dt, "SMS TEXT");
-    else sprintf (dt, "PKT DATA");
+      sprintf (dt, "TEXT PDU");
+    else if (super->m17d.packet_protocol == 0x81)
+      sprintf (dt, "GNSS PDU");
+    else sprintf (dt, "DATA PDU");
   }
   else if (super->m17d.dt == 2)  sprintf (dt, "VOX 3200");
   else if (super->m17d.dt == 3)  sprintf (dt, "V+D 1600");
@@ -823,21 +825,49 @@ void push_call_history (Super * super)
 
   //make a truncated string of any text message
   char shortstr[80]; sprintf (shortstr, "%s", "\n|      ");
-  strncpy (shortstr+8, super->m17d.sms, 71);
-  shortstr[79] = '\0'; //terminate string
 
   sprintf (super->m17d.callhistory[99], "%s %s CAN: %02d; SRC: %s; DST: %s; %s;", datestr, timestr, super->m17d.can, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
 
+  //Add SMS, GNSS (Meta or PDU), Text (Meta), Text (Arb) in that order of priority (most likely to least likely) 
+
   //Append SMS Text Message to Call History
-  if (super->m17d.dt == 1 && super->m17d.packet_protocol == 0x05)
+  if (super->m17d.dt == 20 && super->m17d.packet_protocol == 0x05)
+  {
+    strncpy (shortstr+8, super->m17d.sms, 71);
+    shortstr[79] = '\0'; //terminate string
     strcat (super->m17d.callhistory[99], shortstr);
+  }
+
+  //Append GNSS string to Call History (PDU or META)
+  else if (super->m17d.packet_protocol == 0x81) //super->m17d.dt == 20 && 
+  {
+    strncpy (shortstr+8, super->m17d.dat, 71);
+    shortstr[79] = '\0'; //terminate string
+    strcat (super->m17d.callhistory[99], shortstr);
+  }
+
+  //Append Meta Text String, (dt == 2 or dt == 3) not from PDU
+  else if (super->m17d.packet_protocol == 0x80)
+  {
+    strncpy (shortstr+8, super->m17d.dat, 71);
+    shortstr[79] = '\0'; //terminate string
+    strcat (super->m17d.callhistory[99], shortstr);
+  }
+
+  //Append Arb Text String, (dt == 3), not from PDU
+  else if (super->m17d.packet_protocol == 0x89)
+  {
+    strncpy (shortstr+8, super->m17d.arb, 71);
+    shortstr[79] = '\0'; //terminate string
+    strcat (super->m17d.callhistory[99], shortstr);
+  }
 
   //make a version without the timestamp, but include other info
   char event_string[500]; char key[75]; sprintf(key, "%s", "");
   sprintf (event_string, " CAN: %02d; SRC: %s; DST: %s; %s;", super->m17d.can, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
 
-  if (super->m17d.enc_et == 0)
-    strcat (event_string, " Clear");
+  // if (super->m17d.enc_et == 0)
+  //   strcat (event_string, " Clear");
 
   if (super->m17d.enc_et == 1)
   {
@@ -869,7 +899,7 @@ void push_call_history (Super * super)
 
   //other misc special events
   if (super->m17d.dt == 4) sprintf (event_string, " Demodulator Reset; Polarity Change, RRC Filtering Change, or Debug Carrier Reset Event;");
-  else if (super->m17d.dt > 6) sprintf (event_string, " Unknown Error Event (Synchronization Error?);");
+  else if (super->m17d.dt > 20) sprintf (event_string, " Unknown Error Event (Synchronization Error?);");
 
   //send last call history to event_log_writer
   event_log_writer (super, event_string, 0xFF);
@@ -895,7 +925,7 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
   if (super->opts.event_log && write == 1)
   {
     //write date and time
-    fprintf (super->opts.event_log, "%s_%s ", datestr, timestr);
+    fprintf (super->opts.event_log, "%s %s ", datestr, timestr);
 
     //add type of event by protocol 0xF0 range is Internal Events, 0x80 range is META, 0x00 range is PKT
     if (protocol == 0xFF)

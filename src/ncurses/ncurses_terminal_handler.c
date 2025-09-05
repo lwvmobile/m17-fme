@@ -85,10 +85,10 @@ void print_ncurses_terminal(Super * super)
     print_ncurses_levels(super);
   else printw ("--Audio-Level--(A)-------------------------------------------------------------\n");
 
-  //Print Symbol Scope
-  if (super->opts.ncurses_show_scope)
-    print_ncurses_scope(super);
-  else printw ("--Symbol-Scope-(S)-------------------------------------------------------------\n");
+  //Print Symbol Scope //disable, or move portions to audio level
+  // if (super->opts.ncurses_show_scope)
+  //   print_ncurses_scope(super);
+  // else printw ("--Symbol-Scope-(S)-------------------------------------------------------------\n");
 
   //Print Decoded Call Info
   if (super->opts.ncurses_show_decode)
@@ -200,6 +200,7 @@ void print_ncurses_config (Super * super)
   {
     printw ("UDP IP Frame Reflector: %s:%d; Module: %c;", super->opts.m17_hostname, super->opts.m17_portno, super->m17e.reflector_module);
     printw (" LSTN;");
+    printw (" Last Ping: %lds;", time(NULL) - super->demod.ping_time);
   }
 
   //Input Methods (Files)
@@ -280,6 +281,7 @@ void print_ncurses_config (Super * super)
     if (super->opts.send_conn_or_lstn == 4)
       printw (" LSTN;");
     else printw (" CONN;");
+    printw (" Last Ping: %lds;", time(NULL) - super->demod.ping_time);
   }
 
   if (super->opts.event_log)

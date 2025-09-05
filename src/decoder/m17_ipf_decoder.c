@@ -176,6 +176,8 @@ void decode_ipf (Super * super, int socket)
 
     //clear frame
     memset (ip_frame, 0, sizeof(ip_frame));
+
+    super->demod.ping_time = time(NULL);
   }
 
   else if (memcmp(ip_frame, nack, 4) == 0)
@@ -330,6 +332,8 @@ void decode_ipf (Super * super, int socket)
 
     //clear frame
     memset (ip_frame, 0, sizeof(ip_frame));
+
+    super->demod.ping_time = time(NULL);
 
     //items below disabled so every ping or pong doesn't clog up the history
 

@@ -342,6 +342,11 @@ void input_ncurses_terminal (Super * super, int c)
         }
         else if (super->m17e.meta_data[0]) //meta has actual text in it
         {
+          //unload anything in the .arb field (Arb Text)
+          sprintf (super->m17e.arb, "%s", "");
+          sprintf (super->m17d.arb, "%s", "");
+          super->opts.m17_str_encoder_dt = 2; //set back to 3200
+
           uint8_t meta_data[16]; memset (meta_data, 0, sizeof(meta_data));
           meta_data[0] = 0x80; //Meta Text
           memcpy (meta_data+1, super->m17e.meta_data+1, 14);
@@ -480,6 +485,12 @@ void input_ncurses_terminal (Super * super, int c)
     case 119:
       if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1))
       {
+        //unload anything in the .dat field (Meta Text)
+        sprintf (super->m17e.dat, "%s", "");
+        sprintf (super->m17d.dat, "%s", "");
+        memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data)); //this doesn't nuke encryption stuff
+
+        //unload anything in the .arb field (Arb Text)
         sprintf (super->m17e.arb, "%s", "");
         sprintf (super->m17d.arb, "%s", "");
         sprintf (label, " Enter Arbitrary Data Text:"); //set label to be displayed in the entry box window
@@ -528,7 +539,7 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'+' key, increment voice output gain by 1%
     case 43:
-      if (super->opts.output_gain_vx < 1.99f)
+      if (super->opts.output_gain_vx < 2.99f)
         super->opts.output_gain_vx += 0.01f;
       break;
 

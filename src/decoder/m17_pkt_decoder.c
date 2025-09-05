@@ -230,6 +230,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     event_log_writer (super, super->m17d.dat, protocol);
 
   }
+
   //GNSS Positioning (version 2.0 spec)
   else if (protocol == 0x81)
   {
@@ -350,6 +351,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     event_log_writer (super, super->m17d.dat, protocol);
 
   }
+
   //META Text Message, or 1600 Arbitrary Data
   //TODO: Seperate these two so we can assemble a completed Meta Text Message properly
   else if (protocol == 0x80 || protocol == 0x89)
