@@ -200,7 +200,7 @@ void print_ncurses_config (Super * super)
   {
     printw ("UDP IP Frame Reflector: %s:%d; Module: %c;", super->opts.m17_hostname, super->opts.m17_portno, super->m17e.reflector_module);
     printw (" LSTN;");
-    printw (" Last Ping: %lds;", time(NULL) - super->demod.ping_time);
+    printw (" Last Ping: %lds", time(NULL) - super->demod.ping_time);
   }
 
   //Input Methods (Files)
@@ -281,7 +281,7 @@ void print_ncurses_config (Super * super)
     if (super->opts.send_conn_or_lstn == 4)
       printw (" LSTN;");
     else printw (" CONN;");
-    printw (" Last Ping: %lds;", time(NULL) - super->demod.ping_time);
+    printw (" Last Ping: %lds", time(NULL) - super->demod.ping_time);
   }
 
   if (super->opts.event_log)

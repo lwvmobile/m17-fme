@@ -927,6 +927,10 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
     //write date and time
     fprintf (super->opts.event_log, "%s %s ", datestr, timestr);
 
+    //add src value on things like text, gnss, etc (things that don't already have a src string and require one)
+    if (protocol <= 0xF0)
+      fprintf (super->opts.event_log, "SRC: %s; ", super->m17d.src_csd_str);
+
     //add type of event by protocol 0xF0 range is Internal Events, 0x80 range is META, 0x00 range is PKT
     if (protocol == 0xFF)
       fprintf (super->opts.event_log, "Call History: ");
@@ -956,7 +960,7 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
       fprintf (super->opts.event_log, "IPv4: ");
 
     else if (protocol == 0x05)
-      fprintf (super->opts.event_log, "SMS: ");
+      fprintf (super->opts.event_log, "SMS  Text: ");
 
     else if (protocol == 0x06)
       fprintf (super->opts.event_log, "Winlink: ");
@@ -965,13 +969,13 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
       fprintf (super->opts.event_log, "OTAKD: ");
 
     else if (protocol == 0x80)
-      fprintf (super->opts.event_log, "Meta Text Data: ");
+      fprintf (super->opts.event_log, "Meta Text: ");
 
     else if (protocol == 0x81)
       fprintf (super->opts.event_log, "Meta GNSS: ");
 
     else if (protocol == 0x82)
-      fprintf (super->opts.event_log, "Meta Extended CSD: ");
+      fprintf (super->opts.event_log, "Meta ECSD: ");
 
     else if (protocol == 0x89)
       fprintf (super->opts.event_log, "1600 Arbitrary Data: ");

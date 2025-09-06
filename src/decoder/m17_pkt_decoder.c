@@ -344,8 +344,8 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     else                        sprintf (st, "%02X", station_type);
 
     //Test with User Input: -Z 0169001E135152397C0A0000005A45
-    sprintf (super->m17d.dat, "(%f, %f); Alt: %.1f; Spd: %.1f; Ber: %d; St: %s; SRC: %s;",
-      lat_float, lon_float, altitude_float, speed_float, bearing, st, super->m17d.src_csd_str);
+    sprintf (super->m17d.dat, "(%f, %f); Alt: %.1f; Spd: %.1f; Ber: %d; St: %s;",
+      lat_float, lon_float, altitude_float, speed_float, bearing, st);
 
     //send GNSS data to event_log_writer
     event_log_writer (super, super->m17d.dat, protocol);
