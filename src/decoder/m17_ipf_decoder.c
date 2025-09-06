@@ -85,6 +85,7 @@ void decode_ipf (Super * super, int socket)
 
     //Enable Sync
     super->demod.in_sync = 1;
+    super->demod.sync_time = time(NULL);
 
     //convert bytes to bits
     k = 0;
@@ -512,6 +513,15 @@ void decode_ipf (Super * super, int socket)
   {
     free (timestr);
     timestr = NULL;
+  }
+
+  //if more than 10 seconds since last actual Stream IP frame, drop to no carrier
+  //some Stream IP Frmaes don't end with a proper EOT and leave this hanging indefinitely if no others calls
+  if ( (super->demod.in_sync == 1) && ((super->demod.current_time - super->demod.sync_time) > 4) )
+  {
+    //drop sync
+    no_carrier_sync(super);
+    super->demod.in_sync = 0;
   }
 
 }
