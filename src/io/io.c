@@ -562,6 +562,9 @@ void parse_pulse_outvx_string (Super * super, char * input)
 void parse_udp_user_string (Super * super, char * input)
 {
 
+  //set reflector as default option now
+  super->opts.use_m17_reflector_mode = 1;
+
   char * curr;
 
   curr = strtok(input, ":");

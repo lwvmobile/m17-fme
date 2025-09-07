@@ -254,15 +254,19 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
   {
     unpack_byte_array_into_bit_array(super->m17e.meta_data+1, m17_lsf+112, 14);
 
+    //below is disabled, as it now causes stale Meta to present in call history
+    //and there isn't really a good reason to do this now
+
     //Decode Meta Data Once For Ncurses Display if not loopback
-    if (super->opts.internal_loopback_decoder == 0)
-    {
-      uint8_t meta_data[16]; memset (meta_data, 0, sizeof(meta_data));
-      meta_data[0] = lsf_es + 0x80; //flip MSB bit to signal META
-      memcpy (meta_data+1, super->m17e.meta_data+1, 14);
-      fprintf (stderr, "\n ");
-      decode_pkt_contents (super, meta_data, 15); //decode META
-    }
+    // if (super->opts.internal_loopback_decoder == 0)
+    // {
+    //   uint8_t meta_data[16]; memset (meta_data, 0, sizeof(meta_data));
+    //   meta_data[0] = lsf_es + 0x80; //flip MSB bit to signal META
+    //   memcpy (meta_data+1, super->m17e.meta_data+1, 14);
+    //   fprintf (stderr, "\n ");
+    //   decode_pkt_contents (super, meta_data, 15); //decode META
+    // }
+
   }
 
   //pack and compute the CRC16 for LSF

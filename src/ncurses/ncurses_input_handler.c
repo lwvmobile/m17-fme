@@ -350,8 +350,12 @@ void input_ncurses_terminal (Super * super, int c)
           uint8_t meta_data[16]; memset (meta_data, 0, sizeof(meta_data));
           meta_data[0] = 0x80; //Meta Text
           memcpy (meta_data+1, super->m17e.meta_data+1, 14);
-          fprintf (stderr, "\n ");
-          decode_pkt_contents (super, meta_data, 15); //decode META
+
+          //below is disabled, as it now causes stale Meta to present in call history
+          //and there isn't really a good reason to do this now
+          // fprintf (stderr, "\n ");
+          // decode_pkt_contents (super, meta_data, 15); //decode META
+
         }
       }
       break;
@@ -453,10 +457,13 @@ void input_ncurses_terminal (Super * super, int c)
         sprintf (label, " Enter Raw Packet:"); //set label to be displayed in the entry box window
         sprintf (inp_str, "%s", "");    
         entry_string_ncurses_terminal(label, inp_str);
-        uint16_t len = parse_raw_user_string(super, inp_str);
+        uint16_t len = parse_raw_user_string(super, inp_str); UNUSED(len);
         if (super->m17e.raw[0]) //only send if there is a packet loaded, else do nothing
         {
-          decode_pkt_contents(super, super->m17e.raw+1, len); //decode content locally for display
+          //below is disabled, as it now causes stale Meta to present in call history
+          //and there isn't really a good reason to do this now
+          // decode_pkt_contents(super, super->m17e.raw+1, len); //decode content locally for display
+
           super->demod.in_sync = 1;
           encode_pkt(super, 0);
           super->demod.in_sync = 0;

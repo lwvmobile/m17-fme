@@ -283,7 +283,7 @@ void encode_pkt(Super * super, int mode)
   //Convert a string text message into UTF-8 octets and load into full if using SMS protocol
   else //if (protocol == 0x05) //send an SMS message instead (default text or user supplied sms string)
   {
-    fprintf (stderr, "\n SMS: ");
+    fprintf (stderr, " Text: ");
     for (i = 0; i < tlen; i++)
     {
       cbyte = (uint8_t)text[ptr];
