@@ -449,8 +449,11 @@ void print_ncurses_call_info (Super * super)
   if (super->opts.use_m17_str_encoder)
   {
     printw ("Stream Encoder");
-    if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
-      printw ( " DST(d); SRC(s); CAN(b);");
+    if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
+    {
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+        printw ( " DST(d); SRC(s); CAN(b);");
+    }
   }
   else if (super->opts.use_m17_pkt_encoder == 1)
     printw ("Packet Encoder"); //this doesn't use ncurses terminal, but it may later
@@ -463,8 +466,12 @@ void print_ncurses_call_info (Super * super)
     printw ("TX and RX Mode");
     if (super->opts.m17_use_ip) printw(" (IP)");
     else printw(" (RF)");
-    if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
-      printw ( " DST(d); SRC(s); CAN(b);");
+
+    if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
+    {
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+        printw ( " DST(d); SRC(s); CAN(b);");
+    }
   }
   else
   {
@@ -495,10 +502,14 @@ void print_ncurses_call_info (Super * super)
     }
     else
     {
-      printw ("Press (\\) to Toggle TX");
-      if (super->m17e.str_encoder_tx == 0)
-        printw (" (OFF);");
-      else printw (" ( ON);");
+      if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
+      {
+        printw ("Press (\\) to Toggle TX");
+        if (super->m17e.str_encoder_tx == 0)
+          printw (" (OFF);");
+        else printw (" ( ON);");
+      }
+      else printw ("LSTN (Listen Only Mode). No TX, PKT, CFG, or DBG Options Enabled;");
     }
 
   }
@@ -715,15 +726,18 @@ void print_ncurses_call_info (Super * super)
         printw (" Send OTASK(p);");
     }
 
-    printw ("\n");
-    printw ("| ");
-    printw ("PKT:");
-    if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+    if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0) //I think this is okay if we want to disable on reflector and LSTN
     {
-      printw (" Send SMS Text(t);");
-      printw (" Send Raw Data(u);");
-      printw (" Load Arb Text(w);");
-      printw (" Load Meta Text(m);");
+      printw ("\n");
+      printw ("| ");
+      printw ("PKT:");
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
+      {
+        printw (" Send SMS Text(t);");
+        printw (" Send Raw Data(u);");
+        printw (" Load Arb Text(w);");
+        printw (" Load Meta Text(m);");
+      }
     }
 
     printw ("\n");

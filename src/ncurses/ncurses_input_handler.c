@@ -128,8 +128,11 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'B' key, Toggle Packet Burst
     case 66:
-      if (super->opts.use_m17_packet_burst == 0) super->opts.use_m17_packet_burst = 1;
-      else super->opts.use_m17_packet_burst = 0;
+      if (super->opts.use_m17_reflector_mode == 0) //disabled for now on reflector
+      {
+        if (super->opts.use_m17_packet_burst == 0) super->opts.use_m17_packet_burst = 1;
+        else super->opts.use_m17_packet_burst = 0;
+      }
       break;
 
     //'C' key, Toggle Banner (Capital C)
@@ -206,10 +209,10 @@ void input_ncurses_terminal (Super * super, int c)
       break;
 
     //'S' key, Toggle Scope Display
-    case 83:
-      if (super->opts.ncurses_show_scope == 0) super->opts.ncurses_show_scope = 1;
-      else super->opts.ncurses_show_scope = 0;
-      break;
+    // case 83:
+    //   if (super->opts.ncurses_show_scope == 0) super->opts.ncurses_show_scope = 1;
+    //   else super->opts.ncurses_show_scope = 0;
+    //   break;
 
     //'Z' key, Cycle Demodulator Verbosity
     case 90:
@@ -219,31 +222,36 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'\' key, Toggle TX
     case 92:
-      if (super->m17e.str_encoder_tx == 0) super->m17e.str_encoder_tx = 1;
-      else super->m17e.str_encoder_tx = 0;
+      if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
+      {
+        if (super->m17e.str_encoder_tx == 0) super->m17e.str_encoder_tx = 1;
+        else super->m17e.str_encoder_tx = 0;
 
-      if (super->m17e.str_encoder_tx == 0)
-        super->m17e.str_encoder_eot = 1;
+        if (super->m17e.str_encoder_tx == 0)
+          super->m17e.str_encoder_eot = 1;
+      }
       break;
 
     //'b' key, set new CAN value, if using TX and RX or stream encoder
     case 98:
-      can_bkp = super->m17e.can;
+      if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
+      {
+        can_bkp = super->m17e.can;
 
-      //Scan in CAN Value
-      char canstr[50]; memset(canstr, 0, 50*sizeof(char));
+        //Scan in CAN Value
+        char canstr[50]; memset(canstr, 0, 50*sizeof(char));
 
-      sprintf (label, " Enter Channel Access Number (0-15):"); //set label to be displayed in the entry box window
-      entry_string_ncurses_terminal(label, canstr);
+        sprintf (label, " Enter Channel Access Number (0-15):"); //set label to be displayed in the entry box window
+        entry_string_ncurses_terminal(label, canstr);
 
-      //convert canstr to numerical value
-      sscanf (canstr, "%hd", &super->m17e.can);
+        //convert canstr to numerical value
+        sscanf (canstr, "%hd", &super->m17e.can);
 
-      if (super->m17e.can > 15) super->m17e.can = can_bkp;
+        if (super->m17e.can > 15) super->m17e.can = can_bkp;
 
-      //debug dump new can to stderr
-      // fprintf (stderr, "\n New CAN: %02i", super->m17e.can);
-      
+        //debug dump new can to stderr
+        // fprintf (stderr, "\n New CAN: %02i", super->m17e.can);
+      }
       break;
 
     //'c' key, Reset Call History (lower c)
@@ -257,35 +265,38 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'d' key, Enter Destination Address Value, if using TX and RX or stream encoder
     case 100:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) )
+      if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
       {
-        //backup current string found here
-        char tempsrc[50]; memset(tempsrc, 0, 50*sizeof(char));
-        sprintf (tempsrc, "%s", super->m17e.dsts);
-        sprintf (super->m17e.dsts, "%s", "");
-
-        sprintf (label, " Enter Destination Callsign:"); //set label to be displayed in the entry box window
-        entry_string_ncurses_terminal(label, super->m17e.dsts);
-
-        if (super->m17e.dsts[0] != '#')
+        if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) )
         {
+          //backup current string found here
+          char tempsrc[50]; memset(tempsrc, 0, 50*sizeof(char));
+          sprintf (tempsrc, "%s", super->m17e.dsts);
+          sprintf (super->m17e.dsts, "%s", "");
 
-          //check and capatalize any letters in the CSD
-          for (int i = 0; super->m17e.dsts[i]!='\0'; i++)
+          sprintf (label, " Enter Destination Callsign:"); //set label to be displayed in the entry box window
+          entry_string_ncurses_terminal(label, super->m17e.dsts);
+
+          if (super->m17e.dsts[0] != '#')
           {
-            if(super->m17e.dsts[i] >= 'a' && super->m17e.dsts[i] <= 'z')
-              super->m17e.dsts[i] -= 32;
+
+            //check and capatalize any letters in the CSD
+            for (int i = 0; super->m17e.dsts[i]!='\0'; i++)
+            {
+              if(super->m17e.dsts[i] >= 'a' && super->m17e.dsts[i] <= 'z')
+                super->m17e.dsts[i] -= 32;
+            }
+
+            //terminate string
+            super->m17e.dsts[9] = '\0';
+
           }
 
-          //terminate string
-          super->m17e.dsts[9] = '\0';
-
-        }
-
-        //if no entry provided, revert to backup
-        if (super->m17e.dsts[0] == 0)
-        {
-          sprintf (super->m17e.dsts, "%s", tempsrc);
+          //if no entry provided, revert to backup
+          if (super->m17e.dsts[0] == 0)
+          {
+            sprintf (super->m17e.dsts, "%s", tempsrc);
+          }
         }
       }
       break;
@@ -322,40 +333,43 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'m' key, Enter Meta Text Message
     case 109:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1))
+      if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
       {
-        sprintf (inp_str, "%s", "");
-        sprintf (label, " Enter Meta Text:"); //set label to be displayed in the entry box window
-        entry_string_ncurses_terminal(label, inp_str);
-        parse_meta_txt_string(super, inp_str);
-        if (super->m17e.meta_data[2] == 0x20 && super->m17e.meta_data[3] == 0x20 && super->m17e.meta_data[4] == 0x20 && super->m17e.meta_data[5] == 0x20 && 
-            super->m17e.meta_data[6] == 0x20 && super->m17e.meta_data[7] == 0x20 && super->m17e.meta_data[8] == 0x20 && super->m17e.meta_data[9] == 0x20 && 
-            super->m17e.meta_data[10] == 0x20 && super->m17e.meta_data[11] == 0x20 && super->m17e.meta_data[12] == 0x20 && super->m17e.meta_data[13] == 0x20 && 
-            super->m17e.meta_data[14] == 0x20) //if all white spaces loaded, then zero out entire thing
+        if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1))
         {
-          super->enc.enc_type = 0;
-          super->enc.enc_subtype = 0;
-          super->m17e.enc_et = 0;
-          super->m17e.met_st = 0;
-          memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data));
-          sprintf (super->m17d.dat, "%s", "");
-        }
-        else if (super->m17e.meta_data[0]) //meta has actual text in it
-        {
-          //unload anything in the .arb field (Arb Text)
-          sprintf (super->m17e.arb, "%s", "");
-          sprintf (super->m17d.arb, "%s", "");
-          super->opts.m17_str_encoder_dt = 2; //set back to 3200
+          sprintf (inp_str, "%s", "");
+          sprintf (label, " Enter Meta Text:"); //set label to be displayed in the entry box window
+          entry_string_ncurses_terminal(label, inp_str);
+          parse_meta_txt_string(super, inp_str);
+          if (super->m17e.meta_data[2] == 0x20 && super->m17e.meta_data[3] == 0x20 && super->m17e.meta_data[4] == 0x20 && super->m17e.meta_data[5] == 0x20 && 
+              super->m17e.meta_data[6] == 0x20 && super->m17e.meta_data[7] == 0x20 && super->m17e.meta_data[8] == 0x20 && super->m17e.meta_data[9] == 0x20 && 
+              super->m17e.meta_data[10] == 0x20 && super->m17e.meta_data[11] == 0x20 && super->m17e.meta_data[12] == 0x20 && super->m17e.meta_data[13] == 0x20 && 
+              super->m17e.meta_data[14] == 0x20) //if all white spaces loaded, then zero out entire thing
+          {
+            super->enc.enc_type = 0;
+            super->enc.enc_subtype = 0;
+            super->m17e.enc_et = 0;
+            super->m17e.met_st = 0;
+            memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data));
+            sprintf (super->m17d.dat, "%s", "");
+          }
+          else if (super->m17e.meta_data[0]) //meta has actual text in it
+          {
+            //unload anything in the .arb field (Arb Text)
+            sprintf (super->m17e.arb, "%s", "");
+            sprintf (super->m17d.arb, "%s", "");
+            super->opts.m17_str_encoder_dt = 2; //set back to 3200
 
-          uint8_t meta_data[16]; memset (meta_data, 0, sizeof(meta_data));
-          meta_data[0] = 0x80; //Meta Text
-          memcpy (meta_data+1, super->m17e.meta_data+1, 14);
+            uint8_t meta_data[16]; memset (meta_data, 0, sizeof(meta_data));
+            meta_data[0] = 0x80; //Meta Text
+            memcpy (meta_data+1, super->m17e.meta_data+1, 14);
 
-          //below is disabled, as it now causes stale Meta to present in call history
-          //and there isn't really a good reason to do this now
-          // fprintf (stderr, "\n ");
-          // decode_pkt_contents (super, meta_data, 15); //decode META
+            //below is disabled, as it now causes stale Meta to present in call history
+            //and there isn't really a good reason to do this now
+            // fprintf (stderr, "\n ");
+            // decode_pkt_contents (super, meta_data, 15); //decode META
 
+          }
         }
       }
       break;
@@ -395,78 +409,87 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'s' key, Enter Source Address Value, if using TX and RX or stream encoder
     case 115:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) )
+      if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
       {
-        //backup current string found here
-        char tempsrc[50]; memset(tempsrc, 0, 50*sizeof(char));
-        sprintf (tempsrc, "%s", super->m17e.srcs);
-        sprintf (super->m17e.srcs, "%s", "");
-
-        sprintf (label, " Enter Source Callsign:"); //set label to be displayed in the entry box window
-        entry_string_ncurses_terminal(label, super->m17e.srcs);
-
-        //If using is not passing a #XXXXXXXXXX reserved value
-        if (super->m17e.srcs[0] != '#')
+        if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) )
         {
+          //backup current string found here
+          char tempsrc[50]; memset(tempsrc, 0, 50*sizeof(char));
+          sprintf (tempsrc, "%s", super->m17e.srcs);
+          sprintf (super->m17e.srcs, "%s", "");
 
-          //check and capatalize any letters in the CSD
-          for (int i = 0; super->m17e.srcs[i]!='\0'; i++)
+          sprintf (label, " Enter Source Callsign:"); //set label to be displayed in the entry box window
+          entry_string_ncurses_terminal(label, super->m17e.srcs);
+
+          //If using is not passing a #XXXXXXXXXX reserved value
+          if (super->m17e.srcs[0] != '#')
           {
-            if(super->m17e.srcs[i] >= 'a' && super->m17e.srcs[i] <= 'z')
-              super->m17e.srcs[i] -= 32;
+
+            //check and capatalize any letters in the CSD
+            for (int i = 0; super->m17e.srcs[i]!='\0'; i++)
+            {
+              if(super->m17e.srcs[i] >= 'a' && super->m17e.srcs[i] <= 'z')
+                super->m17e.srcs[i] -= 32;
+            }
+
+            //terminate string
+            super->m17e.srcs[9] = '\0';
+
           }
 
-          //terminate string
-          super->m17e.srcs[9] = '\0';
-
-        }
-
-        //if no entry provided, revert to backup
-        if (super->m17e.srcs[0] == 0)
-        {
-          sprintf (super->m17e.srcs, "%s", tempsrc);
+          //if no entry provided, revert to backup
+          if (super->m17e.srcs[0] == 0)
+          {
+            sprintf (super->m17e.srcs, "%s", tempsrc);
+          }
         }
       }
       break;
 
     //'t' key, Enter Text Message (will zero out any raw packet data)
     case 116:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) ) //&& super->opts.use_m17_str_encoder == 1
+      if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
       {
-        sprintf (super->m17e.sms, "%s", "");
-        sprintf (super->m17d.sms, "%s", "");
-        memset  (super->m17e.raw, 0, sizeof(super->m17e.raw)); //zero out any raw packet data (two aren't mutually exclusive)
-        sprintf (label, " Enter Text Message:"); //set label to be displayed in the entry box window
-        entry_string_ncurses_terminal(label, super->m17e.sms);
-        if (super->m17e.sms[0]) //only send if there is an SMS text message loaded, else do nothing
+        if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1) ) //&& super->opts.use_m17_str_encoder == 1
         {
-          sprintf (super->m17d.sms, "%s", super->m17e.sms);
-          super->demod.in_sync = 1;
-          encode_pkt(super, 0);
-          super->demod.in_sync = 0;
+          sprintf (super->m17e.sms, "%s", "");
+          sprintf (super->m17d.sms, "%s", "");
+          memset  (super->m17e.raw, 0, sizeof(super->m17e.raw)); //zero out any raw packet data (two aren't mutually exclusive)
+          sprintf (label, " Enter Text Message:"); //set label to be displayed in the entry box window
+          entry_string_ncurses_terminal(label, super->m17e.sms);
+          if (super->m17e.sms[0]) //only send if there is an SMS text message loaded, else do nothing
+          {
+            sprintf (super->m17d.sms, "%s", super->m17e.sms);
+            super->demod.in_sync = 1;
+            encode_pkt(super, 0);
+            super->demod.in_sync = 0;
+          }
         }
       }
       break;
 
     //'u' key, Enter RAW Packet (will zero out loaded SMS Message)
     case 117:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1))
+      if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
       {
-        sprintf (super->m17e.sms, "%s", ""); //zero out any loaded SMS message
-        memset  (super->m17e.raw, 0, sizeof(super->m17e.raw)); //zero out any raw packet data
-        sprintf (label, " Enter Raw Packet:"); //set label to be displayed in the entry box window
-        sprintf (inp_str, "%s", "");    
-        entry_string_ncurses_terminal(label, inp_str);
-        uint16_t len = parse_raw_user_string(super, inp_str); UNUSED(len);
-        if (super->m17e.raw[0]) //only send if there is a packet loaded, else do nothing
+        if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1))
         {
-          //below is disabled, as it now causes stale Meta to present in call history
-          //and there isn't really a good reason to do this now
-          // decode_pkt_contents(super, super->m17e.raw+1, len); //decode content locally for display
+          sprintf (super->m17e.sms, "%s", ""); //zero out any loaded SMS message
+          memset  (super->m17e.raw, 0, sizeof(super->m17e.raw)); //zero out any raw packet data
+          sprintf (label, " Enter Raw Packet:"); //set label to be displayed in the entry box window
+          sprintf (inp_str, "%s", "");    
+          entry_string_ncurses_terminal(label, inp_str);
+          uint16_t len = parse_raw_user_string(super, inp_str); UNUSED(len);
+          if (super->m17e.raw[0]) //only send if there is a packet loaded, else do nothing
+          {
+            //below is disabled, as it now causes stale Meta to present in call history
+            //and there isn't really a good reason to do this now
+            // decode_pkt_contents(super, super->m17e.raw+1, len); //decode content locally for display
 
-          super->demod.in_sync = 1;
-          encode_pkt(super, 0);
-          super->demod.in_sync = 0;
+            super->demod.in_sync = 1;
+            encode_pkt(super, 0);
+            super->demod.in_sync = 0;
+          }
         }
       }
       break;
@@ -490,24 +513,27 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'w' key, Enter Arb Text Message
     case 119:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1))
+      if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
       {
-        //unload anything in the .dat field (Meta Text)
-        sprintf (super->m17e.dat, "%s", "");
-        sprintf (super->m17d.dat, "%s", "");
-        memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data)); //this doesn't nuke encryption stuff
-
-        //unload anything in the .arb field (Arb Text)
-        sprintf (super->m17e.arb, "%s", "");
-        sprintf (super->m17d.arb, "%s", "");
-        sprintf (label, " Enter Arbitrary Data Text:"); //set label to be displayed in the entry box window
-        entry_string_ncurses_terminal(label, super->m17e.arb);
-        if (super->m17e.arb[0]) //only send if there is an arb text message loaded, else signal 3200 voice
+        if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1))
         {
-          super->opts.m17_str_encoder_dt = 3;
-          sprintf (super->m17d.arb, "%s", super->m17e.arb);
+          //unload anything in the .dat field (Meta Text)
+          sprintf (super->m17e.dat, "%s", "");
+          sprintf (super->m17d.dat, "%s", "");
+          memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data)); //this doesn't nuke encryption stuff
+
+          //unload anything in the .arb field (Arb Text)
+          sprintf (super->m17e.arb, "%s", "");
+          sprintf (super->m17d.arb, "%s", "");
+          sprintf (label, " Enter Arbitrary Data Text:"); //set label to be displayed in the entry box window
+          entry_string_ncurses_terminal(label, super->m17e.arb);
+          if (super->m17e.arb[0]) //only send if there is an arb text message loaded, else signal 3200 voice
+          {
+            super->opts.m17_str_encoder_dt = 3;
+            sprintf (super->m17d.arb, "%s", super->m17e.arb);
+          }
+          else super->opts.m17_str_encoder_dt = 2;
         }
-        else super->opts.m17_str_encoder_dt = 2;
       }
       break;
 
