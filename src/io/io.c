@@ -582,8 +582,8 @@ void parse_udp_user_string (Super * super, char * input)
 
     if (*curr == 0x41) //'A' for Adhoc
     {
-      super->opts.use_m17_reflector_mode = 1;
-      super->opts.use_m17_adhoc_mode = 0;
+      super->opts.use_m17_reflector_mode = 0;
+      super->opts.use_m17_adhoc_mode = 1;
       super->opts.send_conn_or_lstn = 1;
     }
 
