@@ -14,7 +14,7 @@ int samp_num = 1920*34; //discarded LSF Frame + up to 33 packet frames, prevent 
 
 void m17_udp_socket_duplex_init(void)
 {
-  m17_udp_socket_duplex = 0;
+  m17_udp_socket_duplex = -1;
 }
 
 //detached ip frame conn, disc, ping, and pong
@@ -747,6 +747,11 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
       //restore original LSF
       // memcpy (m17_lsf, super->m17e.lsf_bkp, 240*sizeof(uint8_t));
 
+      //this is a failsafe, not sure if pings are recieved when TX on reflector
+      //this will prevent a disconnect issue by resetting ping time and current time
+      super->demod.current_time = time(NULL);
+      super->demod.ping_time = time(NULL);
+
     } //end if (super->m17d.strencoder_tx)
 
     else //if not tx, reset values, drop sync
@@ -1003,6 +1008,11 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
       //flush decoder side lsf, may be redundant, but using to make sure no stale values loaded during debug
       memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
 
+      //this is a failsafe, not sure if pings are recieved when TX on reflector
+      //this will prevent a disconnect issue by resetting ping time and current time
+      super->demod.current_time = time(NULL);
+      super->demod.ping_time = time(NULL);
+
     }
 
     //refresh ncurses printer, if enabled
@@ -1094,22 +1104,24 @@ void m17_duplex_mode (Super * super)
 
   //NOTE: UDP IP Frames now working properly in UDP IP mode, IP Address is TARGET IP Address
   //example:
-  //local  machine: m17-fme -D 2> m17e.txt -I -U 192.168.7.5:17000
-  //remote machine: m17-fme -D 2> m17e.txt -I -U 192.168.7.8:17000
+  //local  machine: m17-fme -D 2> m17e.txt -I -U 192.168.7.5:17000:A
+  //remote machine: m17-fme -D 2> m17e.txt -I -U 192.168.7.8:17000:A
   //or use broadcast IP address:
-  //both machines: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000
+  //both machines: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000:A
 
-  //NOTE: DO NOT use localhost or 127.0.0.1 as the -U address, or use the default addresss
-  //check for localhost, or 127.0.0.1, disable ip if target address is self
+  //NOTE: DO NOT use localhost or 127.0.0.1 or 0.0.0.0 as the -U address, or use the default addresss
+  //check for localhost, 0.0.0.0, or 127.0.0.1, disable ip if target address is self
   //need potential IP6 variations, if possible, not sure if net_udp is configured to allow IP6 traffic
 
   if (super->opts.m17_use_ip == 1)
   {
     if ( (strcmp(super->opts.m17_hostname, "127.0.0.1") == 0) || 
-         (strcmp(super->opts.m17_hostname, "localhost") == 0)  )
+         (strcmp(super->opts.m17_hostname, "localhost") == 0) ||
+         (strcmp(super->opts.m17_hostname, "0.0.0.0")   == 0))
     {
       fprintf (stderr, "Cannot use host: %s as target address on RX and TX Mode.\n", super->opts.m17_hostname);
       super->opts.m17_use_ip = 0;
+      exitflag = 1;
     }
   }
 
@@ -1117,7 +1129,7 @@ void m17_duplex_mode (Super * super)
   uint8_t use_ip = 0;
   int udpport = super->opts.m17_portno;
   uint8_t reflector_module = (uint8_t)super->m17e.reflector_module;
-  int sock_err = 0;
+  int sock_err = -1;
   if (super->opts.m17_use_ip == 1)
   {
     
@@ -1138,7 +1150,7 @@ void m17_duplex_mode (Super * super)
       m17_udp_socket_duplex = super->opts.m17_udp_sock;
     }
 
-    if (m17_udp_socket_duplex < 0 && sock_err < 0)
+    if (m17_udp_socket_duplex < 0 || sock_err < 0) //was &&
     {
       fprintf (stderr, "Error Configuring UDP Socket for M17 IP Frame :( \n");
       use_ip = 0;
@@ -1233,6 +1245,11 @@ void m17_duplex_mode (Super * super)
       //update packet_burst_time so it doesn't fire off immediately after a voice stream
       packet_burst_time = time(NULL); 
 
+      //this is a failsafe, not sure if pings are recieved when TX on reflector
+      //this will prevent a disconnect issue by resetting ping time and current time
+      super->demod.current_time = time(NULL);
+      super->demod.ping_time = time(NULL);
+
     }
 
     //screwing around with sending random packet bursts / beacons on an interval
@@ -1261,6 +1278,12 @@ void m17_duplex_mode (Super * super)
         k = 0;
 
       super->demod.in_sync = 0;
+
+       //this is a failsafe, not sure if pings are recieved when TX on reflector
+      //this will prevent a disconnect issue by resetting ping time and current time
+      super->demod.current_time = time(NULL);
+      super->demod.ping_time = time(NULL);
+
     }
 
     else if (!use_ip)
@@ -1294,6 +1317,25 @@ void m17_duplex_mode (Super * super)
 
     else if (use_ip)
       decode_ipf(super, m17_udp_socket_duplex);
+
+    //if more than 60 seconds since last ping (reflector mode), then test connection and reconnect if possible
+    if ( (super->opts.use_m17_reflector_mode == 1) && ((super->demod.current_time - super->demod.ping_time) > 60) )
+    {
+      fprintf (stderr, "\n Reflector Connection Issue? No Ping...Attempting Reconnection.");
+      super->demod.ping_time += 30; //add 30 seconds so next attempt will be in 30 seconds if this fails
+
+      //I don't think we need most of this, but not sure if that is always true or not
+      close (super->opts.m17_udp_sock);
+      close(m17_udp_socket_duplex);
+      sock_err = udp_socket_connectM17(super);
+      m17_udp_socket_duplex = super->opts.m17_udp_sock;
+      if (sock_err > -1)
+        ip_send_conn_disc_ping_pong(super, super->opts.send_conn_or_lstn);
+      else fprintf (stderr, "..Reconnection Failure, retry in 30 seconds.");
+
+      //only attempt to resend the conn or lstn
+      // ip_send_conn_disc_ping_pong(super, super->opts.send_conn_or_lstn);
+    }
   }
 
   //close UDP Socket afterwards
@@ -1534,7 +1576,7 @@ void decode_game_sms_gate(Super * super, uint8_t * input, int len)
   }
   else //echo and decode players text message and send appropriate reply
   {
-    fprintf (stderr, "\n SMS: ");
+    fprintf (stderr, " Text: ");
     for (i = 1; i < len; i++)
     {
       fprintf (stderr, "%c", input[i]);

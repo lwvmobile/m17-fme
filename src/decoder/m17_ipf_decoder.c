@@ -72,7 +72,7 @@ void decode_ipf (Super * super, int socket)
       err = m17_socket_receiver_duplex(socket, &ip_frame);
 
     //debug
-    // fprintf (stderr, "ERR: %X; ", err);
+    // fprintf (stderr, "ERR: %d; ", err);
   }
   else exitflag = 1;
 
