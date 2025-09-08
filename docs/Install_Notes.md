@@ -35,6 +35,31 @@ wget https://raw.githubusercontent.com/lwvmobile/m17-fme/main/scripts/download-a
 sh download-and-install-macos.sh
 ```
 
+### Windows Cygwin Builds
+
+Cygwin builds now have an experimental semi-automatic installer, to run, follow steps below:
+
+Open Windows PowerShell (not Command Prompt) and copy and paste all of this in all at once.
+
+```
+Invoke-WebRequest https://cygwin.com/setup-x86_64.exe -OutFile setup-x86_64.exe
+.\setup-x86_64.exe --packages nano,libpulse-devel,libpulse-mainloop-glib0,libpulse-simple0,libpulse0,pulseaudio,pulseaudio-debuginfo,pulseaudio-equalizer,pulseaudio-module-x11,pulseaudio-module-zeroconf,pulseaudio-utils,sox-fmt-pulseaudio,libusb0,libusb1.0,libusb1.0-debuginfo,libusb1.0-devel,libncurses++w10,libncurses-devel,libncursesw10,ncurses,cmake,gcc-core,gcc-debuginfo,gcc-objc,git,make,socat,sox,sox-fmt-ao,zip,unzip,wget,gcc-g++,libsndfile-devel
+
+```
+
+Pick a Mirror. http://www.gtlib.gatech.edu mirror seems relatively fast. Nurse the Cygwin installer by clicking next and waiting for it to finish. Ignore the warning popup telling you to install libusb from sourceforge. Install the [Zadig](https://zadig.akeo.ie/ "Zadig") driver instead, if you haven't already and have an RTL Dongle. After Cygwin finishes installing, the installer sh script will download and run, be patient, it may also take a little while.
+
+Then:
+
+```
+C:\cygwin64\bin\mintty.exe /bin/bash -l -c "wget https://raw.githubusercontent.com/lwvmobile/m17-fme/refs/heads/main/scripts/download-and-install-cygwin.sh; sh download-and-install-cygwin.sh; m17-fme;"
+
+```
+
+After the sh script finishes, m17-fme should open. If not, then double click on the Cygwin Terminal desktop shortcut, and try running `m17-fme`. If you chose to create a portable version, you will find the folder and zip file in the `C:\cygwin64\home\username` directory if using the default cygwin64 folder location.
+
+You can also update your versions by using the cyg_rebuild.sh script `sh scripts/cyg_rebuild.sh`.
+
 ## How to Build (Manual Install)
 
 ### Dependencies

@@ -1,0 +1,175 @@
+M17 Project - Florida Man Edition                          
+Build Version: 2025-46-g4672f58 
+Specification Version: 2.0; 
+Specification Date: Aug 26, 2025 
+Session Number: 1919 
+
+Usage: m17-fme [options]    Start the Program
+  or:  m17-fme -h           Show Help
+
+Display Options:
+
+  -N            Use NCurses Terminal
+                 m17-fme -N 2> log.txt 
+  -v <num>      Payload Verbosity Level
+  -d <num>      Demodulator Verbosity Level
+
+Device Options:
+
+  -a            List All Pulse Audio Input Sources and Output Sinks (devices).
+
+Input Options:
+
+  -i <device>   Audio input device (default is pulserf)
+                pulserf for pulse audio RFA input 
+                pulserf:6 or pulserf:m17_sink2.monitor for pulse audio RFA input on m17_sink2 (see -a) 
+                pulsevx for pulse audio Voice / Mic input
+                pulsedxv for pulse audio Voice / Mic input on TX and RX Mode Operation
+                pulsevx:2, pulsedxv:2, or pulsevx:alsa_input.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Mic input on device (see -a) 
+                - for STDIN input (specify encoder or decoder options below)
+                (Note: When using STDIN, Ncurses Keyboard Shortcuts Disabled)
+                (padsp wrapper required for OSS audio on Linux)
+                /dev/dsp for OSS audio
+                udp for UDP Frame Input (default localhost:17000)
+                udp:192.168.7.8:17001:A for M17 UDP/IP Adhoc input (Address, Port, (A)dhock)
+                udp:192.168.7.8:17001:R:C:YES for M17 UDP/IP Reflector input (Address, Port, (R)eflector, Module, Affirmation (See Below))
+                tcp for Network Audio TCP Source at 48000 (SDR++)
+                tcp:192.168.7.5:7355 for Network Audio TCP Source at 48000 (SDR++)
+  -w <file>     48k/1 SNDFile Compatible RF Audio .wav or .rrc input file
+  -c <file>     DSD-FME Compatible Dibit/Symbol Capture Bin input file (from RF Encoder)
+  -f <file>     Float Symbol input file (from RF Encoder and M17_Implementations)
+
+Output Options:
+
+  -o <device>   Audio output device (default is pulsevx)
+                pulserf for pulse audio RFA output
+                pulserf:5 or pulserf:m17_sink2 for pulse audio RFA output on m17_sink2 (see -a) 
+                pulsevx for pulse audio Voice / Loopback output
+                pulsedxv for pulse audio Voice output on TX and RX Mode Operation
+                pulsevx:1, pulsedxv:1, or pulsevx:alsa_output.pci-0000_0d_00.3.analog-stereo for pulse audio Voice / Loopback output on device (see -a) 
+                - for STDOUT output (specify encoder or decoder options below)
+                (Note: Don't use Ncurses Terminal w/ STDOUT enabled)
+                (padsp wrapper required for OSS audio on Linux)
+                /dev/dsp for OSS audio
+                (OSS Can only do either RF output, or VX output,
+                 not both at the same time, specify encoder and decoder options below)
+                udp for UDP Frame Output (default localhost:17000)
+                udp:192.168.7.8:17001 for M17 UDP/IP blaster output (Target Address and Port)
+                m17udp:192.168.7.8:17001 for M17 UDP/IP blaster output (Target Address and Port)
+  -W <file>     48k/1 SNDFile Compatible RF Audio .wav output file
+  -C <file>     DSD-FME Compatible Dibit/Symbol Capture Bin output file
+  -F <file>     Float Symbol output file (M17_Implementations Compatible)
+
+Encoder Options:
+
+  -V            Enable the Stream Voice Encoder
+  -P            Enable the Packet Data  Encoder
+  -!            Enable the Bit Error Rate Test (BERT) Encoder (RFA only)
+  -I            Enable IP Frame Output with defaults (can be combined with Loopback or RFA output)
+  -L            Enable Internal Encoder Loopback Decoder (must be used with pulsevx output)
+  -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder
+  -s <dec>      Input Squelch v RMS Level (Vox) on Stream Voice Encoder
+  -x            Modulate Inverted Polarity on RF Output
+  -K <file>     Load secp256r1 Private Key from file. (see example key: key/sig_pri_key.txt)
+
+Encoder Input Strings:
+
+  -M <str>      Set M17 CAN:SRC:DST 
+                (example: -M 1:N0CALL:SP5WWP) 
+                Note: Use an Underscore (_) for any required spaces when using a reflector, etc. 
+  -U <str>      Set UDP/IP Frame HOST:PORT:MODE:MODULE:AFFIRMATION 
+                (example: -U 127.0.0.1:17001:A) 
+                (example: -U 127.0.0.1:17001:R:C:YES) 
+                 Note: Affirmation YES means you have a valid callsign and verify you are allowed to legally TX
+  -S <str>      Enter SMS Message (up to 821 UTF-8 characters) for Packet Data Encoder
+                (example: -S 'Hello World! This is a text message') 
+  -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.
+                (example: -A 'Hello World! This is arbitrary data on 1600') 
+  -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets (up to 823 octets).
+                (example: -R 81F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) 
+
+                (NOTE: Using Meta Fields is not compatible with Using Encryption!) 
+  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 13 UTF-8 characters, single segment only);
+                (example: -Y 'Hello World!!') for Meta Text 
+  -Z <hex>      Enter META Data for Stream Voice Encoder as Hex Octets (1 Meta Type Octet + 14 Hex Octets Max);
+                (example: -Z 01F0F2B42B20ABC500C80424064000) for Meta GNSS Position @ Wally World 
+
+Decoder Options:
+
+  -r            Enable RFA Demodulator and Decoding of Stream and Packet Data
+  -x            Demodulate Inverted Polarity on RF Input
+  -m            Enable Analog / Raw Input Signal Monitor on RF Input (when no sync)
+  -l            Enable Event Log File: date_time_m17fme_eventlog.txt
+  -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 
+  -p            Per Call decoded voice wav file saving into current directory ./m17wav folder
+  -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)
+
+TX and RX Options:
+
+  -D            Enable TX and RX Mode (Send and Receive over RF or IP Frame)
+                 Current Implementation Requires Pulse Audio and Ncurses Availability for RF Mode.
+                 RF Example (w/ Multiple Audio Devices or Virtual / Null Sinks):
+                 m17-fme -D 2> m17e.txt
+
+                 IP Frame Example(s):
+
+                 Adhoc Mode:
+                 LAN Machine 1: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000:A
+                 LAN MAchine 2: m17-fme -D 2> m17e.txt -I -U 192.168.7.255:17000:A
+                 Note: Adhoc Mode does not require the use of a module selection.
+
+                 Reflector Client Mode:
+                 LSTN MODE: m17-fme -D 2> m17e.txt -M 0:M17FME000:ALL -I -U 112.213.34.65:17000:R:C:NO
+                 CONN MODE: m17-fme -D 2> m17e.txt -M 0:SP5WWP__D:ALL -I -U 112.213.34.65:17000:R:C:YES
+                 Note: Using Reflector mode, you must enter all fields, including R for reflector, module
+                       and YES to affirm you have a valid callsign for TX. NO is Listen Only (LSTN) Mode.
+
+Encryption Options:
+
+                (NOTE: Encoder and Decoder share same values here)
+  -e <hex>      Enter Scrambler Key Value (up to 24-bit / 6 Hex Character)
+                (example: -e ABCDEF)
+  -E <hex str>  Enter AES Key Value (in single quote, space every 16 chars) 
+                (example: -E '0520C1B0220AFBCA 16FB1330764B26EC 5C34A197764C147A 15FBA7515ED8BCFC')
+                (example: -E '0520C1B0220AFBCA 16FB1330764B26EC')
+                (Limiting significant key value to first 32 characters to maintain compatibility)
+  -J <file>     Load AES Key from file. (see example key: key/aes_key.txt)
+  -O            Send OTA Key Delivery Packets for AES and Scrambler Keys
+  -Q            Send OTA Key Delivery Packets for Signature Public Keys
+
+Debug Options:
+
+  -1            Generate Random One Time Use 24-bit Scrambler Key 
+  -2            Generate Random One Time Use 256-bit AES Key. 
+  -3            Generate Random Keys For secp256r1 Signatures. Enable Signing and Verification.
+  -5            Generate Random Keys For secp256r1 Signatures, and exit.
+  -4            Permit Data Decoding on CRC Failure (not recommended). 
+  -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). 
+  -7            Disable Symbol Timing Correction. 
+  -8            Disable High Pass Filter on CODEC2 Output. 
+  -9            Enable  RRC Filter on RF Audio Encoding / Decoding. 
+  -0            Disable RRC Filter on RF Audio Encoding / Decoding. 
+
+Quick Examples:
+
+ Stream Voice Encoder with Mic Input (pulsevx) RF Output (pulserf), float symbol file output (float.sym) 
+ m17-fme -i pulsevx -o pulserf -V -F float.sym -N 2> m17encoder.txt 
+  (Note: When Using Ncurses Terminal with Encoding and Not Vox, use '\' key to toggle TX)
+
+ RF Demodulator for Stream Voice and Data Packet with Decoded Voice Output (pulsevx) 
+ m17-fme -i pulserf -o pulsevx -r -N 2> m17decoder.txt 
+
+ Stream Voice Encoder with Mic Input (pulsevx) IP Frame Output Adhoc Host and Port
+ m17-fme -i pulsevx -o udp:192.168.7.255:17000:A -V -I -N 2> m17encoder.txt 
+
+ IP Frame Decoder for Voice Stream and Packet Data Adhoc Host and Port (Adhoc 0.0.0.0:17000)
+ m17-fme -i udp -u -o pulsevx -N 2> m17decoder.txt 
+
+ Packet Data Encoder with SMS Message to Adhoc IP Frame Output to custom port and RF Audio Output
+ m17-fme -o pulserf -P -S 'This is a text message' -M 1:M17-FME:ALL -I -U 127.0.0.1:17001:A 
+
+ IP Frame Decoder for Voice Stream and Packet Data Bound to Adhoc Custom Address and Port 
+ m17-fme -i udp:127.0.0.1:17001:A -N 2> m17decoder.txt 
+
+ IP Frame Decoder for Voice Stream and Packet Data Connect to Reflector Address, Port, R, Module in LSTN mode
+ m17-fme -i udp:172.234.217.28:17000:R:C -M 0:M17FME0:ALL -o pulsevx -N 2> m17decoder.txt
