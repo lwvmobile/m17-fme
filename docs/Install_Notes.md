@@ -39,6 +39,8 @@ sh download-and-install-macos.sh
 
 Cygwin builds now have an experimental semi-automatic installer, to run, follow steps below:
 
+Note: If you already have DSD-FME compiled with Cygwin64 using this method, you can skip to the second step, or if you prefer to handpick packages to install, use the itemized packages below to guide you.
+
 Open Windows PowerShell (not Command Prompt) and copy and paste all of this in all at once.
 
 ```
@@ -58,7 +60,7 @@ C:\cygwin64\bin\mintty.exe /bin/bash -l -c "wget https://raw.githubusercontent.c
 
 After the sh script finishes, m17-fme should open. If not, then double click on the Cygwin Terminal desktop shortcut, and try running `m17-fme`. If you chose to create a portable version, you will find the folder and zip file in the `C:\cygwin64\home\username` directory if using the default cygwin64 folder location.
 
-You can also update your versions by using the cyg_rebuild.sh script `sh scripts/cyg_rebuild.sh`.
+You can also update your versions by using the cyg_rebuild.sh script `sh cyg_rebuild.sh`.
 
 ## How to Build (Manual Install)
 

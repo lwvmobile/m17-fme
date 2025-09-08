@@ -63,36 +63,38 @@ if [ "$RELEASE" = "y" ]; then
 
   #start copying things into the m17-fme folder
   cp m17-fme/build/m17-fme.exe m17-fme-portable/m17-fme/
-#   cp -r m17-fme/examples m17-fme-portable/m17-fme/
+  cp -r m17-fme/docs m17-fme-portable/m17-fme/
+  cp -r m17-fme/scripts m17-fme-portable/m17-fme
+  cp -r m17-fme/samples m17-fme-portable/m17-fme
+  cp -r m17-fme/key m17-fme-portable/m17-fme
   cp .bash_profile m17-fme-portable/m17-fme/
   cp .bashrc m17-fme-portable/m17-fme/
   cp .inputrc m17-fme-portable/m17-fme/
   cp .profile m17-fme-portable/m17-fme/
 
   #move (cut) the bat files to the portable folder root and delete the other ones so users won't get confused
-#   mv m17-fme-portable/m17-fme/examples/cygwin_bat/start-m17-fme.bat m17-fme-portable/
-#   mv m17-fme-portable/m17-fme/examples/cygwin_bat/example_options.txt m17-fme-portable/
-#   mv m17-fme-portable/m17-fme/examples/cygwin_bat/complete_usage_options.txt m17-fme-portable/
-#   rm -rf m17-fme-portable/m17-fme/scripts/cygwin_bat
+  mv m17-fme-portable/m17-fme/scripts/cygwin_bat/start-m17-fme.bat m17-fme-portable/
+  mv m17-fme-portable/m17-fme/scripts/cygwin_bat/example_options.txt m17-fme-portable/
+  mv m17-fme-portable/m17-fme/scripts/cygwin_bat/complete_usage_options.txt m17-fme-portable/
 
   #change .bat files permissions to be read/write/executable by all users (for some reason, this is not preserved)
-#   chmod 777 m17-fme-portable/*.bat
+  chmod 777 m17-fme-portable/*.bat
 
   #copy the license, copyright, source code, and things that should be included in all portable releases
+  cp m17-fme/LICENSE m17-fme-portable/sourcecode/
   cp m17-fme/README.md m17-fme-portable/sourcecode/
-  cp m17-fme/m17-fme1.png m17-fme-portable/sourcecode/
-  cp m17-fme/m17-fme2.png m17-fme-portable/sourcecode/
 
   #fix this after testing things
-  # cp m17-fme/CMakeLists.txt m17-fme-portable/sourcecode/
-  # cp -r m17-fme/src m17-fme-portable/sourcecode/
-  # cp -r m17-fme/include m17-fme-portable/sourcecode/
-  # cp -r m17-fme/cmake m17-fme-portable/sourcecode/
-  # cp -r m17-fme/patch m17-fme-portable/sourcecode/
+  cp m17-fme/CMakeLists.txt m17-fme-portable/sourcecode/
+  cp m17-fme/.gitignore m17-fme-portable/sourcecode/
+  cp m17-fme/.gitmodules m17-fme-portable/sourcecode/
+  cp -r m17-fme/src m17-fme-portable/sourcecode/
+  cp -r m17-fme/include m17-fme-portable/sourcecode/
+  cp -r m17-fme/cmake m17-fme-portable/sourcecode/
 
   #compiled items into release m17-fme folder
   cp codec2/build/src/cygcodec2* m17-fme-portable/m17-fme/
-#   cp rtl-sdr/build/src/cyg* m17-fme-portable/m17-fme/
+#   cp rtl-sdr/build/src/cyg* m17-fme-portable/m17-fme/ #re-enable if RTL support is ever added (good chance of it in the future)
 
   #bin items into release m17-fme folder (uisng * where version numbering may exist, those may be upgraded if hard coded)
   cp /bin/bash.exe m17-fme-portable/m17-fme/
@@ -124,7 +126,7 @@ if [ "$RELEASE" = "y" ]; then
   cp /bin/cygdbus* m17-fme-portable/m17-fme/
   cp /bin/cygedit* m17-fme-portable/m17-fme/
   cp /bin/cygexpat* m17-fme-portable/m17-fme/
-  cp /bin/cygfam* m17-fme-portable/m17-fme/
+  # cp /bin/cygfam* m17-fme-portable/m17-fme/ #cannot stat, must have been removed?
   cp /bin/cygfdisk* m17-fme-portable/m17-fme/
   cp /bin/cygffi* m17-fme-portable/m17-fme/
   cp /bin/cygfftw3_threads* m17-fme-portable/m17-fme/

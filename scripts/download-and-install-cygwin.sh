@@ -4,8 +4,7 @@ cdir=$(pwd)
 clear
 printf "M17 Project: Florida Man Edition - Auto Installer For Cygwin.
 This will install the required and recommended packages, clone, build, and install M17-FME.
-This has been tested on the latest Cygwin64 installation as of 2025-09-07.
-A full system upgrade is recommended if before installing new dependencies
+This has been tested on Cygwin x86-64 as of 20250907. This may take a while!
 Please confirm that you wish to preceed by entering y below.\n\n"
 read -p "Do you wish to proceed? y/N " ANSWER
 ANSWER=$(printf "$ANSWER"|tr '[:upper:]' '[:lower:]')
@@ -51,7 +50,7 @@ if [ "$ANSWER" = "y" ]; then
   cd $cdir
 
   #call the cyg_portable script
-  #sh m17-fme/cyg_portable.sh #TODO: Add this for M17-FME
+  sh m17-fme/scripts/cyg_portable.sh
 
   printf "Any issues, Please report to:\nhttps://github.com/lwvmobile/m17-fme/issues \n\n"
 
