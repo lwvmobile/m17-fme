@@ -164,6 +164,9 @@ typedef struct
   float output_gain_rf;
   float output_gain_vx;
 
+  //Auto Gain for Voice Payload Samples
+  uint8_t auto_gain_voice;
+
   //Input and Output Files
   uint8_t use_float_symbol_output;
   uint8_t use_float_symbol_input;
@@ -236,6 +239,10 @@ typedef struct
   //this will be filled and discharged every 960 samples for raw audio signal monitor
   short    raw_audio_buffer[960];
   uint16_t raw_audio_buffer_ptr;
+
+  //auto gain
+  float max_history_buffer[256];
+  uint8_t max_history_buffer_ptr;
 
   //frame sync
   float sync_symbols[8];
@@ -556,6 +563,10 @@ void  input_gain_rf (Super * super, short * input, int len);
 void  input_gain_vx (Super * super, short * input, int len);
 void output_gain_rf (Super * super, short * input, int len);
 void output_gain_vx (Super * super, short * input, int len);
+
+//Auto Gain for Voice Payload Samples
+void auto_gain_vx (Super * super, short * input, int len);
+void reset_auto_gain_vx (Super * super);
 
 //UDP IP Related Functions
 int  udp_socket_bind (char *hostname, int portno);

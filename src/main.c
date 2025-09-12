@@ -38,6 +38,8 @@ void usage ()
   printf ("Device Options:\n");
   printf ("\n");
   printf ("  -a            List All Pulse Audio Input Sources and Output Sinks (devices).\n");
+  printf ("  -g <float>    Disable Auto Gain and Apply Static Gain Value to Encoded Audio Output (0.01 - 25.00).\n");
+  printf ("                Note: Decimal Gain Value of 0.01 is 1%%, Decimal Gain Value of 25.00 is 2500%% \n");
   printf ("\n");
   printf ("Input Options:\n");
   printf ("\n");
@@ -213,6 +215,8 @@ int main (int argc, char **argv)
   char string[1024]; memset (string, 0, 1024*sizeof(char));
   char * source_str;
 
+  float gain_value = 0.0f;
+
   //Nested "Super" Struct to make it easy to pass around tons of smaller structs
   Super super;
   init_super(&super);
@@ -270,7 +274,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "!1234567890ac:d:e:f:hi:k:lmno:prs:t:uv:w:xA:BC:DE:F:GIJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
+  while ((c = getopt (argc, argv, "!1234567890ac:d:e:f:g:hi:k:lmno:prs:t:uv:w:xA:BC:DE:F:GIJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
   {
 
     i++;
@@ -413,6 +417,28 @@ int main (int argc, char **argv)
         if (super.opts.input_handler_string[0] != 0)
           parse_input_option_string(&super, super.opts.input_handler_string);
         memset (super.opts.input_handler_string, 0, 2048*sizeof(char));
+        break;
+
+      case 'g':
+        sscanf (optarg, "%f", &gain_value);
+        if (gain_value < 0.0f) //negative value
+        {
+          fprintf (stderr,"Disabling Auto Gain on Voice Payload; Set to 100%%. \n");
+          super.opts.output_gain_vx = 1.0f;
+          super.opts.auto_gain_voice = 0;
+        }
+        else if (gain_value >= 0.01f && gain_value <= 25.0f)
+        {
+          fprintf (stderr,"Disabling Auto Gain on Voice Payload; Set to %.1f\n", gain_value*100);
+          super.opts.output_gain_vx = gain_value;
+          super.opts.auto_gain_voice = 0;
+        }
+        else
+        {
+          fprintf (stderr,"Auto Gain on Voice Payload Not Disabled; Choose Range 0.01 to 25. \n");
+          super.opts.output_gain_vx = 1.0f;
+          super.opts.auto_gain_voice = 1;
+        }
         break;
 
       //Specify ECDSA Public Key File (Decoder)

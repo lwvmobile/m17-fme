@@ -97,6 +97,9 @@ void init_super (Super * super)
   super->opts.output_gain_rf = 1.0f;
   super->opts.output_gain_vx = 1.0f;
 
+  //Auto Gain for Voice Payload Samples
+  super->opts.auto_gain_voice = 1;
+
   //Input and Output Files
   super->opts.use_float_symbol_output = 0;
   super->opts.use_float_symbol_input = 0;
@@ -197,6 +200,9 @@ void init_super (Super * super)
 
   memset (super->demod.raw_audio_buffer, 0, 960*sizeof(short));
   super->demod.raw_audio_buffer_ptr = 0;
+
+  memset (super->demod.max_history_buffer, 0, 256*sizeof(float));
+  super->demod.max_history_buffer_ptr = 0;
 
   //frame sync and timing recovery
   memset (super->demod.sync_symbols, 0, 8*sizeof(float));

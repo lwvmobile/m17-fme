@@ -177,10 +177,10 @@ This is the current usage (subject to change), verbatim, from m17-fme -h option:
 
 ```
 M17 Project - Florida Man Edition                          
-Build Version: 2025-35-g1c18435 
+Build Version: 2025-48-g13c9370 
 Specification Version: 2.0; 
 Specification Date: Aug 26, 2025 
-Session Number: 57EE 
+Session Number: 5C1D 
 
 Usage: m17-fme [options]    Start the Program
   or:  m17-fme -h           Show Help
@@ -195,6 +195,8 @@ Display Options:
 Device Options:
 
   -a            List All Pulse Audio Input Sources and Output Sinks (devices).
+  -g <float>    Disable Auto Gain and Apply Static Gain Value to Encoded Audio Output (0.01 - 25.00).
+                Note: Decimal Gain Value of 0.01 is 1%, Decimal Gain Value of 25.00 is 2500% 
 
 Input Options:
 
@@ -356,6 +358,8 @@ Quick Examples:
 
 ### Ncurses Keyboard Shortcuts
 
+Some Shortcuts may be disabled, depending on mode of operation.
+
 ```
 
 //Callsign Entry
@@ -372,7 +376,6 @@ Quick Examples:
 // Packet and Data Functionality
 'o' key, send OTAKD Encryption Key Delivery Packet over RF
 'p' key, send OTASK Signature Key Delivery Packet over RF
-
 
 't' key, enter and send SMS Text Message over RF or IP
 'u' key, enter and send Raw Data Packet over RF or IP
@@ -405,6 +408,8 @@ Quick Examples:
 
 '<' key, decrement input squelch by 10
 '>' key, increment input squelch by 10
+
+'a' key, toggle auto gain or manual gain
 
 // Encryption and Signatures
 '1' key, Generate Random Scrambler Key (24-bit)

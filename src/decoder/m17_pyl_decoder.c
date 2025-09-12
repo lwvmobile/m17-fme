@@ -178,18 +178,18 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   else
     codec2_decode(super->m17d.codec2_1600, samp1, voice1);
 
-  //Apply Gain to Output
-  output_gain_vx (super, samp1, nsam);
-  if (type == 2)
-    output_gain_vx (super, samp2, nsam);
-
-  //Run HPF on decoded voice prior to upsample
+  //Run HPF on decoded voice prior to gain and upsample
   if (super->opts.use_hpfilter_dig == 1)
   {
     hpfilter_d(super, samp1, nsam);
     if (type == 2)
       hpfilter_d(super, samp2, nsam);
   }
+
+  //Apply Gain to Output
+  auto_gain_vx (super, samp1, nsam);
+  if (type == 2)
+    auto_gain_vx (super, samp2, nsam);
 
   //Upsample 8k to 48k
   for (i = 0; i < (int)nsam; i++)

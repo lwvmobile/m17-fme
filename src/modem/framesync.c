@@ -494,6 +494,10 @@ void no_carrier_sync (Super * super)
   memset (super->m17d.ecdsa.last_stream_pyl, 0, 16*sizeof(uint8_t));
   memset (super->m17d.ecdsa.signature, 0, 64*sizeof(uint8_t));
 
+  //reset auto gain
+  if (super->opts.auto_gain_voice == 1)
+    reset_auto_gain_vx(super);
+
 }
 
 void buffer_refresh_min_max_center (Super * super)

@@ -58,7 +58,8 @@ void decode_lsf_contents(Super * super)
   if (lsf_ps == 0)
   {
     fprintf (stderr, " Data PDU");
-    fprintf (stderr, " FT: %04X;", lsf_type);
+    if (super->opts.payload_verbosity >= 1)
+      fprintf (stderr, " FT: %04X;", lsf_type);
     super->m17d.dt = 20;
   }
 

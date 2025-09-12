@@ -232,6 +232,21 @@ void input_ncurses_terminal (Super * super, int c)
       }
       break;
 
+    //'a' key, toggle auto or manual gain
+    case 97:
+      if (super->opts.auto_gain_voice == 0)
+      {
+        super->opts.auto_gain_voice = 1;
+        super->opts.output_gain_vx = 1.0f;
+      }
+      else
+      {
+        super->opts.auto_gain_voice = 0;
+        super->opts.output_gain_vx = 1.0f;
+      }
+      reset_auto_gain_vx(super);
+      break;
+
     //'b' key, set new CAN value, if using TX and RX or stream encoder
     case 98:
       if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
