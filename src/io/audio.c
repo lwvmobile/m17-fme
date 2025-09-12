@@ -160,7 +160,6 @@ void auto_gain_vx (Super * super, short * input, int len)
     //m17-kcw has terrible trans-encoded gain, need up to 30.0f to get decent volume
     if (gain_factor > 0.01f && gain_factor < 30.0f)
       super->opts.output_gain_vx = gain_factor;
-    else super->opts.output_gain_vx = 1.0f;
 
     //debug
     // float dB = 20.0f * log10f(max_buf / 32768);

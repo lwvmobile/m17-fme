@@ -744,6 +744,14 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
         }
       }
 
+      //if using the '0' key for quick burst, run 23, then EOT on 24 (4 superframes)
+      if (super->m17e.str_encoder_bst == 1 && fsn == 23)
+      {
+        eot = 1;
+        super->m17e.str_encoder_tx = 0;
+        super->m17e.str_encoder_bst = 0;
+      }
+
       //restore original LSF
       // memcpy (m17_lsf, super->m17e.lsf_bkp, 240*sizeof(uint8_t));
 

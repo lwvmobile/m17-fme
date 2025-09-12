@@ -324,6 +324,7 @@ typedef struct
   //Stream Voice Mode
   uint8_t str_encoder_tx;  //flag if transmit on or off
   uint8_t str_encoder_eot; //flag if transmit off and send EOT
+  uint8_t str_encoder_bst; //flag if transmit quick burst
   uint8_t str_encoder_vox; //flag if use vox mode
 
   //Call History

@@ -369,6 +369,7 @@ Some Shortcuts may be disabled, depending on mode of operation.
 
 // Voice Stream Functionality
 '\' key, Toggle TX Voice Encoder (when not Vox)
+'0' key, Quick Stream Burst (4 superframes)
 'v' key, Toggle Vox Mode Voice Encoder
 'h' key, Toggle High Pass Filter on CODEC2 Output
 'q' key, Quit

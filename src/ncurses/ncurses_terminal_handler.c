@@ -515,7 +515,10 @@ void print_ncurses_call_info (Super * super)
       {
         printw ("Press (\\) to Toggle TX");
         if (super->m17e.str_encoder_tx == 0)
+        {
           printw (" (OFF);");
+          printw (" Press (0) for a Quick Stream Burst;");
+        }
         else printw (" ( ON);");
       }
       else printw ("LSTN (Listen Only Mode). No TX, PKT, CFG, or DBG Options Enabled;");
