@@ -317,9 +317,11 @@ typedef struct
   uint8_t pkt[850]; //bytewise packet
   uint8_t pbc_ptr;  //internal packet block counter
   uint8_t raw[850]; //raw data from PDU that isn't SMS or UTF-8
-  uint8_t meta_data[16]; //encoder meta data (that isn't an IV) as uint8_t array
+  uint8_t meta_data[60]; //encoder meta data (that isn't an IV) as uint8_t array
   uint16_t raw_len; //legnth of raw hex user data for PKT encoder
   uint8_t packet_protocol;
+  uint16_t meta_round_robin_mod; //len mod for round robin of META data
+  uint16_t meta_round_robin_ctr; //counter for round robin of META data
 
   //Stream Voice Mode
   uint8_t str_encoder_tx;  //flag if transmit on or off

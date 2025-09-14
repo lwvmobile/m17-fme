@@ -232,9 +232,6 @@ void print_ncurses_config (Super * super)
     printw ("Pulse Voice Output:  %d kHz; %i Ch; ", super->opts.input_sample_rate/1000, 1);
     if (super->pa.pa_outvx_idx[0] != 0)
       printw ("D: %s;", super->pa.pa_outvx_idx);
-    if (super->opts.auto_gain_voice)
-      printw ( " Auto Gain(a);");
-    else printw ( " Manual Gain(a);");
   }
     
   if (super->opts.use_oss_output)

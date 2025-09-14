@@ -177,10 +177,10 @@ This is the current usage (subject to change), verbatim, from m17-fme -h option:
 
 ```
 M17 Project - Florida Man Edition                          
-Build Version: 2025-48-g13c9370 
+Build Version: 2025-50-gfa2cfc5 
 Specification Version: 2.0; 
 Specification Date: Aug 26, 2025 
-Session Number: 5C1D 
+Session Number: 4394 
 
 Usage: m17-fme [options]    Start the Program
   or:  m17-fme -h           Show Help
@@ -269,8 +269,8 @@ Encoder Input Strings:
                 (example: -R 81F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) 
 
                 (NOTE: Using Meta Fields is not compatible with Using Encryption!) 
-  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 13 UTF-8 characters, single segment only);
-                (example: -Y 'Hello World!!') for Meta Text 
+  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 52 UTF-8 characters, 4 Segment Meta);
+                (example: -Y 'Hello World!! This is a longer M17 Text Message!!!!' ) for Meta Text 
   -Z <hex>      Enter META Data for Stream Voice Encoder as Hex Octets (1 Meta Type Octet + 14 Hex Octets Max);
                 (example: -Z 01F0F2B42B20ABC500C80424064000) for Meta GNSS Position @ Wally World 
 
@@ -352,7 +352,7 @@ Quick Examples:
  m17-fme -i udp:127.0.0.1:17001:A -N 2> m17decoder.txt 
 
  IP Frame Decoder for Voice Stream and Packet Data Connect to Reflector Address, Port, R, Module in LSTN mode
- m17-fme -i udp:172.234.217.28:17000:R:C -M 0:M17FME0:ALL -o pulsevx -N 2> m17decoder.txt 
+ m17-fme -i udp:172.234.217.28:17000:R:C -M 0:M17FME0:ALL -o pulsevx -N 2> m17decoder.txt
 
 ```
 

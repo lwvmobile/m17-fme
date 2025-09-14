@@ -265,6 +265,8 @@ void init_super (Super * super)
   memset  (super->m17d.meta_data, 0, sizeof(super->m17d.meta_data));
   super->m17d.raw_len = 0;
   super->m17d.packet_protocol = 0;
+  super->m17d.meta_round_robin_mod = 1;
+  super->m17d.meta_round_robin_ctr = 0;
 
   //Stream Voice Mode (UNUSED on decoder)
   super->m17d.str_encoder_tx  = 0;
@@ -329,13 +331,15 @@ void init_super (Super * super)
   sprintf (super->m17e.dat, "%s", "");
   sprintf (super->m17e.arb, "%s", ""); //Up To 48 UTF-8 Characters of Text Can Appear Here.
 
-  //PKT specific storage and counters (UNUSED on Encoder)
+  //PKT specific storage and counters
   memset (super->m17e.pkt, 0, sizeof(super->m17e.pkt));
   super->m17e.pbc_ptr = 0;
   memset  (super->m17e.raw, 0, sizeof(super->m17e.raw));
   memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data));
   super->m17e.raw_len = 0;
   super->m17e.packet_protocol = 0;
+  super->m17e.meta_round_robin_mod = 1;
+  super->m17e.meta_round_robin_ctr = 0;
 
   //Stream Voice Mode
   super->m17e.str_encoder_tx  = 1;

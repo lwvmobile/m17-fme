@@ -758,30 +758,125 @@ void parse_meta_raw_string (Super * super, char * input)
 //convert a text string into a uint8_t array for text meta encoding (Note: Encryption use overrides the use of this in the Meta Data Field)
 void parse_meta_txt_string (Super * super, char * input)
 {
-  //TODO: Fix this so we can do a full 52-byte Meta Text Message (see pages 37-38 for details)
-  int i = 0;
-  char txt[16]; memset (txt, 0, 16*sizeof(char));
-  strncpy(txt, input, 13);
-  super->m17e.meta_data[0] = 0x01; //signal something is loaded in here for the encoder
-  super->m17e.meta_data[1] = 0x11; //control byte; len of 1, segment 1
 
-  //load 13 utf-8 characters / bytes from input
-  for (i = 0; i < 14; i++)
-    super->m17e.meta_data[i+2] = (uint8_t)txt[i];
+  int i = 0; int x = 0; int k = 0;
+  char txt[53]; memset (txt, 0, 52*sizeof(char));
+  strncpy(txt, input, 52);
 
-  //spec says if Meta text is shorter than full amount, to fill with 0x20 spaces and not 0x00
-  for (i = 2; i < 15; i++)
+  int len = strlen((const char*)txt);
+  if (len != 0)
   {
-    if (super->m17e.meta_data[i] == 0x00)
-      super->m17e.meta_data[i] = 0x20; 
+    super->m17e.meta_data[x++] = 0x01; //signal something is loaded in here for the encoder
+    super->m17e.met_st = 0; //Meta Text
+  }
+  else
+  {
+    memset (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data));
+    return;
   }
 
-  //copy to m17d.raw for ncurses display during tx
-  memcpy (super->m17d.meta_data, super->m17e.meta_data, 15);
-  super->m17e.met_st = 0; //Meta Text
+  if (len > 0 && len <= 13)
+  {
+    super->m17e.meta_data[x++] = 0x11; //control byte; len of 1, segment 1
+
+    //load 13 utf-8 characters / bytes from input
+    for (i = 0; i < 13; i++)
+      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
+
+    super->m17e.meta_round_robin_mod = 1;
+
+  }
+  else if (len > 13 && len <= 26)
+  {
+    super->m17e.meta_data[x++] = 0x31; //control byte; len of 2, segment 1
+
+    //load 13 utf-8 characters / bytes from input
+    for (i = 0; i < 13; i++)
+      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
+
+    super->m17e.meta_data[x++] = 0x32; //control byte; len of 2, segment 2
+
+    //load 13 utf-8 characters / bytes from input
+    for (i = 0; i < 13; i++)
+      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
+
+    super->m17e.meta_round_robin_mod = 2;
+
+  }
+  else if (len > 26 && len <= 39)
+  {
+    super->m17e.meta_data[x++] = 0x71; //control byte; len of 3, segment 1
+
+    //load 13 utf-8 characters / bytes from input
+    for (i = 0; i < 13; i++)
+      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
+
+    super->m17e.meta_data[x++] = 0x72; //control byte; len of 3, segment 2
+
+    //load 13 utf-8 characters / bytes from input
+    for (i = 0; i < 13; i++)
+      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
+
+    super->m17e.meta_data[x++] = 0x74; //control byte; len of 3, segment 3
+
+    //load 13 utf-8 characters / bytes from input
+    for (i = 0; i < 13; i++)
+      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
+
+    super->m17e.meta_round_robin_mod = 3;
+
+  }
+  else if (len > 39) // && len <= 52
+  {
+    super->m17e.meta_data[x++] = 0xF1; //control byte; len of 4, segment 1
+
+    for (i = 0; i < 13; i++)
+      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
+
+    super->m17e.meta_data[x++] = 0xF2; //control byte; len of 4, segment 2
+
+    for (i = 0; i < 13; i++)
+      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
+
+    super->m17e.meta_data[x++] = 0xF4; //control byte; len of 4, segment 3
+
+    for (i = 0; i < 13; i++)
+      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
+
+    super->m17e.meta_data[x++] = 0xF8; //control byte; len of 4, segment 4
+
+    for (i = 0; i < 13; i++)
+      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
+
+    super->m17e.meta_round_robin_mod = 4;
+
+  }
+
+  //NOTE: PR already in to remove this, so just disable and don't worry about it
+  //spec says if Meta text is shorter than full amount, to fill with 0x20 spaces and not 0x00
+  // for (i = 2; i < x; i++)
+  // {
+  //   if (super->m17e.meta_data[i] == 0x00)
+  //     super->m17e.meta_data[i] = 0x20; 
+  // }
 
   //debug
-  // fprintf (stderr, "Meta Len: %d; Meta Type: %02X; Meta Text: %s; \n", 14, super->m17e.met_st, super->m17e.meta_data+2);
+  fprintf (stderr, "\n Meta Len: %d; X: %02d; K: %02d; Meta Type: %02X; Meta Text: %s; \n", len, x, k, super->m17e.met_st, txt);
+
+  //debug dump on all bytes
+  x = 1;
+  fprintf (stderr, "\n Meta Payload(1): ");
+  for (i = 0; i < 14; i++)
+    fprintf (stderr, "%02X", super->m17e.meta_data[x++]);
+  fprintf (stderr, "\n Meta Payload(2): ");
+  for (i = 0; i < 14; i++)
+    fprintf (stderr, "%02X", super->m17e.meta_data[x++]);
+  fprintf (stderr, "\n Meta Payload(3): ");
+  for (i = 0; i < 14; i++)
+    fprintf (stderr, "%02X", super->m17e.meta_data[x++]);
+  fprintf (stderr, "\n Meta Payload(4): ");
+  for (i = 0; i < 14; i++)
+    fprintf (stderr, "%02X", super->m17e.meta_data[x++]);
 
 }
 

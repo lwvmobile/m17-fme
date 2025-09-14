@@ -228,21 +228,9 @@ void encode_str(Super * super)
   //else if not ENC and Meta data provided, unpack Meta data into META Field (up to 112/8 = 14 octets or chars)
   else if (lsf_et == 0 && super->m17e.meta_data[0] != 0)
   {
-    unpack_byte_array_into_bit_array(super->m17e.meta_data+1, m17_lsf+112, 14);
-
-    //below is disabled, as it now causes stale Meta to present in call history
-    //and there isn't really a good reason to do this now
-
-    //Decode Meta Data Once For Ncurses Display if not loopback
-    // if (super->opts.internal_loopback_decoder == 0)
-    // {
-    //   uint8_t meta_data[16]; memset (meta_data, 0, sizeof(meta_data));
-    //   meta_data[0] = lsf_es + 0x80; //flip MSB bit to signal META
-    //   memcpy (meta_data+1, super->m17e.meta_data+1, 14);
-    //   fprintf (stderr, "\n ");
-    //   decode_pkt_contents (super, meta_data, 15); //decode META
-    // }
-
+    uint16_t md_ptr = 1;
+    unpack_byte_array_into_bit_array(super->m17e.meta_data+md_ptr, m17_lsf+112, 14);
+    super->m17e.meta_round_robin_ctr = 0;
   }
 
   //pack and compute the CRC16 for LSF
@@ -558,8 +546,33 @@ void encode_str(Super * super)
     for (i = 0; i < 272; i++)
       m17_t4c[i+96] = m17_v1p[i];
 
-    //make a backup copy of the LSF
-    memcpy (super->m17e.lsf_bkp, m17_lsf, 240*sizeof(uint8_t));
+    //round robin meta data (meta text up to 4 segments)
+    if (lich_cnt == 0)
+    {
+
+      //make a backup copy of the LSF
+      memcpy (super->m17e.lsf_bkp, m17_lsf, 240*sizeof(uint8_t));
+
+      if (lsf_et == 0 && super->m17e.meta_data[0] != 0)
+      {
+        uint16_t md_ptr = ( (super->m17e.meta_round_robin_ctr % super->m17e.meta_round_robin_mod) * 14) + 1;
+        unpack_byte_array_into_bit_array(super->m17e.meta_data+md_ptr, m17_lsf+112, 14);
+        super->m17e.meta_round_robin_ctr++;
+
+        //pack and compute the CRC16 for LSF
+        uint16_t crc_cmp = 0;
+        uint8_t lsf_packed[30];
+        memset (lsf_packed, 0, sizeof(lsf_packed));
+        for (i = 0; i < 28; i++)
+            lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
+        crc_cmp = crc16(lsf_packed, 28);
+
+        //attach the crc16 bits to the end of the LSF data
+        for (i = 0; i < 16; i++) m17_lsf[224+i] = (crc_cmp >> (15-i)) & 1;
+
+      }
+  
+    }
 
     //load up the lsf chunk for this cnt
     for (i = 0; i < 40; i++)
@@ -874,7 +887,11 @@ void encode_str(Super * super)
       }
       //else if not ENC and Meta data provided, unpack Meta data into META Field (up to 112/8 = 14 octets or chars)
       else if (lsf_et == 0 && super->m17e.meta_data[0] != 0)
-        unpack_byte_array_into_bit_array(super->m17e.meta_data+1, m17_lsf+112, 14);
+      {
+        uint16_t md_ptr = 1;
+        unpack_byte_array_into_bit_array(super->m17e.meta_data+md_ptr, m17_lsf+112, 14);
+        super->m17e.meta_round_robin_ctr = 0;
+      }
       else //zero out the meta field (prevent bad meta data decodes on decoder side)
       {
         for (i = 0; i < 112; i++)
@@ -1010,6 +1027,8 @@ void encode_str(Super * super)
 
       //flush decoder side lsf, may be redundant, but using to make sure no stale values loaded during debug
       memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
+
+      super->m17e.meta_round_robin_ctr = 0;
 
     }
 

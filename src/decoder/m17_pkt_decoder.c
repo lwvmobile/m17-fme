@@ -352,36 +352,105 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
 
   }
 
-  //META Text Message, or 1600 Arbitrary Data
-  //TODO: Seperate these two so we can assemble a completed Meta Text Message properly
-  else if (protocol == 0x80 || protocol == 0x89)
+  //Meta Text Messages
+  else if (protocol == 0x80)
   {
+
+    uint8_t bitmap_len = (input[1] >> 4);
+    uint8_t bitmap_segment = input[1] & 0xF;
+    uint8_t segment_len = 1;
+    uint8_t segment_num = 1;
+
+    //convert bitmap to actual values
+    if (bitmap_len == 0x1)
+      segment_len = 1;
+    else if (bitmap_len == 0x3)
+      segment_len = 2;
+    else if (bitmap_len == 0x7)
+      segment_len = 3;
+    else if (bitmap_len == 0xF)
+      segment_len = 4;
+    else segment_len = 1; //if none of these, then treat this like a single segment w/ len 1
+
+    //convert bitmap to actual values
+    if (bitmap_segment == 0x1)
+      segment_num = 1;
+    else if (bitmap_segment == 0x2)
+      segment_num = 2;
+    else if (bitmap_segment == 0x4)
+      segment_num = 3;
+    else if (bitmap_segment == 0x8)
+      segment_num = 4;
+    else segment_num = 1; //if none of these, then treat this like a single segment w/ len 1
+
+    //show Control Byte Len and Segment Values on Meta Text
     fprintf (stderr, " ");
+    fprintf (stderr, "%d/%d; ", segment_num, segment_len);
+    for (i = 2; i < len; i++)
+      fprintf (stderr, "%c", input[i]);
 
-    if (protocol == 0x80) //Meta
-    { 
-      sprintf (super->m17d.dat, "%s", "");
-      //show Control Byte Len and Segment Values on Meta Text
-      fprintf (stderr, "%d/%d; ", (input[1] >> 4), input[1] & 0xF);
-      for (i = 2; i < len; i++)
-        fprintf (stderr, "%c", input[i]);
-    }
-    else
+    //copy current segment into .dat
+    int ptr = (segment_num-1)*13;
+    memcpy (super->m17d.dat+ptr, input+2, 13*sizeof(char));
+
+    //NOTE: there is checkdown to see if all segments have arrived or not
+    //terminate the string on completion, dump completed string
+    if (segment_len == segment_num)
     {
-      sprintf (super->m17d.arb, "%s", "");
-      for (i = 1; i < len; i++)
-        fprintf (stderr, "%c", input[i]);
+      super->m17d.dat[ptr+13] = 0;
+      fprintf (stderr, "\n Complete Meta Text: %s;", super->m17d.dat);
     }
-
-    if (protocol == 0x80) //Meta Text with the control byte
-      memcpy (super->m17d.dat, input+2, len); //skip over control byte
-    else memcpy (super->m17d.arb, input+1, len);
 
     //send to event_log_writer
-    if (protocol == 0x80)
+    if (segment_len == segment_num)
       event_log_writer (super, super->m17d.dat, protocol);
-    else event_log_writer (super, super->m17d.arb, protocol);
+
   }
+
+  //1600 Arbitrary Data as Text String
+  else if (protocol == 0x89)
+  {
+    
+    sprintf (super->m17d.arb, "%s", "");
+
+    fprintf (stderr, " ");
+    for (i = 1; i < len; i++)
+      fprintf (stderr, "%c", input[i]);
+
+    memcpy (super->m17d.arb, input+1, len);
+    event_log_writer (super, super->m17d.arb, protocol);
+  }
+
+  //older combined version
+  // else if (protocol == 0x80 || protocol == 0x89)
+  // {
+  //   fprintf (stderr, " ");
+
+  //   if (protocol == 0x80) //Meta
+  //   { 
+  //     sprintf (super->m17d.dat, "%s", "");
+  //     //show Control Byte Len and Segment Values on Meta Text
+  //     fprintf (stderr, "%d/%d; ", (input[1] >> 4), input[1] & 0xF);
+  //     for (i = 2; i < len; i++)
+  //       fprintf (stderr, "%c", input[i]);
+  //   }
+  //   else
+  //   {
+  //     sprintf (super->m17d.arb, "%s", "");
+  //     for (i = 1; i < len; i++)
+  //       fprintf (stderr, "%c", input[i]);
+  //   }
+
+  //   if (protocol == 0x80) //Meta Text with the control byte
+  //     memcpy (super->m17d.dat, input+2, len); //skip over control byte
+  //   else memcpy (super->m17d.arb, input+1, len);
+
+  //   //send to event_log_writer
+  //   if (protocol == 0x80)
+  //     event_log_writer (super, super->m17d.dat, protocol);
+  //   else event_log_writer (super, super->m17d.arb, protocol);
+  // }
+
   //Any Other Raw or Unknown Data Protocol as Hex
   else
   {

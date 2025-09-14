@@ -120,8 +120,8 @@ void usage ()
   printf ("                (example: -R 81F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) \n");
   printf ("\n");
   printf ("                (NOTE: Using Meta Fields is not compatible with Using Encryption!) \n");
-  printf ("  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 13 UTF-8 characters, single segment only);\n");
-  printf ("                (example: -Y 'Hello World!!') for Meta Text \n");
+  printf ("  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 52 UTF-8 characters, 4 Segment Meta);\n");
+  printf ("                (example: -Y 'Hello World!! This is a longer M17 Text Message!!!!' ) for Meta Text \n");
   printf ("  -Z <hex>      Enter META Data for Stream Voice Encoder as Hex Octets (1 Meta Type Octet + 14 Hex Octets Max);\n");
   printf ("                (example: -Z 01F0F2B42B20ABC500C80424064000) for Meta GNSS Position @ Wally World \n");
   printf ("\n");

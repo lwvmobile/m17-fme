@@ -358,6 +358,7 @@ void input_ncurses_terminal (Super * super, int c)
       {
         if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1))
         {
+          memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data));
           sprintf (inp_str, "%s", "");
           sprintf (label, " Enter Meta Text:"); //set label to be displayed in the entry box window
           entry_string_ncurses_terminal(label, inp_str);

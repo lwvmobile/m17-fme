@@ -485,6 +485,7 @@ void no_carrier_sync (Super * super)
   //below items were disabled, causing stale GNSS (any reason why this was disabled, probably so it doesn't clear out of the encode window in ncurses?)
   memset (super->m17d.raw, 0, sizeof(super->m17d.raw));
   sprintf (super->m17d.sms, "%s", "");
+  memset (super->m17d.dat, 0, sizeof(super->m17d.dat)); //zero out all bytes so we don't get a partially stale string on the next repitition
   sprintf (super->m17d.dat, "%s", "");
   sprintf (super->m17d.arb, "%s", "");
   super->m17d.packet_protocol = 0; //may only need this one, then we can keep the items above in the display
