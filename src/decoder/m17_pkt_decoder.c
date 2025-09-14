@@ -323,7 +323,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     }
 
     if (validity & 0x1)
-      fprintf (stderr, " Radius: %.1f;", radius_float);
+      fprintf (stderr, "\n      Radius: %.1f;", radius_float);
 
     if (reserved)
       fprintf (stderr, " Reserved: %03X;", reserved);
@@ -384,10 +384,12 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     else segment_num = 1; //if none of these, then treat this like a single segment w/ len 1
 
     //show Control Byte Len and Segment Values on Meta Text
-    fprintf (stderr, " ");
-    fprintf (stderr, "%d/%d; ", segment_num, segment_len);
-    for (i = 2; i < len; i++)
-      fprintf (stderr, "%c", input[i]);
+    fprintf (stderr, " %d/%d; ", segment_num, segment_len);
+    if (super->opts.payload_verbosity > 0)
+    {
+      for (i = 2; i < len; i++)
+        fprintf (stderr, "%c", input[i]);
+    }
 
     //copy current segment into .dat
     int ptr = (segment_num-1)*13;
@@ -420,36 +422,6 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     memcpy (super->m17d.arb, input+1, len);
     event_log_writer (super, super->m17d.arb, protocol);
   }
-
-  //older combined version
-  // else if (protocol == 0x80 || protocol == 0x89)
-  // {
-  //   fprintf (stderr, " ");
-
-  //   if (protocol == 0x80) //Meta
-  //   { 
-  //     sprintf (super->m17d.dat, "%s", "");
-  //     //show Control Byte Len and Segment Values on Meta Text
-  //     fprintf (stderr, "%d/%d; ", (input[1] >> 4), input[1] & 0xF);
-  //     for (i = 2; i < len; i++)
-  //       fprintf (stderr, "%c", input[i]);
-  //   }
-  //   else
-  //   {
-  //     sprintf (super->m17d.arb, "%s", "");
-  //     for (i = 1; i < len; i++)
-  //       fprintf (stderr, "%c", input[i]);
-  //   }
-
-  //   if (protocol == 0x80) //Meta Text with the control byte
-  //     memcpy (super->m17d.dat, input+2, len); //skip over control byte
-  //   else memcpy (super->m17d.arb, input+1, len);
-
-  //   //send to event_log_writer
-  //   if (protocol == 0x80)
-  //     event_log_writer (super, super->m17d.dat, protocol);
-  //   else event_log_writer (super, super->m17d.arb, protocol);
-  // }
 
   //Any Other Raw or Unknown Data Protocol as Hex
   else

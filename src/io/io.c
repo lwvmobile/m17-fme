@@ -709,6 +709,12 @@ uint16_t parse_raw_user_string (Super * super, char * input)
 //convert a raw user string into a uint8_t array for raw meta encoding (Note: Encryption use overrides the use of this in the Meta Data Field)
 void parse_meta_raw_string (Super * super, char * input)
 {
+
+  //safety measure so if user specifies both raw, and text, the last one takes precedence
+  memset(super->m17e.meta_data, 0, sizeof(super->m17e.meta_data));
+  super->m17e.meta_round_robin_mod = 1;
+  super->m17e.meta_round_robin_ctr = 0;
+
   //since we want this as octets, get strlen value, then divide by two
   uint16_t len = strlen((const char*)input);
   
@@ -758,6 +764,11 @@ void parse_meta_raw_string (Super * super, char * input)
 //convert a text string into a uint8_t array for text meta encoding (Note: Encryption use overrides the use of this in the Meta Data Field)
 void parse_meta_txt_string (Super * super, char * input)
 {
+
+  //safety measure so if user specifies both raw, and text, the last one takes precedence
+  memset(super->m17e.meta_data, 0, sizeof(super->m17e.meta_data));
+  super->m17e.meta_round_robin_mod = 1;
+  super->m17e.meta_round_robin_ctr = 0;
 
   int i = 0; int x = 0; int k = 0;
   char txt[53]; memset (txt, 0, 52*sizeof(char));
@@ -861,7 +872,7 @@ void parse_meta_txt_string (Super * super, char * input)
   // }
 
   //debug
-  fprintf (stderr, "\n Meta Len: %d; X: %02d; K: %02d; Meta Type: %02X; Meta Text: %s; \n", len, x, k, super->m17e.met_st, txt);
+  fprintf (stderr, "\n Meta Len: %d; X: %02d; K: %02d; Meta Type: %02X; Meta Text: %s", len, x, k, super->m17e.met_st, txt);
 
   //debug dump on all bytes
   x = 1;
