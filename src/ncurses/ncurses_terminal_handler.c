@@ -808,12 +808,9 @@ void print_ncurses_call_history (Super * super)
   //color on, cyan
   attron(COLOR_PAIR(4));
 
-  printw ("--Call-History-(H)--Reset-(c)--Print-(L)---------------------------------------");
-  for (int i = 0; i < 100; i++)
-  {
-    if (super->m17d.callhistory[99-i][0] != 0)
-      printw ("\n| #%02d. %s", i+1, super->m17d.callhistory[99-i]);
-  }
+  printw ("--Call-History-(H)--Reset-(c)--Print-(L)----------------Scroll-Up-(4)-Down-(6)-");
+  for (int i = super->m17d.scroll_index; i < super->m17d.scroll_index+10; i++)
+    printw ("\n| #%02d. %s", (i+1)%256, super->m17d.callhistory[i%256]);
   printw ("\n-------------------------------------------------------------------------------\n");
 
   //color off, back to white

@@ -898,10 +898,10 @@ void parse_meta_txt_string (Super * super, char * input)
 void print_call_history (Super * super)
 {
   fprintf (stderr, "\n--Call-History-----------------------------------------------------------------");
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < 255; i++)
   {
-    if (super->m17d.callhistory[99-i][0] != 0)
-      fprintf (stderr, "\n| #%02d. %s", i+1, super->m17d.callhistory[99-i]);
+    if (super->m17d.callhistory[i][0] != 0)
+      fprintf (stderr, "\n| #%02d. %s", i+1, super->m17d.callhistory[i]);
   }
   fprintf (stderr, "\n-------------------------------------------------------------------------------\n");
 }
@@ -933,13 +933,16 @@ void push_call_history (Super * super)
 
   char * timestr  = get_time_n(super->demod.current_time);
   char * datestr  = get_date_n(super->demod.current_time);
-  for (uint8_t i = 0; i < 99; i++)
-    memcpy (super->m17d.callhistory[i], super->m17d.callhistory[i+1], 500*sizeof(char));
+
+  //push call history, so that the last item comes from the next to last item
+  for (uint8_t i = 255; i > 0; i--)
+    memcpy (super->m17d.callhistory[i], super->m17d.callhistory[i-1], 500*sizeof(char));
 
   //make a truncated string of any text message
   char shortstr[80]; sprintf (shortstr, "%s", "\n|      ");
 
-  sprintf (super->m17d.callhistory[99], "%s %s CAN: %02d; SRC: %s; DST: %s; %s;", datestr, timestr, super->m17d.can, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
+  //assign current string to position 0
+  sprintf (super->m17d.callhistory[0], "%s %s CAN: %02d; SRC: %s; DST: %s; %s;", datestr, timestr, super->m17d.can, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
 
   //Add SMS, GNSS (Meta or PDU), Text (Meta), Text (Arb) in that order of priority (most likely to least likely) 
 
@@ -948,7 +951,7 @@ void push_call_history (Super * super)
   {
     strncpy (shortstr+8, super->m17d.sms, 71);
     shortstr[79] = '\0'; //terminate string
-    strcat (super->m17d.callhistory[99], shortstr);
+    strcat (super->m17d.callhistory[0], shortstr);
   }
 
   //Append GNSS string to Call History (PDU or META)
@@ -956,7 +959,7 @@ void push_call_history (Super * super)
   {
     strncpy (shortstr+8, super->m17d.dat, 71);
     shortstr[79] = '\0'; //terminate string
-    strcat (super->m17d.callhistory[99], shortstr);
+    strcat (super->m17d.callhistory[0], shortstr);
   }
 
   //Append Meta Text String, (dt == 2 or dt == 3) not from PDU
@@ -964,7 +967,7 @@ void push_call_history (Super * super)
   {
     strncpy (shortstr+8, super->m17d.dat, 71);
     shortstr[79] = '\0'; //terminate string
-    strcat (super->m17d.callhistory[99], shortstr);
+    strcat (super->m17d.callhistory[0], shortstr);
   }
 
   //Append Arb Text String, (dt == 3), not from PDU
@@ -972,7 +975,7 @@ void push_call_history (Super * super)
   {
     strncpy (shortstr+8, super->m17d.arb, 71);
     shortstr[79] = '\0'; //terminate string
-    strcat (super->m17d.callhistory[99], shortstr);
+    strcat (super->m17d.callhistory[0], shortstr);
   }
 
   //make a version without the timestamp, but include other info

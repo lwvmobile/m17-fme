@@ -106,16 +106,28 @@ void input_ncurses_terminal (Super * super, int c)
         ecdsa_generate_random_keys (super);
       break;
 
-    //'4' key, simulate no_carrier_sync (reset states)
+    // //'4' key, simulate no_carrier_sync (reset states)
+    // case 52:
+    //   super->m17d.dt = 4; //fake for carrier reset
+    //   no_carrier_sync (super); //reset demod
+    //   break;
+
+    //'4' key, Scroll Call History Up
     case 52:
-      super->m17d.dt = 4; //fake for carrier reset
-      no_carrier_sync (super); //reset demod
+      if (super->m17d.scroll_index > 0)
+        super->m17d.scroll_index--;
       break;
 
     //'5' key, Disable Signature
     case 53:
       super->m17e.ecdsa.keys_loaded = 0;
       super->m17d.ecdsa.keys_loaded = 0;
+      break;
+
+    //'6' key, Scroll Call History Down
+    case 54:
+      if (super->m17d.scroll_index < 245)
+        super->m17d.scroll_index++;  
       break;
 
     //'7' key, Toggle Symbol Timing
@@ -277,7 +289,7 @@ void input_ncurses_terminal (Super * super, int c)
 
     //'c' key, Reset Call History (lower c)
     case 99:
-      for (int i = 0; i < 100; i++)
+      for (int i = 0; i < 255; i++)
         sprintf (super->m17d.callhistory[i], "%s", "");
 
       sprintf (super->m17d.sms, "%s", "Call History Cleared;");

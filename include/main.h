@@ -330,8 +330,9 @@ typedef struct
   uint8_t str_encoder_vox; //flag if use vox mode
 
   //Call History
-  char callhistory[100][500];
+  char callhistory[255][500];
   char lasteventstring[500];
+  int16_t scroll_index;
 
   //Ping and Pong
   char pingpongsrcs[50];

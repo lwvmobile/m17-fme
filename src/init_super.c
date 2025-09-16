@@ -275,10 +275,12 @@ void init_super (Super * super)
   super->m17d.str_encoder_vox = 0;
 
   //Call History
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < 255; i++)
     sprintf (super->m17d.callhistory[i], "%s", "");
 
   sprintf (super->m17d.lasteventstring, "%s", "");
+
+  super->m17d.scroll_index = 0;
 
   //Ping and Pong
   sprintf (super->m17d.pingpongsrcs, "%s", "#PINGPONG");
@@ -348,10 +350,12 @@ void init_super (Super * super)
   super->m17e.str_encoder_vox = 0;
 
   //Call History (UNUSED on Encoder)
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < 255; i++)
     sprintf (super->m17e.callhistory[i], "%s", "");
 
   sprintf (super->m17e.lasteventstring, "%s", "");
+
+  super->m17e.scroll_index = 0;
 
   //Ping and Pong
   sprintf (super->m17e.pingpongsrcs, "%s", "#PINGPONG");

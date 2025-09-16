@@ -431,13 +431,14 @@ Some Shortcuts may be disabled, depending on mode of operation.
 'H' key, Toggle Show Call History
 'c' key, Reset Call History (lower c)
 'L' key, Print Call History (current) to console / log;
+'4' key, Scroll Call History Up
+'6' key, Scroll Call History Down
 
 // Terminal/Log Verbosity Levels
 'Z' key, Cycle Demodulator Verbosity (1-5)
 'z' key, Toggle Payload Verbosity (On/Off)
 
 // Debug Toggles
-'4' key, simulate no_carrier_sync (reset states)
 '7' key, Toggle Symbol Timing
 
 ```
