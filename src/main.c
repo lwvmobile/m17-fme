@@ -130,7 +130,7 @@ void usage ()
   printf ("  -r            Enable RFA Demodulator and Decoding of Stream and Packet Data\n");
   printf ("  -x            Demodulate Inverted Polarity on RF Input\n");
   printf ("  -m            Enable Analog / Raw Input Signal Monitor on RF Input (when no sync)\n");
-  printf ("  -l            Enable Event Log File: date_time_m17fme_eventlog.txt\n");
+  printf ("  -l <file>     Enable Event Log File with specified name\n");
   printf ("  -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 \n");
   printf ("  -p            Per Call decoded voice wav file saving into current directory ./m17wav folder\n");
   printf ("  -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)\n");
@@ -274,7 +274,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "!1234567890ac:d:e:f:g:hi:k:lmno:prs:t:uv:w:xA:BC:DE:F:GIJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
+  while ((c = getopt (argc, argv, "!1234567890ac:d:e:f:g:hi:k:l:mno:prs:t:uv:w:xA:BC:DE:F:GIJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
   {
 
     i++;
@@ -475,8 +475,10 @@ int main (int argc, char **argv)
 
       //Enable Event Log 
       case 'l':
+        strncpy(super.opts.event_log_file, optarg, 1023);
+        super.opts.event_log_file[1023] = '\0';
         super.opts.use_event_log = 1;
-        fprintf (stderr, "Enable Event Log File: date_time_m17fme_eventlog.txt \n");
+        fprintf (stderr, "Enable Event Log File: %s \n", super.opts.event_log_file);
         break;
 
       //Enable Raw Audio Input Monitor

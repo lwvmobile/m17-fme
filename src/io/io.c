@@ -68,16 +68,20 @@ void open_audio_input (Super * super)
 //output files (wav, bin, float, event log)
 void open_file_output (Super * super)
 {
-  //event log
+
+  //event log (old dynamically created file)
+  // if (super->opts.use_event_log == 1)
+  // {
+  //   char * timestr  = get_time();
+  //   char * datestr  = get_date();
+  //   sprintf (super->opts.event_log_file, "%s_%s_%04X_m17fme_eventlog.txt", datestr, timestr, super->opts.random_number);
+  //   super->opts.event_log = fopen (super->opts.event_log_file, "a");
+  //   free (timestr); free (datestr);
+  // }
+
+  //event log file with user named file
   if (super->opts.use_event_log == 1)
-  {
-    char * timestr  = get_time();
-    char * datestr  = get_date();
-    sprintf (super->opts.event_log_file, "%s_%s_%04X_m17fme_eventlog.txt", datestr, timestr, super->opts.random_number);
-    // sprintf (super->opts.event_log_file, "duplex_log.txt"); //debug
     super->opts.event_log = fopen (super->opts.event_log_file, "a");
-    free (timestr); free (datestr);
-  }
 
   //wav and misc output files
   if (super->opts.use_wav_out_rf == 1)

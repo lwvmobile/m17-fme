@@ -19,8 +19,8 @@
 @REM Incorrect: set options="-fs -N -Z"
 @REM Correct: set "options=-fs -N -Z"
 
-@REM set options to pass to m17-fme //m17-fme -D 2> m17kcw.txt -M 0:M17FME000:ALL -I -U 172.234.217.28:17000:R:A:NO -v 1 -l
-set "options= -D -N -M 0:M17FME123:ALL -I -U 172.234.217.28:17000:R:A:NO -v 1 -l -p "
+@REM set options to pass to m17-fme //m17-fme -D 2> m17kcw.txt -M 0:M17FME000:ALL -I -U 172.234.217.28:17000:R:A:NO -v 1
+set "options= -D -N -M 0:M17FME123:ALL -I -U 172.234.217.28:17000:R:A:NO -v 1 -p "
 
 @REM Set Date Time for log (sourced from: https://stackoverflow.com/questions/1192476/format-date-and-time-in-a-windows-batch-script)
 @echo off
@@ -49,28 +49,27 @@ set rnd=%RANDOM%
 
 @REM set log file relative filepath
 set "clog=.\logs\console_log_%datetimestr%_%rnd%.txt"
-@REM set "elog=.\logs\event_log_%datetimestr%_%rnd%.txt"
+set "elog=.\logs\event_log_%datetimestr%_%rnd%.txt"
 
 @REM create the log file now with touch
 .\m17-fme\touch.exe %clog%
-@REM .\m17-fme\touch.exe %elog%
+.\m17-fme\touch.exe %elog%
 
 @REM Launch Tail to display the console log and event log in a seperate console windows
 start .\m17-fme\tail.exe -n 40 -f %clog%
-@REM start .\m17-fme\tail.exe -n 40 -f %elog%
+start .\m17-fme\tail.exe -n 40 -f %elog%
 
 @REM output from pulse server routed to NUL to supress "capabilities dropped, nag messages, etc" messages
 .\m17-fme\pulseaudio.exe --start --no-cpu-limit=TRUE --exit-idle-time=600 2> NUL
 
-@REM start m17-fme with options and logs 
-@REM .\m17-fme\m17-fme.exe %options% -J %elog% 2> %clog%
-.\m17-fme\m17-fme.exe %options% 2> %clog%
+@REM start m17-fme with options and logs
+.\m17-fme\m17-fme.exe %options% -l %elog% 2> %clog%
 
 echo ----------------------------------------------------------------------------------
 echo ----------------------------------------------------------------------------------
 echo For any errors, see: %clog% 
 echo Forward %clog% and Options: "%options%" 
-echo to developer on Github or Radio Reference for troubleshooting.
+echo to developer on Github or M17 Discord for troubleshooting.
 echo ----------------------------------------------------------------------------------
 echo ----------------------------------------------------------------------------------
 
