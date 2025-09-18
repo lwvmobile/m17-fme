@@ -16,11 +16,11 @@
 
 @REM Regarding the options string (or any string in .bat files)
 @REM If your string may contain spaces, set the first '"' before options, and then an ending '"' 
-@REM Incorrect: set options="-fs -N -Z"
-@REM Correct: set "options=-fs -N -Z"
+@REM Incorrect: set options="-V -i pulsevx -o pulserf "
+@REM Correct: set "options=-V -i pulsevx -o pulserf "
 
-@REM set options to pass to m17-fme //m17-fme -D 2> m17kcw.txt -M 0:M17FME000:ALL -I -U 172.234.217.28:17000:R:A:NO -v 1
-set "options= -D -N -M 0:M17FME123:ALL -I -U 172.234.217.28:17000:R:A:NO -v 1 -p "
+@REM set options to pass to m17-fme
+set "options= -D -M 0:M17FME123:ALL -I -U 107.191.121.105:17000:R:C:NO -v 1 "
 
 @REM Set Date Time for log (sourced from: https://stackoverflow.com/questions/1192476/format-date-and-time-in-a-windows-batch-script)
 @echo off
