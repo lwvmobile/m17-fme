@@ -217,7 +217,8 @@ typedef struct
   char rig_remote_hostname[1024]; //hostname as a string value
   char rig_remote_input_str[1024]; //string value of combined input field for udp i.e., localhost:4532
 
-  //Other
+  //voice mute during playback, but not for recording .wav files
+  uint8_t playback_voice_mute;
 
 } config_opts;
 
@@ -294,6 +295,10 @@ typedef struct
   char dst_csd_str[50]; //dst call sign data as a string
   char src_csd_str[50]; //src call sign data as a string
   int16_t can;          //channel access number
+
+  //lockout source str and ptr
+  char src_csd_lockout[255][50];
+  uint8_t lockout_index;
 
   uint8_t lsf[240]; //bitwise lsf
   uint8_t meta[16]; //packed meta

@@ -81,6 +81,19 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   }
   else if (super->m17d.enc_et == 0)
     mute = 0; //no encryption, unmute
+
+  //check for lockout, mute if it made the list
+  for (i = 0; i < super->m17d.lockout_index; i++)
+  {
+    if (strncmp(super->m17d.src_csd_lockout[i], "         ", 9) != 0)
+    {
+      if (strncmp(super->m17d.src_csd_str, super->m17d.src_csd_lockout[i], 9) == 0)
+      {
+        mute = 1; //locked out, so mute
+        break;
+      }
+    }
+  }
   
   for (i = 0; i < 8; i++)
   {
@@ -201,30 +214,37 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
 
   //TODO: Make Convenience Audio Output Handler
 
-  //Pulse Audio Playback
-  #ifdef USE_PULSEAUDIO
-  if (super->pa.pa_output_vx_is_open == 1)
+  //if overall playback_voice_mute is enabled, then don't play it back in real time, but still
+  //allow it to be saved as a .wav and other output file formats
+  if (super->opts.playback_voice_mute == 0)
   {
-    pulse_audio_output_vx(super, upsamp1, nsam*6);
-    if (type == 2)
-      pulse_audio_output_vx(super, upsamp2, nsam*6);
-  }
-  #else
-  if (super->pa.pa_output_vx_is_open == 1) {}
-  #endif
 
-  else if (super->opts.oss_output_device)
-  {
-    oss_output_write(super, upsamp1, nsam*6);
-    if (type == 2)
-      oss_output_write(super, upsamp2, nsam*6);
-  }
+    //Pulse Audio Playback
+    #ifdef USE_PULSEAUDIO
+    if (super->pa.pa_output_vx_is_open == 1)
+    {
+      pulse_audio_output_vx(super, upsamp1, nsam*6);
+      if (type == 2)
+        pulse_audio_output_vx(super, upsamp2, nsam*6);
+    }
+    #else
+    if (super->pa.pa_output_vx_is_open == 1) {}
+    #endif
 
-  else if (super->opts.stdout_pipe)
-  {
-    write_stdout_pipe(super, upsamp1, nsam*6);
-    if (type == 2)
-      write_stdout_pipe(super, upsamp2, nsam*6);
+    else if (super->opts.oss_output_device)
+    {
+      oss_output_write(super, upsamp1, nsam*6);
+      if (type == 2)
+        oss_output_write(super, upsamp2, nsam*6);
+    }
+
+    else if (super->opts.stdout_pipe)
+    {
+      write_stdout_pipe(super, upsamp1, nsam*6);
+      if (type == 2)
+        write_stdout_pipe(super, upsamp2, nsam*6);
+    }
+
   }
 
   //VX Wav File Saving

@@ -366,6 +366,7 @@ Some Shortcuts may be disabled, depending on mode of operation.
 'd' key, Enter New Destination Callsign
 's' key, Enter New Source Callsign
 'b' key, Enter New Channel Access Number (CAN)
+'L" key, lockout or unlock current callsign audio decode
 
 // Voice Stream Functionality
 '\' key, Toggle TX Voice Encoder (when not Vox)
@@ -430,7 +431,6 @@ Some Shortcuts may be disabled, depending on mode of operation.
 'D' key, Toggle Encode / Decode Display
 'H' key, Toggle Show Call History
 'c' key, Reset Call History (lower c)
-'L' key, Print Call History (current) to console / log;
 '4' key, Scroll Call History Up
 '6' key, Scroll Call History Down
 

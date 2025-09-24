@@ -363,6 +363,9 @@ void print_ncurses_levels (Super * super)
     if (super->opts.auto_gain_voice)
       printw ( " Auto Gain(a);");
     else printw ( " Manual Gain(a);");
+    if (super->opts.playback_voice_mute == 1)
+      printw ( " Play(V);");
+    else printw ( " Mute(V);");
     printw ("\n");
 
     if (!super->opts.m17_use_ip)
@@ -553,6 +556,27 @@ void print_ncurses_call_info (Super * super)
   else
     printw("%s", super->m17d.src_csd_str);
 
+  //check for lockout, print [LOCKOUT] if it made the list
+  uint8_t locked_out = 0;
+  for (int i = 0; i < super->m17d.lockout_index; i++)
+  {
+    if (strncmp(super->m17d.src_csd_lockout[i], "         ", 9) != 0)
+    {
+      if (strncmp(super->m17d.src_csd_str, super->m17d.src_csd_lockout[i], 9) == 0)
+      {
+        printw (" [LOCKOUT]");
+        locked_out = 1;
+        break;
+      }
+    }
+  }
+
+  if (strncmp(super->m17d.src_csd_str, "         ", 9) != 0)
+  {
+    if (locked_out == 0)
+      printw (" (L) to Lock Out");
+    else printw (" (L) to Unlock");
+  }
 
   printw ("\n");
   printw ("| ");
@@ -808,7 +832,7 @@ void print_ncurses_call_history (Super * super)
   //color on, cyan
   attron(COLOR_PAIR(4));
 
-  printw ("--Call-History-(H)--Reset-(c)--Print-(L)----------------Scroll-Up-(4)-Down-(6)-");
+  printw ("--Call-History-(H)--Reset-(c)---------------------------Scroll-Up-(4)-Down-(6)-");
   for (int i = super->m17d.scroll_index; i < super->m17d.scroll_index+10; i++)
     printw ("\n| #%02d. %s", (i+1)%256, super->m17d.callhistory[i%256]);
   printw ("\n-------------------------------------------------------------------------------\n");

@@ -151,6 +151,9 @@ void init_super (Super * super)
   sprintf (super->opts.rig_remote_input_str, "%s", "");
   //end init_config_opts
 
+  //voice mute during playback, but not for recording .wav files
+  super->opts.playback_voice_mute = 0;
+
   //init_pa_state
   #ifdef USE_PULSEAUDIO
   super->pa.input.format = PA_SAMPLE_S16NE;
@@ -239,6 +242,11 @@ void init_super (Super * super)
   sprintf (super->m17d.src_csd_str, "%s", "         ");
   super->m17d.can = -1;
 
+  //lockout
+  for (int i = 0; i < 255; i++)
+    sprintf (super->m17d.src_csd_lockout[i], "%s", "         ");
+  super->m17d.lockout_index = 0;
+
   memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
   memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
   super->m17d.dt = 15;
@@ -313,6 +321,11 @@ void init_super (Super * super)
   sprintf (super->m17e.dst_csd_str, "%s", "         ");
   sprintf (super->m17e.src_csd_str, "%s", "         ");
   super->m17e.can = 7;
+
+  //lockout (not used on encoder)
+  for (int i = 0; i < 255; i++)
+    sprintf (super->m17e.src_csd_lockout[i], "%s", "         ");
+  super->m17e.lockout_index = 0;
 
   memset(super->m17e.lsf, 0, sizeof(super->m17d.lsf));
   memset(super->m17e.meta, 0, sizeof(super->m17d.meta));

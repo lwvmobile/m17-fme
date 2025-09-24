@@ -42,6 +42,8 @@ void input_ncurses_terminal (Super * super, int c)
   char label[50];
   char inp_str[825];
   int16_t can_bkp = 0;
+  uint8_t lockout = 0;
+  int lo_index = 0;
 
   switch (c)
   {
@@ -200,9 +202,41 @@ void input_ncurses_terminal (Super * super, int c)
       else super->opts.ncurses_show_io = 0;
       break;
 
-    //'L' key, Print All Call History to Console
+    // //'L' key, Print All Call History to Console
+    // case 76:
+    //   print_call_history(super);
+    //   break;
+
+    //'L' key, Lockout Current SRC CSD String
     case 76:
-      print_call_history(super);
+      for (lo_index = 0; lo_index < super->m17d.lockout_index; lo_index++)
+      {
+        if (strncmp(super->m17d.src_csd_lockout[lo_index], "         ", 9) != 0)
+        {
+          if (strncmp(super->m17d.src_csd_str, super->m17d.src_csd_lockout[lo_index], 9) == 0)
+          {
+            lockout = 1;
+            break;
+          }
+        }
+      }
+      //if the SRC hasn't been locked out already, THEY JUST MADE THE LIST!
+      if (lockout == 0)
+      {
+        sprintf(super->m17d.src_csd_lockout[super->m17d.lockout_index++], "%s", super->m17d.src_csd_str);
+
+        //debug
+        fprintf (stderr, "\n SRC: %s; Has been Locked Out by User; Index: %d; ", super->m17d.src_csd_lockout[super->m17d.lockout_index-1], super->m17d.lockout_index-1);
+      }
+        
+      //if they SRC has already been locked out, remove them from the lockout list
+      else if (lockout == 1)
+      {
+        sprintf(super->m17d.src_csd_lockout[lo_index], "%s", "         ");
+
+        //debug
+        fprintf (stderr, "\n SRC: %s; Has been Unlocked by User; Index: %d; ", super->m17d.src_csd_lockout[lo_index], lo_index);
+      }
       break;
 
     //'M' key, Toggle Analog / Raw Signal Monitor (when no sync)
@@ -231,6 +265,12 @@ void input_ncurses_terminal (Super * super, int c)
     //   if (super->opts.ncurses_show_scope == 0) super->opts.ncurses_show_scope = 1;
     //   else super->opts.ncurses_show_scope = 0;
     //   break;
+
+    //'V' key, Mute All Voice Audio
+    case 86:
+      if (super->opts.playback_voice_mute == 0) super->opts.playback_voice_mute = 1;
+      else super->opts.playback_voice_mute = 0;
+      break;
 
     //'Z' key, Cycle Demodulator Verbosity
     case 90:
