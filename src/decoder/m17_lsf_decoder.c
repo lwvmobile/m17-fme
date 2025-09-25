@@ -31,6 +31,19 @@ void decode_lsf_contents(Super * super)
 
   fprintf (stderr, "\n");
   decode_callsign_data(super, lsf_dst, lsf_src);
+
+  for (i = 0; i < super->m17d.lockout_index; i++)
+  {
+    if (strncmp(super->m17d.src_csd_lockout[i], "         ", 9) != 0)
+    {
+      if (strncmp(super->m17d.src_csd_str, super->m17d.src_csd_lockout[i], 9) == 0)
+      {
+        fprintf (stderr, " [LOCKOUT]");
+        break;
+      }
+    }
+  }
+
   fprintf (stderr, " CAN: %d;", lsf_cn);
   
   //only valid on Stream mode

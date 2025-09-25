@@ -226,16 +226,16 @@ void input_ncurses_terminal (Super * super, int c)
         sprintf(super->m17d.src_csd_lockout[super->m17d.lockout_index++], "%s", super->m17d.src_csd_str);
 
         //debug
-        fprintf (stderr, "\n SRC: %s; Has been Locked Out by User; Index: %d; ", super->m17d.src_csd_lockout[super->m17d.lockout_index-1], super->m17d.lockout_index-1);
+        // fprintf (stderr, "\n SRC: %s; Has been Locked Out by User; Index: %d; ", super->m17d.src_csd_lockout[super->m17d.lockout_index-1], super->m17d.lockout_index-1);
       }
         
       //if they SRC has already been locked out, remove them from the lockout list
       else if (lockout == 1)
       {
-        sprintf(super->m17d.src_csd_lockout[lo_index], "%s", "         ");
-
         //debug
-        fprintf (stderr, "\n SRC: %s; Has been Unlocked by User; Index: %d; ", super->m17d.src_csd_lockout[lo_index], lo_index);
+        // fprintf (stderr, "\n SRC: %s; Has been Unlocked by User; Index: %d; ", super->m17d.src_csd_lockout[lo_index], lo_index);
+
+        sprintf(super->m17d.src_csd_lockout[lo_index], "%s", "         ");
       }
       break;
 
