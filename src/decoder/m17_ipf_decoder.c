@@ -180,6 +180,14 @@ void decode_ipf (Super * super, int socket)
 
     //drop sync
     super->m17d.dt = 9; //fake for ACKN message in Call History
+
+    //reset src, dst, strings, can on ackn (nit / bug fix for reconnect showing stale SRC Callsign and CAN)
+    super->m17d.dst = 0;
+    super->m17d.src = 0;
+    sprintf (super->m17d.dst_csd_str, "%s", "         ");
+    sprintf (super->m17d.src_csd_str, "%s", "         ");
+    super->m17d.can = -1;
+
     no_carrier_sync(super);
 
     //clear frame
