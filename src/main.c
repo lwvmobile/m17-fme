@@ -38,8 +38,8 @@ void usage ()
   printf ("Device Options:\n");
   printf ("\n");
   printf ("  -a            List All Pulse Audio Input Sources and Output Sinks (devices).\n");
-  printf ("  -g <float>    Disable Auto Gain and Apply Static Gain Value to Encoded Audio Output (0.01 - 25.00).\n");
-  printf ("                Note: Decimal Gain Value of 0.01 is 1%%, Decimal Gain Value of 25.00 is 2500%% \n");
+  printf ("  -g <float>    Set Autogain (0) or Set Manual Gain Value (Percentage) to Decoded Audio Output (0.01 - 25.00).\n");
+  printf ("                Note: Decimal Gain Value of 0.01 is 1%%, Decimal Gain Value of 25.00 is 2500%%. Default is 1.0 for 100%%. \n");
   printf ("\n");
   printf ("Input Options:\n");
   printf ("\n");
@@ -421,23 +421,23 @@ int main (int argc, char **argv)
 
       case 'g':
         sscanf (optarg, "%f", &gain_value);
-        if (gain_value < 0.0f) //negative value
+        if (gain_value <= 0.0f) //zero, or negative value
         {
-          fprintf (stderr,"Disabling Auto Gain on Voice Payload; Set to 100%%. \n");
+          fprintf (stderr,"Enabling Auto Gain on Voice Payload. \n");
           super.opts.output_gain_vx = 1.0f;
-          super.opts.auto_gain_voice = 0;
+          super.opts.auto_gain_voice = 1;
         }
         else if (gain_value >= 0.01f && gain_value <= 25.0f)
         {
-          fprintf (stderr,"Disabling Auto Gain on Voice Payload; Set to %.1f\n", gain_value*100);
+          fprintf (stderr,"Manual Gain on Voice Payload Set to %.1f%%\n", gain_value*100);
           super.opts.output_gain_vx = gain_value;
           super.opts.auto_gain_voice = 0;
         }
         else
         {
-          fprintf (stderr,"Auto Gain on Voice Payload Not Disabled; Choose Range 0.01 to 25. \n");
+          fprintf (stderr,"Invalid Gain Setting %.1f; Choose Range 0.01 to 25. \n", gain_value);
           super.opts.output_gain_vx = 1.0f;
-          super.opts.auto_gain_voice = 1;
+          super.opts.auto_gain_voice = 0;
         }
         break;
 

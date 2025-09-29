@@ -195,8 +195,8 @@ Display Options:
 Device Options:
 
   -a            List All Pulse Audio Input Sources and Output Sinks (devices).
-  -g <float>    Disable Auto Gain and Apply Static Gain Value to Encoded Audio Output (0.01 - 25.00).
-                Note: Decimal Gain Value of 0.01 is 1%, Decimal Gain Value of 25.00 is 2500% 
+  -g <float>    Set Autogain (0) or Set Manual Gain Value (Percentage) to Decoded Audio Output (0.01 - 25.00).
+                Note: Decimal Gain Value of 0.01 is 1%, Decimal Gain Value of 25.00 is 2500%. Default is 1.0 for 100%.
 
 Input Options:
 

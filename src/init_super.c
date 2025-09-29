@@ -98,7 +98,7 @@ void init_super (Super * super)
   super->opts.output_gain_vx = 1.0f;
 
   //Auto Gain for Voice Payload Samples
-  super->opts.auto_gain_voice = 1;
+  super->opts.auto_gain_voice = 0;
 
   //Input and Output Files
   super->opts.use_float_symbol_output = 0;
