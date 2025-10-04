@@ -445,9 +445,13 @@ void no_carrier_sync (Super * super)
   //clear out lasteventstring to allow a new call from same source go to call history
   sprintf (super->m17d.lasteventstring, "%s", "");
 
-  //close per call wav file, if opened
+  //close per call wav file, if opened (depeciated)
+  // if (super->wav.wav_out_pc)
+  //   close_wav_out_pc (super);
+
+  //close per call out file, if opened
   if (super->wav.wav_out_pc)
-    close_wav_out_pc (super);
+    close_ogg_out_pc (super);
 
   //frame sync
   memset (super->demod.sync_symbols, 0, 8*sizeof(float));

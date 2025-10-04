@@ -281,7 +281,7 @@ Decoder Options:
   -m            Enable Analog / Raw Input Signal Monitor on RF Input (when no sync)
   -l <file>     Enable Event Log File with specified name
   -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 
-  -p            Per Call decoded voice wav file saving into current directory ./m17wav folder
+  -p            Per Call decoded voice output file saving into current directory ./m17pc folder
   -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)
 
 TX and RX Options:

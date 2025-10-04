@@ -551,16 +551,18 @@ void  open_oss_input (Super * super);
 short oss_input_read (Super * super);
 void  oss_output_write (Super * super, short * out, size_t nsam);
 
-//sndfile Wav Output File Handling
+//sndfile Output File Handling
 void open_wav_out_rf (Super * super);
 void open_wav_out_vx (Super * super);
 void open_wav_out_pc (Super * super);
+void open_ogg_out_pc (Super * super);
 void close_wav_out_rf (Super * super);
 void close_wav_out_vx (Super * super);
 void close_wav_out_pc (Super * super);
+void close_ogg_out_pc (Super * super);
 void write_wav_out_rf (Super * super, short * out, size_t nsam);
 void write_wav_out_vx (Super * super, short * out, size_t nsam);
-void write_wav_out_pc (Super * super, short * out, size_t nsam);
+void write_snd_out_pc (Super * super, short * out, size_t nsam);
 void setup_percall_filename (Super * super);
 
 //sndfile Input Open and Reading

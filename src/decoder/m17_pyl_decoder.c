@@ -256,12 +256,12 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
     sf_write_sync (super->wav.wav_out_vx);
   }
 
-  //Per Call Wav File Saving
+  //Per Call Output File Saving
   if (super->wav.wav_out_pc != NULL)
   {
-    write_wav_out_pc(super, upsamp1, nsam*6);
+    write_snd_out_pc(super, upsamp1, nsam*6);
     if (type == 2)
-      write_wav_out_pc(super, upsamp2, nsam*6);
+      write_snd_out_pc(super, upsamp2, nsam*6);
     sf_write_sync (super->wav.wav_out_pc);
   }
 

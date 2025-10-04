@@ -132,7 +132,7 @@ void usage ()
   printf ("  -m            Enable Analog / Raw Input Signal Monitor on RF Input (when no sync)\n");
   printf ("  -l <file>     Enable Event Log File with specified name\n");
   printf ("  -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 \n");
-  printf ("  -p            Per Call decoded voice wav file saving into current directory ./m17wav folder\n");
+  printf ("  -p            Per Call decoded voice output file saving into current directory ./m17pc folder\n");
   printf ("  -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)\n");
   printf ("\n");
   printf ("TX and RX Options:\n");
@@ -507,10 +507,10 @@ int main (int argc, char **argv)
         memset(super.opts.output_handler_string, 0, 2048*sizeof(char));
         break;
 
-      //enable the RF Audio Demodulator
+      //per-call output file
       case 'p':
         super.opts.use_wav_out_pc = 1;
-        fprintf (stderr, "Per Call wav file saving to %s. \n", super.wav.wav_file_direct);
+        fprintf (stderr, "Per Call ogg file saving to %s. \n", super.wav.wav_file_direct);
         break;
 
       //enable the RF Audio Demodulator

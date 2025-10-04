@@ -18,7 +18,7 @@ Voice Stream Encoding and Decoding (RF Audio). Voice Stream Frames can be decode
 
 When operating in encoding mode, Voice Stream can be modulated in FSK4 48k/1 S16LE RF Audio output to Pulse Audio Sink, OSS Audio Sink, STDOUT, .wav file, float symbol output file, or dibit output file. Also, while in Encoding Mode, encoded data can also be sent back into the decoder via a loopback functionality which will, in turn, decode the encoded bitstream, with audio output being either decoded voice output, encoded RF output, or both through seperate output sinks, along with any file formats specified.
 
-When operating in decoding mode, RF audio can be captured and saved with floating symbol output file, and decoded voice can be saved on a 'per call' basis with wav file creation for each new call after an EOT signal or a no-sync period.
+When operating in decoding mode, RF audio can be captured and saved with floating symbol output file, and decoded voice can be saved on a 'per call' basis with file creation for each new call after an EOT signal or a no-sync period.
 
 Voice Encoding and Decoding support both Codec2 3200 bps mode "full rate" and Codec2 1600 bps "half rate" modes, per specification. To encode in 1600 bps mode, the user on needs to specify some Arbitrary Data to the encoder, which is in turn handled as an embedded SMS message of up to 48 UTF-8 Characters to be decoded every superframe.
 
