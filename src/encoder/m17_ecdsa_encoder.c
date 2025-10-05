@@ -179,6 +179,9 @@ void encode_str_ecdsa(Super * super, uint8_t lich_cnt, uint8_t * m17_lsf, float 
     for (i = 0; i < 224; i++)
       m17_ip_frame[k++] = m17_lsf[i];
 
+    if (z == 3) //set EOT bit on 4th pass
+      eot = 1;
+
     //add eot bit flag
     m17_ip_frame[k++] = eot&1;
 
