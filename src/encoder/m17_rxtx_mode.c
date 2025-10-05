@@ -729,8 +729,9 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
       {
         udp_return = m17_socket_blaster (super, 54, m17_ip_packed);
 
-        //read socket, particularly if sent to broadcast ADDR, discard frame to prevent buffering
-        m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
+        //read socket, particularly if sent to adhoc broadcast ADDR, discard frame to prevent buffering
+        if (super->opts.use_m17_adhoc_mode == 1)
+          m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
       }
         
 
@@ -968,8 +969,9 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
         {
           udp_return = m17_socket_blaster (super, 54, m17_ip_packed);
           
-          //read socket, particularly if sent to broadcast ADDR, discard frame to prevent buffering
-          m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
+          //read socket, particularly if sent to adhoc broadcast ADDR, discard frame to prevent buffering
+          if (super->opts.use_m17_adhoc_mode == 1)
+            m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
         }
 
         //SEND EOTX to reflector
@@ -977,8 +979,9 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
         {
           udp_return = m17_socket_blaster (super, 10, eotx);
 
-          //read socket, particularly if sent to broadcast ADDR, discard frame to prevent buffering
-          m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
+          //read socket, particularly if sent to adhoc broadcast ADDR, discard frame to prevent buffering
+          if (super->opts.use_m17_adhoc_mode == 1)
+            m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
         }
 
         //reset indicators
@@ -1006,8 +1009,9 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
         {
           udp_return = m17_socket_blaster (super, 10, eotx);
 
-          //read socket, particularly if sent to broadcast ADDR, discard frame to prevent buffering
-          m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
+          //read socket, particularly if sent to adhoc broadcast ADDR, discard frame to prevent buffering
+          if (super->opts.use_m17_adhoc_mode == 1)
+            m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
         }
 
         //reset indicators
@@ -1187,7 +1191,8 @@ void m17_rx_tx_mode (Super * super)
     {
       use_ip = 1;
       ip_send_conn_disc_ping_pong(super, super->opts.send_conn_or_lstn);
-      m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
+      if (super->opts.use_m17_adhoc_mode == 1)
+        m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
     }
   }
 
@@ -1369,7 +1374,8 @@ void m17_rx_tx_mode (Super * super)
   if (m17_udp_socket_duplex)
   {
     ip_send_conn_disc_ping_pong(super, 0);
-    m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
+    if (super->opts.use_m17_adhoc_mode == 1)
+      m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
     close(m17_udp_socket_duplex);
   }
 
