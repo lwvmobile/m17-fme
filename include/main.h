@@ -731,15 +731,8 @@ void start_ipf (Super * super);
 void decode_ipf (Super * super, int socket);
 void ip_send_conn_disc_ping_pong (Super * super, uint8_t cd);
 
-//M17 Duplex Mode(s)
-void m17_duplex_mode (Super * super);
-
-//M17 Text Based Games (WIP)
-void m17_text_games (Super * super);
-void load_game_advertisement(Super * super, uint32_t input);
-void decode_game_sms_gate(Super * super, uint8_t * input, int len);
-void generate_game_sms_reply(Super * super, char * input);
-void game_text(Super * super);
+//M17 RX and TX Mode
+void m17_rx_tx_mode (Super * super);
 
 //Call History and Event Log
 void push_call_history (Super * super);
