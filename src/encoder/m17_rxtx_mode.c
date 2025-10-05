@@ -996,6 +996,14 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
 
         encode_str_ecdsa(super, lich_cnt, super->m17e.lsf_bkp, mem, use_ip, udpport, sid);
 
+        //read socket, particularly if sent to adhoc broadcast ADDR, discard frame to prevent buffering
+        if (use_ip && super->opts.use_m17_adhoc_mode == 1)
+        {
+          //read 4 IP frames loaded with signatures and discard to prevent buffering and read
+          for (i = 0; i < 4; i++)
+            m17_socket_receiver_duplex(m17_udp_socket_duplex, NULL);
+        }
+
         memset (nil, 0, sizeof(nil));
         encode_rfa (super, nil, mem, 55);    //EOT Marker
 

@@ -104,7 +104,11 @@ endif()
 
 TARGET_LINK_LIBRARIES(m17-fme ${LIBS})
 
-target_compile_options(m17-fme PRIVATE -Wunused-but-set-variable -Wall -Wextra -Wpedantic $<$<COMPILE_LANGUAGE:C>:-Wpointer-sign>)
+# debug with extra -Wpedantic when coding
+# target_compile_options(m17-fme PRIVATE -Wunused-but-set-variable -Wall -Wextra -Wpedantic $<$<COMPILE_LANGUAGE:C>:-Wpointer-sign>)
+
+# normal, exclude -Wpedantic to mask warning on micro-ecc __128
+target_compile_options(m17-fme PRIVATE -Wunused-but-set-variable -Wall -Wextra $<$<COMPILE_LANGUAGE:C>:-Wpointer-sign>)
 
 include(GNUInstallDirs)
 install(TARGETS m17-fme DESTINATION ${CMAKE_INSTALL_BINDIR})
