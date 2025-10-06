@@ -122,7 +122,11 @@ void auto_gain_vx (Super * super, short * input, int len)
   float abs_value = 0.0f;
   float max_samp  = 0.0f;
   float max_buf   = 0.0f;
-  int max_mod     = 256;
+  int max_mod     = 12*2; //was 256 previously
+
+  float gain_factor_clamp = 25.0f; //was 30.0f previously
+  float target_amp_percent = 0.75f; //was 1.0f previously
+  float target_amplitude = 16384.0f * target_amp_percent;
 
   for (int i = 0; i < len; i++)
   {
@@ -152,20 +156,18 @@ void auto_gain_vx (Super * super, short * input, int len)
   // fprintf (stderr, " H Max: %f; ", max_buf);
 
   //make adjustment to gain
-  float target_amplitude = 16384.0f; //one half the maximum potential amplitude of a short type variable
   if (super->opts.auto_gain_voice == 1)
   {
     float gain_factor = target_amplitude / max_buf;
 
-    //m17-kcw has terrible trans-encoded gain, need up to 30.0f to get decent volume
-    if (gain_factor > 0.01f && gain_factor < 30.0f)
+    if (gain_factor > 0.01f && gain_factor <= gain_factor_clamp)
       super->opts.output_gain_vx = gain_factor;
 
     //debug
-    // float dB = 20.0f * log10f(max_buf / 32768);
-    // fprintf (stderr, " Gain Factor: %0.1f; dB: %0.1f;", gain_factor, dB);
+    float dB = 20.0f * log10f(max_buf / 32768);
+    if (super->opts.demod_verbosity >= 1)
+      fprintf (stderr, " Gain Factor: %0.1f; dB: %0.1f;", gain_factor, dB);
   }
-
 
   //increment index pointer
   super->demod.max_history_buffer_ptr++;
