@@ -360,7 +360,7 @@ void print_ncurses_levels (Super * super)
     if (super->opts.use_raw_audio_monitor)
       printw ( " Analog Monitor(M);");
     else printw ( "!Analog Monitor(M);");
-    if (super->opts.auto_gain_voice)
+    if (!super->opts.auto_gain_voice)
       printw ( " Auto Gain(a);");
     else printw ( " Manual Gain(a);");
     if (super->opts.playback_voice_mute == 1)
@@ -429,7 +429,7 @@ void print_ncurses_levels (Super * super)
     if (super->opts.use_raw_audio_monitor)
       printw ( " Analog Monitor(M);");
     else printw ( "!Analog Monitor(M);");
-    if (super->opts.auto_gain_voice)
+    if (!super->opts.auto_gain_voice)
       printw ( " Auto Gain(a);");
     else printw ( " Manual Gain(a);");
     printw ("\n");
