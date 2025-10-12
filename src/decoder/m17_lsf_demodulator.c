@@ -76,6 +76,12 @@ void demod_lsf(Super * super, uint8_t * input, int debug)
   //viterbi
   error = viterbi_decode_punctured(viterbi_bytes, d_soft_bit, p1, 2*SYM_PER_PLD, 61);
 
+  //track viterbi error / cost metric
+  super->error.viterbi_err = (float)error/(float)0xFFFF;
+
+  //TODO: BER Estimate
+  // state->error.ber_estimate;
+
   //unpack into the lsf bit array
   memset (super->m17d.lsf, 0, sizeof(super->m17d.lsf));
   unpack_byte_array_into_bit_array(viterbi_bytes+1, super->m17d.lsf, 30);

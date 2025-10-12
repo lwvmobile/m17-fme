@@ -466,7 +466,8 @@ typedef struct
   uint16_t pkt_crc_err;
   uint16_t ipf_crc_err;
   uint16_t golay_err;
-  uint16_t viterbi_err;
+  float    viterbi_err;
+  float    ber_estimate;
   uint16_t bert_err;
 
 } Error;

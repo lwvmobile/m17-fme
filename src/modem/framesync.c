@@ -503,6 +503,9 @@ void no_carrier_sync (Super * super)
   if (super->opts.auto_gain_voice == 1)
     reset_auto_gain_vx(super);
 
+  //reset viterbi error / cost metric
+  super->error.viterbi_err = 0.0f;
+
 }
 
 void buffer_refresh_min_max_center (Super * super)

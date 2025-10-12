@@ -76,6 +76,12 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
   //viterbi
   error = viterbi_decode_punctured(viterbi_bytes, d_soft_bit, p3, 2*SYM_PER_PLD, 8);
 
+  //track viterbi error / cost metric
+  super->error.viterbi_err = (float)error/(float)0xFFFF;
+
+  //TODO: BER Estimate
+  // state->error.ber_estimate;
+
   uint8_t pkt_packed[26];
   memset (pkt_packed, 0, sizeof(pkt_packed));
 

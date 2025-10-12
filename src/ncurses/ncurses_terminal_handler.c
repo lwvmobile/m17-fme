@@ -818,6 +818,8 @@ void print_ncurses_call_info (Super * super)
     printw ("LSF: %05d; EMB: %05d; GLY: %05d; PKT: %05d; IPF: %05d; ", 
       super->error.lsf_hdr_crc_err, super->error.lsf_emb_crc_err, 
       super->error.golay_err, super->error.pkt_crc_err, super->error.ipf_crc_err);
+    printw ("Ve: %1.1f; ", super->error.viterbi_err);
+    // printw ("BER: %1.1f; ", super->error.ber_estimate); //TODO: This
   }
 
   printw ("\n");

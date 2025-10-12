@@ -185,11 +185,32 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
 
   if (type == 2)
   {
+    //look at current viterbi error / cost metric,
+    //if exceeds threshold, substitute silence frame
+    if (super->error.viterbi_err >= 25.0f)
+    {
+      uint64_t silence = 0x010009439CE42108;
+      for (int i = 0; i < 8; i++)
+      {
+        voice1[i] = (silence >> (56ULL-(i*8))) & 0xFF;
+        voice2[i] = (silence >> (56ULL-(i*8))) & 0xFF;
+      }
+    }
     codec2_decode(super->m17d.codec2_3200, samp1, voice1);
     codec2_decode(super->m17d.codec2_3200, samp2, voice2);
   }
   else
+  {
+    //look at current viterbi error / cost metric,
+    //if exceeds threshold, substitute silence frame
+    if (super->error.viterbi_err >= 25.0f)
+    {
+      uint64_t silence = 0x010004002575DDF2;
+      for (int i = 0; i < 8; i++)
+        voice1[i] = (silence >> (56ULL-(i*8))) & 0xFF;
+    }
     codec2_decode(super->m17d.codec2_1600, samp1, voice1);
+  }
 
   //Run HPF on decoded voice prior to gain and upsample
   if (super->opts.use_hpfilter_dig == 1)

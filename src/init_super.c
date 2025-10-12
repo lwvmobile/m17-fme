@@ -456,7 +456,8 @@ void init_super (Super * super)
   super->error.pkt_crc_err = 0;
   super->error.ipf_crc_err = 0;
   super->error.golay_err = 0;
-  super->error.viterbi_err = 0;
+  super->error.viterbi_err = 0.0f;
+  super->error.ber_estimate = 0.0f;
   super->error.bert_err = 0;
   //end init error
 }

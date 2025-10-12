@@ -141,6 +141,12 @@ void prepare_str(Super * super, float * sbuf)
   //viterbi
   error = viterbi_decode_punctured(viterbi_bytes, d_soft_bit+96, p2, 272, 12);
 
+  //track viterbi error / cost metric
+  super->error.viterbi_err = (float)error/(float)0xFFFF;
+
+  //TODO: BER Estimate
+  // state->error.ber_estimate;
+
   //load viterbi_bytes into bits for either data packets or voice packets
   unpack_byte_array_into_bit_array(viterbi_bytes+1, stream_bits, 18); //18*8 = 144
 
