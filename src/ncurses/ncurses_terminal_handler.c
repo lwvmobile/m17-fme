@@ -521,7 +521,7 @@ void print_ncurses_call_info (Super * super)
         }
         else printw (" ( ON);");
       }
-      else printw ("LSTN (Listen Only Mode). No TX, PKT, CFG, or DBG Options Enabled;");
+      else printw ("LSTN (Listen Only Mode)");
     }
 
   }

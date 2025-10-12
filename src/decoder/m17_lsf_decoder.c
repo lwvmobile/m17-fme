@@ -23,6 +23,27 @@ void decode_lsf_contents(Super * super)
   uint8_t lsf_cn = (lsf_type >> 7) & 0xF;
   uint8_t lsf_rs = (lsf_type >> 11) & 0x1F;
 
+  //decode behavior debug
+  // lsf_rs |= 0x10;
+
+  //ECDSA signature included
+  uint8_t is_signed = 0;
+
+  //Seperate the Signed bit from the reserved field, shift right once
+  if (lsf_rs & 1)
+  {
+    is_signed = 1;
+    lsf_rs >>= 1;
+  }
+
+  //if this field is not zero, then this is not a standard V2.0 or older spec'd LSF type,
+  //if proposed LSF TYPE field changes occur, this region will be 0 for V2.0, and not 0 for newer
+  if (lsf_rs != 0)
+  {
+    fprintf (stderr, " Unknown LSF TYPE;"); //V3.0 in future spec?
+    goto LSF_END;
+  }
+
   //store this so we can reference it for playing voice and/or decoding data, dst/src etc
   super->m17d.dt  = lsf_dt;
   super->m17d.dst = lsf_dst;
@@ -76,21 +97,8 @@ void decode_lsf_contents(Super * super)
     super->m17d.dt = 20;
   }
 
-  if (lsf_rs != 0)
-  { 
-
-    if (lsf_rs & 1)
-      fprintf (stderr, " Signed (secp256r1);");
-
-    if ( (lsf_rs & 0x1E) == 0x04) //Currently no ECDSA n  data packets (don't give Woj any ideas)
-      fprintf (stderr, " OTAKD Data Packet;");
-
-    if ( (lsf_rs & 0x1E) == 0x06)
-    {
-      fprintf (stderr, " OTAKD Embedded LSF;\n");
-      goto LSF_END;
-    }
-  }
+  if (is_signed)
+    fprintf (stderr, " Signed (secp256r1);");
 
   if (lsf_et != 0) fprintf (stderr, "\n ENC:");
   if (lsf_et == 1)
@@ -196,12 +204,6 @@ void decode_lsf_contents(Super * super)
   if (lsf_ps && super->opts.use_wav_out_pc && super->wav.wav_out_pc == NULL)
     setup_percall_filename(super);
 
-  LSF_END:
-  if ( (lsf_rs & 0x1E) == 0x06)
-  {
-    uint8_t otakd[16];
-    pack_bit_array_into_byte_array(super->m17d.lsf+112, otakd, 16);
-    decode_pkt_contents (super, otakd, 16);
-  }
+  LSF_END: {} //
   
 }
