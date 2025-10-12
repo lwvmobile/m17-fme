@@ -42,7 +42,13 @@ void encode_callsign_data(Super * super, char * d40, char * s40, unsigned long l
   else if (strcmp (super->m17e.dsts, "#BROADCAS") == 0)
     *dst = 0xFFFFFFFFFFFF;
 
+  else if (strcmp (super->m17e.dsts, "@BROADCAS") == 0)
+    *dst = 0xFFFFFFFFFFFF;
+
   else if (strcmp (super->m17e.dsts, "#ALL") == 0)
+    *dst = 0xFFFFFFFFFFFF;
+
+  else if (strcmp (super->m17e.dsts, "@ALL") == 0)
     *dst = 0xFFFFFFFFFFFF;
 
   else if (strcmp (super->m17e.dsts, "BROADCAST") == 0)
@@ -54,6 +60,13 @@ void encode_callsign_data(Super * super, char * d40, char * s40, unsigned long l
   else if (super->m17e.dsts[0] == '#')
   {
     //scan string to value, excluding #
+    sscanf (super->m17e.dsts+1, "%llX", dst);
+    *dst &= 0xFFFFFFFFFFFF; //truncate to 48-bits
+  }
+
+  else if (super->m17e.dsts[0] == '@')
+  {
+    //scan string to value, excluding @
     sscanf (super->m17e.dsts+1, "%llX", dst);
     *dst &= 0xFFFFFFFFFFFF; //truncate to 48-bits
   }

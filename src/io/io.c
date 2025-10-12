@@ -486,6 +486,12 @@ void parse_m17_user_string (Super * super, char * input)
       strncpy (super->m17e.dsts, curr, 13);
       super->m17e.dsts[13] = '\0';
     }
+    else if (curr[0] == '@') //if user submits a reserved value denoted by at sign
+    {
+      //Store entire string if a hash (up to 13 to allow 12 chars for 48-bit value plus @)
+      strncpy (super->m17e.dsts, curr, 13);
+      super->m17e.dsts[13] = '\0';
+    }
     else //only read first 9, handle as encodable CS
     {
       strncpy (super->m17e.dsts, curr, 9);
