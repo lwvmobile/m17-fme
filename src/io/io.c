@@ -873,13 +873,12 @@ void parse_meta_txt_string (Super * super, char * input)
 
   }
 
-  //NOTE: PR already in to remove this, so just disable and don't worry about it
-  //spec says if Meta text is shorter than full amount, to fill with 0x20 spaces and not 0x00
-  // for (i = 2; i < x; i++)
-  // {
-  //   if (super->m17e.meta_data[i] == 0x00)
-  //     super->m17e.meta_data[i] = 0x20; 
-  // }
+  //NOTE: Reverted back to padding spaces, this change will occur in the 3.0 spec
+  for (i = 2; i < x; i++)
+  {
+    if (super->m17e.meta_data[i] == 0x00)
+      super->m17e.meta_data[i] = 0x20; 
+  }
 
   //debug
   fprintf (stderr, "\n Meta Len: %d; X: %02d; K: %02d; Meta Type: %02X; Meta Text: %s", len, x, k, super->m17e.met_st, txt);

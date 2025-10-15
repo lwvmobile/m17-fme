@@ -400,7 +400,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     if (segment_len == segment_num)
     {
       super->m17d.dat[ptr+13] = 0;
-      fprintf (stderr, "\n Complete Meta Text: %s;", super->m17d.dat);
+      fprintf (stderr, "\n Complete Meta Text: %s", super->m17d.dat);
     }
 
     //send to event_log_writer
