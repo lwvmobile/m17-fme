@@ -124,7 +124,7 @@ void auto_gain_vx (Super * super, short * input, int len)
   float max_buf   = 0.0f;
   int max_mod     = 12*2; //was 256 previously
 
-  float gain_factor_clamp = 25.0f; //was 30.0f previously
+  float gain_factor_clamp = 30.0f; //was 25.0f previously
   float target_amp_percent = 0.75f; //was 1.0f previously
   float target_amplitude = 16384.0f * target_amp_percent;
 
@@ -162,6 +162,9 @@ void auto_gain_vx (Super * super, short * input, int len)
 
     if (gain_factor > 0.01f && gain_factor <= gain_factor_clamp)
       super->opts.output_gain_vx = gain_factor;
+    else if (super->opts.output_gain_vx > 1.25f) //decay by 25%
+      super->opts.output_gain_vx -= 0.25f;
+    else super->opts.output_gain_vx = 1.0f; //set to 100%
 
     //debug
     float dB = 20.0f * log10f(max_buf / 32768);
