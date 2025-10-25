@@ -177,10 +177,10 @@ This is the current usage (subject to change), verbatim, from m17-fme -h option:
 
 ```
 M17 Project - Florida Man Edition                          
-Build Version: 2025-50-gfa2cfc5 
-Specification Version: 2.0; 
-Specification Date: Aug 26, 2025 
-Session Number: 4394 
+Build Version: 2025-73-gff811b7 
+Specification Version: 3.0.0-draft; 
+Specification Date: Oct 22, 2025 
+Session Number: ED7A 
 
 Usage: m17-fme [options]    Start the Program
   or:  m17-fme -h           Show Help
@@ -196,7 +196,7 @@ Device Options:
 
   -a            List All Pulse Audio Input Sources and Output Sinks (devices).
   -g <float>    Set Autogain (0) or Set Manual Gain Value (Percentage) to Decoded Audio Output (0.01 - 25.00).
-                Note: Decimal Gain Value of 0.01 is 1%, Decimal Gain Value of 25.00 is 2500%. Default is 1.0 for 100%.
+                Note: Decimal Gain Value of 0.01 is 1%, Decimal Gain Value of 25.00 is 2500%. Default is 1.0 for 100%. 
 
 Input Options:
 
@@ -266,10 +266,9 @@ Encoder Input Strings:
   -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.
                 (example: -A 'Hello World! This is arbitrary data on 1600') 
   -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets (up to 823 octets).
-                (example: -R 81F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) 
+                (example: -R 91F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) 
 
-                (NOTE: Using Meta Fields is not compatible with Using Encryption!) 
-  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 52 UTF-8 characters, 4 Segment Meta);
+  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 195 UTF-8 characters, 15 Segment Meta);
                 (example: -Y 'Hello World!! This is a longer M17 Text Message!!!!' ) for Meta Text 
   -Z <hex>      Enter META Data for Stream Voice Encoder as Hex Octets (1 Meta Type Octet + 14 Hex Octets Max);
                 (example: -Z 01F0F2B42B20ABC500C80424064000) for Meta GNSS Position @ Wally World 
@@ -312,7 +311,6 @@ Encryption Options:
   -E <hex str>  Enter AES Key Value (in single quote, space every 16 chars) 
                 (example: -E '0520C1B0220AFBCA 16FB1330764B26EC 5C34A197764C147A 15FBA7515ED8BCFC')
                 (example: -E '0520C1B0220AFBCA 16FB1330764B26EC')
-                (Limiting significant key value to first 32 characters to maintain compatibility)
   -J <file>     Load AES Key from file. (see example key: key/aes_key.txt)
   -O            Send OTA Key Delivery Packets for AES and Scrambler Keys
   -Q            Send OTA Key Delivery Packets for Signature Public Keys
@@ -353,7 +351,6 @@ Quick Examples:
 
  IP Frame Decoder for Voice Stream and Packet Data Connect to Reflector Address, Port, R, Module in LSTN mode
  m17-fme -i udp:172.234.217.28:17000:R:C -M 0:M17FME0:ALL -o pulsevx -N 2> m17decoder.txt
-
 ```
 
 ### Ncurses Keyboard Shortcuts

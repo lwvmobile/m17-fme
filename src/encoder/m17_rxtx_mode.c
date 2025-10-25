@@ -182,18 +182,9 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
   memset (lsf_chunk, 0, sizeof(lsf_chunk));
   memset (m17_lsf, 0, sizeof(m17_lsf));
 
-  //NOTE: Most lich and lsf_chunk bits can be pre-set before the while loop,
-  //only need to refresh the lich_cnt value, nonce, and golay
-  uint16_t lsf_ps = 1;                      //packet or stream indicator bit
   uint16_t lsf_dt = st;                     //stream type
   uint16_t lsf_et = super->enc.enc_type;    //encryption type
   uint16_t lsf_es = super->enc.enc_subtype; //encryption sub-type
-  uint16_t lsf_cn = can;                    //can value
-  uint16_t lsf_rs = 0;                      //reserved bits
-
-  if (super->m17e.ecdsa.keys_loaded)
-    lsf_rs = lsf_rs | (uint8_t)0x1; //OR 0x01 for ECDSA
-  else lsf_rs = 0; //reset to zero
 
   if (lsf_et == 1)
   {
@@ -201,14 +192,85 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
     lsf_es = super->enc.enc_subtype; //encryption sub-type
   }
 
-  //if not encrypted, and meta data available, set lsf_es to met_st instead
-  if (lsf_et == 0 && super->m17e.meta_data[0] != 0)
-    lsf_es = super->m17e.met_st;
-
   //compose the 16-bit frame information from the above sub elements
-  uint16_t lsf_fi = 0;
-  lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
-  for (i = 0; i < 16; i++) m17_lsf[96+i] = (lsf_fi >> (15-i)) & 1;
+  uint16_t lsf_type = 0;
+
+  //Version 3.0 spec LSF Type Items
+  uint16_t payload_contents = 0;
+  uint16_t encryption_type = 0;
+  uint16_t signature = 0;
+  uint16_t meta_contents = 0;
+  uint16_t channel = 0;
+
+  payload_contents = st;
+  channel = can;
+
+  //Scrambler Encryption
+  if (lsf_et == 1)
+  {
+    if (lsf_es == 0)
+      encryption_type = 0x1;
+    if (lsf_es == 1)
+      encryption_type = 0x2;
+    if (lsf_es == 2)
+      encryption_type = 0x3;
+  }
+
+  //AES Encryption
+  if (lsf_et == 2)
+  {
+    if (lsf_es == 0)
+      encryption_type = 0x4;
+    if (lsf_es == 1)
+      encryption_type = 0x5;
+    if (lsf_es == 2)
+      encryption_type = 0x6;
+  }
+
+  if (super->opts.m17_str_encoder_dt == 3)
+    payload_contents = 3;
+  else payload_contents = 2;
+
+  if (super->m17e.ecdsa.keys_loaded)
+    signature = 1;
+
+  //pack local meta for aes encryption function (bugfix for internal loopback AES not working)
+  uint8_t meta[16]; memset (meta, 0, sizeof(meta));
+  if (lsf_et == 2)
+  {
+    super->m17e.lsf3.meta_rr[0][0] = 0xF; //AES IV meta content value
+    for (i = 0; i < 14; i++)
+      super->m17e.lsf3.meta_rr[0][i+1] = meta[i] = nonce[i];
+    for (i = 0; i < 8; i++)
+    {
+      meta[14] <<= 1;
+      meta[15] <<= 1;
+      meta[14] += ((fsn >> 8) >> (7-i)) & 1;
+      meta[15] += ((fsn >> 0) >> (7-i)) & 1;
+    }
+  }
+  else memset(super->m17e.lsf3.meta_rr[0], 0, sizeof(super->m17e.lsf3.meta_rr[0]));
+
+  //load the first META (should be AES_IV, or No Data)
+  meta_contents = meta_round_robin_v3_baconator (super, 0, m17_lsf);
+
+  lsf_type = (payload_contents << 12) | (encryption_type << 9) | (signature << 8) | (meta_contents << 4) | (channel << 0);
+
+  //load lsf type into lsf bit array
+  for (i = 0; i < 16; i++)
+    m17_lsf[96+i] = (lsf_type >> (15-i)) & 1;
+
+  //pack and compute the CRC16 for LSF
+  uint16_t crc_cmp = 0;
+  uint8_t lsf_packed[30];
+  memset (lsf_packed, 0, sizeof(lsf_packed));
+  for (int i = 0; i < 28; i++)
+      lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
+  crc_cmp = crc16(lsf_packed, 28);
+
+  //attach the crc16 bits to the end of the LSF data
+  for (int i = 0; i < 16; i++)
+    m17_lsf[224+i] = (crc_cmp >> (15-i)) & 1;
 
   //Encode Callsign Data
   encode_callsign_data(super, d40, s40, &dst, &src);
@@ -233,32 +295,8 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
   for (i = 0; i < 48; i++) m17_lsf[i+00] = (dst >> (47ULL-(unsigned long long int)i)) & 1;
   for (i = 0; i < 48; i++) m17_lsf[i+48] = (src >> (47ULL-(unsigned long long int)i)) & 1;
 
-  //load the nonce from packed bytes to a bitwise iv array
-  uint8_t iv[112]; memset(iv, 0, sizeof(iv));
-  k = 0;
-  for (j = 0; j < 14; j++)
-  {
-    for (i = 0; i < 8; i++)
-      iv[k++] = (nonce[j] >> (7-i))&1;
-  }
-
-  //if AES enc employed, insert the iv into LSF
-  if (lsf_et == 2)
-  {
-    for (i = 0; i < 112; i++)
-      m17_lsf[i+112] = iv[i];
-  }
-  //else if not ENC and Meta data provided, unpack Meta data into META Field (up to 112/8 = 14 octets or chars)
-  else if (lsf_et == 0 && super->m17e.meta_data[0] != 0)
-  {
-    uint16_t md_ptr = 1;
-    unpack_byte_array_into_bit_array(super->m17e.meta_data+md_ptr, m17_lsf+112, 14);
-    super->m17e.meta_round_robin_ctr = 0;
-  }
-
   //pack and compute the CRC16 for LSF
-  uint16_t crc_cmp = 0;
-  uint8_t lsf_packed[30];
+  crc_cmp = 0;
   memset (lsf_packed, 0, sizeof(lsf_packed));
   for (i = 0; i < 28; i++)
       lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
@@ -319,43 +357,50 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
     lsf_et = super->enc.enc_type;    //encryption type
     lsf_es = super->enc.enc_subtype; //encryption sub-type
 
-    //if not encrypted, and meta data available, set lsf_es to met_st instead
-    if (lsf_et == 0 && super->m17e.meta_data[0] != 0)
-      lsf_es = super->m17e.met_st;
-
-    if (super->m17e.ecdsa.keys_loaded)
-      lsf_rs = lsf_rs | (uint8_t)0x1; //OR 0x01 for ECDSA
-    else lsf_rs = 0; //reset to zero
-
-
-    //this is set to 3 IF -A  arb user text string is called in ncurses
-    if (super->opts.m17_str_encoder_dt == 3)
-    {
-      lsf_dt = 3;
-      st = 3;
-    }
-    else //otherwise, just use 3200 voice
-    {
-      lsf_dt = 2;
-      st = 2;
-    }
-
     //update CAN
     if (super->m17e.can != -1)
       can = super->m17e.can;
-    lsf_cn = can;
+    
+    //Version 3.0 spec items (will need to be redone to allow meta round robin, etc, changing this field more frequently)
+    payload_contents = st;
+    channel = can;
 
-    //compose the 16-bit frame information from the above sub elements
-    lsf_fi = 0;
-    lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
-    for (i = 0; i < 16; i++) m17_lsf[96+i] = (lsf_fi >> (15-i)) & 1;
+    //scrambler encryption
+    if (lsf_et == 1)
+    {
+      if (lsf_es == 0)
+        encryption_type = 0x1;
+      if (lsf_es == 1)
+        encryption_type = 0x2;
+      if (lsf_es == 2)
+        encryption_type = 0x3;
+    }
+
+    //AES encryption
+    if (lsf_et == 2)
+    {
+      if (lsf_es == 0)
+        encryption_type = 0x4;
+      if (lsf_es == 1)
+        encryption_type = 0x5;
+      if (lsf_es == 2)
+        encryption_type = 0x6;
+    }
+
+    if (super->opts.m17_str_encoder_dt == 3)
+      payload_contents = 3;
+    else payload_contents = 2;
+
+    if (super->m17e.ecdsa.keys_loaded)
+      signature = 1;
 
     //pack local meta for aes encryption function (bugfix for internal loopback AES not working)
     uint8_t meta[16]; memset (meta, 0, sizeof(meta));
     if (lsf_et == 2)
     {
+      super->m17e.lsf3.meta_rr[0][0] = 0xF; //AES IV meta content value
       for (i = 0; i < 14; i++)
-        meta[i] = nonce[i];
+        super->m17e.lsf3.meta_rr[0][i+1] = meta[i] = nonce[i];
       for (i = 0; i < 8; i++)
       {
         meta[14] <<= 1;
@@ -363,6 +408,31 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
         meta[14] += ((fsn >> 8) >> (7-i)) & 1;
         meta[15] += ((fsn >> 0) >> (7-i)) & 1;
       }
+    }
+    else memset(super->m17e.lsf3.meta_rr[0], 0, sizeof(super->m17e.lsf3.meta_rr[0]));//super->m17e.lsf3.meta_rr[0][0] = 0; //zero out this RR field -- also need to zero out meta_rr[0];
+
+    //Start Round Robin Baconator Function
+    if (fsn != 0 && lich_cnt == 0)
+    {
+      meta_contents = meta_round_robin_v3_baconator (super, fsn, m17_lsf);
+
+      lsf_type = (payload_contents << 12) | (encryption_type << 9) | (signature << 8) | (meta_contents << 4) | (channel << 0);
+
+      //load lsf type into lsf bit array
+      for (i = 0; i < 16; i++)
+        m17_lsf[96+i] = (lsf_type >> (15-i)) & 1;
+
+      //pack and compute the CRC16 for LSF
+      uint16_t crc_cmp = 0;
+      uint8_t lsf_packed[30];
+      memset (lsf_packed, 0, sizeof(lsf_packed));
+      for (int i = 0; i < 28; i++)
+          lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
+      crc_cmp = crc16(lsf_packed, 28);
+
+      //attach the crc16 bits to the end of the LSF data
+      for (int i = 0; i < 16; i++)
+        m17_lsf[224+i] = (crc_cmp >> (15-i)) & 1;
     }
 
     //if not decoding internally, assign values for ncurses display
@@ -377,7 +447,7 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
       super->m17d.enc_et = lsf_et;
       super->m17d.enc_st = lsf_es;
       for (i = 0; i < 16; i++)
-        super->m17d.meta[i] = meta[i];
+        super->m17d.lsf3.aes_iv[i] = meta[i];
     }
 
     //read in short audio input samples from source
@@ -548,34 +618,6 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
     //add punctured voice / data bits to the combined frame
     for (i = 0; i < 272; i++)
       m17_t4c[i+96] = m17_v1p[i];
-
-    //round robin meta data (meta text up to 4 segments)
-    if (lich_cnt == 0)
-    {
-
-      //make a backup copy of the LSF
-      memcpy (super->m17e.lsf_bkp, m17_lsf, 240*sizeof(uint8_t));
-
-      if (lsf_et == 0 && super->m17e.meta_data[0] != 0)
-      {
-        uint16_t md_ptr = ( (super->m17e.meta_round_robin_ctr % super->m17e.meta_round_robin_mod) * 14) + 1;
-        unpack_byte_array_into_bit_array(super->m17e.meta_data+md_ptr, m17_lsf+112, 14);
-        super->m17e.meta_round_robin_ctr++;
-
-        //pack and compute the CRC16 for LSF
-        uint16_t crc_cmp = 0;
-        uint8_t lsf_packed[30];
-        memset (lsf_packed, 0, sizeof(lsf_packed));
-        for (i = 0; i < 28; i++)
-            lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
-        crc_cmp = crc16(lsf_packed, 28);
-
-        //attach the crc16 bits to the end of the LSF data
-        for (i = 0; i < 16; i++) m17_lsf[224+i] = (crc_cmp >> (15-i)) & 1;
-
-      }
-  
-    }
 
     //load up the lsf chunk for this cnt
     for (i = 0; i < 40; i++)
@@ -864,40 +906,11 @@ void m17_duplex_str (Super * super, uint8_t use_ip, int udpport, uint8_t reflect
       nonce[12] = rand() & 0xFF;
       nonce[13] = rand() & 0xFF;
 
-      //load the nonce from packed bytes to a bitwise iv array
-      memset(iv, 0, sizeof(iv));
-      k = 0;
-      for (j = 0; j < 14; j++)
-      {
-        for (i = 0; i < 8; i++)
-          iv[k++] = (nonce[j] >> (7-i))&1;
-      }
-
-      //if AES enc employed, insert the iv into LSF
-      if (lsf_et == 2)
-      {
-        for (i = 0; i < 112; i++)
-          m17_lsf[i+112] = iv[i];
-      }
       //Scrambler
-      else if (lsf_et == 1)
-      {
+      if (lsf_et == 1)
         super->enc.scrambler_seed_e = super->enc.scrambler_key; //reset seed value
-      }
-      //else if not ENC and Meta data provided, unpack Meta data into META Field (up to 112/8 = 14 octets or chars)
-      else if (lsf_et == 0 && super->m17e.meta_data[0] != 0)
-      {
-        uint16_t md_ptr = 1;
-        unpack_byte_array_into_bit_array(super->m17e.meta_data+md_ptr, m17_lsf+112, 14);
-        super->m17e.meta_round_robin_ctr = 0;
-      }
-        
-      else //zero out the meta field (prevent bad meta data decodes on decoder side)
-      {
-        for (i = 0; i < 112; i++)
-          m17_lsf[i+112] = 0;
-      }
 
+      //Do we need to keep redoing this?
       //repack, new CRC, and update rest of lsf as well
       memset (lsf_packed, 0, sizeof(lsf_packed));
       for (i = 0; i < 28; i++)
@@ -1387,4 +1400,72 @@ void m17_rx_tx_mode (Super * super)
     close(m17_udp_socket_duplex);
   }
 
+}
+
+//Round Robin of multiple META types and also return appropriate Meta Contents value
+uint16_t meta_round_robin_v3_baconator(Super * super, uint16_t fsn, uint8_t * m17_lsf)
+{
+
+  //make a backup copy of the LSF
+  memcpy (super->m17e.lsf_bkp, m17_lsf, 240*sizeof(uint8_t));
+
+  int ptr = super->m17e.meta_round_robin_ctr % 20;
+  uint8_t meta_is_loaded = 0;
+  uint16_t meta_contents = 0;
+
+  //debug for any overflow, zero meta, etc
+  // fprintf (stderr, " CTR: %02d; ", super->m17e.meta_round_robin_ctr);
+
+  //look through all, if meta contents value is held, load it
+  for (int i = ptr; i < 20; i++)
+  {
+    meta_contents = super->m17e.lsf3.meta_rr[i][0];
+    if (fsn == 0) //first run, always put in the AES_IV, or if this field is empty, send an empty META on LSF Sync Frames (not embedded)
+    {
+      unpack_byte_array_into_bit_array(super->m17e.lsf3.meta_rr[0]+1, m17_lsf+112, 14);
+      meta_is_loaded = 1;
+
+      //debug
+      // fprintf (stderr, " FSN: %04X; Baconator Meta: %X; #%02d: ", fsn, meta_contents, i);
+      // for (int j = 1; j < 15; j++)
+      //   fprintf (stderr, "%02X ", super->m17e.lsf3.meta_rr[i][j]);
+
+      //set counter to next position (+1)
+      super->m17e.meta_round_robin_ctr = i+1;
+
+      break;
+    }
+    else if (meta_contents != 0) //if meta contents value is not zero
+    {
+
+      unpack_byte_array_into_bit_array(super->m17e.lsf3.meta_rr[i]+1, m17_lsf+112, 14);
+      meta_is_loaded = 1;
+
+      //debug
+      // fprintf (stderr, " FSN: %04X; Baconator Meta: %X; #%02d: ", fsn, meta_contents, i);
+      // for (int j = 1; j < 15; j++)
+      //   fprintf (stderr, "%02X ", super->m17e.lsf3.meta_rr[i][j]);
+
+      //set counter to next position (+1)
+      super->m17e.meta_round_robin_ctr = i+1;
+
+      break;
+    }
+  }
+
+  //remove any stale meta data
+  if (meta_is_loaded == 0)
+  {
+    super->m17e.meta_round_robin_ctr = 0; //reset counter
+    meta_contents = 0;
+    for (int i = 0; i < 112; i++)
+      m17_lsf[i+112] = 0;
+  }
+
+  //look ahead to next position, if 0, then reset counter
+  ptr = super->m17e.meta_round_robin_ctr % 20;
+  if (super->m17e.lsf3.meta_rr[ptr][0] == 0)
+    super->m17e.meta_round_robin_ctr = 0;
+
+  return meta_contents;
 }

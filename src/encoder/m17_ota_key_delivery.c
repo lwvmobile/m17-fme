@@ -58,19 +58,21 @@ void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint
   uint8_t m17_lsf[244]; //the complete LSF + 4 trailing bits
   memset (m17_lsf, 0, sizeof(m17_lsf));
 
-  //Setup LSF Variables, these are not sent in chunks like with voice
-  //but only once at start of PKT TX
-  uint16_t lsf_ps    = 0; //packet or stream indicator bit
-  uint16_t lsf_dt    = 0; //Reserved
-  uint16_t lsf_et    = 0; //encryption type
-  uint16_t lsf_es    = 0; //encryption sub-type
-  uint16_t lsf_cn  = can; //can value
-  uint16_t lsf_rs = 0x00; //reserved bits
-
   //compose the 16-bit frame information from the above sub elements
-  uint16_t lsf_fi = 0;
-  lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
-  for (i = 0; i < 16; i++) m17_lsf[96+i] = (lsf_fi >> (15-i)) & 1;
+  uint16_t lsf_type = 0;
+
+  //Version 3.0 spec LSF Type Items
+  uint16_t payload_contents = 0xF;
+  uint16_t encryption_type = 0;
+  uint16_t signature = 0;
+  uint16_t meta_contents = 0;
+  uint16_t channel = can;
+
+  lsf_type = (payload_contents << 12) | (encryption_type << 9) | (signature << 8) | (meta_contents << 4) | (channel << 0);
+
+  //load lsf type into lsf bit array
+  for (i = 0; i < 16; i++)
+    m17_lsf[96+i] = (lsf_type >> (15-i)) & 1;
 
   //Encode Callsign Data
   encode_callsign_data(super, d40, s40, &dst, &src);

@@ -716,14 +716,9 @@ uint16_t parse_raw_user_string (Super * super, char * input)
   return len;
 }
 
-//convert a raw user string into a uint8_t array for raw meta encoding (Note: Encryption use overrides the use of this in the Meta Data Field)
+//convert a raw user string into a uint8_t array for raw meta_rr encoding
 void parse_meta_raw_string (Super * super, char * input)
 {
-
-  //safety measure so if user specifies both raw, and text, the last one takes precedence
-  memset(super->m17e.meta_data, 0, sizeof(super->m17e.meta_data));
-  super->m17e.meta_round_robin_mod = 1;
-  super->m17e.meta_round_robin_ctr = 0;
 
   //since we want this as octets, get strlen value, then divide by two
   uint16_t len = strlen((const char*)input);
@@ -739,35 +734,33 @@ void parse_meta_raw_string (Super * super, char * input)
 
   //sanity check, maximum strlen should not exceed 15 for type + META
   if (len > 15) len = 15;
-  
-  super->m17e.meta_data[0] = 1; //flag as 1 so the encoder will know to parse the data here
 
   char octet_char[3];
   octet_char[2] = 0;
   uint16_t k = 0;
   uint16_t i = 0;
 
-  //The “Encryption SubType” bits in the Stream Type field indicate what extended data is stored in the META field.
-  //set the 'type', corresponds with lsf_st when not encrypted
   uint8_t type = 0;
   strncpy (octet_char, input+k, 2);
   octet_char[2] = 0;
   sscanf (octet_char, "%hhX", &type);
-  super->m17e.met_st = type;
+  //code currently allows for AES_IV (slot 0), 1 RAW Encoding (slot 1), and META TEXT (up to 15 segments)
+  super->m17e.lsf3.meta_rr[1][0] = type;
   k += 2;
 
-  //debug
-  // fprintf (stderr, "Meta Len: %d; Meta Type: %02X; Meta Octets:", len, type);
   for (i = 0; i < len; i++)
   {
     strncpy (octet_char, input+k, 2);
     octet_char[2] = 0;
-    sscanf (octet_char, "%hhX", &super->m17e.meta_data[i+1]);
-
-    // fprintf (stderr, " %02X", super->m17e.meta_data[i+1]);
+    sscanf (octet_char, "%hhX", &super->m17e.lsf3.meta_rr[1][i+1]);
     k += 2;
   }
-  // fprintf (stderr, "\n");
+
+  //Debug This Slot Meta RR
+  int j = 1; //slot 1 is GNSS or RAW, if used
+  fprintf (stderr, "\n Meta Contents: %X - #%02d: ", super->m17e.lsf3.meta_rr[j][0], j);
+  for (i = 1; i < 15; i++)
+    fprintf (stderr, "%02X", super->m17e.lsf3.meta_rr[j][i]);
 
 }
 
@@ -780,9 +773,9 @@ void parse_meta_txt_string (Super * super, char * input)
   super->m17e.meta_round_robin_mod = 1;
   super->m17e.meta_round_robin_ctr = 0;
 
-  int i = 0; int x = 0; int k = 0;
-  char txt[53]; memset (txt, 0, 52*sizeof(char));
-  strncpy(txt, input, 52);
+  int i = 0; int j = 0; int x = 0; int k = 0;
+  char txt[196]; memset (txt, 0, 196*sizeof(char));
+  strncpy(txt, input, 195);
 
   int len = strlen((const char*)txt);
   if (len != 0)
@@ -796,107 +789,71 @@ void parse_meta_txt_string (Super * super, char * input)
     return;
   }
 
-  if (len > 0 && len <= 13)
+  //cap len to 195 UTF-8 characters (13 * 15)
+  if (len > 195)
+    len = 195;
+
+  uint8_t control_byte = 0x00;
+  uint8_t control_len = 0;
+
+  control_len = len / 13;
+  if (len % 13)
+    control_len++;
+
+  //sanity check
+  if (control_len > 0xF)
+    control_len = 0xF;
+
+  super->m17e.meta_round_robin_mod = control_len;
+
+  control_byte = control_len << 4;
+  control_byte |= 1; //first segment
+
+  for (j = 0; j < control_len; j++)
   {
-    super->m17e.meta_data[x++] = 0x11; //control byte; len of 1, segment 1
+    super->m17e.meta_data[x++] = control_byte;
 
     //load 13 utf-8 characters / bytes from input
     for (i = 0; i < 13; i++)
       super->m17e.meta_data[x++] = (uint8_t)txt[k++];
 
-    super->m17e.meta_round_robin_mod = 1;
+    control_byte++; //increment LSB of control byte for next segment
 
-  }
-  else if (len > 13 && len <= 26)
-  {
-    super->m17e.meta_data[x++] = 0x31; //control byte; len of 2, segment 1
-
-    //load 13 utf-8 characters / bytes from input
-    for (i = 0; i < 13; i++)
-      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
-
-    super->m17e.meta_data[x++] = 0x32; //control byte; len of 2, segment 2
-
-    //load 13 utf-8 characters / bytes from input
-    for (i = 0; i < 13; i++)
-      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
-
-    super->m17e.meta_round_robin_mod = 2;
-
-  }
-  else if (len > 26 && len <= 39)
-  {
-    super->m17e.meta_data[x++] = 0x71; //control byte; len of 3, segment 1
-
-    //load 13 utf-8 characters / bytes from input
-    for (i = 0; i < 13; i++)
-      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
-
-    super->m17e.meta_data[x++] = 0x72; //control byte; len of 3, segment 2
-
-    //load 13 utf-8 characters / bytes from input
-    for (i = 0; i < 13; i++)
-      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
-
-    super->m17e.meta_data[x++] = 0x74; //control byte; len of 3, segment 3
-
-    //load 13 utf-8 characters / bytes from input
-    for (i = 0; i < 13; i++)
-      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
-
-    super->m17e.meta_round_robin_mod = 3;
-
-  }
-  else if (len > 39) // && len <= 52
-  {
-    super->m17e.meta_data[x++] = 0xF1; //control byte; len of 4, segment 1
-
-    for (i = 0; i < 13; i++)
-      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
-
-    super->m17e.meta_data[x++] = 0xF2; //control byte; len of 4, segment 2
-
-    for (i = 0; i < 13; i++)
-      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
-
-    super->m17e.meta_data[x++] = 0xF4; //control byte; len of 4, segment 3
-
-    for (i = 0; i < 13; i++)
-      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
-
-    super->m17e.meta_data[x++] = 0xF8; //control byte; len of 4, segment 4
-
-    for (i = 0; i < 13; i++)
-      super->m17e.meta_data[x++] = (uint8_t)txt[k++];
-
-    super->m17e.meta_round_robin_mod = 4;
-
-  }
-
-  //NOTE: Reverted back to padding spaces, this change will occur in the 3.0 spec
-  for (i = 2; i < x; i++)
-  {
-    if (super->m17e.meta_data[i] == 0x00)
-      super->m17e.meta_data[i] = 0x20; 
   }
 
   //debug
-  fprintf (stderr, "\n Meta Len: %d; X: %02d; K: %02d; Meta Type: %02X; Meta Text: %s", len, x, k, super->m17e.met_st, txt);
+  fprintf (stderr, "\n Char Len: %03d; Control Len: %02d; X: %02d; K: %02d; Meta Type: %02X; Meta Text: %s", len, control_len, x, k, super->m17e.met_st, txt);
 
-  //debug dump on all bytes
+  //debug dump on all Round Robin'd meta data storage
   x = 1;
-  fprintf (stderr, "\n Meta Payload(1): ");
-  for (i = 0; i < 14; i++)
-    fprintf (stderr, "%02X", super->m17e.meta_data[x++]);
-  fprintf (stderr, "\n Meta Payload(2): ");
-  for (i = 0; i < 14; i++)
-    fprintf (stderr, "%02X", super->m17e.meta_data[x++]);
-  fprintf (stderr, "\n Meta Payload(3): ");
-  for (i = 0; i < 14; i++)
-    fprintf (stderr, "%02X", super->m17e.meta_data[x++]);
-  fprintf (stderr, "\n Meta Payload(4): ");
-  for (i = 0; i < 14; i++)
-    fprintf (stderr, "%02X", super->m17e.meta_data[x++]);
+  for (j = 0; j < control_len; j++)
+  {
+    fprintf (stderr, "\n Meta Payload (%02d): ", j+1);
+    for (i = 0; i < 14; i++)
+      fprintf (stderr, "%02X", super->m17e.meta_data[x++]);
+  }
+
+  //load into newer storage for easier round robin in future
+  //NOTE: Loads into Meta RR at slot +2 position, slot 0 is designated for AES_IV, slot 1 is GNSS or RAW, if used
+  x = 1;
+  for (j = 0; j < 15; j++) //control_len
+  {
+    if (super->m17e.meta_data[x] != 0)
+    {
+      super->m17e.lsf3.meta_rr[j+2][0] = 0x2; //load meta content value as first byte
+      for (i = 0; i < 14; i++)
+        super->m17e.lsf3.meta_rr[j+2][i+1] = super->m17e.meta_data[x++];
+    }
+  }
+
+  //debug dump new RR
+  for (j = 0; j < control_len; j++)
+  {
+    fprintf (stderr, "\n Meta Contents: %X - #%02d: ", super->m17e.lsf3.meta_rr[j+2][0], j+2);
+    for (i = 1; i < 15; i++)
+      fprintf (stderr, "%02X", super->m17e.lsf3.meta_rr[j+2][i]);
+  }
+  fprintf (stderr, "\n");
 
 }
 
@@ -924,6 +881,7 @@ void push_call_history (Super * super)
       sprintf (dt, "GNSS PDU");
     else sprintf (dt, "DATA PDU");
   }
+  else if (super->m17d.dt == 1)  sprintf (dt, "STR DATA");
   else if (super->m17d.dt == 2)  sprintf (dt, "VOX 3200");
   else if (super->m17d.dt == 3)  sprintf (dt, "V+D 1600");
   else if (super->m17d.dt == 4)  sprintf (dt, "RESET DM");
@@ -941,81 +899,67 @@ void push_call_history (Super * super)
 
   //push call history, so that the last item comes from the next to last item
   for (uint8_t i = 255; i > 0; i--)
-    memcpy (super->m17d.callhistory[i], super->m17d.callhistory[i-1], 500*sizeof(char));
+    memcpy (super->m17d.callhistory[i], super->m17d.callhistory[i-1], 2048*sizeof(char));
 
   //make a truncated string of any text message
-  char shortstr[80]; sprintf (shortstr, "%s", "\n|      ");
+  char shortstr[80]; sprintf (shortstr, "%s", "\n| TEXT: ");
+  char shortgps[80]; sprintf (shortgps, "%s", "\n| GNSS: ");
+  char shortarb[80]; sprintf (shortarb, "%s", "\n| ARBT: ");
 
   //assign current string to position 0
   sprintf (super->m17d.callhistory[0], "%s %s CAN: %02d; SRC: %s; DST: %s; %s;", datestr, timestr, super->m17d.can, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
 
-  //Add SMS, GNSS (Meta or PDU), Text (Meta), Text (Arb) in that order of priority (most likely to least likely) 
-
-  //Append SMS Text Message to Call History
-  if (super->m17d.dt == 20 && super->m17d.packet_protocol == 0x05)
+  //Append GNSS to call history
+  if ( (strncmp(super->m17d.dat, "", 1) != 0) &&
+       (strncmp(super->m17d.dat, "Any E", 5) != 0)) //Any Encoded or Decoded...
   {
-    strncpy (shortstr+8, super->m17d.sms, 71);
+    strncpy (shortgps+9, super->m17d.dat, 71);
+    shortgps[79] = 0; //terminate string
+    strcat (super->m17d.callhistory[0], shortgps);
+  }
+
+  //Append Meta Text or Packet Data SMS Text
+  if ( (strncmp(super->m17d.sms, "", 1) != 0) &&
+       (strncmp(super->m17d.sms, "Any E", 5) != 0)) //Any Encoded or Decoded...
+  {
+    strncpy (shortstr+9, super->m17d.sms, 71);
     shortstr[79] = '\0'; //terminate string
     strcat (super->m17d.callhistory[0], shortstr);
   }
 
-  //Append GNSS string to Call History (PDU or META)
-  else if (super->m17d.packet_protocol == 0x81) //super->m17d.dt == 20 && 
+  //Append Arbitrary Data Text
+  if ( (strncmp(super->m17d.arb, "", 1) != 0) &&
+       (strncmp(super->m17d.arb, "Any E", 5) != 0)) //Any Encoded or Decoded...
   {
-    strncpy (shortstr+8, super->m17d.dat, 71);
-    shortstr[79] = '\0'; //terminate string
-    strcat (super->m17d.callhistory[0], shortstr);
-  }
-
-  //Append Meta Text String, (dt == 2 or dt == 3) not from PDU
-  else if (super->m17d.packet_protocol == 0x80)
-  {
-    strncpy (shortstr+8, super->m17d.dat, 71);
-    shortstr[79] = '\0'; //terminate string
-    strcat (super->m17d.callhistory[0], shortstr);
-  }
-
-  //Append Arb Text String, (dt == 3), not from PDU
-  else if (super->m17d.packet_protocol == 0x89)
-  {
-    strncpy (shortstr+8, super->m17d.arb, 71);
-    shortstr[79] = '\0'; //terminate string
-    strcat (super->m17d.callhistory[0], shortstr);
+    strncpy (shortarb+9, super->m17d.arb, 71);
+    shortarb[79] = '\0'; //terminate string
+    strcat (super->m17d.callhistory[0], shortarb);
   }
 
   //make a version without the timestamp, but include other info
   char event_string[500]; char key[75]; sprintf(key, "%s", "");
   sprintf (event_string, " CAN: %02d; SRC: %s; DST: %s; %s;", super->m17d.can, super->m17d.src_csd_str, super->m17d.dst_csd_str, dt);
 
-  // if (super->m17d.enc_et == 0)
-  //   strcat (event_string, " Clear");
-
   if (super->m17d.enc_et == 1)
   {
     strcat (event_string, " Scrambler");
-
     if (super->m17d.enc_st == 0)
       strcat (event_string, " 8-bit");
     if (super->m17d.enc_st == 1)
       strcat (event_string, " 16-bit");
     if (super->m17d.enc_st == 2)
       strcat (event_string, " 24-bit");
-
-    if (super->enc.scrambler_key)
-    {
-      sprintf (key, " Key: %06X;", super->enc.scrambler_key);
-      strcat (event_string, key);
-    }
   }
     
   if (super->m17d.enc_et == 2)
   {
     strcat (event_string, " AES");
-    if (super->enc.aes_key_is_loaded)
-    {
-      sprintf (key, " Key: %016llX %016llX %016llX %016llX;", super->enc.A1, super->enc.A2, super->enc.A3, super->enc.A4);
-      strcat (event_string, key);
-    }
+    if (super->m17d.enc_st == 0)
+      strcat (event_string, " 128-bit");
+    if (super->m17d.enc_st == 1)
+      strcat (event_string, " 192-bit");
+    if (super->m17d.enc_st == 2)
+      strcat (event_string, " 256-bit");
   }
 
   //other misc special events
@@ -1039,8 +983,13 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
 
   //compare this event to the last event written, if they match
   //then don't write it again (META Extended CSD and GNSS)
-  if (strncmp(super->m17d.lasteventstring, event_string, 500) == 0)
+  if ( (strncmp(super->m17d.lasteventstring[0], event_string, 2048) == 0) ||
+       (strncmp(super->m17d.lasteventstring[1], event_string, 2048) == 0) ||   
+       (strncmp(super->m17d.lasteventstring[2], event_string, 2048) == 0) ||
+       (strncmp(super->m17d.lasteventstring[3], event_string, 2048) == 0) )
+  {
     write = 0;
+  }
 
   //only if the log file is open
   if (super->opts.event_log && write == 1)
@@ -1090,15 +1039,18 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
       fprintf (super->opts.event_log, "OTAKD: ");
 
     else if (protocol == 0x80)
-      fprintf (super->opts.event_log, "Meta Text: ");
+      fprintf (super->opts.event_log, "Meta Text V2: ");
 
     else if (protocol == 0x81)
       fprintf (super->opts.event_log, "Meta GNSS: ");
 
     else if (protocol == 0x82)
+      fprintf (super->opts.event_log, "Meta Text V3: ");
+
+    else if (protocol == 0x98)
       fprintf (super->opts.event_log, "Meta ECSD: ");
 
-    else if (protocol == 0x89)
+    else if (protocol == 0x99)
       fprintf (super->opts.event_log, "1600 Arbitrary Data: ");
 
     else if (protocol > 0xE0) //Internal Program Events (or packet data)
@@ -1117,7 +1069,14 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
     fflush (super->opts.event_log); //flush event so its immediately available without having to close the file
 
     //save the event_string to the lasteventstring to prevent duplicates during sync period
-    sprintf (super->m17d.lasteventstring, "%s", event_string);
+    if (protocol == 0x81) //GNSS
+      sprintf (super->m17d.lasteventstring[0], "%s", event_string);
+    else if (protocol == 0x99) //Arbitrary Data as Text
+      sprintf (super->m17d.lasteventstring[1], "%s", event_string);
+    else if (protocol == 0x98) //Extended Callsign Data
+      sprintf (super->m17d.lasteventstring[2], "%s", event_string);
+    else                      //Anything Else (Text Messages)
+      sprintf (super->m17d.lasteventstring[3], "%s", event_string);
   }
 
   free (timestr); free (datestr);

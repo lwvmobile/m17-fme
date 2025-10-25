@@ -158,9 +158,9 @@ void prepare_str(Super * super, float * sbuf)
   if (fn == 0)
     super->enc.scrambler_seed_d = super->enc.scrambler_key;
 
-  //insert fn bits into meta 14 and meta 15 for Initialization Vector
-  super->m17d.meta[14] = (uint8_t)convert_bits_into_output(&stream_bits[1], 7);
-  super->m17d.meta[15] = (uint8_t)convert_bits_into_output(&stream_bits[8], 8);
+  //insert fn bits into aes_iv 14 and meta 15 for Initialization Vector
+  super->m17d.lsf3.aes_iv[14] = (uint8_t)convert_bits_into_output(&stream_bits[1], 7);
+  super->m17d.lsf3.aes_iv[15] = (uint8_t)convert_bits_into_output(&stream_bits[8], 8);
 
   if (super->opts.payload_verbosity >= 1)
   {

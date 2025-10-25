@@ -410,40 +410,34 @@ void input_ncurses_terminal (Super * super, int c)
       {
         if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1))
         {
-          memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data));
+          //zero out all meta text round robin slots
+          for (int i = 2; i <= 16; i++)
+            memset(super->m17e.lsf3.meta_rr[i], 0, sizeof(super->m17e.lsf3.meta_rr[i]));
+
           sprintf (inp_str, "%s", "");
           sprintf (label, " Enter Meta Text:"); //set label to be displayed in the entry box window
           entry_string_ncurses_terminal(label, inp_str);
           parse_meta_txt_string(super, inp_str);
-          if (super->m17e.meta_data[2] == 0x20 && super->m17e.meta_data[3] == 0x20 && super->m17e.meta_data[4] == 0x20 && super->m17e.meta_data[5] == 0x20 && 
-              super->m17e.meta_data[6] == 0x20 && super->m17e.meta_data[7] == 0x20 && super->m17e.meta_data[8] == 0x20 && super->m17e.meta_data[9] == 0x20 && 
-              super->m17e.meta_data[10] == 0x20 && super->m17e.meta_data[11] == 0x20 && super->m17e.meta_data[12] == 0x20 && super->m17e.meta_data[13] == 0x20 && 
-              super->m17e.meta_data[14] == 0x20) //if all white spaces loaded, then zero out entire thing
+
+          if (super->m17e.lsf3.meta_rr[1][0] == 0) //Empty String loaded
           {
-            super->enc.enc_type = 0;
-            super->enc.enc_subtype = 0;
-            super->m17e.enc_et = 0;
-            super->m17e.met_st = 0;
+            //zero out all meta text round robin slots
+            for (int i = 2; i <= 16; i++)
+              memset(super->m17e.lsf3.meta_rr[i], 0, sizeof(super->m17e.lsf3.meta_rr[i]));
+
             memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data));
             sprintf (super->m17d.dat, "%s", "");
+
           }
-          else if (super->m17e.meta_data[0]) //meta has actual text in it
+
+          else if (super->m17e.lsf3.meta_rr[1][0] != 0) //meta_rr has actual text in it
           {
-            //unload anything in the .arb field (Arb Text)
+            //unload anything in the .arb field (Arb Text) -- prevent conflicting resource usage //TODO: Fix this?
             sprintf (super->m17e.arb, "%s", "");
             sprintf (super->m17d.arb, "%s", "");
             super->opts.m17_str_encoder_dt = 2; //set back to 3200
-
-            uint8_t meta_data[16]; memset (meta_data, 0, sizeof(meta_data));
-            meta_data[0] = 0x80; //Meta Text
-            memcpy (meta_data+1, super->m17e.meta_data+1, 14);
-
-            //below is disabled, as it now causes stale Meta to present in call history
-            //and there isn't really a good reason to do this now
-            // fprintf (stderr, "\n ");
-            // decode_pkt_contents (super, meta_data, 15); //decode META
-
           }
+
         }
       }
       break;

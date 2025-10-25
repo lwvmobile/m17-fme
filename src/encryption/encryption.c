@@ -297,7 +297,7 @@ void enc_pkt_ks_creation(Super * super, uint8_t * ks_bits, uint8_t * ks_bytes, i
     }
     else
     {
-      iv = super->m17d.meta;
+      iv = super->m17d.lsf3.aes_iv;
       key = super->enc.aes_key;
       type = super->m17d.enc_st+1;
     }

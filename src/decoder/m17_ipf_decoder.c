@@ -113,8 +113,8 @@ void decode_ipf (Super * super, int socket)
       super->enc.scrambler_seed_d = super->enc.scrambler_key;
 
     //update IV CTR from FN
-    super->m17d.meta[14] = (uint16_t)convert_bits_into_output(&ip_bits[273], 7);
-    super->m17d.meta[15] = (uint16_t)convert_bits_into_output(&ip_bits[280], 8);
+    super->m17d.lsf3.aes_iv[14] = (uint16_t)convert_bits_into_output(&ip_bits[273], 7);
+    super->m17d.lsf3.aes_iv[15] = (uint16_t)convert_bits_into_output(&ip_bits[280], 8);
 
     fprintf (stderr, "\n(%s %s) M17 IP Stream: %04X; FN: %04X;", datestr, timestr, sid, fn);
     if (eot) fprintf (stderr, " EOT;");
@@ -447,8 +447,8 @@ void decode_ipf (Super * super, int socket)
       for (i = 35; i < total; i++)
         ip_frame[i] ^= ks_bytes[i-35];
 
-      //reset meta (iv) after use
-      memset(super->m17d.meta, 0, sizeof(super->m17e.meta));
+      //reset iv after use
+      memset(super->m17d.lsf3.aes_iv, 0, sizeof(super->m17d.lsf3.aes_iv));
 
     }
 

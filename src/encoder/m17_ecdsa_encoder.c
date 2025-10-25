@@ -13,6 +13,11 @@
 void encode_str_ecdsa(Super * super, uint8_t lich_cnt, uint8_t * m17_lsf, float * mem, int use_ip, int udpport, uint8_t * sid)
 {
 
+  //BUGFIX: LSD encoding that strattles the signature frames may have bad encoding or CRC,
+  //so to just not have the receiving end attempt to decode last LSD, let's reset this
+  //to zero at this point
+  lich_cnt = 0;
+
   //quell defined but not used warnings from m17.h
   stfu();
   
@@ -42,7 +47,7 @@ void encode_str_ecdsa(Super * super, uint8_t lich_cnt, uint8_t * m17_lsf, float 
   y = 0; //counter for sig_bits
   for (z = 0; z < 4; z++) //loop to send ECDSA Signature in 4 Frame Payload
   {
-    
+
     //initialize and start assembling the completed frame
 
     //Data/Voice Portion of Stream Data Link Layer w/ FSN

@@ -637,10 +637,8 @@ void print_ncurses_call_info (Super * super)
       printw("256 ");
     
     printw ("IV: ");
-    
-    //display packed meta as IV
     for (int i = 0; i < 16; i++)
-      printw ("%02X", super->m17d.meta[i]);
+      printw ("%02X", super->m17d.lsf3.aes_iv[i]);
 
     if (super->demod.in_sync == 1)
       attron(COLOR_PAIR(2));
@@ -705,8 +703,11 @@ void print_ncurses_call_info (Super * super)
   //Display any Decoded Messages
 
   //take a truncated string, only display first 71 chars on Ncurses Terminal (see log for full messages)
-  char shortstr[76]; sprintf (shortstr, "%s", "");
-  memcpy (shortstr, super->m17d.sms, 71);
+  //TODO: Push Fix Here to m17_v20_spec as well later on, probably affects that as well
+  char shortstr[76];
+  memset (shortstr, 0, sizeof(shortstr));
+  sprintf (shortstr, "%s", "");
+  memcpy (shortstr, super->m17d.sms, 71); //this really should be strncpy instead
   shortstr[72] = '\0'; //terminate string
 
   printw ("\n");
@@ -714,15 +715,19 @@ void print_ncurses_call_info (Super * super)
   printw ("SMS: ");
   printw ("%s", shortstr);
 
+  memset (shortstr, 0, sizeof(shortstr));
   sprintf (shortstr, "%s", "");
-  memcpy (shortstr, super->m17d.dat, 71);
+  memcpy (shortstr, super->m17d.dat, 71); //this really should be strncpy instead
+  shortstr[72] = '\0'; //terminate string
   printw ("\n");
   printw ("| ");
   printw ("MET: ");
   printw ("%s", shortstr);
 
+  memset (shortstr, 0, sizeof(shortstr));
   sprintf (shortstr, "%s", "");
-  memcpy (shortstr, super->m17d.arb, 71);
+  memcpy (shortstr, super->m17d.arb, 71); //this really should be strncpy instead
+  shortstr[72] = '\0'; //terminate string
   printw ("\n");
   printw ("| ");
   printw ("ARB: ");

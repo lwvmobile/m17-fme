@@ -28,14 +28,17 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   else if (protocol == 0x05) fprintf (stderr, " SMS;");
   else if (protocol == 0x06) fprintf (stderr, " Winlink;");
   else if (protocol == 0x09) fprintf (stderr, " OTA Key Delivery;"); //m17-fme non standard packet data
-  else if (protocol == 0x80) fprintf (stderr, " Meta Text Data;"); //internal format only from meta
+  else if (protocol == 0x80) fprintf (stderr, " Meta Text Data V2;"); //internal format only from meta
   else if (protocol == 0x81) fprintf (stderr, " Meta GNSS Position Data;"); //internal format only from meta
-  else if (protocol == 0x82) fprintf (stderr, " Meta Extended CSD;"); //internal format only from meta
-  else if (protocol == 0x89) fprintf (stderr, " 1600 Arbitrary Data;"); //internal format only from 1600
+  else if (protocol == 0x82) fprintf (stderr, " Meta Text Data V3;"); //internal format only from meta
+  else if (protocol == 0x91) fprintf (stderr, " PDU GNSS Position Data;"); //PDU Version of GNSS
+  else if (protocol == 0x98) fprintf (stderr, " Meta Extended CSD;"); //internal format only from meta
+  else if (protocol == 0x99) fprintf (stderr, " 1600 Arbitrary Data;"); //internal format only from 1600
   else                       fprintf (stderr, " Res/Unk: %02X;", protocol); //any received but unknown protocol type
 
   //check for encryption, if encrypted but no decryption key loaded, then skip decode and report as encrypted
   if (protocol == 0x09) {} //allow OTAKD passthrough (not encrypted ever)
+  else if (protocol >= 0x80 && protocol <= 0x83) {} //allow META passthrough (not encrypted ever)
   else if (super->m17d.enc_et == 2 && super->enc.aes_key_is_loaded == 0)
   {
     fprintf (stderr, " *Encrypted*");
@@ -187,7 +190,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   }
   
   //Extended Call Sign Data
-  else if (protocol == 0x82)
+  else if (protocol == 0x98)
   {
 
     //NOTE: If doing a shift addition like this, make sure ALL values have (unsigned long long int) in front of it, not just the ones that 'needed' it
@@ -232,7 +235,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   }
 
   //GNSS Positioning (version 2.0 spec)
-  else if (protocol == 0x81)
+  else if (protocol == 0x81 || protocol == 0x91)
   {
     //Decode GNSS Elements
     uint8_t  data_source  = (input[1] >> 4);
@@ -307,7 +310,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     // input[14] = 0x00; //reserved 0 (8 LSB)
 
     //User Input: -Z 01F0F2B42B20ABC500C80424064000 (Meta)
-    //User Input: -R 81F0F2B42B20ABC500C80424064000 (Packet)
+    //User Input: -R 91F0F2B42B20ABC500C80424064000 (Packet)
 
     if (validity & 0x8)
       fprintf (stderr, "\n GPS: (%f, %f);", lat_float, lon_float);
@@ -347,12 +350,16 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     sprintf (super->m17d.dat, "(%f, %f); Alt: %.1f; Spd: %.1f; Ber: %d; St: %s;",
       lat_float, lon_float, altitude_float, speed_float, bearing, st);
 
+    //now it is okay to change the protocol to 0x81
+    if (protocol == 0x91) //PDU variant of GNSS
+      protocol = 0x81;
+
     //send GNSS data to event_log_writer
     event_log_writer (super, super->m17d.dat, protocol);
 
   }
 
-  //Meta Text Messages
+  //Meta Text Messages Version 2.0 (4-segment with bitmapping)
   else if (protocol == 0x80)
   {
 
@@ -393,24 +400,57 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
 
     //copy current segment into .dat
     int ptr = (segment_num-1)*13;
-    memcpy (super->m17d.dat+ptr, input+2, 13*sizeof(char));
+    memcpy (super->m17d.sms+ptr, input+2, 13*sizeof(char));
 
     //NOTE: there is checkdown to see if all segments have arrived or not
     //terminate the string on completion, dump completed string
     if (segment_len == segment_num)
     {
-      super->m17d.dat[ptr+13] = 0;
-      fprintf (stderr, "\n Complete Meta Text: %s", super->m17d.dat);
+      super->m17d.sms[ptr+13] = 0;
+      fprintf (stderr, "\n Complete Meta Text: %s", super->m17d.sms);
     }
 
     //send to event_log_writer
     if (segment_len == segment_num)
-      event_log_writer (super, super->m17d.dat, protocol);
+      event_log_writer (super, super->m17d.sms, protocol);
+
+  }
+
+  //Meta Text Messages Version 3.0 (15-segment sequential)
+  else if (protocol == 0x82)
+  {
+
+    uint8_t segment_len = (input[1] >> 4) & 0xF;
+    uint8_t segment_num = (input[1] >> 0) & 0xF;
+
+    //show Control Byte Len and Segment Values on Meta Text
+    fprintf (stderr, " %d/%d; ", segment_num, segment_len);
+    if (super->opts.payload_verbosity > 0)
+    {
+      for (i = 2; i < len; i++)
+        fprintf (stderr, "%c", input[i]);
+    }
+
+    //copy current segment into .dat
+    int ptr = (segment_num-1)*13;
+    memcpy (super->m17d.sms+ptr, input+2, 13*sizeof(char));
+
+    //NOTE: there is checkdown to see if all segments have arrived or not
+    //terminate the string on completion, dump completed string
+    if (segment_len == segment_num)
+    {
+      super->m17d.sms[ptr+13] = 0;
+      fprintf (stderr, "\n Complete Meta Text: %s", super->m17d.sms);
+    }
+
+    //send to event_log_writer
+    if (segment_len == segment_num)
+      event_log_writer (super, super->m17d.sms, protocol);
 
   }
 
   //1600 Arbitrary Data as Text String
-  else if (protocol == 0x89)
+  else if (protocol == 0x99)
   {
     
     sprintf (super->m17d.arb, "%s", "");

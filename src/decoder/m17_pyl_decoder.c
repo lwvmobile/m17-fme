@@ -71,7 +71,7 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
     else //IV and key loaded, unmute and decrypt
     {
       mute = 0;
-      aes_ctr_str_payload_crypt (super->m17d.meta, super->enc.aes_key, payload, super->m17d.enc_st+1);
+      aes_ctr_str_payload_crypt (super->m17d.lsf3.aes_iv, super->enc.aes_key, payload, super->m17d.enc_st+1);
     }
   }
   else if (super->m17d.enc_et == 3)
@@ -308,7 +308,7 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
     if (lich_cnt == 5)
     {
       //6 x 8 octets, plus one protocol octet
-      uint8_t adata[49]; adata[0] = 0x89;
+      uint8_t adata[49]; adata[0] = 0x99;
       pack_bit_array_into_byte_array (super->m17d.raw, adata+1, 48);
       fprintf (stderr, "\n"); //linebreak
       decode_pkt_contents (super, adata, 48); //decode Arbitrary Data as UTF-8

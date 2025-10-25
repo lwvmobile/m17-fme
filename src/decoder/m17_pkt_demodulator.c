@@ -158,8 +158,8 @@ void demod_pkt(Super * super, uint8_t * input, int debug)
       for (i = 1; i < total; i++)
         super->m17d.pkt[i] ^= ks_bytes[i-1];
 
-      //reset meta (iv) after use
-      memset(super->m17d.meta, 0, sizeof(super->m17e.meta));
+      //reset iv after use
+      memset(super->m17d.lsf3.aes_iv, 0, sizeof(super->m17d.lsf3.aes_iv));
 
     }
 

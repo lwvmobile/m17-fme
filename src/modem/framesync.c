@@ -209,11 +209,11 @@ float demodulate_and_return_float_symbol(Super * super)
   super->demod.sample_buffer[super->demod.sample_buffer_ptr++] = sample;
 
   //save symbol stream format (M17_Implementations), if opened
-  if (super->opts.float_symbol_out && !super->opts.use_m17_duplex_mode && !super->opts.use_m17_textgame_mode)
+  if (super->opts.float_symbol_out && !super->opts.use_m17_duplex_mode)
     fwrite(&float_symbol, sizeof(float), 1, super->opts.float_symbol_out); //sizeof(float) is 4 (usually)
 
   //save dibits to DSD-FME compatible dibit "symbol" capture bin file format
-  if (super->opts.dibit_out && !super->opts.use_m17_duplex_mode && !super->opts.use_m17_textgame_mode) //use -C output.bin to use this format for output
+  if (super->opts.dibit_out && !super->opts.use_m17_duplex_mode) //use -C output.bin to use this format for output
   {
     dibit = digitize_symbol_to_dibit(float_symbol);
     fputc (dibit, super->opts.dibit_out);
@@ -443,7 +443,10 @@ void no_carrier_sync (Super * super)
   push_call_history(super);
 
   //clear out lasteventstring to allow a new call from same source go to call history
-  sprintf (super->m17d.lasteventstring, "%s", "");
+  sprintf (super->m17d.lasteventstring[0], "%s", "");
+  sprintf (super->m17d.lasteventstring[1], "%s", "");
+  sprintf (super->m17d.lasteventstring[2], "%s", "");
+  sprintf (super->m17d.lasteventstring[3], "%s", "");
 
   //close per call wav file, if opened (depeciated)
   // if (super->wav.wav_out_pc)
@@ -464,6 +467,25 @@ void no_carrier_sync (Super * super)
 
   memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
   memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
+
+  //zero out aes_iv (decoding side)
+  memset(super->m17d.lsf3.aes_iv, 0, sizeof(super->m17d.lsf3.aes_iv));
+
+  //LSF Version 3.0 Init
+  super->m17d.lsf3.src_hex_value = 0;
+  super->m17d.lsf3.dst_hex_value = 0;
+  super->m17d.lsf3.full_type_field = 0;
+  super->m17d.lsf3.payload_contents = 0;
+  super->m17d.lsf3.meta_contents = 0;
+  super->m17d.lsf3.encryption_type = 0;
+  super->m17d.lsf3.signature = 0;
+  // super->m17d.lsf3.can = -1;
+
+  memset(super->m17d.lsf3.meta, 0, sizeof(super->m17d.lsf3.meta));
+  memset(super->m17d.lsf3.aes_iv, 0, sizeof(super->m17d.lsf3.aes_iv));
+
+  super->m17d.lsf3.frame_number = 0;
+  //end LSF Version 3.0 Init
 
   if (super->opts.use_m17_duplex_mode == 0)
   {
@@ -488,6 +510,7 @@ void no_carrier_sync (Super * super)
 
   //below items were disabled, causing stale GNSS (any reason why this was disabled, probably so it doesn't clear out of the encode window in ncurses?)
   memset (super->m17d.raw, 0, sizeof(super->m17d.raw));
+  memset (super->m17d.sms, 0, sizeof(super->m17d.sms));
   sprintf (super->m17d.sms, "%s", "");
   memset (super->m17d.dat, 0, sizeof(super->m17d.dat)); //zero out all bytes so we don't get a partially stale string on the next repitition
   sprintf (super->m17d.dat, "%s", "");

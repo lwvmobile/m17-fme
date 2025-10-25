@@ -117,10 +117,9 @@ void usage ()
   printf ("  -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.\n");
   printf ("                (example: -A 'Hello World! This is arbitrary data on 1600') \n");
   printf ("  -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets (up to 823 octets).\n");
-  printf ("                (example: -R 81F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) \n");
+  printf ("                (example: -R 91F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) \n");
   printf ("\n");
-  printf ("                (NOTE: Using Meta Fields is not compatible with Using Encryption!) \n");
-  printf ("  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 52 UTF-8 characters, 4 Segment Meta);\n");
+  printf ("  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 195 UTF-8 characters, 15 Segment Meta);\n");
   printf ("                (example: -Y 'Hello World!! This is a longer M17 Text Message!!!!' ) for Meta Text \n");
   printf ("  -Z <hex>      Enter META Data for Stream Voice Encoder as Hex Octets (1 Meta Type Octet + 14 Hex Octets Max);\n");
   printf ("                (example: -Z 01F0F2B42B20ABC500C80424064000) for Meta GNSS Position @ Wally World \n");
@@ -163,7 +162,6 @@ void usage ()
   printf ("  -E <hex str>  Enter AES Key Value (in single quote, space every 16 chars) \n");
   printf ("                (example: -E '0520C1B0220AFBCA 16FB1330764B26EC 5C34A197764C147A 15FBA7515ED8BCFC')\n");
   printf ("                (example: -E '0520C1B0220AFBCA 16FB1330764B26EC')\n");
-  printf ("                (Limiting significant key value to first 32 characters to maintain compatibility)\n");
   printf ("  -J <file>     Load AES Key from file. (see example key: key/aes_key.txt)\n");
   printf ("  -O            Send OTA Key Delivery Packets for AES and Scrambler Keys\n");
   printf ("  -Q            Send OTA Key Delivery Packets for Signature Public Keys\n");

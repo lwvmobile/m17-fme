@@ -69,7 +69,6 @@ void init_super (Super * super)
   super->opts.use_m17_adhoc_mode = 0;
   super->opts.use_m17_reflector_mode = 0;
   super->opts.send_conn_or_lstn = 4; //default on LSTN, make user confirm to use CONN for reflectors
-  super->opts.use_m17_textgame_mode = 0;
   super->opts.use_m17_packet_burst = 0;
 
   //Misc Options to organize later
@@ -254,6 +253,24 @@ void init_super (Super * super)
   super->m17d.enc_st = 0;
   super->m17d.met_st = 0;
   super->m17d.enc_mute = 0;
+
+  //LSF Version 3.0 Init
+  super->m17d.lsf3.src_hex_value = 0;
+  super->m17d.lsf3.dst_hex_value = 0;
+  super->m17d.lsf3.full_type_field = 0;
+  super->m17d.lsf3.payload_contents = 0;
+  super->m17d.lsf3.meta_contents = 0;
+  super->m17d.lsf3.encryption_type = 0;
+  super->m17d.lsf3.signature = 0;
+  super->m17d.lsf3.can = -1;
+
+  memset(super->m17d.lsf3.meta, 0, sizeof(super->m17d.lsf3.meta));
+  memset(super->m17d.lsf3.aes_iv, 0, sizeof(super->m17d.lsf3.aes_iv));
+
+  memset(super->m17d.lsf3.meta_rr, 0, sizeof(super->m17d.lsf3.meta_rr));
+
+  super->m17d.lsf3.frame_number = 0;
+  //end LSF Version 3.0 Init
   
   //'A', single letter reflector module A-Z, 0x41 is A
   super->m17d.reflector_module = 0;
@@ -286,7 +303,11 @@ void init_super (Super * super)
   for (int i = 0; i < 255; i++)
     sprintf (super->m17d.callhistory[i], "%s", "");
 
-  sprintf (super->m17d.lasteventstring, "%s", "");
+
+  sprintf (super->m17d.lasteventstring[0], "%s", "");
+  sprintf (super->m17d.lasteventstring[1], "%s", "");
+  sprintf (super->m17d.lasteventstring[2], "%s", "");
+  sprintf (super->m17d.lasteventstring[3], "%s", "");
 
   super->m17d.scroll_index = 0;
 
@@ -296,9 +317,6 @@ void init_super (Super * super)
 
   //LSF Backup Copy
   memset (super->m17d.lsf_bkp, 0, 240*sizeof(uint8_t));
-
-  //Text Game Progression
-  super->m17d.game_progress = 0x00000000;
 
   #ifdef USE_CODEC2
   super->m17d.codec2_3200 = codec2_create(CODEC2_MODE_3200);
@@ -335,6 +353,24 @@ void init_super (Super * super)
   super->m17e.met_st = 0;
   super->m17e.enc_mute = 0;
 
+  //LSF Version 3.0 Init
+  super->m17e.lsf3.src_hex_value = 0;
+  super->m17e.lsf3.dst_hex_value = 0;
+  super->m17e.lsf3.full_type_field = 0;
+  super->m17e.lsf3.payload_contents = 0;
+  super->m17e.lsf3.meta_contents = 0;
+  super->m17e.lsf3.encryption_type = 0;
+  super->m17e.lsf3.signature = 0;
+  super->m17e.lsf3.can = -1;
+
+  memset(super->m17e.lsf3.meta, 0, sizeof(super->m17e.lsf3.meta));
+  memset(super->m17e.lsf3.aes_iv, 0, sizeof(super->m17e.lsf3.aes_iv));
+
+  memset(super->m17e.lsf3.meta_rr, 0, sizeof(super->m17e.lsf3.meta_rr));
+
+  super->m17e.lsf3.frame_number = 0;
+  //end LSF Version 3.0 Init
+
   //'A', single letter reflector module A-Z, 0x41 is A
   super->m17e.reflector_module = 0x41;
 
@@ -366,7 +402,11 @@ void init_super (Super * super)
   for (int i = 0; i < 255; i++)
     sprintf (super->m17e.callhistory[i], "%s", "");
 
-  sprintf (super->m17e.lasteventstring, "%s", "");
+
+  sprintf (super->m17e.lasteventstring[0], "%s", "");
+  sprintf (super->m17e.lasteventstring[1], "%s", "");
+  sprintf (super->m17e.lasteventstring[2], "%s", "");
+  sprintf (super->m17e.lasteventstring[3], "%s", "");
 
   super->m17e.scroll_index = 0;
 
@@ -376,9 +416,6 @@ void init_super (Super * super)
 
   //LSF Backup Copy
   memset (super->m17e.lsf_bkp, 0, 240*sizeof(uint8_t));
-
-  //Text Game Progression
-  super->m17e.game_progress = 0x00000000;
 
   #ifdef USE_CODEC2
   super->m17e.codec2_3200 = codec2_create(CODEC2_MODE_3200);

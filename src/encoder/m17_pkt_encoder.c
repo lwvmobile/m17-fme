@@ -93,12 +93,8 @@ void encode_pkt(Super * super, int mode)
 
   //Setup LSF Variables, these are not sent in chunks like with voice
   //but only once at start of PKT TX
-  uint16_t lsf_ps   = 0; //packet or stream indicator bit
-  uint16_t lsf_dt   = 0; //Reserved
   uint16_t lsf_et   = super->enc.enc_type;    //encryption type
   uint16_t lsf_es   = super->enc.enc_subtype; //encryption sub-type
-  uint16_t lsf_cn = can; //can value
-  uint16_t lsf_rs   = 0; //reserved bits
 
   if (lsf_et == 1)
   {
@@ -106,10 +102,61 @@ void encode_pkt(Super * super, int mode)
     lsf_es = super->enc.enc_subtype; //encryption sub-type
   }
 
+  //NOTES: Regarding upgrade to Version 3.0 and packets, the encryption_type
+  //and signature fields are reserved values, so we won't set signature, however,
+  //since M17-FME does support Encrypted Packets, the encryption_type will 
+  //also work here, also no round robin on a single LSF frame.
+
+  //Also, of note, Version 3.0 allows for Packet Meta Data, but M17-FME
+  //does not have a mechanism to load Meta data into Packet LSF, it could
+  //do it easily enough, but for a single packet LSF, we will just either
+  //have no data, or the AES_IV for packet encryption, if utilized.
+
+  //If you are sending packet data, just use the packet data formats
+  //instead of the META field (personal opinion).
+
+  //M17-FME will still decode other implementations if they load META
+  //into the Packet Data, just don't see a big need to do it here.
+
   //compose the 16-bit frame information from the above sub elements
-  uint16_t lsf_fi = 0;
-  lsf_fi = (lsf_ps & 1) + (lsf_dt << 1) + (lsf_et << 3) + (lsf_es << 5) + (lsf_cn << 7) + (lsf_rs << 11);
-  for (i = 0; i < 16; i++) m17_lsf[96+i] = (lsf_fi >> (15-i)) & 1;
+  uint16_t lsf_type = 0;
+
+  //Version 3.0 spec LSF Type Items
+  uint16_t payload_contents = 0xF;
+  uint16_t encryption_type = 0;
+  uint16_t signature = 0;
+  uint16_t meta_contents = 0;
+  uint16_t channel = can;
+
+  //Scrambler Encryption
+  if (lsf_et == 1)
+  {
+    if (lsf_es == 0)
+      encryption_type = 0x1;
+    if (lsf_es == 1)
+      encryption_type = 0x2;
+    if (lsf_es == 2)
+      encryption_type = 0x3;
+  }
+
+  //AES Encryption
+  if (lsf_et == 2)
+  {
+    if (lsf_es == 0)
+      encryption_type = 0x4;
+    if (lsf_es == 1)
+      encryption_type = 0x5;
+    if (lsf_es == 2)
+      encryption_type = 0x6;
+
+    meta_contents = 0xF; //AES IV in meta
+  }
+
+  lsf_type = (payload_contents << 12) | (encryption_type << 9) | (signature << 8) | (meta_contents << 4) | (channel << 0);
+
+  //load lsf type into lsf bit array
+  for (i = 0; i < 16; i++)
+    m17_lsf[96+i] = (lsf_type >> (15-i)) & 1;
 
   //Encode Callsign Data
   encode_callsign_data(super, d40, s40, &dst, &src);
@@ -117,8 +164,6 @@ void encode_pkt(Super * super, int mode)
   //load dst and src values into the LSF
   for (i = 0; i < 48; i++) m17_lsf[i] = (dst >> (47ULL-(unsigned long long int)i)) & 1;
   for (i = 0; i < 48; i++) m17_lsf[i+48] = (src >> (47ULL-(unsigned long long int)i)) & 1;
-
-  //TODO: Any extra meta fills (extended callsign, etc?)
 
   //NONCE
   time_t epoch = 1577836800L;      //Jan 1, 2020, 00:00:00 UTC
@@ -147,10 +192,6 @@ void encode_pkt(Super * super, int mode)
   nonce[12] = rand() & 0xFF;
   nonce[13] = rand() & 0xFF;
 
-  //leaving disabled, but code is present now if we wish to run and convert ECB to IV mode
-  //NOTE: Currently, LSF frame decode on RF Audio Input is 50/50 with an IV present
-  //Another thing to consider, if we don't use the CTR (no LSN) then its technically not CTR mode
-
   //load nonce into the IV field of the m17_lsf and mirror to m17e.meta for aes crypt function
   if (super->enc.enc_type == 2 && super->enc.aes_key_is_loaded)
   {
@@ -174,7 +215,7 @@ void encode_pkt(Super * super, int mode)
   uint8_t lsf_packed[30];
   memset (lsf_packed, 0, sizeof(lsf_packed));
   for (i = 0; i < 28; i++)
-      lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
+    lsf_packed[i] = (uint8_t)convert_bits_into_output(&m17_lsf[i*8], 8);
   crc_cmp = crc16(lsf_packed, 28);
 
   //attach the crc16 bits to the end of the LSF data

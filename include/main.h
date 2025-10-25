@@ -9,8 +9,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#define SPEC_VERSION "2.0"
-#define SPEC_DATE "Aug 26, 2025"
+#define SPEC_VERSION "3.0.0-draft"
+#define SPEC_DATE "Oct 22, 2025"
 
 #define PI 3.141592653
 
@@ -137,7 +137,6 @@ typedef struct
   uint8_t use_m17_adhoc_mode;
   uint8_t use_m17_reflector_mode;
   uint8_t send_conn_or_lstn;
-  uint8_t use_m17_textgame_mode;
   uint8_t use_m17_packet_burst;
 
   //Misc Options to organize later
@@ -286,6 +285,65 @@ typedef struct
   uint8_t keys_loaded;
 } ECDSA;
 
+//M17 LSF Version 3.0 draft
+typedef struct
+{
+  //source and destination expressed as 48-bit hex value
+  unsigned long long int src_hex_value;
+  unsigned long long int dst_hex_value;
+
+  //the entire 16-bit type field value
+  uint16_t full_type_field;
+
+  //individual elements of the type field
+  uint16_t payload_contents;
+  uint16_t meta_contents;
+  uint16_t encryption_type;
+  uint16_t signature;
+  int16_t  can;
+
+  //meta and aes_iv are seperated, round-robin will allow
+  //use of both and storage for AES IV will be needed
+  uint8_t meta[14];
+  uint8_t aes_iv[16];
+
+  //meta round robin data storage
+  //first byte is meta contents value, then 14 meta values
+  //loading is by 0-AES IV, 1-16 Meta Text, 17-GNSS, then reserved
+  uint8_t meta_rr[21][15];
+
+  //misc nice to have items
+  uint16_t frame_number;
+
+} LSF_VERSION_3;
+
+//M17 LSF Version 2.0
+typedef struct
+{
+  //source and destination expressed as 48-bit hex value
+  unsigned long long int src_hex_value;
+  unsigned long long int dst_hex_value;
+
+  //the entire 16-bit type field value
+  uint16_t full_type_field;
+
+  //individual elements of the type field
+  uint16_t packet_stream_bit;
+  uint16_t data_type;
+  uint16_t encryption_type;
+  uint16_t encryption_sub_type;
+  uint16_t signature;
+  int16_t  can;
+
+  //singular meta field for version 2.0, Encryption and Meta Contents
+  //are not both allowed under 2.0 specification dueo to shared et and es
+  uint8_t meta[16];
+
+  //misc nice to have items
+  uint16_t frame_number;
+
+} LSF_VERSION_2;
+
 //M17 Encoder and Decoder Struct
 typedef struct
 {
@@ -302,10 +360,18 @@ typedef struct
 
   uint8_t lsf[240]; //bitwise lsf
   uint8_t meta[16]; //packed meta
+
+  //older code for Version 2.0 and prior
+  //will migrate to newer structs to house this information
   uint8_t dt;       //stream or packet data type
   uint8_t enc_et;   //encryption type
   uint8_t enc_st;   //encryption sub-type
   uint8_t met_st;   //meta 'sub-type' //TODO: Switch lsf_st values in str encoder using this, so we don't overwrite enc_st when user enables and disables enc and has meta data loaded as well
+
+  //Newer Structs to house LSF based information
+  LSF_VERSION_2 lsf2;
+  LSF_VERSION_3 lsf3;
+
   uint8_t enc_mute; //enc, muted audio out
 
   uint8_t reflector_module; //IP Frame reflector module
@@ -322,7 +388,7 @@ typedef struct
   uint8_t pkt[850]; //bytewise packet
   uint8_t pbc_ptr;  //internal packet block counter
   uint8_t raw[850]; //raw data from PDU that isn't SMS or UTF-8
-  uint8_t meta_data[60]; //encoder meta data (that isn't an IV) as uint8_t array
+  uint8_t meta_data[225]; //encoder meta data (that isn't an IV) as uint8_t array, including round robin swap outs for Meta Text
   uint16_t raw_len; //legnth of raw hex user data for PKT encoder
   uint8_t packet_protocol;
   uint16_t meta_round_robin_mod; //len mod for round robin of META data
@@ -335,8 +401,8 @@ typedef struct
   uint8_t str_encoder_vox; //flag if use vox mode
 
   //Call History
-  char callhistory[255][500];
-  char lasteventstring[500];
+  char callhistory[255][2048];
+  char lasteventstring[4][2048];
   int16_t scroll_index;
 
   //Ping and Pong
@@ -353,9 +419,6 @@ typedef struct
 
   //ECDSA
   ECDSA ecdsa;
-
-  //Text Game Progression
-  uint32_t game_progress;
 
 } M17;
 
@@ -700,6 +763,9 @@ void encode_brt(Super * super);
 
 //OTAKD and OTASK Packet Encoder
 void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint8_t enc_type, uint8_t enc_stype);
+
+//META Round Robin Baconator!
+uint16_t meta_round_robin_v3_baconator(Super * super, uint16_t fsn, uint8_t * m17_lsf);
 
 //test pattern generator
 void test_pattern_generator (Super * super);
