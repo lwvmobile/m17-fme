@@ -742,13 +742,13 @@ void print_ncurses_call_info (Super * super)
     printw ("OTA:");
     if (super->enc.enc_type != 0)
     {
-      if ( (super->opts.use_m17_str_encoder || super->opts.use_m17_duplex_mode) && super->opts.use_otakd && super->opts.use_m17_reflector_mode == 0)
+      if ( (super->opts.use_m17_str_encoder || super->opts.use_m17_duplex_mode) && super->opts.use_otakd && super->opts.use_m17_reflector_mode == 0 && super->m17e.str_encoder_tx == 0)
         printw (" Disable OTAKD(O);");
 
-      if ( (super->opts.use_m17_str_encoder || super->opts.use_m17_duplex_mode) && !super->opts.use_otakd && super->opts.use_m17_reflector_mode == 0)
+      if ( (super->opts.use_m17_str_encoder || super->opts.use_m17_duplex_mode) && !super->opts.use_otakd && super->opts.use_m17_reflector_mode == 0 && super->m17e.str_encoder_tx == 0) 
         printw (" Enable OTAKD(O);");
       
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->enc.enc_type != 0 && super->opts.use_m17_reflector_mode == 0)
+      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->enc.enc_type != 0 && super->opts.use_m17_reflector_mode == 0 && super->m17e.str_encoder_tx == 0)
         printw (" Send OTAKD(o);");
     }
 

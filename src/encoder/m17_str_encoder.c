@@ -1122,6 +1122,13 @@ void encode_str(Super * super)
       //flush decoder side meta last, primarily the last two octets with the lich_cnt in them
       memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
 
+      //zero out stale meta_rr and aes_iv
+      memset(super->m17e.lsf3.meta_rr[0], 0, sizeof(super->m17e.lsf3.meta_rr[0]));
+      memset(super->m17e.lsf3.aes_iv, 0, sizeof(super->m17e.lsf3.aes_iv));
+
+      memset(super->m17d.lsf3.meta_rr[0], 0, sizeof(super->m17d.lsf3.meta_rr[0]));
+      memset(super->m17d.lsf3.aes_iv, 0, sizeof(super->m17d.lsf3.aes_iv));
+
       //flush decoder side lsf, may be redundant, but using to make sure no stale values loaded during debug
       memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
 

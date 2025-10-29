@@ -258,6 +258,9 @@ void decode_lsf_v3_contents(Super * super)
   super->m17d.lsf3.meta_contents = meta_contents;
   super->m17d.lsf3.can = can;
 
+  //fix ncurses display and history / event items to show can and not -1
+  super->m17d.can = can;
+
   fprintf (stderr, "\n");
   decode_callsign_data(super, lsf_dst, lsf_src);
 
