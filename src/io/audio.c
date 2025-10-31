@@ -162,8 +162,8 @@ void auto_gain_vx (Super * super, short * input, int len)
 
     if (gain_factor > 0.01f && gain_factor <= gain_factor_clamp)
       super->opts.output_gain_vx = gain_factor;
-    else if (super->opts.output_gain_vx > 1.25f) //decay by 25%
-      super->opts.output_gain_vx -= 0.25f;
+    // else if (super->opts.output_gain_vx > 1.25f) //decay by 25%
+    //   super->opts.output_gain_vx -= 0.25f;
     else super->opts.output_gain_vx = 1.0f; //set to 100%
 
     //debug
