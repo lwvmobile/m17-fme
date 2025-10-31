@@ -223,7 +223,7 @@ void decode_lsf_v2_contents(Super * super)
     }
   }
 
-  //open a per call wav file here if stream voice, if enabled, if not already opened
+  //open a per call ogg file here if stream voice, if enabled, if not already opened
   if (lsf_ps && super->opts.use_wav_out_pc && super->wav.wav_out_pc == NULL)
     setup_percall_filename(super);
 
@@ -414,6 +414,10 @@ void decode_lsf_v3_contents(Super * super)
     fprintf (stderr, " SIG: %X;", signature);
     fprintf (stderr, " META: %X;", meta_contents);
   }
+
+  //open a per call ogg file here if stream voice, if enabled, if not already opened
+  if ((payload_contents == 0x2 || payload_contents == 0x3) && super->opts.use_wav_out_pc && super->wav.wav_out_pc == NULL)
+    setup_percall_filename(super);
 
 }
 
