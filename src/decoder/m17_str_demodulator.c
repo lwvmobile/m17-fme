@@ -164,7 +164,7 @@ void prepare_str(Super * super, float * sbuf)
 
   if (super->opts.payload_verbosity >= 1)
   {
-    fprintf (stderr, " FSN: %04X", fn);
+    fprintf (stderr, " FN: %04X", fn);
     //viterbi error
     fprintf (stderr, " Ve: %1.1f; ", (float)error/(float)0xFFFF);
   }

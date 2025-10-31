@@ -402,7 +402,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     int ptr = (segment_num-1)*13;
     memcpy (super->m17d.sms+ptr, input+2, 13*sizeof(char));
 
-    //NOTE: there is checkdown to see if all segments have arrived or not
+    //NOTE: there is no checkdown to see if all segments have arrived or not
     //terminate the string on completion, dump completed string
     if (segment_len == segment_num)
     {
@@ -435,7 +435,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     int ptr = (segment_num-1)*13;
     memcpy (super->m17d.sms+ptr, input+2, 13*sizeof(char));
 
-    //NOTE: there is checkdown to see if all segments have arrived or not
+    //NOTE: there is no checkdown to see if all segments have arrived or not
     //terminate the string on completion, dump completed string
     if (segment_len == segment_num)
     {

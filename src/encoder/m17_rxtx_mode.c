@@ -1433,7 +1433,7 @@ uint16_t meta_round_robin_v3_baconator(Super * super, uint16_t fsn, uint8_t * m1
       meta_is_loaded = 1;
 
       //debug
-      // fprintf (stderr, " FSN: %04X; Baconator Meta: %X; #%02d: ", fsn, meta_contents, i);
+      // fprintf (stderr, " FN: %04X; Baconator Meta: %X; #%02d: ", fsn, meta_contents, i);
       // for (int j = 1; j < 15; j++)
       //   fprintf (stderr, "%02X ", super->m17e.lsf3.meta_rr[i][j]);
 
@@ -1449,7 +1449,7 @@ uint16_t meta_round_robin_v3_baconator(Super * super, uint16_t fsn, uint8_t * m1
       meta_is_loaded = 1;
 
       //debug
-      // fprintf (stderr, " FSN: %04X; Baconator Meta: %X; #%02d: ", fsn, meta_contents, i);
+      // fprintf (stderr, " FN: %04X; Baconator Meta: %X; #%02d: ", fsn, meta_contents, i);
       // for (int j = 1; j < 15; j++)
       //   fprintf (stderr, "%02X ", super->m17e.lsf3.meta_rr[i][j]);
 

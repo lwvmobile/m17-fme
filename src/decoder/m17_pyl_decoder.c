@@ -298,12 +298,12 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   //assemble and decode arbitrary data, if 1600
   if (type == 3)
   {
-    //append incoming arbitrary data segment to m17d.raw bit array
-    memcpy (super->m17d.raw+(lich_cnt*64), payload+64, 64);
-
     //sanity check
     if (lich_cnt > 5)
       lich_cnt = 5;
+
+    //append incoming arbitrary data segment to m17d.raw bit array
+    memcpy (super->m17d.raw+(lich_cnt*64), payload+64, 64);
 
     if (lich_cnt == 5)
     {

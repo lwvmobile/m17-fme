@@ -419,7 +419,7 @@ void input_ncurses_terminal (Super * super, int c)
           entry_string_ncurses_terminal(label, inp_str);
           parse_meta_txt_string(super, inp_str);
 
-          if (super->m17e.lsf3.meta_rr[1][0] == 0) //Empty String loaded
+          if (super->m17e.lsf3.meta_rr[2][0] == 0) //Empty String loaded
           {
             //zero out all meta text round robin slots
             for (int i = 2; i <= 16; i++)
@@ -586,11 +586,13 @@ void input_ncurses_terminal (Super * super, int c)
         if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1))
         {
           //unload anything in the .dat field (Meta Text)
-          sprintf (super->m17e.dat, "%s", "");
-          sprintf (super->m17d.dat, "%s", "");
-          memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data)); //this doesn't nuke encryption stuff
+          // sprintf (super->m17e.dat, "%s", "");
+          // sprintf (super->m17d.dat, "%s", "");
+          // memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data)); //this doesn't nuke encryption stuff
 
           //unload anything in the .arb field (Arb Text)
+          memset(super->m17e.arb, 0, sizeof(super->m17e.arb));
+          memset(super->m17d.arb, 0, sizeof(super->m17d.arb));
           sprintf (super->m17e.arb, "%s", "");
           sprintf (super->m17d.arb, "%s", "");
           sprintf (label, " Enter Arbitrary Data Text:"); //set label to be displayed in the entry box window
