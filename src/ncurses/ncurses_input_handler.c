@@ -597,6 +597,8 @@ void input_ncurses_terminal (Super * super, int c)
           memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data)); //this doesn't nuke encryption stuff
 
           //unload anything in the .arb field (Arb Text)
+          memset(super->m17e.arb, 0, sizeof(super->m17e.arb));
+          memset(super->m17d.arb, 0, sizeof(super->m17d.arb));
           sprintf (super->m17e.arb, "%s", "");
           sprintf (super->m17d.arb, "%s", "");
           sprintf (label, " Enter Arbitrary Data Text:"); //set label to be displayed in the entry box window

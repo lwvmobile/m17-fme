@@ -420,6 +420,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
       fprintf (stderr, "%c", input[i]);
 
     memcpy (super->m17d.arb, input+1, len);
+    super->m17d.arb[len] = '\0'; //terminate string
     event_log_writer (super, super->m17d.arb, protocol);
   }
 

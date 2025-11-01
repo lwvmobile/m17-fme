@@ -82,9 +82,12 @@ void decode_lsf_contents(Super * super)
     {
       fprintf (stderr, "\n");
       fprintf (stderr, " FT: %04X;", lsf_type);
+      fprintf (stderr, " PS: %X;", lsf_ps);
+      fprintf (stderr, " DT: %X;", lsf_dt);
       fprintf (stderr, " ET: %0X;", lsf_et);
       fprintf (stderr, " ES: %0X;", lsf_es);
-      fprintf (stderr, " RES: %02X;", lsf_rs);
+      fprintf (stderr, " SIG: %X;", is_signed);
+      fprintf (stderr, " RES: %X;", lsf_rs);
     }
   }
 
