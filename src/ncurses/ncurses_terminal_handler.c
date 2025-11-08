@@ -216,6 +216,9 @@ void print_ncurses_config (Super * super)
   else if (super->opts.use_dibit_input == 1)
     printw ("File: DSD-FME Dibit Capture Bin Input: %s; ", super->opts.dibit_input_file);
 
+  else if (super->ip_io.use_ip_frame_in == 1)
+    printw ("File: IP Frame File Input: %s;", super->ip_io.ip_frame_input_filename);
+
   printw ("\n");
   printw ("| ");
 
@@ -259,6 +262,9 @@ void print_ncurses_config (Super * super)
 
   if (super->opts.use_dibit_output == 1)
     printw ("\n| File: DSD-FME Dibit Capture Bin Output: %s;", super->opts.dibit_output_file);
+
+  if (super->ip_io.use_ip_frame_out == 1)
+    printw ("\n| File: IP Frame File Output: %s;", super->ip_io.ip_frame_output_filename);
 
   //Output UDP IP Frame
   if (super->opts.m17_udp_sock && !super->opts.use_m17_ipf_decoder && !super->opts.use_m17_duplex_mode)

@@ -53,6 +53,11 @@ int m17_socket_blaster(Super * super, size_t nsam, void * data)
 {
   int err = 0;
   err = sendto(super->opts.m17_udp_sock, data, nsam, 0, (const struct sockaddr * ) & addressM17, sizeof(struct sockaddr_in));
+
+  //write IP Frame to file (any encoded) <--needs testing on text messages, may not want to do those on ad-hoc
+  if (super->ip_io.use_ip_frame_out == 1)
+    write_ip_frame_to_file(super, data, nsam);
+
   return (err);
 }
 

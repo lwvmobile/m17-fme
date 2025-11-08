@@ -410,6 +410,17 @@ typedef struct
   char wav_file_direct[9];
 } wav_state;
 
+//IP Frame IO files
+typedef struct
+{
+  FILE * ip_frame_input_file;
+  FILE * ip_frame_output_file;
+  uint8_t use_ip_frame_in;
+  uint8_t use_ip_frame_out;
+  char ip_frame_input_filename[1024];
+  char ip_frame_output_filename[1024];
+} ip_frame_io;
+
 //Universal sndfile input (TCP, STDIN, WAV, named PIPE, headerless wav files)
 typedef struct
 {
@@ -486,6 +497,7 @@ typedef struct
   hpfilter hpf_d;
   Encryption enc;
   Error error;
+  ip_frame_io ip_io;
 } Super;
 
 //c function prototypes
@@ -507,6 +519,13 @@ void parse_pulse_input_string_dxv (Super * super, char * input);
 void parse_pulse_outrf_string (Super * super, char * input);
 void parse_pulse_outvx_string (Super * super, char * input);
 uint16_t parse_raw_user_string (Super * super, char * input);
+
+//IP Frame IO File Handling
+uint16_t parse_string_to_array (char * input, uint8_t * output);
+void parse_array_to_string (uint8_t * input, char * output, int len);
+int16_t open_ip_input_file (Super * super);
+int16_t read_ip_frame_from_file(Super * super, uint8_t * ip_frame);
+int16_t write_ip_frame_to_file(Super * super, uint8_t * ip_frame, int16_t len);
 
 //NCurses Terminal
 #ifdef USE_CURSES

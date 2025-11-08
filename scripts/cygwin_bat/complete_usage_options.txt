@@ -38,6 +38,7 @@ Input Options:
   -w <file>     48k/1 SNDFile Compatible RF Audio .wav or .rrc input file
   -c <file>     DSD-FME Compatible Dibit/Symbol Capture Bin input file (from RF Encoder)
   -f <file>     Float Symbol input file (from RF Encoder and M17_Implementations)
+  -^ <file>     IP Frame input file (from M17-FME IP Frame Decoder)
 
 Output Options:
 
@@ -59,6 +60,7 @@ Output Options:
   -W <file>     48k/1 SNDFile Compatible RF Audio .wav output file
   -C <file>     DSD-FME Compatible Dibit/Symbol Capture Bin output file
   -F <file>     Float Symbol output file (M17_Implementations Compatible)
+  -* <file>     IP Frame output file (from M17-FME IP Frame Decoder)
 
 Encoder Options:
 
