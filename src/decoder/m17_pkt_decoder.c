@@ -30,9 +30,9 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   else if (protocol == 0x09) fprintf (stderr, " OTA Key Delivery;"); //m17-fme non standard packet data
   else if (protocol == 0x80) fprintf (stderr, " Meta Text Data V2;"); //internal format only from meta
   else if (protocol == 0x81) fprintf (stderr, " Meta GNSS Position Data;"); //internal format only from meta
-  else if (protocol == 0x82) fprintf (stderr, " Meta Text Data V3;"); //internal format only from meta
+  else if (protocol == 0x82) fprintf (stderr, " Meta Extended CSD;"); //internal format only from meta
+  else if (protocol == 0x83) fprintf (stderr, " Meta Text Data V3;"); //internal format only from meta
   else if (protocol == 0x91) fprintf (stderr, " PDU GNSS Position Data;"); //PDU Version of GNSS
-  else if (protocol == 0x98) fprintf (stderr, " Meta Extended CSD;"); //internal format only from meta
   else if (protocol == 0x99) fprintf (stderr, " 1600 Arbitrary Data;"); //internal format only from 1600
   else                       fprintf (stderr, " Res/Unk: %02X;", protocol); //any received but unknown protocol type
 
@@ -190,7 +190,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   }
   
   //Extended Call Sign Data
-  else if (protocol == 0x98)
+  else if (protocol == 0x82)
   {
 
     //NOTE: If doing a shift addition like this, make sure ALL values have (unsigned long long int) in front of it, not just the ones that 'needed' it
@@ -226,11 +226,13 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
       }
     }
 
-    //
-    sprintf (super->m17d.dat, "Extended CSD - CF1: %s; CF2: %s;", cf1, cf2);
+    //check for optional cf2
+    if (cf2[0] != 0)
+      sprintf (super->m17d.dat, "Extended CSD - CF1: %s; CF2: %s;", cf1, cf2);
+    else sprintf (super->m17d.dat, "Extended CSD - CF1: %s; ", cf1);
     
     //send Extended CSD to event_log_writer
-    event_log_writer (super, super->m17d.dat, protocol);
+    // event_log_writer (super, super->m17d.dat, protocol);
 
   }
 
@@ -313,8 +315,8 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     //User Input: -R 91F0F2B42B20ABC500C80424064000 (Packet)
 
     if (validity & 0x8)
-      fprintf (stderr, "\n GPS: (%f, %f);", lat_float, lon_float);
-    else fprintf (stderr, "\n GPS Not Valid;");
+      fprintf (stderr, "\n GNSS: (%f, %f);", lat_float, lon_float);
+    else fprintf (stderr, "\n POS Not Valid;");
 
     if (validity & 0x4)
       fprintf (stderr, " Altitude: %.1f m;", altitude_float);
@@ -326,7 +328,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     }
 
     if (validity & 0x1)
-      fprintf (stderr, "\n      Radius: %.1f;", radius_float);
+      fprintf (stderr, "\n       Radius: %.1f;", radius_float);
 
     if (reserved)
       fprintf (stderr, " Reserved: %03X;", reserved);
@@ -417,7 +419,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   }
 
   //Meta Text Messages Version 3.0 (15-segment sequential)
-  else if (protocol == 0x82)
+  else if (protocol == 0x83)
   {
 
     uint8_t segment_len = (input[1] >> 4) & 0xF;
