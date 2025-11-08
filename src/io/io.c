@@ -217,6 +217,13 @@ void cleanup_and_exit (Super * super)
   if (super->opts.rig_remote_sock)
     close (super->opts.rig_remote_sock);
 
+  //IP Frame File
+  if (super->ip_io.ip_frame_input_file != NULL)
+    fclose(super->ip_io.ip_frame_input_file);
+
+  if (super->ip_io.ip_frame_output_file != NULL)
+    fclose(super->ip_io.ip_frame_output_file);
+
   if (super->opts.use_m17_rfa_decoder || super->opts.internal_loopback_decoder)
   {
     fprintf (stderr, "\n");
@@ -442,6 +449,162 @@ void parse_output_option_string (Super * super, char * output)
   //anything not recognized
   else fprintf (stderr, "\nAudio Output Device: Unknown %s;", output);
 
+}
+
+//convert a generic string into a uint8_t array
+uint16_t parse_string_to_array (char * input, uint8_t * output)
+{
+  //since we want this as octets, get strlen value, then divide by two
+  uint16_t len = strlen((const char*)input);
+
+  uint8_t shift = 0;
+
+  //if zero is returned, just do two
+  // if (len == 0) len = 2;
+
+  //if zero, return as 0 len string
+  if (len == 0) return 0;
+
+  //if odd number, then user didn't pass complete octets,
+  //add one to len value and set the shift flag to left shift
+  if (len&1)
+  {
+    shift = 1;
+    len++;
+  }
+
+  //divide by two to get octet len
+  len /= 2;
+
+  char octet_char[3];
+  octet_char[2] = 0;
+  uint16_t k = 0;
+  uint16_t i = 0;
+
+  for (i = 0; i < len; i++)
+  {
+    strncpy (octet_char, input+k, 2);
+    octet_char[2] = 0;
+    sscanf (octet_char, "%hhX", &output[i]);
+
+    k += 2;
+  }
+
+  //if we had an odd input value, then left shift the last octet 4 to make it flush
+  if (shift) output[len-1] <<= 4;
+
+  return len;
+}
+
+//convert a uint8_t array into a string
+void parse_array_to_string (uint8_t * input, char * output, int len)
+{
+  for (int i = 0; i < len; i++)
+  {
+    char c[3]; memset(c, 0, sizeof(c));
+    sprintf (c, "%02X", input[i]);
+    c[2] = '\0';
+    strcat (output, c);
+  }
+}
+
+//write IP frames to file
+int16_t write_ip_frame_to_file(Super * super, uint8_t * ip_frame, int16_t len)
+{
+  //empty ip frame, skip
+  if (ip_frame[0] == 0)
+    return 0;
+  //ping or pong, skip
+  else if (ip_frame[0] == 'P' && ip_frame[2] == 'N' && ip_frame[3] == 'G')
+    return 0;
+  //ackn, skip
+  else if (ip_frame[0] == 'A' && ip_frame[1] == 'C' && ip_frame[2] == 'K' && ip_frame[3] == 'N')
+    return 0;
+  //nack, skip
+  else if (ip_frame[0] == 'N' && ip_frame[1] == 'A' && ip_frame[2] == 'C' && ip_frame[3] == 'K')
+    return 0;
+  //disc, skip
+  else if (ip_frame[0] == 'D' && ip_frame[1] == 'I' && ip_frame[2] == 'S' && ip_frame[3] == 'C')
+    return 0;
+  //else we only want to write M17, M17P, and any unknown packet formats here
+
+  //craft string to write to file (len, ip_string, line break)
+  char ip_string[2000]; memset(ip_string, 0, sizeof(ip_string));
+  parse_array_to_string (ip_frame, ip_string, len);
+  char full_string[2048]; memset(full_string, 0, sizeof(full_string));
+  sprintf (full_string, "%03d,%s\n", len, ip_string);
+
+  //open the file (if not already open) with the given filename
+  if (super->ip_io.ip_frame_output_file == NULL)
+    super->ip_io.ip_frame_output_file = fopen(super->ip_io.ip_frame_output_filename, "a"); //a for append
+
+  if (super->ip_io.ip_frame_output_file != NULL)
+  {
+    fprintf (super->ip_io.ip_frame_output_file, "%s", full_string);
+    fflush (super->ip_io.ip_frame_output_file);
+    super->ip_io.ip_frame_output_file = NULL; //file pointer back to NULL (needed?)
+    return len;
+  }
+
+  //alert user there was a file error
+  fprintf (stderr, "\n IP Frame Output File; Failed to open %s;", super->ip_io.ip_frame_output_filename);
+
+  //failure, return -1
+  return -1;
+}
+
+int16_t open_ip_input_file (Super * super)
+{
+  //open the file with the given filename
+  super->ip_io.ip_frame_input_file = fopen(super->ip_io.ip_frame_input_filename, "ro"); //ro for read-only mode
+
+  //if open error, then return -1 (or just exitflag?)
+  if (super->ip_io.ip_frame_input_file == NULL)
+  {
+    fprintf (stderr, "\n Error opening IP Frame Input File: %s;", super->ip_io.ip_frame_input_filename);
+    exitflag = 1;
+    return -1;
+  }
+  else fprintf (stderr, "\n Opened IP Frame Input File: %s;", super->ip_io.ip_frame_input_filename);
+
+  return 0;
+
+}
+
+int16_t read_ip_frame_from_file(Super * super, uint8_t * ip_frame)
+{
+  if ( feof(super->ip_io.ip_frame_input_file) )
+  {
+    fclose (super->ip_io.ip_frame_input_file);
+    super->ip_io.ip_frame_input_file = NULL;
+    fprintf (stderr, "\n End of IP Frame Input File: %s;", super->ip_io.ip_frame_input_filename);
+    exitflag = 1;
+    return -1;
+  }
+
+  int16_t len = 0;
+  char * ip_string = calloc(2048, sizeof(char));
+  
+  fgets(ip_string, 2047, super->ip_io.ip_frame_input_file); //will get until end of line \n
+
+  ip_string = strtok(ip_string, ","); //IP Frame Len
+  if (ip_string != NULL)
+    len = atoi(ip_string);
+  else len = -1;
+
+  //debug
+  // fprintf (stderr, " LEN: %03d; ", len);
+  // fprintf (stderr, " S: %s; ", ip_string);
+
+  ip_string = strtok(NULL, "\n"); //IP Frame String
+  if (ip_string != NULL)
+    parse_string_to_array(ip_string, ip_frame);
+  else len = -1;
+
+  //debug
+  // fprintf (stderr, " S: %s; ", ip_string);
+
+  return len;
 }
 
 void parse_m17_user_string (Super * super, char * input)

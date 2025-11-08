@@ -1,8 +1,8 @@
 M17 Project - Florida Man Edition                          
-Build Version: 2025-73-gff811b7 
+Build Version: 2025-81-gcbe75be 
 Specification Version: 3.0.0-draft; 
 Specification Date: Oct 22, 2025 
-Session Number: ED7A 
+Session Number: DA99 
 
 Usage: m17-fme [options]    Start the Program
   or:  m17-fme -h           Show Help
@@ -40,6 +40,7 @@ Input Options:
   -w <file>     48k/1 SNDFile Compatible RF Audio .wav or .rrc input file
   -c <file>     DSD-FME Compatible Dibit/Symbol Capture Bin input file (from RF Encoder)
   -f <file>     Float Symbol input file (from RF Encoder and M17_Implementations)
+  -^ <file>     IP Frame input file (from M17-FME IP Frame Decoder)
 
 Output Options:
 
@@ -61,6 +62,7 @@ Output Options:
   -W <file>     48k/1 SNDFile Compatible RF Audio .wav output file
   -C <file>     DSD-FME Compatible Dibit/Symbol Capture Bin output file
   -F <file>     Float Symbol output file (M17_Implementations Compatible)
+  -* <file>     IP Frame output file (from M17-FME IP Frame Decoder)
 
 Encoder Options:
 

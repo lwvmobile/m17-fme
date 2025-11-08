@@ -65,6 +65,7 @@ void usage ()
   printf ("  -w <file>     48k/1 SNDFile Compatible RF Audio .wav or .rrc input file\n");
   printf ("  -c <file>     DSD-FME Compatible Dibit/Symbol Capture Bin input file (from RF Encoder)\n");
   printf ("  -f <file>     Float Symbol input file (from RF Encoder and M17_Implementations)\n");
+  printf ("  -^ <file>     IP Frame input file (from M17-FME IP Frame Decoder)\n");
   printf ("\n");
   printf ("Output Options:\n");
   printf ("\n");
@@ -90,6 +91,7 @@ void usage ()
   printf ("  -W <file>     48k/1 SNDFile Compatible RF Audio .wav output file\n");
   printf ("  -C <file>     DSD-FME Compatible Dibit/Symbol Capture Bin output file\n");
   printf ("  -F <file>     Float Symbol output file (M17_Implementations Compatible)\n");
+  printf ("  -* <file>     IP Frame output file (from M17-FME IP Frame Decoder)\n");
   printf ("\n");
   printf ("Encoder Options:\n");
   printf ("\n");
@@ -272,7 +274,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "!1234567890ac:d:e:f:g:hi:k:l:mno:prs:t:uv:w:xA:BC:DE:F:IJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
+  while ((c = getopt (argc, argv, "^:*:!1234567890ac:d:e:f:g:hi:k:l:mno:prs:t:uv:w:xA:BC:DE:F:IJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
   {
 
     i++;
@@ -282,6 +284,21 @@ int main (int argc, char **argv)
       case 'h':
         usage ();
         exit (0);
+        break;
+
+      //Specify IP Frame Input File
+      case '^':
+        strncpy(super.ip_io.ip_frame_input_filename, optarg, 1023);
+        super.ip_io.ip_frame_input_filename[1023] = '\0';
+        super.ip_io.use_ip_frame_in = 1;
+        super.opts.use_m17_rfa_decoder = 0;
+        break;
+
+      //Specify IP Frame Output File
+      case '*':
+        strncpy(super.ip_io.ip_frame_output_filename, optarg, 1023);
+        super.ip_io.ip_frame_output_filename[1023] = '\0';
+        super.ip_io.use_ip_frame_out = 1;
         break;
 
       //generate one time randomized scrambler key
@@ -845,6 +862,14 @@ int main (int argc, char **argv)
   if (super.opts.use_m17_ipf_decoder == 1)
   {
     start_ipf(&super);
+    while (!exitflag)
+      decode_ipf(&super, 0);
+  }
+
+  //decode IP Frames from file
+  if (super.ip_io.use_ip_frame_in == 1)
+  {
+    open_ip_input_file(&super);
     while (!exitflag)
       decode_ipf(&super, 0);
   }

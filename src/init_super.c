@@ -448,6 +448,15 @@ void init_super (Super * super)
   }
   //end init_wav_state
 
+  //init IP Frame IO
+  super->ip_io.ip_frame_input_file = NULL;
+  super->ip_io.ip_frame_output_file = NULL;
+  super->ip_io.use_ip_frame_in = 0;
+  super->ip_io.use_ip_frame_out = 0;
+  sprintf (super->ip_io.ip_frame_input_filename, "%s", "ip_frame.txt");
+  sprintf (super->ip_io.ip_frame_output_filename, "%s", "ip_frame.txt");
+  //end init IP IO
+
   //init snd_src_input snd_src_in
   sprintf (super->snd_src_in.snd_in_filename, "snd_file.wav");
   super->snd_src_in.audio_in_file = NULL;

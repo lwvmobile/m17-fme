@@ -74,7 +74,13 @@ void decode_ipf (Super * super, int socket)
     //debug
     // fprintf (stderr, "ERR: %d; ", err);
   }
+  else if (super->ip_io.use_ip_frame_in == 1)
+    err = read_ip_frame_from_file(super, ip_frame);
   else exitflag = 1;
+
+  //write IP Frame to file
+  if (super->ip_io.use_ip_frame_out == 1)
+    write_ip_frame_to_file(super, ip_frame, err);
 
   src = ((unsigned long long int)ip_frame[4] << 40ULL) + ((unsigned long long int)ip_frame[5] << 32ULL) + ((unsigned long long int)ip_frame[6] << 24ULL) +
         ((unsigned long long int)ip_frame[7] << 16ULL) + ((unsigned long long int)ip_frame[8] <<  8ULL) + ((unsigned long long int)ip_frame[9] <<  0ULL);
@@ -523,9 +529,9 @@ void decode_ipf (Super * super, int socket)
     timestr = NULL;
   }
 
-  //if more than 10 seconds since last actual Stream IP frame, drop to no carrier
-  //some Stream IP Frmaes don't end with a proper EOT and leave this hanging indefinitely if no others calls
-  if ( (super->demod.in_sync == 1) && ((super->demod.current_time - super->demod.sync_time) > 4) )
+  //if more than 2 seconds since last actual Stream IP frame, drop to no carrier and push history, etc
+  //some Stream IP Frames don't end with a proper EOT and leave this hanging indefinitely if no others calls
+  if ( (super->demod.in_sync == 1) && ((super->demod.current_time - super->demod.sync_time) > 2) )
   {
     //drop sync
     no_carrier_sync(super);
