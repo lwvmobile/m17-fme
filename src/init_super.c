@@ -380,7 +380,7 @@ void init_super (Super * super)
   sprintf (super->m17e.dsts, "%s", "ALL");
   sprintf (super->m17e.sms, "%s", "");
   sprintf (super->m17e.dat, "%s", "");
-  sprintf (super->m17e.arb, "%s", ""); //Up To 48 UTF-8 Characters of Text Can Appear Here.
+  sprintf (super->m17e.arb, "%s", ""); //Up To 48 ASCII Characters of Text Can Appear Here.
 
   //PKT specific storage and counters
   memset (super->m17e.pkt, 0, sizeof(super->m17e.pkt));

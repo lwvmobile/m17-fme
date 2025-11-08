@@ -87,7 +87,7 @@ Encoder Input Strings:
                  Note: Affirmation YES means you have a valid callsign and verify you are allowed to legally TX
   -S <str>      Enter SMS Message (up to 821 UTF-8 characters) for Packet Data Encoder
                 (example: -S 'Hello World! This is a text message') 
-  -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.
+  -A <str>      Enter SMS Message (Up to 48 ASCII characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.
                 (example: -A 'Hello World! This is arbitrary data on 1600') 
   -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets (up to 823 octets).
                 (example: -R 91F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) 

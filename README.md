@@ -20,7 +20,7 @@ When operating in encoding mode, Voice Stream can be modulated in FSK4 48k/1 S16
 
 When operating in decoding mode, RF audio can be captured and saved with floating symbol output file, and decoded voice can be saved on a 'per call' basis with file creation for each new call after an EOT signal or a no-sync period.
 
-Voice Encoding and Decoding support both Codec2 3200 bps mode "full rate" and Codec2 1600 bps "half rate" modes, per specification. To encode in 1600 bps mode, the user on needs to specify some Arbitrary Data to the encoder, which is in turn handled as an embedded SMS message of up to 48 UTF-8 Characters to be decoded every superframe.
+Voice Encoding and Decoding support both Codec2 3200 bps mode "full rate" and Codec2 1600 bps "half rate" modes, per specification. To encode in 1600 bps mode, the user on needs to specify some Arbitrary Data to the encoder, which is in turn handled as an embedded SMS message of up to 48 ASCII Characters to be decoded every superframe.
 
 ### Packet Data
 

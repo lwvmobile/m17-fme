@@ -116,7 +116,7 @@ void usage ()
   printf ("                 Note: Affirmation YES means you have a valid callsign and verify you are allowed to legally TX\n");
   printf ("  -S <str>      Enter SMS Message (up to 821 UTF-8 characters) for Packet Data Encoder\n");
   printf ("                (example: -S 'Hello World! This is a text message') \n");
-  printf ("  -A <str>      Enter SMS Message (Up to 48 UTF-8 characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.\n");
+  printf ("  -A <str>      Enter SMS Message (Up to 48 ASCII characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.\n");
   printf ("                (example: -A 'Hello World! This is arbitrary data on 1600') \n");
   printf ("  -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets (up to 823 octets).\n");
   printf ("                (example: -R 91F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) \n");

@@ -451,18 +451,38 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
 
   }
 
-  //1600 Arbitrary Data as Text String
+  //1600 Arbitrary Data as ASCII Text String
   else if (protocol == 0x99)
   {
+    //TODO: A better checkdown than this
+    uint8_t is_ascii = 1;
+    for (i = 1; i < len; i++)
+    {
+      if (input[i] != 0 && (input[i] < 0x20 || input[i] > 0x7F))
+      {
+        is_ascii = 0;
+        break;
+      }
+    }
     
     sprintf (super->m17d.arb, "%s", "");
 
-    fprintf (stderr, " ");
-    for (i = 1; i < len; i++)
-      fprintf (stderr, "%c", input[i]);
+    if (is_ascii == 1)
+    {
 
-    memcpy (super->m17d.arb, input+1, len);
-    super->m17d.arb[len] = '\0'; //terminate string
+      fprintf (stderr, " ");
+      for (i = 1; i < len; i++)
+        fprintf (stderr, "%c", input[i]);
+
+      memcpy (super->m17d.arb, input+1, len);
+      super->m17d.arb[len] = '\0'; //terminate string
+    }
+    else
+    {
+      fprintf (stderr, " Unknown Format;");
+      sprintf (super->m17d.arb, "%s", "Unknown Arbitrary Data Format;");
+    }
+
     event_log_writer (super, super->m17d.arb, protocol);
   }
 
