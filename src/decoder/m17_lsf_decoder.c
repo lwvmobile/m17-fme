@@ -183,16 +183,6 @@ void decode_lsf_v2_contents(Super * super)
   if (lsf_et == 0 && meta_sum != 0)
   {
     uint8_t meta[15]; meta[0] = lsf_es + 0x80; //add identifier for pkt decoder
-
-    //re-map older values to newer internal values
-    //Extended CSD currently removed from 3.0, so just map it to depreciated new value of 0x98
-    if (meta[0] == 0x82)
-      meta[0] = 0x98;
-    //Meta Text to V3.0 Value <-- seperated two different decodes for this, depending on version used, older is still 0x80
-    // if (meta[0] == 0x80)
-    //   meta[0] = 0x82;
-    //end re-map
-
     for (i = 0; i < 14; i++)
       meta[i+1] = super->m17d.meta[i];
     fprintf (stderr, "\n ");

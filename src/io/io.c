@@ -1003,7 +1003,7 @@ void parse_meta_txt_string (Super * super, char * input)
   {
     if (super->m17e.meta_data[x] != 0)
     {
-      super->m17e.lsf3.meta_rr[j+2][0] = 0x2; //load meta content value as first byte
+      super->m17e.lsf3.meta_rr[j+2][0] = 0x03; //load meta content value as first byte
       for (i = 0; i < 14; i++)
         super->m17e.lsf3.meta_rr[j+2][i+1] = super->m17e.meta_data[x++];
     }
@@ -1074,7 +1074,8 @@ void push_call_history (Super * super)
 
   //Append GNSS to call history
   if ( (strncmp(super->m17d.dat, "", 1) != 0) &&
-       (strncmp(super->m17d.dat, "Any E", 5) != 0)) //Any Encoded or Decoded...
+       (strncmp(super->m17d.dat, "Any E", 5) != 0) && //Any Encoded or Decoded...
+       (strncmp(super->m17d.dat, "Exten", 5) != 0))   //Extended CSD
   {
     strncpy (shortgps+9, super->m17d.dat, 71);
     shortgps[79] = 0; //terminate string
@@ -1208,10 +1209,10 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
       fprintf (super->opts.event_log, "Meta GNSS: ");
 
     else if (protocol == 0x82)
-      fprintf (super->opts.event_log, "Meta Text V3: ");
-
-    else if (protocol == 0x98)
       fprintf (super->opts.event_log, "Meta ECSD: ");
+
+    else if (protocol == 0x83)
+      fprintf (super->opts.event_log, "Meta Text V3: ");
 
     else if (protocol == 0x99)
       fprintf (super->opts.event_log, "1600 Arbitrary Data: ");
@@ -1236,7 +1237,7 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
       sprintf (super->m17d.lasteventstring[0], "%s", event_string);
     else if (protocol == 0x99) //Arbitrary Data as Text
       sprintf (super->m17d.lasteventstring[1], "%s", event_string);
-    else if (protocol == 0x98) //Extended Callsign Data
+    else if (protocol == 0x82) //Extended Callsign Data
       sprintf (super->m17d.lasteventstring[2], "%s", event_string);
     else                      //Anything Else (Text Messages)
       sprintf (super->m17d.lasteventstring[3], "%s", event_string);

@@ -429,15 +429,6 @@ void input_ncurses_terminal (Super * super, int c)
             sprintf (super->m17d.dat, "%s", "");
 
           }
-
-          else if (super->m17e.lsf3.meta_rr[1][0] != 0) //meta_rr has actual text in it
-          {
-            //unload anything in the .arb field (Arb Text) -- prevent conflicting resource usage //TODO: Fix this?
-            sprintf (super->m17e.arb, "%s", "");
-            sprintf (super->m17d.arb, "%s", "");
-            super->opts.m17_str_encoder_dt = 2; //set back to 3200
-          }
-
         }
       }
       break;
