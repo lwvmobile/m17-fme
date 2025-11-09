@@ -511,46 +511,80 @@ void parse_array_to_string (uint8_t * input, char * output, int len)
 //write IP frames to file
 int16_t write_ip_frame_to_file(Super * super, uint8_t * ip_frame, int16_t len)
 {
+
+  //open the file (if not already open) with the given filename
+  if (super->ip_io.ip_frame_output_file == NULL)
+    super->ip_io.ip_frame_output_file = fopen(super->ip_io.ip_frame_output_filename, "w"); //w for write
+
+  //make sure file is open, and not error
+  if (super->ip_io.ip_frame_output_file == NULL)
+  {
+
+    //alert user there was a file error
+    fprintf (stderr, "\n IP Frame Output File; Failed to open %s;", super->ip_io.ip_frame_output_filename);
+
+    //failure, return -1
+    return -1;
+
+  }
+
   //empty ip frame, skip
-  if (ip_frame[0] == 0)
+  if (ip_frame[0] == 0 && ip_frame[1] == 0 && ip_frame[2] == 0 && ip_frame[3] == 0)
     return 0;
   //ping or pong, skip
   else if (ip_frame[0] == 'P' && ip_frame[2] == 'N' && ip_frame[3] == 'G')
     return 0;
-  //ackn, skip
-  else if (ip_frame[0] == 'A' && ip_frame[1] == 'C' && ip_frame[2] == 'K' && ip_frame[3] == 'N')
-    return 0;
+  //ackn, allow for write to populate new file with first item or subsequent reconnection
+  // else if (ip_frame[0] == 'A' && ip_frame[1] == 'C' && ip_frame[2] == 'K' && ip_frame[3] == 'N')
+  //   return 0;
   //nack, skip
   else if (ip_frame[0] == 'N' && ip_frame[1] == 'A' && ip_frame[2] == 'C' && ip_frame[3] == 'K')
     return 0;
   //disc, skip
   else if (ip_frame[0] == 'D' && ip_frame[1] == 'I' && ip_frame[2] == 'S' && ip_frame[3] == 'C')
     return 0;
+  //conn, skip
+  else if (ip_frame[0] == 'C' && ip_frame[1] == 'O' && ip_frame[2] == 'N' && ip_frame[3] == 'N')
+    return 0;
+  //lstn, skip
+  else if (ip_frame[0] == 'L' && ip_frame[1] == 'S' && ip_frame[2] == 'T' && ip_frame[3] == 'N')
+    return 0;
   //else we only want to write M17, M17P, and any unknown packet formats here
 
-  //craft string to write to file (len, ip_string, line break)
+  //craft string to write to file (len comma ip_string line break)
   char ip_string[2000]; memset(ip_string, 0, sizeof(ip_string));
   parse_array_to_string (ip_frame, ip_string, len);
   char full_string[2048]; memset(full_string, 0, sizeof(full_string));
   sprintf (full_string, "%03d,%s\n", len, ip_string);
 
-  //open the file (if not already open) with the given filename
-  if (super->ip_io.ip_frame_output_file == NULL)
-    super->ip_io.ip_frame_output_file = fopen(super->ip_io.ip_frame_output_filename, "a"); //a for append
-
   if (super->ip_io.ip_frame_output_file != NULL)
   {
-    fprintf (super->ip_io.ip_frame_output_file, "%s", full_string);
+    int error = 0;
+    error = fprintf (super->ip_io.ip_frame_output_file, "%s", full_string);
     fflush (super->ip_io.ip_frame_output_file);
-    super->ip_io.ip_frame_output_file = NULL; //file pointer back to NULL (needed?)
-    return len;
+
+    //NOTE: Below error does not work, error always reports characters writen, even if file is deleted
+    //may not work correctly on a FILE* stream? Users probably won't delete files while running,
+    //but if they do, atleast it doesn't seem to crash or do strange things if not there.
+
+    //alert user there was a file write error (file deleted or moved?)
+    if (error < 0)
+    {
+      fprintf (stderr, "\n IP Frame Output File; Error %i Writing to %s;", error, super->ip_io.ip_frame_output_filename);
+      fclose(super->ip_io.ip_frame_output_file); //close file
+      super->ip_io.ip_frame_output_file = NULL; //set FILE* pointer to NULL so next loop can attempt to open it again
+      return -1;
+    }
+
+  }
+  else if (super->ip_io.ip_frame_output_file == NULL)
+  {
+    fprintf (stderr, "\n IP Frame Output File; NULL PTR Error Writing to %s;", super->ip_io.ip_frame_output_filename);
+    return -1;
   }
 
-  //alert user there was a file error
-  fprintf (stderr, "\n IP Frame Output File; Failed to open %s;", super->ip_io.ip_frame_output_filename);
+  return len;
 
-  //failure, return -1
-  return -1;
 }
 
 int16_t open_ip_input_file (Super * super)
