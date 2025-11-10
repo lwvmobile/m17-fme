@@ -172,7 +172,11 @@ void input_ncurses_terminal (Super * super, int c)
       if (super->m17e.str_encoder_tx == 0 && super->enc.aes_key_is_loaded)
       {
         if (super->enc.enc_type == 0) super->enc.enc_type = 2;
-        else super->enc.enc_type = 0;
+        else
+        {
+          super->enc.enc_type = 0;
+          super->enc.enc_subtype = 0; //may consider using a meta subtype value instead
+        }
 
         if (super->enc.aes_key_is_loaded == 1)
         {
