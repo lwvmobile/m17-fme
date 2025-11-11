@@ -527,6 +527,9 @@ int16_t open_ip_input_file (Super * super);
 int16_t read_ip_frame_from_file(Super * super, uint8_t * ip_frame);
 int16_t write_ip_frame_to_file(Super * super, uint8_t * ip_frame, int16_t len);
 
+//Lockout File Handling
+int16_t open_and_read_in_lockout_file (Super * super, char * filename);
+
 //NCurses Terminal
 #ifdef USE_CURSES
 void open_ncurses_terminal (Super * super);
