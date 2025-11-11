@@ -605,6 +605,58 @@ int16_t open_ip_input_file (Super * super)
 
 }
 
+int16_t open_and_read_in_lockout_file (Super * super, char * filename)
+{
+
+  FILE * lockout_file = NULL;
+
+  //open the file with the given filename
+  lockout_file = fopen(filename, "ro"); 
+
+  //if open error, then return -1 (or just exitflag?)
+  if (lockout_file == NULL)
+  {
+    fprintf (stderr, "\n Error opening Callsign Lockout File: %s;", filename);
+    //This is not a critical error, just that no lockouts will be read in
+    return -1;
+  }
+  else fprintf (stderr, "\n Opened Callsign Lockout File: %s;", filename);
+
+  //read in strings from lockout file, store to super->m17d.src_csd_lockout and increment super->m17d.lockout_index
+  for (int i = 0; i < 255; i++)
+  {
+    //break if the end of file
+    if ( feof(lockout_file) )
+      break;
+
+    //read in current line
+    char * csd = calloc(50, sizeof(char));
+    fgets(csd, 49, lockout_file); //will get until end of line \n
+
+    //if not an empty new line (fgets terminates 0 if empty string)
+    if (csd[0] != 0)
+    {
+      strncpy(super->m17d.src_csd_lockout[super->m17d.lockout_index], csd, 9);
+      fprintf (stderr, "\n LOCKOUT #%03d: %s;", super->m17d.lockout_index+1,
+        super->m17d.src_csd_lockout[super->m17d.lockout_index]);
+      super->m17d.lockout_index++;
+    }
+
+    //free allocated memory
+    free(csd);
+  }
+
+  //if pointer is not NULL, cloes and set NULL
+  if (lockout_file != NULL)
+  {
+    fclose(lockout_file);
+    lockout_file = NULL;
+  }
+
+  return super->m17d.lockout_index;
+
+}
+
 int16_t read_ip_frame_from_file(Super * super, uint8_t * ip_frame)
 {
   if ( feof(super->ip_io.ip_frame_input_file) )

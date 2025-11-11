@@ -135,6 +135,7 @@ void usage ()
   printf ("  -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 \n");
   printf ("  -p            Per Call decoded voice output file saving into current directory ./m17pc folder\n");
   printf ("  -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)\n");
+  printf ("  -j <file>     Load Callsign Lockout from file. (txt file, each line with 9 characters)\n");
   printf ("\n");
   printf ("TX and RX Options:\n");
   printf ("\n");
@@ -274,7 +275,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "^:*:!1234567890ac:d:e:f:g:hi:k:l:mno:prs:t:uv:w:xA:BC:DE:F:IJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
+  while ((c = getopt (argc, argv, "^:*:!1234567890ac:d:e:f:g:hi:j:k:l:mno:prs:t:uv:w:xA:BC:DE:F:IJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
   {
 
     i++;
@@ -454,6 +455,11 @@ int main (int argc, char **argv)
           super.opts.output_gain_vx = 1.0f;
           super.opts.auto_gain_voice = 0;
         }
+        break;
+
+      //Specify Lockout Import File and Parse Them
+      case 'j':
+        open_and_read_in_lockout_file(&super, optarg);
         break;
 
       //Specify ECDSA Public Key File (Decoder)

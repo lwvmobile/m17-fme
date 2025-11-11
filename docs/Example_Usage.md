@@ -284,6 +284,7 @@ Decoder Options:
   -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 
   -p            Per Call decoded voice output file saving into current directory ./m17pc folder
   -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)
+  -j <file>     Load Callsign Lockout from file. (txt file, each line with 9 characters)
 
 TX and RX Options:
 
