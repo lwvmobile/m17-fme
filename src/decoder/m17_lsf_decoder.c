@@ -50,6 +50,11 @@ void decode_lsf_v2_contents(Super * super)
   super->m17d.src = lsf_src;
   super->m17d.can = lsf_cn;
 
+  //check lsf_src vs last_src_hex_value, if different, push call history (Reflectors may append a second src not in ECD to end of TX)
+  if (super->m17d.lsf2.last_src_hex_value != 0 && super->m17d.lsf2.last_src_hex_value != lsf_src)
+    push_call_history(super);
+  super->m17d.lsf2.last_src_hex_value = lsf_src;
+
   fprintf (stderr, "\n");
   decode_callsign_data(super, lsf_dst, lsf_src);
 
@@ -253,6 +258,11 @@ void decode_lsf_v3_contents(Super * super)
 
   //fix ncurses display and history / event items to show can and not -1
   super->m17d.can = can;
+
+  //check lsf_src vs last_src_hex_value, if different, push call history (Reflectors may append a second src not in ECD to end of TX)
+  if (super->m17d.lsf3.last_src_hex_value != 0 && super->m17d.lsf3.last_src_hex_value != lsf_src)
+    push_call_history(super);
+  super->m17d.lsf3.last_src_hex_value = lsf_src;
 
   fprintf (stderr, "\n");
   decode_callsign_data(super, lsf_dst, lsf_src);

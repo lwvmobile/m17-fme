@@ -471,6 +471,23 @@ void no_carrier_sync (Super * super)
   //zero out aes_iv (decoding side)
   memset(super->m17d.lsf3.aes_iv, 0, sizeof(super->m17d.lsf3.aes_iv));
 
+  //LSF Version 2.0 Init
+  super->m17d.lsf2.src_hex_value = 0;
+  super->m17d.lsf2.dst_hex_value = 0;
+  super->m17d.lsf2.packet_stream_bit = 0;
+  super->m17d.lsf2.full_type_field = 0;
+  super->m17d.lsf2.data_type = 0;
+  super->m17d.lsf2.encryption_type = 0;
+  super->m17d.lsf2.encryption_sub_type = 0;
+  super->m17d.lsf2.signature = 0;
+  // super->m17d.lsf2.can = -1;
+
+  memset(super->m17d.lsf2.meta, 0, sizeof(super->m17d.lsf2.meta));
+
+  super->m17d.lsf2.frame_number = 0;
+  super->m17d.lsf2.last_src_hex_value = 0;
+  //end LSF Version 2.0 Init
+
   //LSF Version 3.0 Init
   super->m17d.lsf3.src_hex_value = 0;
   super->m17d.lsf3.dst_hex_value = 0;
@@ -485,6 +502,7 @@ void no_carrier_sync (Super * super)
   memset(super->m17d.lsf3.aes_iv, 0, sizeof(super->m17d.lsf3.aes_iv));
 
   super->m17d.lsf3.frame_number = 0;
+  super->m17d.lsf3.last_src_hex_value = 0;
   //end LSF Version 3.0 Init
 
   if (super->opts.use_m17_duplex_mode == 0)

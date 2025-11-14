@@ -254,6 +254,23 @@ void init_super (Super * super)
   super->m17d.met_st = 0;
   super->m17d.enc_mute = 0;
 
+  //LSF Version 2.0 Init
+  super->m17d.lsf2.src_hex_value = 0;
+  super->m17d.lsf2.dst_hex_value = 0;
+  super->m17d.lsf2.packet_stream_bit = 0;
+  super->m17d.lsf2.full_type_field = 0;
+  super->m17d.lsf2.data_type = 0;
+  super->m17d.lsf2.encryption_type = 0;
+  super->m17d.lsf2.encryption_sub_type = 0;
+  super->m17d.lsf2.signature = 0;
+  super->m17d.lsf2.can = -1;
+
+  memset(super->m17d.lsf2.meta, 0, sizeof(super->m17d.lsf2.meta));
+
+  super->m17d.lsf2.frame_number = 0;
+  super->m17d.lsf2.last_src_hex_value = 0;
+  //end LSF Version 2.0 Init
+
   //LSF Version 3.0 Init
   super->m17d.lsf3.src_hex_value = 0;
   super->m17d.lsf3.dst_hex_value = 0;
@@ -270,6 +287,7 @@ void init_super (Super * super)
   memset(super->m17d.lsf3.meta_rr, 0, sizeof(super->m17d.lsf3.meta_rr));
 
   super->m17d.lsf3.frame_number = 0;
+  super->m17d.lsf3.last_src_hex_value = 0;
   //end LSF Version 3.0 Init
   
   //'A', single letter reflector module A-Z, 0x41 is A
@@ -353,6 +371,23 @@ void init_super (Super * super)
   super->m17e.met_st = 0;
   super->m17e.enc_mute = 0;
 
+  //LSF Version 2.0 Init
+  super->m17e.lsf2.src_hex_value = 0;
+  super->m17e.lsf2.dst_hex_value = 0;
+  super->m17e.lsf2.packet_stream_bit = 0;
+  super->m17e.lsf2.full_type_field = 0;
+  super->m17e.lsf2.data_type = 0;
+  super->m17e.lsf2.encryption_type = 0;
+  super->m17e.lsf2.encryption_sub_type = 0;
+  super->m17e.lsf2.signature = 0;
+  super->m17e.lsf2.can = -1;
+
+  memset(super->m17e.lsf2.meta, 0, sizeof(super->m17e.lsf2.meta));
+
+  super->m17e.lsf2.frame_number = 0;
+  super->m17e.lsf2.last_src_hex_value = 0;
+  //end LSF Version 2.0 Init
+
   //LSF Version 3.0 Init
   super->m17e.lsf3.src_hex_value = 0;
   super->m17e.lsf3.dst_hex_value = 0;
@@ -369,6 +404,7 @@ void init_super (Super * super)
   memset(super->m17e.lsf3.meta_rr, 0, sizeof(super->m17e.lsf3.meta_rr));
 
   super->m17e.lsf3.frame_number = 0;
+  super->m17e.lsf3.last_src_hex_value = 0;
   //end LSF Version 3.0 Init
 
   //'A', single letter reflector module A-Z, 0x41 is A

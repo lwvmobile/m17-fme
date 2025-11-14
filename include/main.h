@@ -313,6 +313,7 @@ typedef struct
   uint8_t meta_rr[21][15];
 
   //misc nice to have items
+  unsigned long long int last_src_hex_value;
   uint16_t frame_number;
 
 } LSF_VERSION_3;
@@ -340,6 +341,7 @@ typedef struct
   uint8_t meta[16];
 
   //misc nice to have items
+  unsigned long long int last_src_hex_value;
   uint16_t frame_number;
 
 } LSF_VERSION_2;
