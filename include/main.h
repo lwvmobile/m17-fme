@@ -296,6 +296,8 @@ typedef struct
   char src_csd_str[50]; //src call sign data as a string
   int16_t can;          //channel access number
 
+  unsigned long long int last_src; //NOTE TO SELF: Revert this change before merging 3.0.0-draft into main
+
   //lockout source str and ptr
   char src_csd_lockout[255][50];
   uint8_t lockout_index;

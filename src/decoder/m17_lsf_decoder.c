@@ -23,6 +23,11 @@ void decode_lsf_contents(Super * super)
   uint8_t lsf_cn = (lsf_type >> 7) & 0xF;
   uint8_t lsf_rs = (lsf_type >> 11) & 0x1F;
 
+  //NOTE TO SELF: Revert this change before merging 3.0.0-draft into main, or delete this snippet of code after merging
+  //check lsf_src vs last_src_hex_value, if different, push call history (Reflectors may append a second src not in ECD to end of TX)
+  if (super->m17d.last_src != 0 && super->m17d.last_src != lsf_src)
+    push_call_history(super);
+
   //decode behavior debug
   // lsf_rs |= 0x10;
 

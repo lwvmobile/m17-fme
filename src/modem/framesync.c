@@ -482,6 +482,8 @@ void no_carrier_sync (Super * super)
     sprintf (super->m17d.src_csd_str, "%s", "         ");
   }
 
+  super->m17d.last_src = 0; //NOTE TO SELF: Revert this change before merging 3.0.0-draft into main
+
   //reset scrambler fn value and seed value
   super->enc.scrambler_fn_d = 0;
   super->enc.scrambler_seed_d = super->enc.scrambler_key;

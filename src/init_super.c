@@ -242,6 +242,8 @@ void init_super (Super * super)
   sprintf (super->m17d.src_csd_str, "%s", "         ");
   super->m17d.can = -1;
 
+  super->m17d.last_src = 0; //NOTE TO SELF: Revert this change before merging 3.0.0-draft into main
+
   //lockout
   for (int i = 0; i < 255; i++)
     sprintf (super->m17d.src_csd_lockout[i], "%s", "         ");
@@ -321,6 +323,8 @@ void init_super (Super * super)
   sprintf (super->m17e.dst_csd_str, "%s", "         ");
   sprintf (super->m17e.src_csd_str, "%s", "         ");
   super->m17e.can = 7;
+
+  super->m17d.last_src = 0; //NOTE TO SELF: Revert this change before merging 3.0.0-draft into main
 
   //lockout (not used on encoder)
   for (int i = 0; i < 255; i++)
