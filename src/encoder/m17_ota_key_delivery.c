@@ -39,7 +39,7 @@ void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint
   int i, j, k, x; //basic utility counters
 
   //OTA Key Delivery Protocol
-  uint8_t protocol = 0x09;
+  uint8_t protocol = 0x69;
 
   //User Defined Variables
   uint8_t can = 7; //channel access number

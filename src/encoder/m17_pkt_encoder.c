@@ -307,16 +307,23 @@ void encode_pkt(Super * super, int mode)
     tlen = (int)super->m17e.raw_len;
     for (i = 2; i < tlen; i++)
     {
+      //add line breaks to keep it ~80 columns
+      if ( ((i%24) - 2) == 0 && (i != 2) )
+        fprintf (stderr, "\n        ");
+
       fprintf (stderr, " %02X", super->m17e.raw[i]);
       for (j = 0; j < 8; j++)
         m17_p1_full[k++] = (super->m17e.raw[i] >> (7-j)) & 1;
 
       ptr++;
 
-      //add line break to keep it under 80 columns
-      if ( (i%71) == 0 && i != 0)
-        fprintf (stderr, "\n        ");
     }
+
+    //pad with extra byte of zeroes (string termination, if not already terminated)
+    //NOTE: Let user passed hex values with terminating 00 if needed
+    // for (j = 0; j < 8; j++)
+    //   m17_p1_full[k++] = 0;
+    // ptr++;
 
     fprintf (stderr, "\n");
   }

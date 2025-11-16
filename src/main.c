@@ -120,6 +120,7 @@ void usage ()
   printf ("                (example: -A 'Hello World! This is arbitrary data on 1600') \n");
   printf ("  -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets (up to 823 octets).\n");
   printf ("                (example: -R 91F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) \n");
+  printf ("                (example: -R 0749535320285A41525941290A31203235353434552039383036374120202030383236342E3531373832353238202D2E3030303032313832202030303030302D30202D31313630362D3420302020323932370A32203235353434202035312E36343136203234372E343632372030303036373033203133302E35333630203332352E303238382031352E373231323533393135363335333700) for TLE Data) \n");
   printf ("\n");
   printf ("  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 195 UTF-8 characters, 15 Segment Meta);\n");
   printf ("                (example: -Y 'Hello World!! This is a longer M17 Text Message!!!!' ) for Meta Text \n");

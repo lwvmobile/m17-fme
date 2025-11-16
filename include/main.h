@@ -10,7 +10,7 @@
 #define MAIN_H
 
 #define SPEC_VERSION "3.0.0-draft"
-#define SPEC_DATE "Nov 11, 2025"
+#define SPEC_DATE "Nov 16, 2025"
 
 #define PI 3.141592653
 

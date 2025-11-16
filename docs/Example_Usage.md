@@ -177,10 +177,10 @@ This is the current usage (subject to change), verbatim, from m17-fme -h option:
 
 ```
 M17 Project - Florida Man Edition                          
-Build Version: 2025-81-gcbe75be 
+Build Version: 2025-89-g3181bb2 
 Specification Version: 3.0.0-draft; 
-Specification Date: Oct 22, 2025 
-Session Number: DA99 
+Specification Date: Nov 16, 2025 
+Session Number: CCEC 
 
 Usage: m17-fme [options]    Start the Program
   or:  m17-fme -h           Show Help
@@ -269,6 +269,7 @@ Encoder Input Strings:
                 (example: -A 'Hello World! This is arbitrary data on 1600') 
   -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets (up to 823 octets).
                 (example: -R 91F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) 
+                (example: -R 0749535320285A41525941290A31203235353434552039383036374120202030383236342E3531373832353238202D2E3030303032313832202030303030302D30202D31313630362D3420302020323932370A32203235353434202035312E36343136203234372E343632372030303036373033203133302E35333630203332352E303238382031352E373231323533393135363335333700) for TLE Data) 
 
   -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 195 UTF-8 characters, 15 Segment Meta);
                 (example: -Y 'Hello World!! This is a longer M17 Text Message!!!!' ) for Meta Text 

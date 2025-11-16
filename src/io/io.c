@@ -1013,7 +1013,7 @@ void parse_meta_raw_string (Super * super, char * input)
 
 }
 
-//convert a text string into a uint8_t array for text meta encoding (Note: Encryption use overrides the use of this in the Meta Data Field)
+//convert a text string into a uint8_t array for text meta encoding
 void parse_meta_txt_string (Super * super, char * input)
 {
 
@@ -1126,6 +1126,8 @@ void push_call_history (Super * super)
   { 
     if (super->m17d.packet_protocol == 0x05)
       sprintf (dt, "TEXT PDU");
+    else if (super->m17d.packet_protocol == 0x07)
+      sprintf (dt, "TLE  PDU");
     else if (super->m17d.packet_protocol == 0x81)
       sprintf (dt, "GNSS PDU");
     else sprintf (dt, "DATA PDU");
@@ -1280,12 +1282,15 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
       fprintf (super->opts.event_log, "IPv4: ");
 
     else if (protocol == 0x05)
-      fprintf (super->opts.event_log, "SMS  Text: ");
+      fprintf (super->opts.event_log, "SMS Text: ");
 
     else if (protocol == 0x06)
       fprintf (super->opts.event_log, "Winlink: ");
 
-    else if (protocol == 0x09)
+    else if (protocol == 0x07)
+      fprintf (super->opts.event_log, "TLE: ");
+
+    else if (protocol == 0x69)
       fprintf (super->opts.event_log, "OTAKD: ");
 
     else if (protocol == 0x80)
