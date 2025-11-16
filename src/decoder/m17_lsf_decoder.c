@@ -27,6 +27,7 @@ void decode_lsf_contents(Super * super)
   //check lsf_src vs last_src_hex_value, if different, push call history (Reflectors may append a second src not in ECD to end of TX)
   if (super->m17d.last_src != 0 && super->m17d.last_src != lsf_src)
     push_call_history(super);
+  super->m17d.last_src = lsf_src; //revert this second fix as well
 
   //decode behavior debug
   // lsf_rs |= 0x10;
