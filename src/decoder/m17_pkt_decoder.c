@@ -83,11 +83,13 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     for (i = 1; i < len; i++)
       fprintf (stderr, "%c", input[i]);
 
-    //scan input, replace linebreak with forward slash
+    //scan input, replace end of line and line breaks
     for (i = 1; i < len; i++)
     {
-      if (input[i] == '\n')
-        input[i] = '/';
+      if (input[i] == 0x0D) //end of line causing issues in ncurses terminal
+        input[i] = ' ';
+      else if (input[i] == 0x0A) // \n linebreak
+        input[i] = ' ';
     }
 
     //make a better string out of it instead
