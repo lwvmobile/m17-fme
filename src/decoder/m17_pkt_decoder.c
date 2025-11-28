@@ -27,6 +27,7 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
   else if (protocol == 0x04) fprintf (stderr, " IPv4;");
   else if (protocol == 0x05) fprintf (stderr, " SMS;");
   else if (protocol == 0x06) fprintf (stderr, " Winlink;");
+  else if (protocol == 0x07) fprintf (stderr, " TLE;"); //REVERT THIS CHANGE PRIOR TO M17_V30 MERGE
   else if (protocol == 0x09) fprintf (stderr, " OTA Key Delivery;"); //m17-fme non standard packet data
   else if (protocol == 0x80) fprintf (stderr, " Meta Text Data;"); //internal format only from meta
   else if (protocol == 0x81) fprintf (stderr, " Meta GNSS Position Data;"); //internal format only from meta
@@ -67,6 +68,34 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
     strncpy (super->m17d.sms, (const char *)input+1, len);
 
     //send SMS Text Message to event_log_writer
+    event_log_writer (super, super->m17d.sms, protocol);
+
+  }
+
+  //TLE UTF-8 Text Decoder -- REVERT THIS CHANGE PRIOR TO M17_V30 MERGE
+  else if (protocol == 0x07)
+  {
+    //print first to console, preserving formatting
+    fprintf (stderr, "\n");
+    for (i = 1; i < len; i++)
+      fprintf (stderr, "%c", input[i]);
+
+    //scan input, replace end of line and line breaks
+    for (i = 1; i < len; i++)
+    {
+      if (input[i] == 0x0D) //end of line causing issues in ncurses terminal
+        input[i] = ' ';
+      else if (input[i] == 0x0A) // \n linebreak
+        input[i] = ' ';
+    }
+
+    //make a better string out of it instead
+    memset (super->m17d.sms, 0, 825*sizeof(char));
+    sprintf (super->m17d.sms, "%s", "");
+    //switch from memcpy to strncpy, it'll also terminate the string
+    strncpy (super->m17d.sms, (const char *)input+1, len);
+
+    //send TLE Text Message to event_log_writer
     event_log_writer (super, super->m17d.sms, protocol);
 
   }

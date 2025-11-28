@@ -1169,6 +1169,8 @@ void push_call_history (Super * super)
   { 
     if (super->m17d.packet_protocol == 0x05)
       sprintf (dt, "TEXT PDU");
+    else if (super->m17d.packet_protocol == 0x07) //REVERT THIS CHANGE PRIOR TO M17_V30 MERGE
+      sprintf (dt, "TLE DATA");
     else if (super->m17d.packet_protocol == 0x81)
       sprintf (dt, "GNSS PDU");
     else sprintf (dt, "DATA PDU");
@@ -1202,6 +1204,14 @@ void push_call_history (Super * super)
 
   //Append SMS Text Message to Call History
   if (super->m17d.dt == 20 && super->m17d.packet_protocol == 0x05)
+  {
+    strncpy (shortstr+8, super->m17d.sms, 71);
+    shortstr[79] = '\0'; //terminate string
+    strcat (super->m17d.callhistory[0], shortstr);
+  }
+
+  //Append TLE Message to Call History -- REVERT THIS CHANGE PRIOR TO M17_V30 MERGE
+  else if (super->m17d.dt == 20 && super->m17d.packet_protocol == 0x07)
   {
     strncpy (shortstr+8, super->m17d.sms, 71);
     shortstr[79] = '\0'; //terminate string
@@ -1334,6 +1344,9 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
 
     else if (protocol == 0x06)
       fprintf (super->opts.event_log, "Winlink: ");
+
+    else if (protocol == 0x07)
+      fprintf (super->opts.event_log, "TLE: ");
 
     else if (protocol == 0x09)
       fprintf (super->opts.event_log, "OTAKD: ");
