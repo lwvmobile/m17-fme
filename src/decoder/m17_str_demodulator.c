@@ -175,9 +175,13 @@ void prepare_str(Super * super, float * sbuf)
   for (i = 0; i < 128; i++)
     payload[i] = stream_bits[i+16];
 
-  if (super->m17d.dt == 2 || super->m17d.dt == 3)
+  if ((super->m17d.skip_call == 0) && (super->m17d.dt == 2 || super->m17d.dt == 3))
     decode_str_payload(super, payload, super->m17d.dt, fn%6);
   else super->m17d.dt = 15;
+
+  //reset skip call
+  if (super->m17d.skip_call == 1 && end == 1)
+    super->m17d.skip_call = 0;
 
   //failsafe to still get ECDSA digest if bad initial LSF (better than not attempting it)
   //note: dt of 15 will now be rejected by payload decoder after digest

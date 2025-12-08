@@ -1224,6 +1224,15 @@ void push_call_history (Super * super)
   free (timestr); free (datestr);
 }
 
+#ifdef ESPEAK_SMS
+void espeak_sms(char * msg)
+{
+  char command[2048]; memset(command, 0, sizeof(command));
+  sprintf(command, "espeak \"%s\" -p 35 -a 75 &", msg);
+  system(command);
+}
+#endif
+
 //write events, like last call from call history, GNSS, text messages, etc to a log file, if enabled
 void event_log_writer (Super * super, char * event_string, uint8_t protocol)
 {
@@ -1333,6 +1342,12 @@ void event_log_writer (Super * super, char * event_string, uint8_t protocol)
     else                      //Anything Else (Text Messages)
       sprintf (super->m17d.lasteventstring[3], "%s", event_string);
   }
+
+  //TTS (if enabled)
+  #ifdef ESPEAK_SMS
+  if (protocol == 0x05)
+    espeak_sms(event_string);
+  #endif
 
   free (timestr); free (datestr);
 }

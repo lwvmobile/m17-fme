@@ -147,11 +147,15 @@ void decode_ipf (Super * super, int socket)
       decode_lsf_contents(super);
 
     //Consolodate these two
-    if (super->m17d.dt == 2)
+    if (super->m17d.dt == 2 && super->m17d.skip_call == 0)
       decode_str_payload(super, payload, 2, fn%6);
 
-    else if (super->m17d.dt == 3)
+    else if (super->m17d.dt == 3 && super->m17d.skip_call == 0)
       decode_str_payload(super, payload, 3, fn%6);
+
+    //reset skip call
+    if (super->m17d.skip_call == 1 && eot == 1)
+      super->m17d.skip_call = 0;
 
     if (super->opts.payload_verbosity >= 1)
     {

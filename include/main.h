@@ -10,7 +10,7 @@
 #define MAIN_H
 
 #define SPEC_VERSION "3.0.0-draft"
-#define SPEC_DATE "Nov 16, 2025"
+#define SPEC_DATE "Dec 04, 2025"
 
 #define PI 3.141592653
 
@@ -359,6 +359,7 @@ typedef struct
   //lockout source str and ptr
   char src_csd_lockout[255][50];
   uint8_t lockout_index;
+  uint8_t skip_call; //skip this call only (resets on EOT)
 
   uint8_t lsf[240]; //bitwise lsf
   uint8_t meta[16]; //packed meta

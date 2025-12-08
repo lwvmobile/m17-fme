@@ -54,6 +54,11 @@ void input_ncurses_terminal (Super * super, int c)
       getch(); //A,B,C,D, etc
       break;
 
+    //'.' key skip current call (useful on playback)
+    case 46: 
+      super->m17d.skip_call = 1;
+      break;
+
     //'0' key, Quick Stream Burst
     case 48:
       if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)

@@ -246,6 +246,8 @@ void init_super (Super * super)
     sprintf (super->m17d.src_csd_lockout[i], "%s", "         ");
   super->m17d.lockout_index = 0;
 
+  super->m17d.skip_call = 0;
+
   memset(super->m17d.lsf, 0, sizeof(super->m17d.lsf));
   memset(super->m17d.meta, 0, sizeof(super->m17d.meta));
   super->m17d.dt = 15;
@@ -362,6 +364,8 @@ void init_super (Super * super)
   for (int i = 0; i < 255; i++)
     sprintf (super->m17e.src_csd_lockout[i], "%s", "         ");
   super->m17e.lockout_index = 0;
+
+  super->m17e.skip_call = 0;
 
   memset(super->m17e.lsf, 0, sizeof(super->m17d.lsf));
   memset(super->m17e.meta, 0, sizeof(super->m17d.meta));
