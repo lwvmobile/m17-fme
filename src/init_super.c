@@ -153,6 +153,9 @@ void init_super (Super * super)
   //voice mute during playback, but not for recording .wav files
   super->opts.playback_voice_mute = 0;
 
+  //
+  super->opts.tone_input = 0;
+
   //init_pa_state
   #ifdef USE_PULSEAUDIO
   super->pa.input.format = PA_SAMPLE_S16NE;

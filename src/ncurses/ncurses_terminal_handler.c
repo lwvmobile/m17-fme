@@ -105,7 +105,14 @@ void print_ncurses_terminal(Super * super)
   else printw ("--Call-History-(H)-------------------------------------------------------------\n");
 
   //Handle Input Keystrokes
-  input_ncurses_terminal(super, input_keystroke);
+  if (super->opts.tone_input == 0)
+    input_ncurses_terminal(super, input_keystroke);
+  else if (super->opts.tone_input == 1)
+    input_dtmf_tones_terminal(super, input_keystroke);
+  else if (super->opts.tone_input == 2)
+    input_knox_tones_terminal(super, input_keystroke);
+  else if (super->opts.tone_input == 3)
+    input_ocarina_tones_terminal(super, input_keystroke);
 
   //refresh the terminal
   refresh();
@@ -134,7 +141,10 @@ void print_ncurses_banner (Super * super)
       printw ("%s", FME_banner[i]);
       attron(COLOR_PAIR(6));
       #ifdef USE_CODEC2
-      if (i == 1) printw (" CODEC2");
+      if (i == 1 && super->opts.tone_input == 0) printw (" CODEC2 ");
+      if (i == 1 && super->opts.tone_input == 1) printw (" DTMF T ");
+      if (i == 1 && super->opts.tone_input == 2) printw (" KNOX T ");
+      if (i == 1 && super->opts.tone_input == 3) printw (" OCARINA");
       #endif
       if (i == 2) printw (" 'q' to Quit ");
 

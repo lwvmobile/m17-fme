@@ -463,6 +463,21 @@ void encode_str(Super * super)
       codec2_encode(super->m17e.codec2_1600, vc1_bytes, voice1);
     #endif
 
+    //WIP: Integrate method of overriding and overwriting vc1_bytes and vc2_bytes with TT
+    #ifdef USE_TT
+    if (st == 2 && tone_frames_to_send > 0)
+    {
+      tiny_tone_encoder(SILENCE_3200, tone_idx, tone_gain, vc1_bytes);
+      tiny_tone_encoder(SILENCE_3200, tone_idx, tone_gain, vc2_bytes);
+      tone_frames_to_send--;
+    }
+    if (st == 3 && tone_frames_to_send > 0)
+    {
+      tiny_tone_encoder(SILENCE_1600, tone_idx, tone_gain, vc1_bytes);
+      tone_frames_to_send--;
+    }
+    #endif
+
     //Fill vc2_bytes with arbitrary data, UTF-8 chars (up to 48)
     if (st == 3)
       memcpy (vc2_bytes, super->m17e.arb+(lich_cnt*8), 8);

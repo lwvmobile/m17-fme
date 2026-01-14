@@ -72,6 +72,10 @@
 #include "../src/micro-ecc/uECC.h"
 #endif
 
+#ifdef USE_TT
+#include "../src/tiny-tones/tt.h"
+#endif
+
 //signal handling exitflag
 extern volatile uint8_t exitflag;
 
@@ -218,6 +222,9 @@ typedef struct
 
   //voice mute during playback, but not for recording .wav files
   uint8_t playback_voice_mute;
+
+  //terminal input switch to tones
+  uint8_t tone_input;
 
 } config_opts;
 
@@ -608,6 +615,9 @@ void print_ncurses_levels (Super * super);
 void print_ncurses_scope (Super * super);
 void print_ncurses_call_history (Super * super);
 void input_ncurses_terminal (Super * super, int c);
+void input_dtmf_tones_terminal (Super * super, int c);
+void input_knox_tones_terminal (Super * super, int c);
+void input_ocarina_tones_terminal (Super * super, int c);
 #endif
 
 //Pulse Audio Handling

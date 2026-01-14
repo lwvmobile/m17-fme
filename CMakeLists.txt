@@ -87,6 +87,17 @@ else()
     message ("-- micro-ecc not found")
 endif()
 
+# Look and see if tiny-tones is available, if so, then the append to SRCS and HEADERS
+find_file(TT NAMES tt.h PATHS src/tiny-tones/)
+if ( EXISTS ${TT} )
+    list(APPEND SRCS "src/tiny-tones/tt.c")
+    list(APPEND HEADERS "src/tiny-tones/tt.h") #needed?
+    add_definitions(-DUSE_TT)
+    message ("-- tiny-tones found")
+else()
+    message ("-- tiny-tones not found")
+endif()
+
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
 ADD_EXECUTABLE(m17-fme ${SRCS} ${HEADERS})

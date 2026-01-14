@@ -232,6 +232,11 @@ int main (int argc, char **argv)
   //init static
   m17_udp_socket_duplex_init();
 
+  #ifdef USE_TT
+  //init TT
+  init_tt_static();
+  #endif
+
   //set the exitflag to 0
   exitflag = 0;
 

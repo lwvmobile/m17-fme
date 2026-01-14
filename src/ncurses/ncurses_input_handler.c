@@ -35,6 +35,229 @@ void entry_string_ncurses_terminal (char * label, char * output_string)
   noecho();
 }
 
+void input_dtmf_tones_terminal (Super * super, int c)
+{
+  #ifdef USE_TT
+  switch (c)
+  {
+
+    //escape character (from arrow keys, read buffered input and ignore)
+    case '\033':
+      getch(); //[
+      getch(); //A,B,C,D, etc
+      break;
+
+    //switch to next input
+    case 84:
+      super->opts.tone_input++;
+      if (super->opts.tone_input >= 4)
+        super->opts.tone_input = 0;
+      tone_frames_to_send = 0; //reset tone frames to send
+      break;
+
+    //'\' key, Toggle TX
+    case 92:
+      if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
+      {
+        if (super->m17e.str_encoder_tx == 0) super->m17e.str_encoder_tx = 1;
+        else super->m17e.str_encoder_tx = 0;
+
+        if (super->m17e.str_encoder_tx == 0)
+          super->m17e.str_encoder_eot = 1;
+      }
+      tone_frames_to_send = 0; //reset tone frames to send
+      break;
+
+    //'q' key, Quit
+    case 113:
+      exitflag = 1;
+      break;
+
+  }
+
+  //adjust c input depending on tones selected
+  c -= 0x30;
+  switch(c)
+  {
+    
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+      tone_idx = c;
+      tone_gain = 0xF;
+      tone_frames_to_send += 6;
+      if (tone_frames_to_send >= 12)
+        tone_frames_to_send = 12;
+      break;
+  }
+
+  #else
+  UNUSED(c); UNUSED(super);
+  #endif //USE_TT
+}
+
+void input_knox_tones_terminal (Super * super, int c)
+{
+  #ifdef USE_TT
+  switch (c)
+  {
+
+    //escape character (from arrow keys, read buffered input and ignore)
+    case '\033':
+      getch(); //[
+      getch(); //A,B,C,D, etc
+      break;
+
+    //switch to next input
+    case 84:
+      super->opts.tone_input++;
+      if (super->opts.tone_input >= 4)
+        super->opts.tone_input = 0;
+      tone_frames_to_send = 0; //reset tone frames to send
+      break;
+
+    //'\' key, Toggle TX
+    case 92:
+      if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
+      {
+        if (super->m17e.str_encoder_tx == 0) super->m17e.str_encoder_tx = 1;
+        else super->m17e.str_encoder_tx = 0;
+
+        if (super->m17e.str_encoder_tx == 0)
+          super->m17e.str_encoder_eot = 1;
+      }
+      tone_frames_to_send = 0; //reset tone frames to send
+      break;
+
+    //'q' key, Quit
+    case 113:
+      exitflag = 1;
+      break;
+
+  }
+
+  //adjust c input depending on tones selected
+  c -= 0x30;
+  switch(c)
+  {
+    
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+      tone_idx = c + 0x10;
+      tone_gain = 0xF;
+      tone_frames_to_send += 6;
+      if (tone_frames_to_send >= 12)
+        tone_frames_to_send = 12;
+      break;
+  }
+
+  #else
+  UNUSED(c); UNUSED(super);
+  #endif //USE_TT
+}
+
+void input_ocarina_tones_terminal (Super * super, int c)
+{
+  #ifdef USE_TT
+  switch (c)
+  {
+
+    //escape character (from arrow keys, read buffered input and ignore)
+    case '\033':
+      getch(); //[
+      getch(); //A,B,C,D, etc
+      break;
+
+    //switch to next input
+    case 84:
+      super->opts.tone_input++;
+      if (super->opts.tone_input >= 4)
+        super->opts.tone_input = 0;
+      tone_frames_to_send = 0; //reset tone frames to send
+      break;
+
+    //'\' key, Toggle TX
+    case 92:
+      if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
+      {
+        if (super->m17e.str_encoder_tx == 0) super->m17e.str_encoder_tx = 1;
+        else super->m17e.str_encoder_tx = 0;
+
+        if (super->m17e.str_encoder_tx == 0)
+          super->m17e.str_encoder_eot = 1;
+      }
+      tone_frames_to_send = 0; //reset tone frames to send
+      break;
+
+    //'q' key, Quit
+    case 113:
+      exitflag = 1;
+      break;
+
+  }
+
+  //adjust c input depending on tones selected
+  c -= 0x30;
+
+  switch(c)
+  {
+
+    //Note, mapping is like N64 controls, but on the numpad.
+    //0 - A Button
+    //2 - C Down
+    //4 - C Left
+    //6 - C Right
+    //8 - C Up
+    //No Analog Stick Tremolo...yet
+    
+    case 0: //D
+      tone_idx = 0x20 + 7;
+      tone_gain = 0xF;
+      tone_frames_to_send = 12;
+      break;
+    case 2: //F
+      tone_idx = 0x20 + 10;
+      tone_gain = 0xF;
+      tone_frames_to_send = 12;
+      break;
+    case 6: //A
+      tone_idx = 0x20 + 14;
+      tone_gain = 0xF;
+      tone_frames_to_send = 12;
+      break;
+    case 4: //B
+      tone_idx = 0x20 + 16;
+      tone_gain = 0xF;
+      tone_frames_to_send = 12;
+      break;
+    case 8: //D
+      tone_idx = 0x20 + 19;
+      tone_gain = 0xF;
+      tone_frames_to_send = 12;
+      break;
+
+  }
+
+  #else
+  UNUSED(c); UNUSED(super);
+  #endif //USE_TT
+}
+
 //keyboard shortcut key handler
 void input_ncurses_terminal (Super * super, int c)
 {
@@ -53,6 +276,14 @@ void input_ncurses_terminal (Super * super, int c)
       getch(); //[
       getch(); //A,B,C,D, etc
       break;
+
+    //switch to tone frame input
+    #ifdef USE_TT
+    case 84: //"T" key for tones
+      super->opts.tone_input++;
+      tone_frames_to_send = 0; //reset tone frames to send
+      break;
+    #endif
 
     //'.' key skip current call (useful on playback)
     case 46: 
