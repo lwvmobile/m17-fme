@@ -1,3 +1,6 @@
 [submodule "src/micro-ecc"]
 	path = src/micro-ecc
 	url = https://github.com/M17-Project/micro-ecc
+[submodule "src/tiny-tones"]
+	path = src/tiny-tones
+	url = https://github.com/lwvmobile/tiny-tones
