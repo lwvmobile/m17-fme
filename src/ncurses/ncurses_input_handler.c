@@ -75,26 +75,44 @@ void input_dtmf_tones_terminal (Super * super, int c)
 
   }
 
-  //adjust c input depending on tones selected
-  c -= 0x30;
   switch(c)
   {
     
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-    case 9:
-      tone_idx = c;
+    case 0x30:
+    case 0x31:
+    case 0x32:
+    case 0x33:
+    case 0x34:
+    case 0x35:
+    case 0x36:
+    case 0x37:
+    case 0x38:
+    case 0x39:
+      tone_idx = c - 0x30;
       tone_gain = 0xF;
-      tone_frames_to_send += 6;
-      if (tone_frames_to_send >= 12)
-        tone_frames_to_send = 12;
+      tone_frames_to_send = 6;
+      break;
+
+    //A,B,C,D (lower case)
+    case 0x61:
+    case 0x62:
+    case 0x63:
+    case 0x64:
+      tone_idx = c - 0x57;
+      tone_gain = 0xF;
+      tone_frames_to_send = 6;
+      break;
+
+    //* and #
+    case 0x2A:
+      tone_idx = 0xE;
+      tone_gain = 0xF;
+      tone_frames_to_send = 6;
+      break;
+    case 0x23:
+      tone_idx = 0xF;
+      tone_gain = 0xF;
+      tone_frames_to_send = 6;
       break;
   }
 
@@ -143,27 +161,46 @@ void input_knox_tones_terminal (Super * super, int c)
 
   }
 
-  //adjust c input depending on tones selected
-  c -= 0x30;
   switch(c)
   {
     
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-    case 9:
-      tone_idx = c + 0x10;
+    case 0x30:
+    case 0x31:
+    case 0x32:
+    case 0x33:
+    case 0x34:
+    case 0x35:
+    case 0x36:
+    case 0x37:
+    case 0x38:
+    case 0x39:
+      tone_idx = c - 0x20;
       tone_gain = 0xF;
-      tone_frames_to_send += 6;
-      if (tone_frames_to_send >= 12)
-        tone_frames_to_send = 12;
+      tone_frames_to_send = 6;
       break;
+
+    //A,B,C,D (lower case)
+    case 0x61:
+    case 0x62:
+    case 0x63:
+    case 0x64:
+      tone_idx = c - 0x47;
+      tone_gain = 0xF;
+      tone_frames_to_send = 6;
+      break;
+
+    //* and #
+    case 0x2A:
+      tone_idx = 0x1E;
+      tone_gain = 0xF;
+      tone_frames_to_send = 6;
+      break;
+    case 0x23:
+      tone_idx = 0x1F;
+      tone_gain = 0xF;
+      tone_frames_to_send = 6;
+      break;
+
   }
 
   #else
@@ -223,32 +260,50 @@ void input_ocarina_tones_terminal (Super * super, int c)
     //4 - C Left
     //6 - C Right
     //8 - C Up
-    //No Analog Stick Tremolo...yet
+    //1,3,5,7,9 Analog Stick (pitch adjustments, sadly, can't do while playing notes)
+
+    //pitch adjustments similar to analog stick
+    case 1:
+      tone_pitch = -1;
+      break;
+    case 3:
+      tone_pitch = -2;
+      break;
+    case 5: //neutral
+      tone_pitch = 0;
+      break;
+    case 7:
+      tone_pitch = 1;
+      break;
+    case 9:
+      tone_pitch = 2;
+      break;
     
+    //Ocarina Notes
     case 0: //D
-      tone_idx = 0x20 + 7;
+      tone_idx = 0x20 + 7 + tone_pitch;
       tone_gain = 0xF;
-      tone_frames_to_send = 12;
+      tone_frames_to_send = 18;
       break;
     case 2: //F
-      tone_idx = 0x20 + 10;
+      tone_idx = 0x20 + 10 + tone_pitch;
       tone_gain = 0xF;
-      tone_frames_to_send = 12;
+      tone_frames_to_send = 18;
       break;
     case 6: //A
-      tone_idx = 0x20 + 14;
+      tone_idx = 0x20 + 14 + tone_pitch;
       tone_gain = 0xF;
-      tone_frames_to_send = 12;
+      tone_frames_to_send = 18;
       break;
     case 4: //B
-      tone_idx = 0x20 + 16;
+      tone_idx = 0x20 + 16 + tone_pitch;
       tone_gain = 0xF;
-      tone_frames_to_send = 12;
+      tone_frames_to_send = 18;
       break;
     case 8: //D
-      tone_idx = 0x20 + 19;
+      tone_idx = 0x20 + 19 + tone_pitch;
       tone_gain = 0xF;
-      tone_frames_to_send = 12;
+      tone_frames_to_send = 18;
       break;
 
   }

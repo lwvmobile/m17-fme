@@ -141,10 +141,13 @@ void print_ncurses_banner (Super * super)
       printw ("%s", FME_banner[i]);
       attron(COLOR_PAIR(6));
       #ifdef USE_CODEC2
-      if (i == 1 && super->opts.tone_input == 0) printw (" CODEC2 ");
-      if (i == 1 && super->opts.tone_input == 1) printw (" DTMF T ");
-      if (i == 1 && super->opts.tone_input == 2) printw (" KNOX T ");
-      if (i == 1 && super->opts.tone_input == 3) printw (" OCARINA");
+      if (i == 1 && super->opts.tone_input == 0) printw (" CODEC2  ");
+      #endif
+      #ifdef USE_TT
+      if (i == 1 && super->opts.tone_input == 1) printw (" DTMF    ");
+      if (i == 1 && super->opts.tone_input == 2) printw (" KNOX    ");
+      if (i == 1 && super->opts.tone_input == 3) printw (" OCARINA ");
+      if (i == 1) printw (" (T)");
       #endif
       if (i == 2) printw (" 'q' to Quit ");
 
@@ -478,6 +481,10 @@ void print_ncurses_call_info (Super * super)
     {
       if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
         printw ( " DST(d); SRC(s); CAN(b);");
+      #ifdef USE_TT
+      else if (tone_frames_to_send > 0)
+        printw ( " Tone: %02X; Frames Remaining: %02d; ", tone_idx, tone_frames_to_send);
+      #endif
     }
   }
   else if (super->opts.use_m17_pkt_encoder == 1)
@@ -496,6 +503,10 @@ void print_ncurses_call_info (Super * super)
     {
       if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
         printw ( " DST(d); SRC(s); CAN(b);");
+      #ifdef USE_TT
+      else if (tone_frames_to_send > 0)
+        printw ( " Tone: %02X; Frames Remaining: %02d; ", tone_idx, tone_frames_to_send);
+      #endif
     }
   }
   else
