@@ -113,6 +113,8 @@ void print_ncurses_terminal(Super * super)
     input_knox_tones_terminal(super, input_keystroke);
   else if (super->opts.tone_input == 3)
     input_ocarina_tones_terminal(super, input_keystroke);
+  else if (super->opts.tone_input == 4)
+    input_piano_tones_terminal(super, input_keystroke);
 
   //refresh the terminal
   refresh();
@@ -147,6 +149,7 @@ void print_ncurses_banner (Super * super)
       if (i == 1 && super->opts.tone_input == 1) printw (" DTMF    ");
       if (i == 1 && super->opts.tone_input == 2) printw (" KNOX    ");
       if (i == 1 && super->opts.tone_input == 3) printw (" OCARINA ");
+      if (i == 1 && super->opts.tone_input == 4) printw (" PIANO   ");
       if (i == 1) printw (" (T)");
       #endif
       if (i == 2) printw (" 'q' to Quit ");

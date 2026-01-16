@@ -442,4 +442,42 @@ Some Shortcuts may be disabled, depending on mode of operation.
 // Debug Toggles
 '7' key, Toggle Symbol Timing
 
+// Tiny Tones (in enabled, see below for toggled input method info)
+'T' key, Toggle Tiny Tone Input Methods
+
+```
+
+DTMF and KNOX Tones
+
+```
+1 - 9, A, B, C, D, *, # to corresponding DTMF and KNOX Tones
+```
+
+Ocarina
+
+```
+Note, mapping is like N64 controls, but on the numpad.
+0 - A Button
+2 - C Down
+4 - C Left
+6 - C Right
+8 - C Up
+
+Analog Stick (pitch adjustments, sadly, can't do while playing notes)
+1 - Set Pitch Down 1 Step
+3 - Set Pitch Down 2 Step
+5 - Set Pitch Neutral (default value / position)
+7 - Set Pitch Up 1 Step
+9 - Set Pitch Up 2 Step
+```
+
+Piano
+
+```
+1 - Set Octave 4 starting at C4
+2 - Set Octave 5 starting at C5
+3 - Set Octave 6 starting at C6
+
+C,D,E,F,G,A,B,V (Naturals in C Major Scale, V is next octave's C)
+d,e,g,a,b (Flats, adjust as needed for Sharps)
 ```

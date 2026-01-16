@@ -50,7 +50,7 @@ void input_dtmf_tones_terminal (Super * super, int c)
     //switch to next input
     case 84:
       super->opts.tone_input++;
-      if (super->opts.tone_input >= 4)
+      if (super->opts.tone_input >= 5)
         super->opts.tone_input = 0;
       tone_frames_to_send = 0; //reset tone frames to send
       break;
@@ -136,7 +136,7 @@ void input_knox_tones_terminal (Super * super, int c)
     //switch to next input
     case 84:
       super->opts.tone_input++;
-      if (super->opts.tone_input >= 4)
+      if (super->opts.tone_input >= 5)
         super->opts.tone_input = 0;
       tone_frames_to_send = 0; //reset tone frames to send
       break;
@@ -223,7 +223,7 @@ void input_ocarina_tones_terminal (Super * super, int c)
     //switch to next input
     case 84:
       super->opts.tone_input++;
-      if (super->opts.tone_input >= 4)
+      if (super->opts.tone_input >= 5)
         super->opts.tone_input = 0;
       tone_frames_to_send = 0; //reset tone frames to send
       break;
@@ -302,6 +302,142 @@ void input_ocarina_tones_terminal (Super * super, int c)
       break;
     case 8: //D
       tone_idx = 0x20 + 19 + tone_pitch;
+      tone_gain = 0xF;
+      tone_frames_to_send = 18;
+      break;
+
+  }
+
+  #else
+  UNUSED(c); UNUSED(super);
+  #endif //USE_TT
+}
+
+void input_piano_tones_terminal (Super * super, int c)
+{
+
+  //Octave starts C4 (middle C) with tone_pitch 0 on key '1', C5 on key '2', C6 on key '1'
+  uint8_t start = 0x25; //starting tone_idx 0x25 for C4
+
+  #ifdef USE_TT
+  switch (c)
+  {
+
+    //escape character (from arrow keys, read buffered input and ignore)
+    case '\033':
+      getch(); //[
+      getch(); //A,B,C,D, etc
+      break;
+
+    //switch to next input
+    case 84:
+      super->opts.tone_input++;
+      if (super->opts.tone_input >= 5)
+        super->opts.tone_input = 0;
+      tone_frames_to_send = 0; //reset tone frames to send
+      break;
+
+    //'\' key, Toggle TX
+    case 92:
+      if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
+      {
+        if (super->m17e.str_encoder_tx == 0) super->m17e.str_encoder_tx = 1;
+        else super->m17e.str_encoder_tx = 0;
+
+        if (super->m17e.str_encoder_tx == 0)
+          super->m17e.str_encoder_eot = 1;
+      }
+      tone_frames_to_send = 0; //reset tone frames to send
+      break;
+
+    //'q' key, Quit
+    case 113:
+      exitflag = 1;
+      break;
+
+  }
+
+  switch(c)
+  {
+
+    //Piano Notes
+
+    //octave adjustments
+    case 0x31:
+      tone_pitch = 0;
+      break;
+    case 0x32:
+      tone_pitch = 12;
+      break;
+    case 0x33:
+      tone_pitch = 24;
+      break;
+    
+    //Piano Notes - UPPER CASE ARE NATURALS (lower case are flats) -- no SHARPS
+    case 'C':
+      tone_idx = start + tone_pitch + 0;
+      tone_gain = 0xF;
+      tone_frames_to_send = 18;
+      break;
+    case 'd':
+      tone_idx = start + tone_pitch + 1;
+      tone_gain = 0xF;
+      tone_frames_to_send = 18;
+      break;
+    case 'D':
+      tone_idx = start + tone_pitch + 2;
+      tone_gain = 0xF;
+      tone_frames_to_send = 18;
+      break;
+    case 'e':
+      tone_idx = start + tone_pitch + 3;
+      tone_gain = 0xF;
+      tone_frames_to_send = 18;
+      break;
+    case 'E':
+      tone_idx = start + tone_pitch + 4;
+      tone_gain = 0xF;
+      tone_frames_to_send = 18;
+      break;
+    case 'F':
+      tone_idx = start + tone_pitch + 5;
+      tone_gain = 0xF;
+      tone_frames_to_send = 18;
+      break;
+    case 'g':
+      tone_idx = start + tone_pitch + 6;
+      tone_gain = 0xF;
+      tone_frames_to_send = 18;
+      break;
+    case 'G':
+      tone_idx = start + tone_pitch + 7;
+      tone_gain = 0xF;
+      tone_frames_to_send = 18;
+      break;
+    case 'a':
+      tone_idx = start + tone_pitch + 8;
+      tone_gain = 0xF;
+      tone_frames_to_send = 18;
+      break;
+    case 'A':
+      tone_idx = start + tone_pitch + 9;
+      tone_gain = 0xF;
+      tone_frames_to_send = 18;
+      break;
+    case 'b':
+      tone_idx = start + tone_pitch + 10;
+      tone_gain = 0xF;
+      tone_frames_to_send = 18;
+      break;
+    case 'B':
+      tone_idx = start + tone_pitch + 11;
+      tone_gain = 0xF;
+      tone_frames_to_send = 18;
+      break;
+
+    //special case 'V' is next octave C to finish C Major
+    case 'V':
+      tone_idx = start + tone_pitch + 12;
       tone_gain = 0xF;
       tone_frames_to_send = 18;
       break;

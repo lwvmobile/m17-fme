@@ -618,6 +618,7 @@ void input_ncurses_terminal (Super * super, int c);
 void input_dtmf_tones_terminal (Super * super, int c);
 void input_knox_tones_terminal (Super * super, int c);
 void input_ocarina_tones_terminal (Super * super, int c);
+void input_piano_tones_terminal (Super * super, int c);
 #endif
 
 //Pulse Audio Handling
