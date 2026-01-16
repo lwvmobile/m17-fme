@@ -306,6 +306,11 @@ void input_ocarina_tones_terminal (Super * super, int c)
       tone_frames_to_send = 18;
       break;
 
+    //spacebar terminate current tone (useful if trying to play same note again)
+    case -0x10:
+      tone_frames_to_send = 0;
+      break;
+
   }
 
   #else
@@ -440,6 +445,11 @@ void input_piano_tones_terminal (Super * super, int c)
       tone_idx = start + tone_pitch + 12;
       tone_gain = 0xF;
       tone_frames_to_send = 18;
+      break;
+
+    //spacebar terminate current tone (useful if trying to play same note again)
+    case 0x20:
+      tone_frames_to_send = 0;
       break;
 
   }

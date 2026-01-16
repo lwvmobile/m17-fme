@@ -469,6 +469,8 @@ Analog Stick (pitch adjustments, sadly, can't do while playing notes)
 5 - Set Pitch Neutral (default value / position)
 7 - Set Pitch Up 1 Step
 9 - Set Pitch Up 2 Step
+
+Spacebar - Termina Current Note
 ```
 
 Piano
@@ -480,4 +482,6 @@ Piano
 
 C,D,E,F,G,A,B,V (Naturals in C Major Scale, V is next octave's C)
 d,e,g,a,b (Flats, adjust as needed for Sharps)
+
+Spacebar - Stop Current Note
 ```
