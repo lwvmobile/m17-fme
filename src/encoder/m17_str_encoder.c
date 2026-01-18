@@ -463,18 +463,18 @@ void encode_str(Super * super)
       codec2_encode(super->m17e.codec2_1600, vc1_bytes, voice1);
     #endif
 
-    //WIP: Integrate method of overriding and overwriting vc1_bytes and vc2_bytes with TT
+    //if tones are queued to be encoded, overwrite the voice frames here
     #ifdef USE_TT
-    if (st == 2 && tone_frames_to_send > 0)
+    if (st == 2 && super->tt.tone_frames_to_send > 0)
     {
-      tiny_tone_encoder(SILENCE_3200, tone_idx, tone_gain, vc1_bytes);
-      tiny_tone_encoder(SILENCE_3200, tone_idx, tone_gain, vc2_bytes);
-      tone_frames_to_send--;
+      tiny_tone_encoder(SILENCE_3200, super->tt.tone_idx, super->tt.tone_gain, vc1_bytes);
+      tiny_tone_encoder(SILENCE_3200, super->tt.tone_idx, super->tt.tone_gain, vc2_bytes);
+      super->tt.tone_frames_to_send--;
     }
-    if (st == 3 && tone_frames_to_send > 0)
+    if (st == 3 && super->tt.tone_frames_to_send > 0)
     {
-      tiny_tone_encoder(SILENCE_1600, tone_idx, tone_gain, vc1_bytes);
-      tone_frames_to_send--;
+      tiny_tone_encoder(SILENCE_1600, super->tt.tone_idx, super->tt.tone_gain, vc1_bytes);
+      super->tt.tone_frames_to_send--;
     }
     #endif
 

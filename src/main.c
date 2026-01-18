@@ -233,8 +233,8 @@ int main (int argc, char **argv)
   m17_udp_socket_duplex_init();
 
   #ifdef USE_TT
-  //init TT
-  init_tt_static();
+  //init Tiny Tones
+  init_tt_struct(&super.tt);
   #endif
 
   //set the exitflag to 0
@@ -275,6 +275,10 @@ int main (int argc, char **argv)
   
   //print current session number
   fprintf (stderr, "Session Number: %04X \n", super.opts.random_number);
+
+  #ifdef USE_TT
+  fprintf (stderr, "Tiny Tones Version: %s", TT_VER);
+  #endif
 
   //use i to count number of optargs parsed
   i = 0;

@@ -571,6 +571,9 @@ typedef struct
   Encryption enc;
   Error error;
   ip_frame_io ip_io;
+  #ifdef USE_TT
+  TINY_TONES tt;
+  #endif
 } Super;
 
 //c function prototypes

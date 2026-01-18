@@ -52,7 +52,7 @@ void input_dtmf_tones_terminal (Super * super, int c)
       super->opts.tone_input++;
       if (super->opts.tone_input >= 5)
         super->opts.tone_input = 0;
-      tone_frames_to_send = 0; //reset tone frames to send
+      super->tt.tone_frames_to_send = 0; //reset tone frames to send
       break;
 
     //'\' key, Toggle TX
@@ -65,7 +65,7 @@ void input_dtmf_tones_terminal (Super * super, int c)
         if (super->m17e.str_encoder_tx == 0)
           super->m17e.str_encoder_eot = 1;
       }
-      tone_frames_to_send = 0; //reset tone frames to send
+      super->tt.tone_frames_to_send = 0; //reset tone frames to send
       break;
 
     //'q' key, Quit
@@ -88,9 +88,9 @@ void input_dtmf_tones_terminal (Super * super, int c)
     case 0x37:
     case 0x38:
     case 0x39:
-      tone_idx = c - 0x30;
-      tone_gain = 0xF;
-      tone_frames_to_send = 6;
+      super->tt.tone_idx = c - 0x30;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 6;
       break;
 
     //A,B,C,D (lower case)
@@ -98,21 +98,21 @@ void input_dtmf_tones_terminal (Super * super, int c)
     case 0x62:
     case 0x63:
     case 0x64:
-      tone_idx = c - 0x57;
-      tone_gain = 0xF;
-      tone_frames_to_send = 6;
+      super->tt.tone_idx = c - 0x57;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 6;
       break;
 
     //* and #
     case 0x2A:
-      tone_idx = 0xE;
-      tone_gain = 0xF;
-      tone_frames_to_send = 6;
+      super->tt.tone_idx = 0xE;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 6;
       break;
     case 0x23:
-      tone_idx = 0xF;
-      tone_gain = 0xF;
-      tone_frames_to_send = 6;
+      super->tt.tone_idx = 0xF;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 6;
       break;
   }
 
@@ -138,7 +138,7 @@ void input_knox_tones_terminal (Super * super, int c)
       super->opts.tone_input++;
       if (super->opts.tone_input >= 5)
         super->opts.tone_input = 0;
-      tone_frames_to_send = 0; //reset tone frames to send
+      super->tt.tone_frames_to_send = 0; //reset tone frames to send
       break;
 
     //'\' key, Toggle TX
@@ -151,7 +151,7 @@ void input_knox_tones_terminal (Super * super, int c)
         if (super->m17e.str_encoder_tx == 0)
           super->m17e.str_encoder_eot = 1;
       }
-      tone_frames_to_send = 0; //reset tone frames to send
+      super->tt.tone_frames_to_send = 0; //reset tone frames to send
       break;
 
     //'q' key, Quit
@@ -174,9 +174,9 @@ void input_knox_tones_terminal (Super * super, int c)
     case 0x37:
     case 0x38:
     case 0x39:
-      tone_idx = c - 0x20;
-      tone_gain = 0xF;
-      tone_frames_to_send = 6;
+      super->tt.tone_idx = c - 0x20;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 6;
       break;
 
     //A,B,C,D (lower case)
@@ -184,21 +184,21 @@ void input_knox_tones_terminal (Super * super, int c)
     case 0x62:
     case 0x63:
     case 0x64:
-      tone_idx = c - 0x47;
-      tone_gain = 0xF;
-      tone_frames_to_send = 6;
+      super->tt.tone_idx = c - 0x47;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 6;
       break;
 
     //* and #
     case 0x2A:
-      tone_idx = 0x1E;
-      tone_gain = 0xF;
-      tone_frames_to_send = 6;
+      super->tt.tone_idx = 0x1E;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 6;
       break;
     case 0x23:
-      tone_idx = 0x1F;
-      tone_gain = 0xF;
-      tone_frames_to_send = 6;
+      super->tt.tone_idx = 0x1F;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 6;
       break;
 
   }
@@ -225,7 +225,7 @@ void input_ocarina_tones_terminal (Super * super, int c)
       super->opts.tone_input++;
       if (super->opts.tone_input >= 5)
         super->opts.tone_input = 0;
-      tone_frames_to_send = 0; //reset tone frames to send
+      super->tt.tone_frames_to_send = 0; //reset tone frames to send
       break;
 
     //'\' key, Toggle TX
@@ -238,7 +238,7 @@ void input_ocarina_tones_terminal (Super * super, int c)
         if (super->m17e.str_encoder_tx == 0)
           super->m17e.str_encoder_eot = 1;
       }
-      tone_frames_to_send = 0; //reset tone frames to send
+      super->tt.tone_frames_to_send = 0; //reset tone frames to send
       break;
 
     //'q' key, Quit
@@ -264,51 +264,51 @@ void input_ocarina_tones_terminal (Super * super, int c)
 
     //pitch adjustments similar to analog stick
     case 1:
-      tone_pitch = -1;
+      super->tt.tone_pitch = -1;
       break;
     case 3:
-      tone_pitch = -2;
+      super->tt.tone_pitch = -2;
       break;
     case 5: //neutral
-      tone_pitch = 0;
+      super->tt.tone_pitch = 0;
       break;
     case 7:
-      tone_pitch = 1;
+      super->tt.tone_pitch = 1;
       break;
     case 9:
-      tone_pitch = 2;
+      super->tt.tone_pitch = 2;
       break;
     
     //Ocarina Notes
     case 0: //D
-      tone_idx = 0x20 + 7 + tone_pitch;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = 0x20 + 7 + super->tt.tone_pitch;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 2: //F
-      tone_idx = 0x20 + 10 + tone_pitch;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = 0x20 + 10 + super->tt.tone_pitch;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 6: //A
-      tone_idx = 0x20 + 14 + tone_pitch;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = 0x20 + 14 + super->tt.tone_pitch;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 4: //B
-      tone_idx = 0x20 + 16 + tone_pitch;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = 0x20 + 16 + super->tt.tone_pitch;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 8: //D
-      tone_idx = 0x20 + 19 + tone_pitch;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = 0x20 + 19 + super->tt.tone_pitch;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
 
     //spacebar terminate current tone (useful if trying to play same note again)
     case -0x10:
-      tone_frames_to_send = 0;
+      super->tt.tone_frames_to_send = 0;
       break;
 
   }
@@ -321,10 +321,11 @@ void input_ocarina_tones_terminal (Super * super, int c)
 void input_piano_tones_terminal (Super * super, int c)
 {
 
+  #ifdef USE_TT
+
   //Octave starts C4 (middle C) with tone_pitch 0 on key '1', C5 on key '2', C6 on key '1'
   uint8_t start = 0x25; //starting tone_idx 0x25 for C4
 
-  #ifdef USE_TT
   switch (c)
   {
 
@@ -339,7 +340,7 @@ void input_piano_tones_terminal (Super * super, int c)
       super->opts.tone_input++;
       if (super->opts.tone_input >= 5)
         super->opts.tone_input = 0;
-      tone_frames_to_send = 0; //reset tone frames to send
+      super->tt.tone_frames_to_send = 0; //reset tone frames to send
       break;
 
     //'\' key, Toggle TX
@@ -352,7 +353,7 @@ void input_piano_tones_terminal (Super * super, int c)
         if (super->m17e.str_encoder_tx == 0)
           super->m17e.str_encoder_eot = 1;
       }
-      tone_frames_to_send = 0; //reset tone frames to send
+      super->tt.tone_frames_to_send = 0; //reset tone frames to send
       break;
 
     //'q' key, Quit
@@ -369,87 +370,87 @@ void input_piano_tones_terminal (Super * super, int c)
 
     //octave adjustments
     case 0x31:
-      tone_pitch = 0;
+      super->tt.tone_pitch = 0;
       break;
     case 0x32:
-      tone_pitch = 12;
+      super->tt.tone_pitch = 12;
       break;
     case 0x33:
-      tone_pitch = 24;
+      super->tt.tone_pitch = 24;
       break;
     
     //Piano Notes - UPPER CASE ARE NATURALS (lower case are flats) -- no SHARPS
     case 'C':
-      tone_idx = start + tone_pitch + 0;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = start + super->tt.tone_pitch + 0;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 'd':
-      tone_idx = start + tone_pitch + 1;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = start + super->tt.tone_pitch + 1;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 'D':
-      tone_idx = start + tone_pitch + 2;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = start + super->tt.tone_pitch + 2;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 'e':
-      tone_idx = start + tone_pitch + 3;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = start + super->tt.tone_pitch + 3;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 'E':
-      tone_idx = start + tone_pitch + 4;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = start + super->tt.tone_pitch + 4;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 'F':
-      tone_idx = start + tone_pitch + 5;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = start + super->tt.tone_pitch + 5;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 'g':
-      tone_idx = start + tone_pitch + 6;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = start + super->tt.tone_pitch + 6;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 'G':
-      tone_idx = start + tone_pitch + 7;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = start + super->tt.tone_pitch + 7;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 'a':
-      tone_idx = start + tone_pitch + 8;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = start + super->tt.tone_pitch + 8;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 'A':
-      tone_idx = start + tone_pitch + 9;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = start + super->tt.tone_pitch + 9;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 'b':
-      tone_idx = start + tone_pitch + 10;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = start + super->tt.tone_pitch + 10;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
     case 'B':
-      tone_idx = start + tone_pitch + 11;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = start + super->tt.tone_pitch + 11;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
 
     //special case 'V' is next octave C to finish C Major
     case 'V':
-      tone_idx = start + tone_pitch + 12;
-      tone_gain = 0xF;
-      tone_frames_to_send = 18;
+      super->tt.tone_idx = start + super->tt.tone_pitch + 12;
+      super->tt.tone_gain = 0xF;
+      super->tt.tone_frames_to_send = 18;
       break;
 
     //spacebar terminate current tone (useful if trying to play same note again)
     case 0x20:
-      tone_frames_to_send = 0;
+      super->tt.tone_frames_to_send = 0;
       break;
 
   }
@@ -482,7 +483,7 @@ void input_ncurses_terminal (Super * super, int c)
     #ifdef USE_TT
     case 84: //"T" key for tones
       super->opts.tone_input++;
-      tone_frames_to_send = 0; //reset tone frames to send
+      super->tt.tone_frames_to_send = 0; //reset tone frames to send
       break;
     #endif
 

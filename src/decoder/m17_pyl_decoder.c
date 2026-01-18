@@ -199,11 +199,11 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
 
     //tiny tones check, if available, otherwise, decode normally
     #ifdef USE_TT
-    tone_n = tiny_tone_decoder(SILENCE_3200, voice1, tone_n, LEN_3200, samp1);
-    if (tone_n < 0)
+    super->tt.tone_phase = tiny_tone_decoder(SILENCE_3200, voice1, super->tt.tone_phase, LEN_3200, samp1);
+    if (super->tt.tone_phase < 0)
     {
       codec2_decode(super->m17d.codec2_3200, samp1, voice1);
-      tone_n = 0;
+      super->tt.tone_phase = 0;
     }
 
     //decode normally if TT not available
@@ -213,11 +213,11 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
       
     //tiny tones check, if available, otherwise, decode normally
     #ifdef USE_TT
-    tone_n = tiny_tone_decoder(SILENCE_3200, voice2, tone_n, LEN_3200, samp2);
-    if (tone_n < 0)
+    super->tt.tone_phase = tiny_tone_decoder(SILENCE_3200, voice2, super->tt.tone_phase, LEN_3200, samp2);
+    if (super->tt.tone_phase < 0)
     {
       codec2_decode(super->m17d.codec2_3200, samp2, voice2);
-      tone_n = 0;
+      super->tt.tone_phase = 0;
     }
 
     //decode normally if TT not available
@@ -239,11 +239,11 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
 
     //tiny tones check, if available, otherwise, decode normally
     #ifdef USE_TT
-    tone_n = tiny_tone_decoder(SILENCE_1600, voice1, tone_n, LEN_1600, samp1);
-    if (tone_n < 0)
+    super->tt.tone_phase = tiny_tone_decoder(SILENCE_1600, voice1, super->tt.tone_phase, LEN_1600, samp1);
+    if (super->tt.tone_phase < 0)
     {
       codec2_decode(super->m17d.codec2_1600, samp1, voice1);
-      tone_n = 0;
+      super->tt.tone_phase = 0;
     }
 
     //decode normally if TT not available

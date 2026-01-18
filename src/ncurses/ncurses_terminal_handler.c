@@ -485,8 +485,8 @@ void print_ncurses_call_info (Super * super)
       if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
         printw ( " DST(d); SRC(s); CAN(b);");
       #ifdef USE_TT
-      else if (tone_frames_to_send > 0)
-        printw ( " Tone: %02X; Frames Remaining: %02d; ", tone_idx, tone_frames_to_send);
+      else if (super->tt.tone_frames_to_send > 0)
+        printw ( " Tone: %02X; Frames Remaining: %02d; ", super->tt.tone_idx, super->tt.tone_frames_to_send);
       #endif
     }
   }
@@ -507,8 +507,8 @@ void print_ncurses_call_info (Super * super)
       if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0)
         printw ( " DST(d); SRC(s); CAN(b);");
       #ifdef USE_TT
-      else if (tone_frames_to_send > 0)
-        printw ( " Tone: %02X; Frames Remaining: %02d; ", tone_idx, tone_frames_to_send);
+      else if (super->tt.tone_frames_to_send > 0)
+        printw ( " Tone: %02X; Frames Remaining: %02d; ", super->tt.tone_idx, super->tt.tone_frames_to_send);
       #endif
     }
   }
