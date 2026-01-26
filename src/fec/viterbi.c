@@ -178,7 +178,7 @@ uint32_t viterbi_chainback(uint8_t* out, size_t pos, uint16_t len)
     uint8_t state = 0;
     size_t bitPos = len+4;
 
-    memset(out, 0, (len-1)/8+1);
+    // memset(out, 0, (len-1)/8+1); //upstream bugfix, but arrays passed here are already memset / zeroed out
 
     while(pos > 0)
     {
