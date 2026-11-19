@@ -177,10 +177,10 @@ This is the current usage (subject to change), verbatim, from m17-fme -h option:
 
 ```
 M17 Project - Florida Man Edition                          
-Build Version: 2025-50-gfa2cfc5 
-Specification Version: 2.0; 
-Specification Date: Aug 26, 2025 
-Session Number: 4394 
+Build Version: 2025-89-g6a93a2a 
+Specification Version: 2.1.0; 
+Specification Date: Nov 18, 2026 
+Session Number: DAAF 
 
 Usage: m17-fme [options]    Start the Program
   or:  m17-fme -h           Show Help
@@ -252,7 +252,6 @@ Encoder Options:
   -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder
   -s <dec>      Input Squelch v RMS Level (Vox) on Stream Voice Encoder
   -x            Modulate Inverted Polarity on RF Output
-  -K <file>     Load secp256r1 Private Key from file. (see example key: key/sig_pri_key.txt)
 
 Encoder Input Strings:
 
@@ -284,7 +283,6 @@ Decoder Options:
   -l <file>     Enable Event Log File with specified name
   -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 
   -p            Per Call decoded voice output file saving into current directory ./m17pc folder
-  -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)
   -j <file>     Load Callsign Lockout from file. (txt file, each line with 9 characters)
 
 TX and RX Options:
@@ -324,8 +322,6 @@ Debug Options:
 
   -1            Generate Random One Time Use 24-bit Scrambler Key 
   -2            Generate Random One Time Use 256-bit AES Key. 
-  -3            Generate Random Keys For secp256r1 Signatures. Enable Signing and Verification.
-  -5            Generate Random Keys For secp256r1 Signatures, and exit.
   -4            Permit Data Decoding on CRC Failure (not recommended). 
   -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). 
   -7            Disable Symbol Timing Correction. 

@@ -32,7 +32,7 @@ void decode_lsf_contents(Super * super)
   //decode behavior debug
   // lsf_rs |= 0x10;
 
-  //ECDSA signature included
+  //signature included
   uint8_t is_signed = 0;
 
   //Seperate the Signed bit from the reserved field, shift right once
@@ -107,7 +107,7 @@ void decode_lsf_contents(Super * super)
   }
 
   if (is_signed)
-    fprintf (stderr, " Signed (secp256r1);");
+    fprintf (stderr, " Signed;");
 
   if (lsf_et != 0) fprintf (stderr, "\n ENC:");
   if (lsf_et == 1)

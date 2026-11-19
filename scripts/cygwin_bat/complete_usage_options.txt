@@ -1,8 +1,8 @@
 M17 Project - Florida Man Edition                          
-Build Version: 2025-46-g4672f58 
-Specification Version: 2.0; 
-Specification Date: Aug 26, 2025 
-Session Number: 1919 
+Build Version: 2025-89-g6a93a2a 
+Specification Version: 2.1.0; 
+Specification Date: Nov 18, 2026 
+Session Number: DAAF 
 
 Usage: m17-fme [options]    Start the Program
   or:  m17-fme -h           Show Help
@@ -17,6 +17,8 @@ Display Options:
 Device Options:
 
   -a            List All Pulse Audio Input Sources and Output Sinks (devices).
+  -g <float>    Set Autogain (0) or Set Manual Gain Value (Percentage) to Decoded Audio Output (0.01 - 25.00).
+                Note: Decimal Gain Value of 0.01 is 1%, Decimal Gain Value of 25.00 is 2500%. Default is 1.0 for 100%. 
 
 Input Options:
 
@@ -72,7 +74,6 @@ Encoder Options:
   -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder
   -s <dec>      Input Squelch v RMS Level (Vox) on Stream Voice Encoder
   -x            Modulate Inverted Polarity on RF Output
-  -K <file>     Load secp256r1 Private Key from file. (see example key: key/sig_pri_key.txt)
 
 Encoder Input Strings:
 
@@ -91,8 +92,8 @@ Encoder Input Strings:
                 (example: -R 81F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) 
 
                 (NOTE: Using Meta Fields is not compatible with Using Encryption!) 
-  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 13 UTF-8 characters, single segment only);
-                (example: -Y 'Hello World!!') for Meta Text 
+  -Y <str>      Enter META Data for Stream Voice Encoder as Text String (Up to 52 UTF-8 characters, 4 Segment Meta);
+                (example: -Y 'Hello World!! This is a longer M17 Text Message!!!!' ) for Meta Text 
   -Z <hex>      Enter META Data for Stream Voice Encoder as Hex Octets (1 Meta Type Octet + 14 Hex Octets Max);
                 (example: -Z 01F0F2B42B20ABC500C80424064000) for Meta GNSS Position @ Wally World 
 
@@ -101,10 +102,9 @@ Decoder Options:
   -r            Enable RFA Demodulator and Decoding of Stream and Packet Data
   -x            Demodulate Inverted Polarity on RF Input
   -m            Enable Analog / Raw Input Signal Monitor on RF Input (when no sync)
-  -l            Enable Event Log File: date_time_m17fme_eventlog.txt
+  -l <file>     Enable Event Log File with specified name
   -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 
-  -p            Per Call decoded voice wav file saving into current directory ./m17wav folder
-  -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)
+  -p            Per Call decoded voice output file saving into current directory ./m17pc folder
   -j <file>     Load Callsign Lockout from file. (txt file, each line with 9 characters)
 
 TX and RX Options:
@@ -144,8 +144,6 @@ Debug Options:
 
   -1            Generate Random One Time Use 24-bit Scrambler Key 
   -2            Generate Random One Time Use 256-bit AES Key. 
-  -3            Generate Random Keys For secp256r1 Signatures. Enable Signing and Verification.
-  -5            Generate Random Keys For secp256r1 Signatures, and exit.
   -4            Permit Data Decoding on CRC Failure (not recommended). 
   -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). 
   -7            Disable Symbol Timing Correction. 
@@ -175,4 +173,4 @@ Quick Examples:
  m17-fme -i udp:127.0.0.1:17001:A -N 2> m17decoder.txt 
 
  IP Frame Decoder for Voice Stream and Packet Data Connect to Reflector Address, Port, R, Module in LSTN mode
- m17-fme -i udp:172.234.217.28:17000:R:C -M 0:M17FME0:ALL -o pulsevx -N 2> m17decoder.txt
+ m17-fme -i udp:172.234.217.28:17000:R:C -M 0:M17FME0:ALL -o pulsevx -N 2> m17decoder.txt 

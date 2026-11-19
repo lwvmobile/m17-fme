@@ -17,8 +17,6 @@
 //also works with some laws that require the publishing of enc if used on HAM bands since the
 //source code of HOW it is encrypted is plainly available AND the key is transmitted openly OTA.
 
-//NOTE: This format can also now be used to deliver ECDSA Signature Public Keys if desired.
-
 //this version will send a full LSF, then send a full Data Packet Set with the Complete Key
 void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint8_t enc_type, uint8_t enc_stype)
 {
@@ -164,13 +162,6 @@ void encode_ota_key_delivery_pkt (Super * super, int use_ip, uint8_t * sid, uint
   {
     unpack_byte_array_into_bit_array(super->enc.aes_key, m17_p1_full+16, 32);
     k += 32*8;
-  }
-
-  //Signature Public Key
-  else if (enc_type == 3)
-  {
-    unpack_byte_array_into_bit_array(super->m17d.ecdsa.public_key, m17_p1_full+16, 64);
-    k += 64*8;
   }
 
   //zero fill terminating byte (for compatibility)

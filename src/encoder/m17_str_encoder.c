@@ -148,6 +148,7 @@ void encode_str(Super * super)
   uint8_t eot = 0;
   uint8_t lich_cnt = 0;   //lich frame number counter
   uint8_t lsf_count = 0; //rolling embedded LSF counter for sending substitution LSF embedded frames 
+  UNUSED(lsf_count);
 
   uint8_t lsf_chunk[6][48]; //40 bit chunks of link information spread across 6 frames
   uint8_t m17_lsf[244];    //the complete LSF + 4 trailing bits
@@ -163,10 +164,6 @@ void encode_str(Super * super)
   uint16_t lsf_es = super->enc.enc_subtype; //encryption sub-type
   uint16_t lsf_cn = can;                    //can value
   uint16_t lsf_rs = 0;                      //reserved bits
-
-  if (super->m17e.ecdsa.keys_loaded)
-    lsf_rs = lsf_rs | (uint8_t)0x1; //OR 0x01 for ECDSA
-  else lsf_rs = 0; //reset to zero
 
   if (lsf_et == 1)
   {
@@ -299,10 +296,6 @@ void encode_str(Super * super)
     //if not encrypted, and meta data available, set lsf_es to met_st instead
     if (lsf_et == 0 && super->m17e.meta_data[0] != 0)
       lsf_es = super->m17e.met_st;
-
-    if (super->m17e.ecdsa.keys_loaded)
-      lsf_rs = lsf_rs | (uint8_t)0x1; //OR 0x01 for ECDSA
-    else lsf_rs = 0; //reset to zero
 
 
     //this is set to 3 IF -A  arb user text string is called in ncurses
@@ -468,22 +461,6 @@ void encode_str(Super * super)
       v2_bits[i] = m17_v1[i+16+64];
     }
 
-    //ECDSA pack and track (after encryption)
-    if (super->m17e.str_encoder_tx == 1)
-    {
-      uint8_t ecdsa_bytes[16]; memcpy(ecdsa_bytes, super->m17e.ecdsa.last_stream_pyl, 16*sizeof(uint8_t));
-      pack_bit_array_into_byte_array (m17_v1+16, super->m17e.ecdsa.curr_stream_pyl, 16);
-      for (i = 0; i < 16; i++)
-        ecdsa_bytes[i] ^= super->m17e.ecdsa.curr_stream_pyl[i];
-      left_shift_byte_array(ecdsa_bytes, super->m17e.ecdsa.last_stream_pyl, 16);
-
-      //debug
-      // fprintf (stderr, "\n ODG:");
-      // for (i = 0; i < 16; i++)
-      //   fprintf (stderr, "%02X", ecdsa_bytes[i]);
-
-    }
-
     //tally consecutive squelch hits based on RMS value, or reset
     if (super->demod.input_rms > super->demod.input_sql) sql_hit = 0;
     else sql_hit++;
@@ -506,13 +483,11 @@ void encode_str(Super * super)
       }
     }
 
-    //set end of tx bit on the exitflag (sig, results not gauranteed) or toggle eot flag (always triggers)
-    if (exitflag) eot = 1; //TODO: Change this to end? and then if no ecdsa, then allow it set to 1?
+    //set end of tx bit on the exitflag
+    if (exitflag) eot = 1;
     if (super->m17e.str_encoder_eot) eot = 1;
 
-    if (!super->m17e.ecdsa.keys_loaded)
-      m17_v1[0] = (uint8_t)eot; //set as first bit of the stream
-    else m17_v1[0] = 0;
+    m17_v1[0] = 0;
 
     //set current frame number as bits 1-15 of the v1 stream
     for (i = 0; i < 15; i++)
@@ -622,13 +597,6 @@ void encode_str(Super * super)
         {
           if (super->enc.enc_type != 0)
             encode_ota_key_delivery_pkt(super, use_ip, sid, super->enc.enc_type, super->enc.enc_subtype);
-        }
-
-        //send the OTA key before LSF (Signature Public Key)
-        if (super->opts.use_otask == 1)
-        {
-          if (super->m17e.ecdsa.keys_loaded == 1)
-            encode_ota_key_delivery_pkt(super, use_ip, sid, 3, 0);
         }
 
         fprintf (stderr, "\n M17 LSF    (ENCODER): ");
@@ -744,7 +712,7 @@ void encode_str(Super * super)
 
       //increment frame sequency number, trunc to maximum value, roll nonce if needed
       fsn++;
-      if (fsn > 0x7FFB) //changed from 0x7FFF to 0x7FFB to account for ECDSA frame numbers
+      if (fsn > 0x7FFB) //changed from 0x7FFF to 0x7FFB to account for signature frame numbers
       {
         fsn = 0;
         nonce[13]++;
@@ -824,11 +792,8 @@ void encode_str(Super * super)
         m17_ip_packed[i] = (uint8_t)convert_bits_into_output(&m17_ip_frame[i*8], 8);
 
       //reset
-      if (!super->m17e.ecdsa.keys_loaded)
-      {
-        lich_cnt = 0;
-        super->demod.in_sync = 0;
-      }
+      lich_cnt = 0;
+      super->demod.in_sync = 0;
       fsn = 0;
       lsf_count = 0;
 
@@ -941,8 +906,8 @@ void encode_str(Super * super)
       for (i = 0; i < 368; i++)
         m17_lsfs[i] = (m17_lsfi[i] ^ m17_scramble[i]) & 1;
 
-      //flush the last frame with the eot bit on, if not using ECDSA
-      if (eot && !eot_out && !super->m17e.ecdsa.keys_loaded)
+      //flush the last frame with the eot bit on
+      if (eot && !eot_out)
       {
         fprintf (stderr, "\n M17 Stream (ENCODER): ");
         if (super->opts.internal_loopback_decoder == 1)
@@ -986,38 +951,6 @@ void encode_str(Super * super)
         eot_out = 1;
         super->m17e.str_encoder_eot = 0;
       }
-
-      //flush the last 4 frames with attached ECDSA Signatures
-      else if (eot && !eot_out && super->m17e.ecdsa.keys_loaded)
-      {
-
-        encode_str_ecdsa(super, lich_cnt, super->m17e.lsf_bkp, mem, use_ip, udpport, sid);
-
-        memset (nil, 0, sizeof(nil));
-        encode_rfa (super, nil, mem, 55);    //EOT Marker
-
-        //send dead air with type 99
-        memset (nil, 0, sizeof(nil));
-        for (i = 0; i < 25; i++)
-          encode_rfa (super, nil, mem, 99);
-
-        //SEND EOTX to reflector
-        if (use_ip == 1)
-          udp_return = m17_socket_blaster (super, 10, eotx);
-
-        //reset indicators
-        eot = 0;
-        eot_out = 1;
-        super->m17e.str_encoder_eot = 0;
-        lich_cnt = 0;
-        super->demod.in_sync = 0;
-
-      }
-
-      //reset ECSDA payloads until tx restart
-      memset (super->m17e.ecdsa.curr_stream_pyl, 0, 16*sizeof(uint8_t));
-      memset (super->m17e.ecdsa.last_stream_pyl, 0, 16*sizeof(uint8_t));
-      memset (super->m17e.ecdsa.signature, 0, 64*sizeof(uint8_t));
 
       //flag on when restarting the encoder
       new_lsf = 1;

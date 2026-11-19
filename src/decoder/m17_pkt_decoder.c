@@ -174,29 +174,6 @@ void decode_pkt_contents(Super * super, uint8_t * input, int len)
         }
       }
     }
-    else if (type == 0x03)
-    {
-      memcpy (super->m17d.ecdsa.public_key, input+2, 64);
-      super->m17d.ecdsa.keys_loaded = 1;
-      fprintf (stderr, "\nOTASK Signature Public Key Delivery;");
-      fprintf (stderr, "\nPub Key:");
-      for (int j = 0; j < 64; j++)
-      {
-        if (j == 16 || j == 32 || j == 48)
-          fprintf (stderr, "\n        ");
-        fprintf (stderr, " %02X", super->m17d.ecdsa.public_key[j]);
-      }
-
-      sprintf (otakd_pkt, "OTASK Signature Public Key Delivery;");
-      if (strcmp(otakd_pkt, super->m17d.sms) != 0)
-      {
-        sprintf (super->m17d.sms, "OTASK Signature Public Key Delivery;");
-
-        //send OTASK to event_log_writer
-        event_log_writer (super, super->m17d.sms, protocol);
-      }
-
-    }
  
   }
   

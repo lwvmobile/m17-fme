@@ -9,8 +9,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#define SPEC_VERSION "2.0.3"
-#define SPEC_DATE "Oct 17, 2025"
+#define SPEC_VERSION "2.1.0"
+#define SPEC_DATE "Nov 18, 2026"
 
 #define PI 3.141592653
 
@@ -66,10 +66,6 @@
 #ifdef USE_CURSES
 #include <locale.h>
 #include <ncurses.h>
-#endif
-
-#ifdef USE_UECC
-#include "../src/micro-ecc/uECC.h"
 #endif
 
 //signal handling exitflag
@@ -275,17 +271,6 @@ typedef struct
 
 } demod_state;
 
-//ECDSA
-typedef struct
-{
-  uint8_t public_key[64];
-  uint8_t private_key[32];
-  uint8_t curr_stream_pyl[16];
-  uint8_t last_stream_pyl[16];
-  uint8_t signature[64];
-  uint8_t keys_loaded;
-} ECDSA;
-
 //M17 Encoder and Decoder Struct
 typedef struct
 {
@@ -352,9 +337,6 @@ typedef struct
   struct CODEC2 *codec2_3200;
   struct CODEC2 *codec2_1600;
   #endif
-
-  //ECDSA
-  ECDSA ecdsa;
 
   //Text Game Progression
   uint32_t game_progress;
@@ -719,7 +701,6 @@ uint16_t convert_string_into_array (char * input, uint8_t * output);
 void encode_rfa (Super * super, uint8_t * input, float * mem, int type);
 void encode_pkt(Super * super, int mode);
 void encode_str (Super * super);
-void encode_str_ecdsa(Super * super, uint8_t lich_cnt, uint8_t * m17_lsf, float * mem, int use_ip, int udpport, uint8_t * sid);
 void encode_brt(Super * super);
 
 //OTAKD and OTASK Packet Encoder
@@ -772,13 +753,6 @@ void aes_ctr_str_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, 
 void aes_ctr_pkt_payload_crypt (uint8_t * iv, uint8_t * key, uint8_t * payload, int type);
 void enc_pkt_ks_creation(Super * super, uint8_t * ks_bits, uint8_t * ks_bytes, int de);
 void aes_key_loader (Super * super);
-
-//ECDSA
-void ecdsa_signature_verification (Super * super);
-void ecdsa_signature_creation (Super * super);
-void ecdsa_signature_debug_keys (Super * super);
-void ecdsa_signature_debug_test();
-void ecdsa_generate_random_keys(Super * super);
 
 //if using cpp code, then put function prototypes in below
 #ifdef __cplusplus

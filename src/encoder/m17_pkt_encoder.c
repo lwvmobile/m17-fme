@@ -506,13 +506,6 @@ void encode_pkt(Super * super, int mode)
       encode_ota_key_delivery_pkt(super, use_ip, sid, super->enc.enc_type, super->enc.enc_subtype);
   }
 
-  //send the OTA key before LSF (Signature Public Key)
-  if (super->opts.use_otask == 1)
-  {
-    if (super->m17e.ecdsa.keys_loaded == 1)
-      encode_ota_key_delivery_pkt(super, use_ip, sid, 3, 0);
-  }
-
   //Send M17P to reflector
   if (use_ip == 1)
     udp_return = m17_socket_blaster (super, x+34+3, m17_ip_packed);

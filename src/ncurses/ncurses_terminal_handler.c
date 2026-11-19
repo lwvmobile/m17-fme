@@ -753,18 +753,6 @@ void print_ncurses_call_info (Super * super)
         printw (" Send OTAKD(o);");
     }
 
-    if (super->m17d.ecdsa.keys_loaded != 0 && super->opts.use_m17_reflector_mode == 0)
-    {
-      if (super->opts.use_m17_str_encoder && super->opts.use_otask)
-        printw (" Disable OTASK(P);");
-
-      if (super->opts.use_m17_str_encoder && !super->opts.use_otask)
-        printw (" Enable OTASK(P);");
-
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->opts.use_m17_duplex_mode == 0)
-        printw (" Send OTASK(p);");
-    }
-
     if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0) //I think this is okay if we want to disable on reflector and LSTN
     {
       printw ("\n");
@@ -794,15 +782,6 @@ void print_ncurses_call_info (Super * super)
         printw (" Disable Scrambler(e);");
       else if (super->enc.aes_key_is_loaded)
         printw (" Disable AES(E);");
-
-      #ifdef USE_UECC
-      if (super->opts.use_m17_duplex_mode == 0)
-      {
-        if (super->m17e.ecdsa.keys_loaded == 0)
-          printw (" Random Signature(3);");
-        else printw (" Disable Signature(5);");
-      }
-      #endif
 
       if (super->opts.use_m17_duplex_mode == 1)
       {

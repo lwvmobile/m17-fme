@@ -103,7 +103,6 @@ void usage ()
   printf ("  -X            Enable Voice Activated TX (Vox) on Stream Voice Encoder\n");
   printf ("  -s <dec>      Input Squelch v RMS Level (Vox) on Stream Voice Encoder\n");
   printf ("  -x            Modulate Inverted Polarity on RF Output\n");
-  printf ("  -K <file>     Load secp256r1 Private Key from file. (see example key: key/sig_pri_key.txt)\n");
   printf ("\n");
   printf ("Encoder Input Strings:\n");
   printf ("\n");
@@ -135,7 +134,6 @@ void usage ()
   printf ("  -l <file>     Enable Event Log File with specified name\n");
   printf ("  -u            Enable UDP IP Frame Decoder and Connect to default localhost:17000 \n");
   printf ("  -p            Per Call decoded voice output file saving into current directory ./m17pc folder\n");
-  printf ("  -k <file>     Load secp256r1 Public Key from file. (see example key: key/sig_pub_key.txt)\n");
   printf ("  -j <file>     Load Callsign Lockout from file. (txt file, each line with 9 characters)\n");
   printf ("\n");
   printf ("TX and RX Options:\n");
@@ -175,8 +173,6 @@ void usage ()
   printf ("\n");
   printf ("  -1            Generate Random One Time Use 24-bit Scrambler Key \n");
   printf ("  -2            Generate Random One Time Use 256-bit AES Key. \n");
-  printf ("  -3            Generate Random Keys For secp256r1 Signatures. Enable Signing and Verification.\n");
-  printf ("  -5            Generate Random Keys For secp256r1 Signatures, and exit.\n");
   printf ("  -4            Permit Data Decoding on CRC Failure (not recommended). \n");
   printf ("  -6            Open All Pulse Input / Output and IP Frame Defaults and Send Voice Stream. (Fire Everything!). \n");
   printf ("  -7            Disable Symbol Timing Correction. \n");
@@ -277,7 +273,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "^:*:!1234567890ac:d:e:f:g:hi:j:k:l:mno:prs:t:uv:w:xA:BC:DE:F:IJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
+  while ((c = getopt (argc, argv, "^:*:!12467890ac:d:e:f:g:hi:j:l:mno:prs:t:uv:w:xA:BC:DE:F:IJ:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
   {
 
     i++;
@@ -323,27 +319,10 @@ int main (int argc, char **argv)
         fprintf (stderr, "\n");
         break;
 
-      case '3':
-        #ifdef USE_UECC
-        ecdsa_generate_random_keys(&super);
-        #else
-        fprintf (stderr, " uECC Support Not Compiled;");
-        #endif
-        break;
-
       //Allow CRC Failure to still be decoded
       case '4':
         super.opts.allow_crc_failure = 1;
         fprintf (stderr, "Allow CRC Failure.\n");
-        break;
-
-      case '5':
-        #ifdef USE_UECC
-        ecdsa_generate_random_keys(&super);
-        #else
-        fprintf (stderr, " uECC Support Not Compiled;");
-        #endif
-        exitflag = 1;
         break;
 
       //Voice Open and Send Everything!
@@ -462,38 +441,6 @@ int main (int argc, char **argv)
       //Specify Lockout Import File and Parse Them
       case 'j':
         open_and_read_in_lockout_file(&super, optarg);
-        break;
-
-      //Specify ECDSA Public Key File (Decoder)
-      case 'k':
-        #ifdef USE_UECC
-        strncpy(super.opts.pub_key_file, optarg, 1023);
-        super.opts.pub_key_file[1023] = '\0';
-        fprintf (stderr, "secp256r1 Public Key File: %s \n", super.opts.pub_key_file);
-        source_str = calloc(128, sizeof(char));
-        super.opts.pub_key = fopen(super.opts.pub_key_file, "r");
-        if (!super.opts.pub_key)
-            fprintf(stderr, "Failed to secp256r1 Public Key file %s.\n", super.opts.pub_key_file);
-        else
-        {
-          fread(source_str, 1, 128, super.opts.pub_key);
-          fclose(super.opts.pub_key);
-        }
-        convert_string_into_array(source_str, super.m17d.ecdsa.public_key);
-        super.m17d.ecdsa.keys_loaded = 1;
-        fprintf (stderr, "Pub Key:");
-        for (int j = 0; j < 64; j++)
-        {
-          if (j == 16 || j == 32 || j == 48)
-            fprintf (stderr, "\n        ");
-          fprintf (stderr, " %02X", super.m17d.ecdsa.public_key[j]);
-        }
-        fprintf (stderr, "\n");
-        free(source_str);
-        source_str = NULL;
-        #else
-        fprintf (stderr, " uECC Support Not Compiled;");
-        #endif
         break;
 
       //Enable Event Log 
@@ -666,38 +613,6 @@ int main (int argc, char **argv)
         aes_key_loader(&super);
         free(source_str);
         source_str = NULL;
-        break;
-
-      //Specify ECDSA Private Key File (Encoder)
-      case 'K':
-        #ifdef USE_UECC
-        strncpy(super.opts.pri_key_file, optarg, 1023);
-        super.opts.pri_key_file[1023] = '\0';
-        fprintf (stderr, "secp256r1 Private Key File: %s \n", super.opts.pri_key_file);
-        source_str = calloc(128, sizeof(char));
-        super.opts.pub_key = fopen(super.opts.pri_key_file, "r");
-        if (!super.opts.pub_key)
-            fprintf(stderr, "Failed to secp256r1 Private Key file %s.\n", super.opts.pri_key_file);
-        else
-        {
-          fread(source_str, 1, 64, super.opts.pub_key);
-          fclose(super.opts.pub_key);
-        }
-        convert_string_into_array(source_str, super.m17e.ecdsa.private_key);
-        super.m17e.ecdsa.keys_loaded = 1;
-        fprintf (stderr, "Pri Key:");
-        for (int j = 0; j < 32; j++)
-        {
-          if (j == 16)
-            fprintf (stderr, "\n        ");
-          fprintf (stderr, " %02X", super.m17e.ecdsa.private_key[j]);
-        }
-        fprintf (stderr, "\n");
-        free(source_str);
-        source_str = NULL;
-        #else
-        fprintf (stderr, " uECC Support Not Compiled;");
-        #endif
         break;
 
       case 'L':

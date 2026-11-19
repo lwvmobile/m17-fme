@@ -179,11 +179,6 @@ void prepare_str(Super * super, float * sbuf)
     decode_str_payload(super, payload, super->m17d.dt, fn%6);
   else super->m17d.dt = 15;
 
-  //failsafe to still get ECDSA digest if bad initial LSF (better than not attempting it)
-  //note: dt of 15 will now be rejected by payload decoder after digest
-  if (super->m17d.ecdsa.keys_loaded == 1 && super->m17d.dt == 15)
-    decode_str_payload(super, payload, super->m17d.dt, fn%6);
-
   if (super->opts.payload_verbosity >= 1 && super->m17d.dt == 15)
   {
     fprintf (stderr, "\n STREAM: ");

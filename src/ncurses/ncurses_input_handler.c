@@ -102,12 +102,6 @@ void input_ncurses_terminal (Super * super, int c)
       }
       break;
 
-    //'3' key, Generate Random Signature Keys
-    case 51:
-      if (super->opts.use_m17_str_encoder == 1 && !super->m17e.str_encoder_tx && super->opts.use_m17_reflector_mode == 0)
-        ecdsa_generate_random_keys (super);
-      break;
-
     // //'4' key, simulate no_carrier_sync (reset states)
     // case 52:
     //   super->m17d.dt = 4; //fake for carrier reset
@@ -118,12 +112,6 @@ void input_ncurses_terminal (Super * super, int c)
     case 52:
       if (super->m17d.scroll_index > 0)
         super->m17d.scroll_index--;
-      break;
-
-    //'5' key, Disable Signature
-    case 53:
-      super->m17e.ecdsa.keys_loaded = 0;
-      super->m17d.ecdsa.keys_loaded = 0;
       break;
 
     //'6' key, Scroll Call History Down
@@ -458,16 +446,6 @@ void input_ncurses_terminal (Super * super, int c)
       {
         super->demod.in_sync = 1;
         encode_ota_key_delivery_pkt(super, super->opts.m17_use_ip, super->m17d.lsf, super->enc.enc_type, super->enc.enc_subtype);
-        super->demod.in_sync = 0;
-      }
-      break;
-
-    //'p' key, send one time OTASK Packet
-    case 112:
-      if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && super->m17d.ecdsa.keys_loaded == 1 && super->opts.use_m17_duplex_mode == 0)
-      {
-        super->demod.in_sync = 1;
-        encode_ota_key_delivery_pkt(super, super->opts.m17_use_ip, super->m17d.lsf, 3, 0);
         super->demod.in_sync = 0;
       }
       break;

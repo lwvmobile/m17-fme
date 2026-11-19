@@ -496,11 +496,6 @@ void no_carrier_sync (Super * super)
   sprintf (super->m17d.arb, "%s", "");
   super->m17d.packet_protocol = 0; //may only need this one, then we can keep the items above in the display
 
-  //ECDSA
-  memset (super->m17d.ecdsa.curr_stream_pyl, 0, 16*sizeof(uint8_t));
-  memset (super->m17d.ecdsa.last_stream_pyl, 0, 16*sizeof(uint8_t));
-  memset (super->m17d.ecdsa.signature, 0, 64*sizeof(uint8_t));
-
   //reset auto gain
   if (super->opts.auto_gain_voice == 1)
     reset_auto_gain_vx(super);

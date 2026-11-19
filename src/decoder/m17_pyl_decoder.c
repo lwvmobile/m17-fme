@@ -16,31 +16,11 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
   unsigned char voice1[8];
   unsigned char voice2[8];
 
-  //ECDSA pack and track (before decryption)
-  if (super->enc.scrambler_fn_d < 0x7FFC)
-  {
-    uint8_t ecdsa_bytes[16]; memcpy(ecdsa_bytes, super->m17d.ecdsa.last_stream_pyl, 16*sizeof(uint8_t));
-    pack_bit_array_into_byte_array (payload, super->m17d.ecdsa.curr_stream_pyl, 16);
-    for (i = 0; i < 16; i++)
-      ecdsa_bytes[i] ^= super->m17d.ecdsa.curr_stream_pyl[i];
-    left_shift_byte_array(ecdsa_bytes, super->m17d.ecdsa.last_stream_pyl, 16);
-
-    //debug
-    // fprintf (stderr, "\n IDG:");
-    // for (i = 0; i < 16; i++)
-    //   fprintf (stderr, "%02X", ecdsa_bytes[i]);
-  }
-  else
-  {
-    pack_bit_array_into_byte_array (payload, super->m17d.ecdsa.curr_stream_pyl, 16);
-  }
-
   //if signature frames, then skip decryption
   if (super->enc.scrambler_fn_d >= 0x7FFC)
     goto SKIP_CRYPT;
 
-  //if undetermined type, skip decoding payload at htis point
-  //note: we are only here to get the above ECDSA digest
+  //if undetermined type, skip decoding payload at this point
   if (super->m17d.dt == 15) //unset value (bad LSF frame)
     goto END_PAYLOAD;
 
@@ -103,43 +83,18 @@ void decode_str_payload(Super * super, uint8_t * payload, uint8_t type, uint8_t 
 
   SKIP_CRYPT:
   
-  //ECDSA Signature Verification
-  if (super->enc.scrambler_fn_d >= 0x7FFC) //cheating and reusing the scrambler fn value here
+  //Signature
+  if (super->enc.scrambler_fn_d >= 0x7FFC)
   {
 
-    uint8_t ptr = super->enc.scrambler_fn_d-0x7FFC;
-    //ptr sanity
-    if (ptr > 3) ptr = 3;
-    memcpy(super->m17d.ecdsa.signature+(ptr*16),  super->m17d.ecdsa.curr_stream_pyl, 16);
+    int ptr = super->enc.scrambler_fn_d-0x7FFC;
 
     //print payload
     if (super->opts.payload_verbosity >= 1)
     {
       fprintf (stderr, "\n SIG %02d: ", ptr+1);
       for (i = 0; i < 16; i++)
-        fprintf (stderr, "%02X", super->m17d.ecdsa.curr_stream_pyl[i]);
-    }
-    
-    if (super->enc.scrambler_fn_d == 0x7FFF)
-    {
-      if (super->opts.payload_verbosity >= 1)
-      {
-        fprintf (stderr, "\n SIG XX: ");
-        for (i = 0; i < 64; i++)
-        {
-          if (i == 16 || i == 32 || i == 48)
-            fprintf (stderr, "\n         ");
-          fprintf (stderr, "%02X", super->m17d.ecdsa.signature[i]);
-        }
-      }
-      #ifdef USE_UECC
-      if (super->m17d.ecdsa.keys_loaded == 1)
-        ecdsa_signature_verification(super);
-      else fprintf (stderr, " No Public Key Loaded;");
-      #else
-      fprintf (stderr, " uECC Support Not Compiled;");
-      #endif
-        
+        fprintf (stderr, "%02X", (uint8_t)convert_bits_into_output(&payload[(i*8)+i], 8));
     }
 
     goto END_PAYLOAD;
