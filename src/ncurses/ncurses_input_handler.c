@@ -1012,34 +1012,6 @@ void input_ncurses_terminal (Super * super, int c)
       }
       break;
 
-    //'w' key, Enter Arb Text Message
-    case 119:
-      if (super->opts.send_conn_or_lstn != 4 || super->opts.use_m17_reflector_mode == 0)
-      {
-        if (super->m17e.str_encoder_vox == 0 && super->m17e.str_encoder_tx == 0 && (super->opts.use_m17_str_encoder == 1 || super->opts.use_m17_duplex_mode == 1))
-        {
-          //unload anything in the .dat field (Meta Text)
-          // sprintf (super->m17e.dat, "%s", "");
-          // sprintf (super->m17d.dat, "%s", "");
-          // memset  (super->m17e.meta_data, 0, sizeof(super->m17e.meta_data)); //this doesn't nuke encryption stuff
-
-          //unload anything in the .arb field (Arb Text)
-          memset(super->m17e.arb, 0, sizeof(super->m17e.arb));
-          memset(super->m17d.arb, 0, sizeof(super->m17d.arb));
-          sprintf (super->m17e.arb, "%s", "");
-          sprintf (super->m17d.arb, "%s", "");
-          sprintf (label, " Enter Arbitrary Data Text:"); //set label to be displayed in the entry box window
-          entry_string_ncurses_terminal(label, super->m17e.arb);
-          if (super->m17e.arb[0]) //only send if there is an arb text message loaded, else signal 3200 voice
-          {
-            super->opts.m17_str_encoder_dt = 3;
-            sprintf (super->m17d.arb, "%s", super->m17e.arb);
-          }
-          else super->opts.m17_str_encoder_dt = 2;
-        }
-      }
-      break;
-
     //'x' key, Toggle Inversion
     case 120:
       if (super->opts.inverted_signal == 0) super->opts.inverted_signal = 1;

@@ -803,7 +803,6 @@ void print_ncurses_call_info (Super * super)
       {
         printw (" Send SMS Text(t);");
         printw (" Send Raw Data(u);");
-        printw (" Load Arb Text(w);");
         printw (" Load Meta Text(m);");
       }
     }

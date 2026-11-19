@@ -116,8 +116,6 @@ void usage ()
   printf ("                 Note: Affirmation YES means you have a valid callsign and verify you are allowed to legally TX\n");
   printf ("  -S <str>      Enter SMS Message (up to 821 UTF-8 characters) for Packet Data Encoder\n");
   printf ("                (example: -S 'Hello World! This is a text message') \n");
-  printf ("  -A <str>      Enter SMS Message (Up to 48 ASCII characters) For Stream Voice Encoder (Arbitrary Data). Enables 1600 mode.\n");
-  printf ("                (example: -A 'Hello World! This is arbitrary data on 1600') \n");
   printf ("  -R <hex>      Enter RAW Data for Packet Data Encoder as Hex Octets (up to 823 octets).\n");
   printf ("                (example: -R 91F0F2B42B20ABC500C80424064000) for Packet GNSS Position @ Wally World) \n");
   printf ("                (example: -R 0749535320285A41525941290D0A31203235353434552039383036374120202032353332392E343437383939313120202E3030303133363634202030303030302D30202032353530382D3320302020393939370D0A32203235353434202035312E36333133203232382E303732362030303033383531203136362E34303632203139332E373033312031352E34393037323733313534303137300D0A00) for TLE Data) \n");
@@ -285,7 +283,7 @@ int main (int argc, char **argv)
 
   //process user CLI optargs (try to keep them alphabetized for my personal sanity)
   //NOTE: Try to observe conventions that lower case is decoder, UPPER is ENCODER, numerical 0-9 are for debug related testing
-  while ((c = getopt (argc, argv, "^:*:!1234567890ac:d:e:f:g:hi:j:k:l:mno:prs:t:uv:w:xA:BC:DE:F:IJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
+  while ((c = getopt (argc, argv, "^:*:!1234567890ac:d:e:f:g:hi:j:k:l:mno:prs:t:uv:w:xBC:DE:F:IJ:K:LM:NOPQR:S:TU:VW:XY:Z:")) != -1)
   {
 
     i++;
@@ -579,14 +577,6 @@ int main (int argc, char **argv)
       case 'x':
         super.opts.inverted_signal = 1;
         fprintf (stderr, "Expecting Inverted M17 Signal Input \n");
-        break;
-
-      //Specify M17 STR Encoder Arbitrary Data For 1600
-      case 'A':
-        strncpy(super.m17e.arb, optarg, 772);
-        super.m17e.arb[772] = '\0';
-        super.opts.m17_str_encoder_dt = 3;
-        memcpy (super.m17d.arb, super.m17e.arb, 772);
         break;
 
       //Enable Encoder / TX and RX Packet Bursts
