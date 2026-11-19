@@ -9,8 +9,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#define SPEC_VERSION "2.1.0"
-#define SPEC_DATE "Nov 18, 2026"
+#define SPEC_VERSION "2.1.1"
+#define SPEC_DATE "Nov 19, 2026"
 
 #define PI 3.141592653
 
